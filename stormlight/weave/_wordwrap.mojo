@@ -7,7 +7,7 @@ fn add_newline(inout s: String):
 
 # TODO: Probably pretty inefficient
 fn add_word(inout s: String, word: String):
-    if s == "" or s[-1].find("\n") != 1:
+    if s == "" or s[-1].find("\n") == 1:
         s += word
     else:
         s += " " + word

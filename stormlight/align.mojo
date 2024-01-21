@@ -1,4 +1,5 @@
 import stormlight.position
+from stormlight.weave._ansi import len_without_ansi
 from stormlight.position import Position
 from stormlight.mist import TerminalStyle
 from stormlight.math import max, min
@@ -17,23 +18,20 @@ fn align_text_horizontal(
     var widest_line: Int = 0
     for i in range(lines.size):
         # TODO: Should be rune length instead of str length. Some runes are longer than 1 char.
-        if len(lines[i]) > widest_line:
-            widest_line = len(lines[i])
+        if len_without_ansi(lines[i]) > widest_line:
+            widest_line = len_without_ansi(lines[i])
 
     # TODO: Use string builder or buffered writer for this later.
     var aligned_text: String = ""
     for i in range(lines.size):
-        let line = lines[i]
-        let line_width = len(line)  # TODO: Should be rune length
+        var line = lines[i]
+        let line_width = len_without_ansi(line)  # TODO: Should be rune length
 
         var short_amount = widest_line - line_width  # difference from the widest line
-        short_amount += max(
-            0, width - (short_amount + line_width)
-        )  # difference from the total width, if set
-
+        short_amount += max(0, width - (short_amount + line_width))  # difference from the total width, if set
         if short_amount > 0:
             if pos == position.right:
-                let spaces = __string__mul__(" ", short_amount)
+                var spaces = __string__mul__(" ", short_amount)
 
                 # Removed the nil check before rendering the spaces in whatever style for now.
                 spaces = style.render(spaces)
@@ -43,14 +41,14 @@ fn align_text_horizontal(
                 let left = short_amount / 2
                 let right = left + short_amount % 2
 
-                let left_spaces = __string__mul__(" ", int(left))
-                let right_spaces = __string__mul__(" ", int(right))
+                var left_spaces = __string__mul__(" ", int(left))
+                var right_spaces = __string__mul__(" ", int(right))
 
                 left_spaces = style.render(left_spaces)
                 right_spaces = style.render(right_spaces)
                 line = left_spaces + line + right_spaces
-            else:  # Left
-                let spaces = __string__mul__(" ", int(short_amount))
+            elif pos == position.left:
+                var spaces = __string__mul__(" ", int(short_amount))
                 spaces = style.render(spaces)
                 line += spaces
 
@@ -62,7 +60,7 @@ fn align_text_horizontal(
 
 
 fn align_text_vertical(text: String, pos: Position, height: Int) raises -> String:
-    var text_height = count(text, "\n") + 1
+    let text_height = count(text, "\n") + 1
     if height < text_height:
         return text
 

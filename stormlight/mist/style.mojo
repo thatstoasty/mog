@@ -107,8 +107,8 @@ struct TerminalStyle:
         self.styles.push_back(color.sequence(False))
 
     fn render(self, input: String) -> String:
-        var styling = String("")
+        var styling: String = ""
         for i in range(len(self.styles)):
             styling = styling + sgr_format(self.styles[i])
-
+        
         return styling + input + sgr_format(self.properties.reset)

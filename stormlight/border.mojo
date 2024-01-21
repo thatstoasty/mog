@@ -1,3 +1,5 @@
+from stormlight.weave._ansi import len_without_ansi
+
 @value
 struct Border:
     var top: String
@@ -72,6 +74,57 @@ struct Border:
             or self.middle != other.middle
             or self.middle_top != other.middle_top
         )
+
+
+fn ascii_border() -> Border:
+    return Border(
+        top="-",
+        bottom="_",
+        left="|",
+        right="|",
+        top_left="r",
+        top_right="|",
+        bottom_left="l",
+        bottom_right="|",
+        middle_left="t",
+        middle_right="t",
+        middle="+",
+        middle_top="T",
+    )
+
+
+fn star_border() -> Border:
+    return Border(
+        top="*",
+        bottom="*",
+        left="*",
+        right="*",
+        top_left="*",
+        top_right="*",
+        bottom_left="*",
+        bottom_right="*",
+        middle_left="*",
+        middle_right="*",
+        middle="*",
+        middle_top="*",
+    )
+
+
+fn plus_border() -> Border:
+    return Border(
+        top="+",
+        bottom="+",
+        left="+",
+        right="+",
+        top_left="+",
+        top_right="+",
+        bottom_left="+",
+        bottom_right="+",
+        middle_left="+",
+        middle_right="+",
+        middle="+",
+        middle_top="+",
+    )
 
 
 fn normal_border() -> Border:

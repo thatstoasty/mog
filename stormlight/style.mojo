@@ -1,6 +1,7 @@
 from stormlight.weave._wrap import wrap
 from stormlight.weave._wordwrap import wordwrap
 from stormlight.weave._truncate import truncate
+from stormlight.weave._ansi import len_without_ansi
 from stormlight.mist.color import Color, NoColor, ANSIColor, ANSI256Color, RGBColor
 from stormlight.mist import TerminalStyle
 from stormlight.stdlib.builtins import dict, HashableStr
@@ -20,6 +21,9 @@ from stormlight.border import (
     inner_half_block_border,
     outer_half_block_border,
     thick_border,
+    ascii_border,
+    star_border,
+    plus_border
 )
 from stormlight.align import align_text_horizontal, align_text_vertical
 from stormlight.math import max, min
@@ -133,8 +137,8 @@ struct Style:
     #     else:
     #         return ANSIColor(ansi_code)
 
-    fn get_as_color(self, key: HashableStr) raises -> RGBColor:
-        let val = self.rules.get(key, "#ffffff")
+    fn get_as_color(self, key: HashableStr, default: String = "#ffffff") raises -> RGBColor:
+        let val = self.rules.get(key, default)
         if val[1] == "#":
             return RGBColor(val)
 
@@ -168,6 +172,12 @@ struct Style:
             return outer_half_block_border()
         elif val == "thick_border":
             return thick_border()
+        elif val == "ascii_border":
+            return ascii_border()
+        elif val == "star_border":
+            return star_border()
+        elif val == "plus_border":
+            return plus_border()
         else:
             return no_border()
 
@@ -206,6 +216,42 @@ struct Style:
     fn faint(inout self):
         self.set_rule("faint", "True")
 
+    fn width(inout self, width: Int):
+        self.set_rule("width", width)
+    
+    fn height(inout self, height: Int):
+        self.set_rule("height", height)
+    
+    fn max_width(inout self, width: Int):
+        self.set_rule("max_width", width)
+    
+    fn max_height(inout self, height: Int):
+        self.set_rule("max_height", height)
+
+    fn horizontal_alignment(inout self, align: Position):
+        self.set_rule("horizontal_alignment", String(align))
+
+    fn vertical_alignment(inout self, align: Position):
+        self.set_rule("vertical_alignment", String(align))
+    
+    fn foreground(inout self, color: String):
+        self.set_rule("foreground", color)
+    
+    fn background(inout self, color: String):
+        self.set_rule("background", color)
+
+    fn border(inout self, border: String, top: Bool = True, right: Bool = True, bottom: Bool = True, left: Bool = True):
+        self.set_rule("border_style", border)
+
+        if top:
+            self.set_rule("border_top_key", "True")
+        if right:
+            self.set_rule("border_right_key", "True")
+        if bottom:
+            self.set_rule("border_bottom_key", "True")
+        if left:
+            self.set_rule("border_left_key", "True")
+
     fn maybe_convert_tabs(self, text: String) raises -> String:
         var default_tab_width: Int = tab_width
         if self.is_set("tab_width"):
@@ -243,10 +289,10 @@ struct Style:
         let bottom_fg = self.get_as_color("border_bottom_foreground_key")
         let left_fg = self.get_as_color("border_left_foreground_key")
 
-        let top_bg = self.get_as_color("border_top_background_key")
-        let right_bg = self.get_as_color("border_right_background_key")
-        let bottom_bg = self.get_as_color("border_bottom_background_key")
-        let left_bg = self.get_as_color("border_left_background_key")
+        let top_bg = self.get_as_color("border_top_background_key", "#000000")
+        let right_bg = self.get_as_color("border_right_background_key", "#000000")
+        let bottom_bg = self.get_as_color("border_bottom_background_key", "#000000")
+        let left_bg = self.get_as_color("border_left_background_key", "#000000")
 
         # If a border is set and no sides have been specifically turned on or off
         # render borders on all sideself.
@@ -269,11 +315,13 @@ struct Style:
         # TODO: Issues returning a memory only type in a tuple. Fix later.
         # result = get_lines(text)
         let lines = text.split("\n")
+
+        # TODO: Using len_without_ansi for now until I switch over to bytes buffer and Writers
         var width: Int = 0
         for i in range(lines.size):
             # TODO: Should be rune length instead of str length. Some runes are longer than 1 char.
-            if len(lines[i]) > width:
-                width = len(lines[i])
+            if len_without_ansi(lines[i]) > width:
+                width = len_without_ansi(lines[i])
 
         if has_left:
             if border.left == "":
@@ -343,6 +391,7 @@ struct Style:
         right_runes.append(border.right)
         var right_index = 0
 
+        # TODO: Do the ansi characters here impact the len of left and right runes? Need to check
         for i in range(lines.size):
             let line = lines[i]
             if has_left:
@@ -353,6 +402,8 @@ struct Style:
                     left_index = 0
 
                 styled_border += self.style_border(r, left_fg, left_bg)
+
+            styled_border += line
 
             if has_right:
                 let r = right_runes[right_index]
@@ -444,8 +495,8 @@ struct Style:
         let bottom_padding: Int = self.get_as_int("padding_bottom")
         let left_padding: Int = self.get_as_int("padding_left")
 
-        let horizontal_align: Position = self.get_as_position("align_horizontal")
-        let vertical_align: Position = self.get_as_position("align_vertical")
+        let horizontal_align: Position = self.get_as_position("horizontal_alignment")
+        let vertical_align: Position = self.get_as_position("vertical_alignment")
 
         let color_whitespace: Bool = self.get_as_bool("color_whitespace", True)
         let inline: Bool = self.get_as_bool("inline", False)
@@ -454,6 +505,9 @@ struct Style:
 
         let underline_spaces = underline and self.get_as_bool("underline_spaces", True)
         let crossout_spaces = crossout and self.get_as_bool("crossout_spaces", True)
+        # print(top_padding, left_padding, right_padding, bottom_padding)
+        # print(horizontal_align, vertical_align)
+        # print(width, height, max_width, max_height)
 
         # Do we need to style whitespace (padding and space outside paragraphs) separately?
         let style_whitespace = reverse
@@ -500,27 +554,37 @@ struct Style:
             input_text = input_text.replace("\n", "")
 
         # Word wrap
-        if not inline and width > 0:
+        if (not inline) and (width > 0):
             let wrap_at = width - left_padding - right_padding
             input_text = wordwrap(input_text, wrap_at)
             input_text = wrap(input_text, wrap_at)  # force-wrap long strings
 
-        var styled_text: String = ""
         input_text = self.maybe_convert_tabs(input_text)
 
+        # # Moved the alignment step before style rendering for now until I can get ansi character checking to work
+        # # to prevent all the extra spaces from being added.
+        # let number_of_lines = len(input_text.split("\n"))
+        # if not (number_of_lines == 0 and width == 0):
+        #     var st: TerminalStyle = TerminalStyle(self.r.color_profile)
+        #     if color_whitespace or style_whitespace:
+        #         st = term_style_whitespace
+        #     input_text = align_text_horizontal(input_text, horizontal_align, width, st)
+
+        var styled_text: String = ""
         let lines = input_text.split("\n")
         for i in range(lines.size):
             let line = lines[i]
 
             if use_space_styler:
                 # Look for spaces and apply a different styler
-                for i in range(len(line)):
+                for i in range(len_without_ansi(line)):
                     let character = line[i]
                     if character == " ":
                         styled_text += term_style_space.render(character)
                     else:
                         styled_text += term_style.render(character)
             else:
+                # TODO: the ansi characters are changing the length of the string in the alignment step.
                 styled_text += term_style.render(line)
 
             # Readd the newlines
@@ -554,6 +618,7 @@ struct Style:
             # Set alignment. This will also pad short lines with spaces so that all
             # lines are the same length, so we run it under a few different conditions
             # beyond alignment.
+            # TODO: Commented this out until I can get ansi character checking to work
             let number_of_lines = len(styled_text.split("\n"))
             if not (number_of_lines == 0 and width == 0):
                 var st: TerminalStyle = TerminalStyle(self.r.color_profile)

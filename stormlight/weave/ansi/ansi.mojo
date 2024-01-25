@@ -36,3 +36,24 @@ fn len_without_ansi(s: DynamicVector[Byte]) -> Int:
         elif not in_ansi:
             length += 1
     return length
+
+
+# TODO: Not actual rune length until utf8 encoding is implemented
+fn printable_rune_width(s: String) -> Int:
+    """Returns the cell width of the given string."""
+    var n: Int = 0
+    var ansi: Bool = False
+
+    for i in range(len(s)):
+        let c = s[i]
+        if c == Marker:
+            # ANSI escape sequence
+            ansi = True
+        elif ansi:
+            if is_terminator(ord(c)):
+                # ANSI sequence terminated
+                ansi = False
+        else:
+            n += len(c)
+
+    return n

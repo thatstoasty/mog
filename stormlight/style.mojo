@@ -249,6 +249,18 @@ struct Style:
             self.set_rule("border_bottom_key", "True")
         if left:
             self.set_rule("border_left_key", "True")
+    
+    fn padding_top(inout self, width: UInt8):
+        self.set_rule("padding_top", String(width))
+
+    fn padding_right(inout self, width: UInt8):
+        self.set_rule("padding_right", String(width))
+    
+    fn padding_bottom(inout self, width: UInt8):
+        self.set_rule("padding_bottom", String(width))
+    
+    fn padding_left(inout self, width: UInt8):
+        self.set_rule("padding_left", String(width))
 
     fn maybe_convert_tabs(self, text: String) raises -> String:
         var default_tab_width: Int = tab_width
@@ -555,7 +567,7 @@ struct Style:
         if (not inline) and (width > 0):
             let wrap_at = width - left_padding - right_padding
             input_text = wordwrap.to_string(input_text, wrap_at)
-            input_text = wrap.to_string(input_text, wrap_at)  # force-wrap long strings
+            # input_text = wrap.to_string(input_text, wrap_at)  # force-wrap long strings
 
         input_text = self.maybe_convert_tabs(input_text)
 

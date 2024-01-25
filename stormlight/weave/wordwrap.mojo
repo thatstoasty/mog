@@ -3,8 +3,8 @@ from stormlight.weave.gojo.bytes import bytes as bt
 from stormlight.weave.gojo.bytes.bytes import Byte
 from stormlight.weave.gojo.bytes.util import trim_null_characters
 from stormlight.weave.ansi import writer
-from stormlight.weave.ansi.ansi import is_terminator, Marker
-from stormlight.weave.stdlib.builtins.string import __string__mul__, strip, _ALL_WHITESPACES
+from stormlight.weave.ansi.ansi import is_terminator, Marker, printable_rune_width
+from stormlight.weave.stdlib.builtins.string import __string__mul__, strip
 from stormlight.weave.stdlib.builtins.vector import contains
 
 
@@ -55,18 +55,21 @@ struct WordWrap:
 		self.ansi = ansi
 
 	fn add_space(inout self) raises:
+		"""Write the content of the space buffer to the word-wrap buffer."""
 		self.line_len += self.space.len()
 		_ = self.buf.write(self.space.bytes())
 		self.space.reset()
 
 	fn add_word(inout self) raises:
+		"""Write the content of the word buffer to the word-wrap buffer."""
 		if self.word.len() > 0:
 			self.add_space()
-			self.line_len += self.word.len()
+			self.line_len += printable_rune_width(self.word.string())
 			_ = self.buf.write(self.word.bytes())
 			self.word.reset()
 
 	fn add_newline(inout self) raises:
+		"""Write a newline to the word-wrap buffer and reset the line length & space buffer."""
 		_ = self.buf.write_byte(ord(self.newline))
 		self.line_len = 0
 		self.space.reset()
@@ -106,7 +109,6 @@ struct WordWrap:
 
 				self.add_word()
 				self.add_newline()
-			# elif contains(String(_ALL_WHITESPACES), s[i]):
 			elif s[i] == " ":
 				# end of current word
 				self.add_word()
@@ -123,8 +125,8 @@ struct WordWrap:
 				# add a line break if the current word would exceed the line's
 				# character limit
 				if (
-					self.line_len + self.space.len() + self.word.len() > self.limit
-					and self.word.len() < self.limit
+					self.line_len + self.space.len() + printable_rune_width(self.word.string()) > self.limit
+					and printable_rune_width(self.word.string()) < self.limit
 				):
 					self.add_newline()
 

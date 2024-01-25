@@ -2,7 +2,7 @@ from stormlight.weave.gojo.bytes import buffer
 from stormlight.weave.gojo.bytes import bytes as bt
 from stormlight.weave.gojo.bytes.bytes import Byte
 from stormlight.weave.ansi import writer
-from stormlight.weave.ansi.ansi import is_terminator, Marker
+from stormlight.weave.ansi.ansi import is_terminator, Marker, printable_rune_width
 from stormlight.weave.stdlib.builtins.string import __string__mul__
 
 
@@ -58,7 +58,7 @@ struct Wrap:
         if not self.keep_newlines:
             s = s.replace("\n", "")
 
-        let width = len(s)
+        let width = printable_rune_width(s)
         if self.limit <= 0 or self.line_len + width <= self.limit:
             self.line_len += width
             return self.buf.write(b)
@@ -73,6 +73,7 @@ struct Wrap:
             elif c == "\n":
                 self.add_newline()
                 self.forceful_newline = False
+                continue
             else:
                 let width = len(c)
 
@@ -125,10 +126,3 @@ fn to_string(s: String, limit: Int) raises -> String:
 
     return bt.to_string(b)
 
-
-fn in_group(a: DynamicVector[Byte], c: Byte) -> Bool:
-    for i in range(len(a)):
-        let v = a[i]
-        if v == c:
-            return True
-    return False

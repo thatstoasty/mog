@@ -1,5 +1,5 @@
 import stormlight.position
-from stormlight.weave._ansi import len_without_ansi
+from stormlight.weave.ansi.ansi import len_without_ansi
 from stormlight.position import Position
 from stormlight.mist import TerminalStyle
 from stormlight.math import max, min

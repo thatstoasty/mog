@@ -1,4 +1,4 @@
-from stormlight.weave._ansi import len_without_ansi
+from stormlight.weave.ansi.ansi import len_without_ansi
 
 @value
 struct Border:

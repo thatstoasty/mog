@@ -1,7 +1,3 @@
-from stormlight.weave._wrap import wrap
-from stormlight.weave._wordwrap import wordwrap
-from stormlight.weave._truncate import truncate
-from stormlight.weave._ansi import len_without_ansi
 from stormlight.mist.color import Color, NoColor, ANSIColor, ANSI256Color, RGBColor
 from stormlight.mist import TerminalStyle
 from stormlight.stdlib.builtins import dict, HashableStr
@@ -25,9 +21,11 @@ from stormlight.border import (
     star_border,
     plus_border
 )
-from stormlight.align import align_text_horizontal, align_text_vertical
 from stormlight.math import max, min
+from stormlight.weave import wrap, wordwrap, truncate
 from stormlight.extensions import get_slice
+from stormlight.weave.ansi.ansi import len_without_ansi
+from stormlight.align import align_text_horizontal, align_text_vertical
 
 alias tab_width: Int = 4
 
@@ -556,8 +554,8 @@ struct Style:
         # Word wrap
         if (not inline) and (width > 0):
             let wrap_at = width - left_padding - right_padding
-            input_text = wordwrap(input_text, wrap_at)
-            input_text = wrap(input_text, wrap_at)  # force-wrap long strings
+            input_text = wordwrap.to_string(input_text, wrap_at)
+            input_text = wrap.to_string(input_text, wrap_at)  # force-wrap long strings
 
         input_text = self.maybe_convert_tabs(input_text)
 
@@ -574,7 +572,6 @@ struct Style:
         let lines = input_text.split("\n")
         for i in range(lines.size):
             let line = lines[i]
-
             if use_space_styler:
                 # Look for spaces and apply a different styler
                 for i in range(len_without_ansi(line)):
@@ -619,23 +616,23 @@ struct Style:
             # lines are the same length, so we run it under a few different conditions
             # beyond alignment.
             # TODO: Commented this out until I can get ansi character checking to work
-            let number_of_lines = len(styled_text.split("\n"))
-            if not (number_of_lines == 0 and width == 0):
-                var st: TerminalStyle = TerminalStyle(self.r.color_profile)
-                if color_whitespace or style_whitespace:
-                    st = term_style_whitespace
-                styled_text = align_text_horizontal(styled_text, horizontal_align, width, st)
+            # let number_of_lines = len(styled_text.split("\n"))
+            # if not (number_of_lines == 0 and width == 0):
+            #     var st: TerminalStyle = TerminalStyle(self.r.color_profile)
+            #     if color_whitespace or style_whitespace:
+            #         st = term_style_whitespace
+            #     styled_text = align_text_horizontal(styled_text, horizontal_align, width, st)
 
-            if not inline:
-                styled_text = self.apply_border(styled_text)
-                styled_text = self.apply_margins(styled_text, inline)
+            # if not inline:
+            #     styled_text = self.apply_border(styled_text)
+            #     styled_text = self.apply_margins(styled_text, inline)
 
             # Truncate according to max_width
             if max_width > 0:
                 var lines = styled_text.split("\n")
 
                 for i in range(lines.size):
-                    lines[i] = truncate(lines[i], max_width)
+                    lines[i] = truncate.to_string(lines[i], max_width)
 
                 styled_text = join("\n", lines)
 
@@ -647,5 +644,17 @@ struct Style:
 
             # if transform:
             #     return transform(styled_text)
+        
+        # Apply border at the end
+        let number_of_lines = len(styled_text.split("\n"))
+        if not (number_of_lines == 0 and width == 0):
+            var st: TerminalStyle = TerminalStyle(self.r.color_profile)
+            if color_whitespace or style_whitespace:
+                st = term_style_whitespace
+            styled_text = align_text_horizontal(styled_text, horizontal_align, width, st)
+
+        if not inline:
+            styled_text = self.apply_border(styled_text)
+            styled_text = self.apply_margins(styled_text, inline)
 
         return styled_text

@@ -1,20 +1,27 @@
-fn dedent(s: String) -> String:
+from stormlight.weave.gojo.bytes import buffer
+from stormlight.weave.gojo.bytes.bytes import Byte
+
+
+# String automatically detects the maximum indentation shared by all lines and
+# trims them accordingly.
+fn to_string(s: String) raises -> String:
     let indent = min_indent(s)
     if indent == 0:
         return s
 
-    return apply_dedent(s, indent)
+    return dedent(s, indent)
 
 
 fn min_indent(s: String) -> Int:
     var cur_indent: Int = 0
     var min_indent: Int = 0
-    var should_append: Bool = True
-
+    var should_append = True
     var i: Int = 0
+
     while i < len(s):
-        if (s[i] == " " or s[i] == "\t") and should_append:
-            cur_indent += 1
+        if s[i] == "\t" or s[i] == " ":
+            if should_append:
+                cur_indent += 1
         elif s[i] == "\n":
             cur_indent = 0
             should_append = True
@@ -23,29 +30,30 @@ fn min_indent(s: String) -> Int:
                 min_indent = cur_indent
                 cur_indent = 0
             should_append = False
+
         i += 1
 
     return min_indent
 
 
-fn apply_dedent(s: String, indent: Int) -> String:
-    var modified: String = ""
+fn dedent(s: String, indent: Int) raises -> String:
     var omitted: Int = 0
-
+    var vec = DynamicVector[Byte]()
+    var buf: buffer.Buffer = buffer.new_buffer(buf=vec)
     var i: Int = 0
+
     while i < len(s):
-        # Omit space or tab if we haven't omitted enough to match the target dedent.
-        # On a new line, reset the omitted counter.
-        if s[i] == " " or s[i] == "\t":
+        if s[i] == "\t" or s[i] == " ":
             if omitted < indent:
                 omitted += 1
             else:
-                modified += s[i]
+                _ = buf.write_byte(ord(s[i]))
         elif s[i] == "\n":
             omitted = 0
-            modified += s[i]
+            _ = buf.write_byte(ord(s[i]))
         else:
-            modified += s[i]
+            _ = buf.write_byte(ord(s[i]))
+
         i += 1
 
-    return modified
+    return buf.string()

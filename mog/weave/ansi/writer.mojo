@@ -1,6 +1,6 @@
-from stormlight.weave.gojo.bytes import buffer
-from stormlight.weave.gojo.bytes.bytes import Byte, has_suffix
-from stormlight.weave.ansi.ansi import Marker, is_terminator
+from mog.weave.gojo.bytes import buffer
+from mog.weave.gojo.bytes.bytes import Byte, has_suffix
+from mog.weave.ansi.ansi import Marker, is_terminator
 
 
 @value

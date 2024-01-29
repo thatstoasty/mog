@@ -1,9 +1,10 @@
-from stormlight.mist.stdlib.builtins.vector import contains
-from stormlight.mist.color import (
+from mog.mist.collections import contains
+from mog.mist.color import (
     NoColor,
     ANSIColor,
     ANSI256Color,
     RGBColor,
+    AnyColor,
     hex_to_ansi256,
     ansi256_to_ansi,
     hex_to_rgb,
@@ -14,79 +15,83 @@ from stormlight.mist.color import (
 # For now, we can't really make use of the color degradation functions here.
 @value
 struct Profile:
-    var setting: String
+    var value: String
+    var valid: DynamicVector[String]
 
-    fn __init__(inout self, setting: String = "TrueColor") raises:
+    fn __init__(inout self, value: String = "TrueColor") raises:
         """
-        Initialize a new profile with the given setting.
+        Initialize a new profile with the given profile type.
 
         Args:
-            setting: The setting to use for this profile. Valid values: ["TrueColor", "ANSI256", "ANSI", "ASCII"].
+            value: The setting to use for this profile. Valid values: ["TrueColor", "ANSI256", "ANSI", "ASCII"].
         """
         var valid: DynamicVector[String] = DynamicVector[String]()
         valid.append("TrueColor")
         valid.append("ANSI256")
         valid.append("ANSI")
         valid.append("ASCII")
+        self.valid = valid
+        self.value = value
+        self.validate_value(value)
 
-        if not contains(valid, setting):
+    fn validate_value(self, value: String) raises -> None:
+        if not contains(self.valid, value):
             raise Error(
                 "Invalid setting, valid values are ['TrueColor', 'ANSI256', 'ANSI',"
                 " 'ASCII']"
             )
 
-        self.setting = setting
+    fn set_setting(inout self, value: String) raises:
+        self.validate_value(value)
+        self.value = value
 
-    fn set_setting(inout self, setting: String):
-        self.setting = setting
-
-    # can't check types yet, so each convert function takes a different type of color and can return any color
-    fn convert[T: Color](self, color: ANSIColor) -> T:
-        if self.setting == "ASCII":
+    fn convert(self, color: AnyColor) raises -> AnyColor:
+        if self.value == "ASCII":
             return NoColor()
 
-        return color
+        if color.isa[NoColor]():
+            return color.get[NoColor]()
+        elif color.isa[ANSIColor]():
+            return color.get[ANSIColor]()
+        elif color.isa[ANSI256Color]():
+            if self.value == "ANSI":
+                return ansi256_to_ansi(color.get[ANSIColor]().value)
 
-    fn convert[T: Color](self, color: ANSI256Color) raises -> T:
-        if self.setting == "ASCII":
-            return NoColor()
+            return color.get[ANSI256Color]()
+        elif color.isa[RGBColor]():
+            let h = hex_to_rgb(color.get[RGBColor]().value)
 
-        if self.setting == "ANSI":
-            return ansi256_to_ansi(color.value)
+            if self.value != "TrueColor":
+                let ansi256 = hex_to_ansi256(h)
+                if self.value == "ANSI":
+                    return ansi256_to_ansi(ansi256.value)
 
-        return color
+                return ansi256
 
-    fn convert[T: Color](self, color: RGBColor) raises -> T:
-        if self.setting == "ASCII":
-            return NoColor()
+            return color.get[RGBColor]()
 
-        let h = hex_to_rgb(color.value)
+        # If it somehow gets here, just return No Color until I can figure out how to just return whatever color was passed in.
+        return color.get[NoColor]()
 
-        if self.setting != "TrueColor":
-            let ansi256 = hex_to_ansi256(h)
-            if self.setting == "ANSI":
-                return ansi256_to_ansi(ansi256.value)
-
-            return ansi256
-
-        return color
-
-    fn color[T: Color](self, s: String) raises -> T:
+    fn color(self, s: String) raises -> AnyColor:
         """Color creates a Color from a string. Valid inputs are hex colors, as well as
         ANSI color codes (0-15, 16-255)."""
         if len(s) == 0:
             raise Error("No string passed to color function for formatting!")
 
+        if self.value == "ASCII":
+            return NoColor()
+
         if s[0] == "#":
             let c = RGBColor(s)
-            return self.convert[RGBColor](c)
+            return self.convert(c)
         else:
             let i = atol(s)
             if i < 16:
                 let c = ANSIColor(i)
-                return self.convert[ANSIColor](c)
+                return self.convert(c)
             elif i < 256:
                 let c = ANSI256Color(i)
-                return self.convert[ANSI256Color](c)
+                return self.convert(c)
             else:
                 raise Error("Invalid color code, must be between 0 and 255")

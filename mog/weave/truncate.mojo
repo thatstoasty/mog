@@ -1,10 +1,10 @@
-from stormlight.weave.gojo.bytes import buffer
-from stormlight.weave.gojo.bytes import bytes as bt
-from stormlight.weave.gojo.bytes.bytes import Byte
-from stormlight.weave.ansi import writer
-from stormlight.weave.ansi.ansi import is_terminator, Marker, printable_rune_width
-from stormlight.weave.stdlib.builtins.string import __string__mul__, strip
-from stormlight.weave.stdlib.builtins.vector import contains
+from mog.weave.gojo.bytes import buffer
+from mog.weave.gojo.bytes import bytes as bt
+from mog.weave.gojo.bytes.bytes import Byte
+from mog.weave.ansi import writer
+from mog.weave.ansi.ansi import is_terminator, Marker, printable_rune_width
+from mog.weave.stdlib.builtins.string import __string__mul__, strip
+from mog.weave.stdlib.builtins.vector import contains
 
 
 struct Writer:
@@ -102,7 +102,7 @@ fn bytes_with_tail(
 
 # String is shorthand for declaring a new default truncate-writer instance,
 # used to immediately truncate a string.
-fn to_string(s: String, width: UInt8) raises -> String:
+fn string(s: String, width: UInt8) raises -> String:
     return string_with_tail(s, width, "")
 
 

@@ -1,10 +1,10 @@
-from stormlight.weave.gojo.bytes import buffer
-from stormlight.weave.gojo.bytes import bytes as bt
-from stormlight.weave.gojo.bytes.bytes import Byte
-from stormlight.weave.ansi import writer
-from stormlight.weave.ansi.ansi import is_terminator, Marker
-from stormlight.weave.stdlib.builtins.string import __string__mul__, strip
-from stormlight.weave.stdlib.builtins.vector import contains
+from mog.weave.gojo.bytes import buffer
+from mog.weave.gojo.bytes import bytes as bt
+from mog.weave.gojo.bytes.bytes import Byte
+from mog.weave.ansi import writer
+from mog.weave.ansi.ansi import is_terminator, Marker
+from mog.weave.stdlib.builtins.string import __string__mul__, strip
+from mog.weave.stdlib.builtins.vector import contains
 
 
 @value
@@ -103,8 +103,7 @@ fn new_writer(width: UInt8) raises -> Writer:
 
 # Bytes is shorthand for declaring a new default padding-writer instance,
 # used to immediately pad a byte slice.
-fn bytes(
-    b: DynamicVector[Byte], width: UInt8) raises -> DynamicVector[Byte]:
+fn bytes(b: DynamicVector[Byte], width: UInt8) raises -> DynamicVector[Byte]:
     var f = new_writer(width)
     _ = f.write(b)
     _ = f.flush()
@@ -114,7 +113,7 @@ fn bytes(
 
 # String is shorthand for declaring a new default padding-writer instance,
 # used to immediately pad a string.
-fn to_string(s: String, width: UInt8) raises -> String:
+fn string(s: String, width: UInt8) raises -> String:
     let buf = s._buffer
     let b = bytes(buf, width)
 

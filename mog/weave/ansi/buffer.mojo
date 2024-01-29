@@ -1,1 +1,1 @@
-from stormlight.weave.gojo.bytes import buffer
+from mog.weave.gojo.bytes import buffer

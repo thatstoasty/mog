@@ -1,10 +1,10 @@
-from stormlight.weave.gojo.bytes import buffer
-from stormlight.weave.gojo.bytes import bytes as bt
-from stormlight.weave.gojo.bytes.bytes import Byte
-from stormlight.weave.ansi import writer
-from stormlight.weave.ansi.ansi import is_terminator, Marker
-from stormlight.weave.stdlib.builtins.string import __string__mul__, strip, _ALL_WHITESPACES
-from stormlight.weave.stdlib.builtins.vector import contains
+from mog.weave.gojo.bytes import buffer
+from mog.weave.gojo.bytes import bytes as bt
+from mog.weave.gojo.bytes.bytes import Byte
+from mog.weave.ansi import writer
+from mog.weave.ansi.ansi import is_terminator, Marker
+from mog.weave.stdlib.builtins.string import __string__mul__, strip, _ALL_WHITESPACES
+from mog.weave.stdlib.builtins.vector import contains
 
 
 struct Writer:
@@ -60,7 +60,7 @@ fn bytes(
 
 # String is shorthand for declaring a new default margin-writer instance,
 # used to immediately apply margin a string.
-fn to_string(s: String, width: UInt8, margin: UInt8) raises -> String:
+fn string(s: String, width: UInt8, margin: UInt8) raises -> String:
     let buf = s._buffer
     let b = bytes(buf, width, margin)
 

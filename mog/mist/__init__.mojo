@@ -1,3 +1,3 @@
-from stormlight.mist.color import Color
-from stormlight.mist.style import TerminalStyle
-from stormlight.mist.profile import Profile
+from mog.mist.color import Color
+from mog.mist.style import TerminalStyle
+from mog.mist.profile import Profile

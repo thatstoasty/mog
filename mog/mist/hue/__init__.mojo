@@ -1,2 +1,2 @@
-from stormlight.mist.hue.color import RGB
-from stormlight.mist.hue.math import max_float64
+from mog.mist.hue.color import RGB
+from mog.mist.hue.math import max_float64

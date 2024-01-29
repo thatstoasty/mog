@@ -1,4 +1,4 @@
-from stormlight.weave.gojo.bytes.bytes import Byte
+from mog.weave.gojo.bytes.bytes import Byte
 
 alias Marker = "\x1B"
 alias Rune = Int32

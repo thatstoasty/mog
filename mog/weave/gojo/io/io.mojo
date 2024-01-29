@@ -1,5 +1,5 @@
-from stormlight.weave.gojo.bytes.bytes import Byte
-from stormlight.weave.gojo.collections import get_slice
+from mog.weave.gojo.bytes.bytes import Byte
+from mog.weave.gojo.collections import get_slice
 
 alias Rune = Int32
 

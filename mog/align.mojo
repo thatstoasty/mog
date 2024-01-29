@@ -1,10 +1,10 @@
-import stormlight.position
-from stormlight.weave.ansi.ansi import len_without_ansi
-from stormlight.position import Position
-from stormlight.mist import TerminalStyle
-from stormlight.math import max, min
-from stormlight.extensions import count
-from stormlight.stdlib.builtins.string import __string__mul__
+import mog.position
+from mog.weave.ansi.ansi import len_without_ansi
+from mog.position import Position
+from mog.mist import TerminalStyle
+from mog.math import max, min
+from mog.extensions import count
+from mog.stdlib.builtins.string import __string__mul__
 
 
 # Perform text alignment. If the string is multi-lined, we also make all lines
@@ -28,7 +28,9 @@ fn align_text_horizontal(
         let line_width = len_without_ansi(line)  # TODO: Should be rune length
 
         var short_amount = widest_line - line_width  # difference from the widest line
-        short_amount += max(0, width - (short_amount + line_width))  # difference from the total width, if set
+        short_amount += max(
+            0, width - (short_amount + line_width)
+        )  # difference from the total width, if set
         if short_amount > 0:
             if pos == position.right:
                 var spaces = __string__mul__(" ", short_amount)

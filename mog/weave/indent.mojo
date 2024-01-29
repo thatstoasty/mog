@@ -1,9 +1,9 @@
-from stormlight.weave.gojo.bytes import buffer
-from stormlight.weave.gojo.bytes import bytes as bt
-from stormlight.weave.gojo.bytes.bytes import Byte
-from stormlight.weave.ansi import writer
-from stormlight.weave.ansi.ansi import is_terminator
-from stormlight.weave.stdlib.builtins.string import __string__mul__
+from mog.weave.gojo.bytes import buffer
+from mog.weave.gojo.bytes import bytes as bt
+from mog.weave.gojo.bytes.bytes import Byte
+from mog.weave.ansi import writer
+from mog.weave.ansi.ansi import is_terminator
+from mog.weave.stdlib.builtins.string import __string__mul__
 
 
 @value
@@ -91,7 +91,7 @@ fn bytes(inout b: DynamicVector[Byte], indent: UInt8) raises -> DynamicVector[By
 
 # String is shorthand for declaring a new default indent-writer instance,
 # used to immediately indent a string.
-fn to_string(s: String, indent: UInt8) raises -> String:
+fn string(s: String, indent: UInt8) raises -> String:
     var buf = s._buffer
     let b = bytes(buf, indent)
 

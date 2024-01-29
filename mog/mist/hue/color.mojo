@@ -1,4 +1,4 @@
-from stormlight.mist.hue.math import cube, clamp01, sq, pi, max_float64
+from mog.mist.hue.math import cube, clamp01, sq, pi, max_float64
 
 
 fn clamped(rgb: RGB) -> RGB:

@@ -1,4 +1,4 @@
-from stormlight.weave.gojo.bytes.bytes import Byte
+from mog.weave.gojo.bytes.bytes import Byte
 
 
 fn trim_null_characters(b: DynamicVector[Byte]) -> DynamicVector[Byte]:

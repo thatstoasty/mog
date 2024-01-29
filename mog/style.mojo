@@ -1,11 +1,11 @@
-from stormlight.mist.color import Color, NoColor, ANSIColor, ANSI256Color, RGBColor
-from stormlight.mist import TerminalStyle
-from stormlight.stdlib.builtins import dict, HashableStr
-from stormlight.stdlib.builtins.vector import contains
-from stormlight.stdlib.builtins.string import __string__mul__, join
-from stormlight.renderer import Renderer
-from stormlight.position import Position
-from stormlight.border import (
+from mog.mist.color import Color, NoColor, ANSIColor, ANSI256Color, RGBColor, AnyColor
+from mog.mist import TerminalStyle
+from mog.stdlib.builtins import dict, HashableStr
+from mog.stdlib.builtins.vector import contains
+from mog.stdlib.builtins.string import __string__mul__, join
+from mog.renderer import Renderer
+from mog.position import Position
+from mog.border import (
     Border,
     render_horizontal_edge,
     no_border,
@@ -19,13 +19,13 @@ from stormlight.border import (
     thick_border,
     ascii_border,
     star_border,
-    plus_border
+    plus_border,
 )
-from stormlight.math import max, min
-from stormlight.weave import wrap, wordwrap, truncate
-from stormlight.extensions import get_slice
-from stormlight.weave.ansi.ansi import len_without_ansi
-from stormlight.align import align_text_horizontal, align_text_vertical
+from mog.math import max, min
+from mog.weave import wrap, wordwrap, truncate
+from mog.extensions import get_slice
+from mog.weave.ansi.ansi import len_without_ansi
+from mog.align import align_text_horizontal, align_text_vertical
 
 alias tab_width: Int = 4
 
@@ -121,26 +121,19 @@ struct Style:
 
         return to_bool(val)
 
-    # fn get_as_color[T: Color](self, key: HashableStr) raises -> T:
-    #     var val = self.rules.get(key, "NoColor")
-    #     if val == "NoColor":
-    #         return NoColor()
+    fn get_as_color(self, key: HashableStr) raises -> AnyColor:
+        let val = self.rules.get(key, "")
+        if val == "":
+            return NoColor()
 
-    #     if val[1] == "#" :
-    #         return RGBColor(val)
-
-    #     let ansi_code: Int = atol(val)
-    #     if ansi_code > 16 :
-    #         return ANSI256Color(ansi_code)
-    #     else:
-    #         return ANSIColor(ansi_code)
-
-    fn get_as_color(self, key: HashableStr, default: String = "#ffffff") raises -> RGBColor:
-        let val = self.rules.get(key, default)
-        if val[1] == "#":
+        if val[0] == "#":
             return RGBColor(val)
 
-        return RGBColor(val)
+        let ansi_code: Int = atol(val)
+        if ansi_code > 16 :
+            return ANSI256Color(ansi_code)
+        else:
+            return ANSIColor(ansi_code)
 
     fn get_as_int(self, key: HashableStr, default: Int = 0) raises -> Int:
         let val = self.rules.get(key, String(default))
@@ -216,13 +209,13 @@ struct Style:
 
     fn width(inout self, width: Int):
         self.set_rule("width", width)
-    
+
     fn height(inout self, height: Int):
         self.set_rule("height", height)
-    
+
     fn max_width(inout self, width: Int):
         self.set_rule("max_width", width)
-    
+
     fn max_height(inout self, height: Int):
         self.set_rule("max_height", height)
 
@@ -231,14 +224,21 @@ struct Style:
 
     fn vertical_alignment(inout self, align: Position):
         self.set_rule("vertical_alignment", String(align))
-    
+
     fn foreground(inout self, color: String):
         self.set_rule("foreground", color)
-    
+
     fn background(inout self, color: String):
         self.set_rule("background", color)
 
-    fn border(inout self, border: String, top: Bool = True, right: Bool = True, bottom: Bool = True, left: Bool = True):
+    fn border(
+        inout self,
+        border: String,
+        top: Bool = True,
+        right: Bool = True,
+        bottom: Bool = True,
+        left: Bool = True,
+    ):
         self.set_rule("border_style", border)
 
         if top:
@@ -249,16 +249,16 @@ struct Style:
             self.set_rule("border_bottom_key", "True")
         if left:
             self.set_rule("border_left_key", "True")
-    
+
     fn padding_top(inout self, width: UInt8):
         self.set_rule("padding_top", String(width))
 
     fn padding_right(inout self, width: UInt8):
         self.set_rule("padding_right", String(width))
-    
+
     fn padding_bottom(inout self, width: UInt8):
         self.set_rule("padding_bottom", String(width))
-    
+
     fn padding_left(inout self, width: UInt8):
         self.set_rule("padding_left", String(width))
 
@@ -274,7 +274,7 @@ struct Style:
         else:
             return text.replace("\t", __string__mul__(" ", default_tab_width))
 
-    fn style_border(self, border: String, fg: RGBColor, bg: RGBColor) raises -> String:
+    fn style_border(self, border: String, fg: AnyColor, bg: AnyColor) raises -> String:
         var styler: TerminalStyle = TerminalStyle(self.r.color_profile)
 
         styler.foreground(fg)
@@ -294,15 +294,17 @@ struct Style:
         var has_bottom = self.get_as_bool("border_bottom_key", False)
         var has_left = self.get_as_bool("border_left_key", False)
 
+        # FG Colors
         let top_fg = self.get_as_color("border_top_foreground_key")
         let right_fg = self.get_as_color("border_right_foreground_key")
         let bottom_fg = self.get_as_color("border_bottom_foreground_key")
         let left_fg = self.get_as_color("border_left_foreground_key")
 
-        let top_bg = self.get_as_color("border_top_background_key", "#000000")
-        let right_bg = self.get_as_color("border_right_background_key", "#000000")
-        let bottom_bg = self.get_as_color("border_bottom_background_key", "#000000")
-        let left_bg = self.get_as_color("border_left_background_key", "#000000")
+        # BG Colors
+        let top_bg = self.get_as_color("border_top_background_key")
+        let right_bg = self.get_as_color("border_right_background_key")
+        let bottom_bg = self.get_as_color("border_bottom_background_key")
+        let left_bg = self.get_as_color("border_left_background_key")
 
         # If a border is set and no sides have been specifically turned on or off
         # render borders on all sideself.
@@ -444,7 +446,6 @@ struct Style:
         let right_margin = self.get_as_int("margin_right_key")
         let bottom_margin = self.get_as_int("margin_bottom_key")
         let left_margin = self.get_as_int("margin_left_key")
-        print(top_margin, left_margin, right_margin, bottom_margin)
 
         var styler: TerminalStyle = TerminalStyle(self.r.color_profile)
 
@@ -496,8 +497,8 @@ struct Style:
         let blink: Bool = self.get_as_bool("blink", False)
         let faint: Bool = self.get_as_bool("faint", False)
 
-        let fg: RGBColor = self.get_as_color("foreground")
-        # let bg: RGBColor               = self.get_as_color("background")
+        let fg = self.get_as_color("foreground")
+        let bg = self.get_as_color("background")
 
         let width: Int = self.get_as_int("width")
         let height: Int = self.get_as_int("height")
@@ -516,8 +517,6 @@ struct Style:
 
         let underline_spaces = underline and self.get_as_bool("underline_spaces", True)
         let crossout_spaces = crossout and self.get_as_bool("crossout_spaces", True)
-        # print(horizontal_align, vertical_align)
-        # print(width, height, max_width, max_height)
 
         # Do we need to style whitespace (padding and space outside paragraphs) separately?
         let style_whitespace = reverse
@@ -536,24 +535,19 @@ struct Style:
             term_style.italic()
         if underline:
             term_style.underline()
-        # if reverse:
-        #     te.bold()
+        if reverse:
+            term_style.reverse()
         if blink:
             term_style.blink()
-        # if faint:
-        #     te.faint()
+        if faint:
+            term_style.faint()
         if crossout:
             term_style.crossout()
 
-        # TODO: Can't check color typing until trait variables are added
-        # if fg != NoColor():
-        #     te.foreground(fg)
-        # if bg != NoColor():
-        #     te.background(bg)
-        term_style.foreground(fg)
-
-        # Leaving bg commented out for now until I can return NoColor() from get_as_color
-        # te.background(bg)
+        if not fg.isa[NoColor]():
+            term_style.foreground(fg)
+        if not bg.isa[NoColor]():
+            term_style.background(bg)
 
         if underline_spaces:
             term_style_space.underline()
@@ -566,19 +560,10 @@ struct Style:
         # Word wrap
         if (not inline) and (width > 0):
             let wrap_at = width - left_padding - right_padding
-            input_text = wordwrap.to_string(input_text, wrap_at)
-            input_text = wrap.to_string(input_text, wrap_at)  # force-wrap long strings
+            input_text = wordwrap.string(input_text, wrap_at)
+            input_text = wrap.string(input_text, wrap_at)  # force-wrap long strings
 
         input_text = self.maybe_convert_tabs(input_text)
-
-        # # Moved the alignment step before style rendering for now until I can get ansi character checking to work
-        # # to prevent all the extra spaces from being added.
-        # let number_of_lines = len(input_text.split("\n"))
-        # if not (number_of_lines == 0 and width == 0):
-        #     var st: TerminalStyle = TerminalStyle(self.r.color_profile)
-        #     if color_whitespace or style_whitespace:
-        #         st = term_style_whitespace
-        #     input_text = align_text_horizontal(input_text, horizontal_align, width, st)
 
         var styled_text: String = ""
         let lines = input_text.split("\n")
@@ -593,78 +578,63 @@ struct Style:
                     else:
                         styled_text += term_style.render(character)
             else:
-                # TODO: the ansi characters are changing the length of the string in the alignment step.
                 styled_text += term_style.render(line)
 
             # Readd the newlines
             if i != len(lines) - 1:
                 styled_text += "\n"
 
-            # Padding
-            # TODO: Somehow padding gets called twice?? All the padding is doubled
-            if not inline:
-                if left_padding > 0:
-                    var st: TerminalStyle = TerminalStyle(self.r.color_profile)
-                    if color_whitespace or style_whitespace:
-                        st = term_style_whitespace
-                    styled_text = pad_left(styled_text, left_padding, st)
+        # Padding
+        if not inline:
+            if left_padding > 0:
+                var st: TerminalStyle = TerminalStyle(self.r.color_profile)
+                if color_whitespace or style_whitespace:
+                    st = term_style_whitespace
+                styled_text = pad_left(styled_text, left_padding, st)
 
-                if right_padding > 0:
-                    var st: TerminalStyle = TerminalStyle(self.r.color_profile)
-                    if color_whitespace or style_whitespace:
-                        st = term_style_whitespace
-                    styled_text = pad_right(styled_text, right_padding, st)
+            if right_padding > 0:
+                var st: TerminalStyle = TerminalStyle(self.r.color_profile)
+                if color_whitespace or style_whitespace:
+                    st = term_style_whitespace
+                styled_text = pad_right(styled_text, right_padding, st)
 
-                if top_padding > 0:
-                    styled_text = __string__mul__("\n", top_padding) + styled_text
+            if top_padding > 0:
+                styled_text = __string__mul__("\n", top_padding) + styled_text
 
-                if bottom_padding > 0:
-                    styled_text += __string__mul__("\n", bottom_padding)
+            if bottom_padding > 0:
+                styled_text += __string__mul__("\n", bottom_padding)
 
-            # Alignment
-            if height > 0:
-                styled_text = align_text_vertical(styled_text, vertical_align, height)
+        # Alignment
+        if height > 0:
+            styled_text = align_text_vertical(styled_text, vertical_align, height)
 
-            # Set alignment. This will also pad short lines with spaces so that all
-            # lines are the same length, so we run it under a few different conditions
-            # beyond alignment.
-            # TODO: Commented this out until I can get ansi character checking to work
-            # let number_of_lines = len(styled_text.split("\n"))
-            # if not (number_of_lines == 0 and width == 0):
-            #     var st: TerminalStyle = TerminalStyle(self.r.color_profile)
-            #     if color_whitespace or style_whitespace:
-            #         st = term_style_whitespace
-            #     styled_text = align_text_horizontal(styled_text, horizontal_align, width, st)
+        # Truncate according to max_width
+        if max_width > 0:
+            var lines = styled_text.split("\n")
 
-            # if not inline:
-            #     styled_text = self.apply_border(styled_text)
-            #     styled_text = self.apply_margins(styled_text, inline)
+            for i in range(lines.size):
+                lines[i] = truncate.string(lines[i], max_width)
 
-            # Truncate according to max_width
-            if max_width > 0:
-                var lines = styled_text.split("\n")
+            styled_text = join("\n", lines)
 
-                for i in range(lines.size):
-                    lines[i] = truncate.to_string(lines[i], max_width)
+        # Truncate according to max_height
+        if max_height > 0:
+            let lines = styled_text.split("\n")
+            let truncated_lines = get_slice(lines, 0, min(max_height, len(lines)))
+            styled_text = join("\n", truncated_lines)
 
-                styled_text = join("\n", lines)
+        # if transform:
+        #     return transform(styled_text)
 
-            # Truncate according to max_height
-            if max_height > 0:
-                let lines = styled_text.split("\n")
-                let truncated_lines = get_slice(lines, 0, min(max_height, len(lines)))
-                styled_text = join("\n", truncated_lines)
-
-            # if transform:
-            #     return transform(styled_text)
-        
         # Apply border at the end
         let number_of_lines = len(styled_text.split("\n"))
         if not (number_of_lines == 0 and width == 0):
             var st: TerminalStyle = TerminalStyle(self.r.color_profile)
             if color_whitespace or style_whitespace:
                 st = term_style_whitespace
-            styled_text = align_text_horizontal(styled_text, horizontal_align, width, st)
+            styled_text = align_text_horizontal(
+                styled_text, horizontal_align, width, st
+            )
 
         if not inline:
             styled_text = self.apply_border(styled_text)

@@ -1,16 +1,13 @@
-from stormlight.mist.ansi_colors import AnsiHex
-from stormlight.mist.hue import RGB, max_float64
-from stormlight.collections import StringKey
+from mog.mist.ansi_colors import AnsiHex
+from mog.mist.hue import RGB, max_float64
 from collections.dict import Dict
+from mog.mist.collections import StringKey
+from utils.variant import Variant
 
 
-struct GroundCodes:
-    var foreground: String
-    var background: String
-
-    fn __init__(inout self):
-        self.foreground = "38"
-        self.background = "48"
+alias foreground = "38"
+alias background = "48"
+alias AnyColor = Variant[NoColor, ANSIColor, ANSI256Color, RGBColor]
 
 
 trait Equalable:
@@ -23,7 +20,7 @@ trait NotEqualable:
         ...
 
 
-trait Color(Movable, Copyable, Equalable, NotEqualable):
+trait Color(Movable, Copyable, Equalable, NotEqualable, CollectionElement):
     fn sequence(self, is_background: Bool) raises -> String:
         """Sequence returns the ANSI Sequence for the color."""
         ...
@@ -102,9 +99,9 @@ struct ANSI256Color(Color):
         Args:
             is_background: Whether the color is a background color.
         """
-        var prefix = GroundCodes().foreground
+        var prefix: String = foreground
         if is_background:
-            prefix = GroundCodes().background
+            prefix = background
 
         return prefix + ";5;" + String(self.value)
 
@@ -191,6 +188,9 @@ struct RGBColor(Color):
 
     var value: String
 
+    fn __init__(inout self, value: String):
+        self.value = value.tolower()
+
     fn __eq__(self, other: RGBColor) -> Bool:
         return self.value == other.value
 
@@ -205,9 +205,9 @@ struct RGBColor(Color):
         """
         let rgb = hex_to_rgb(self.value)
 
-        var prefix = GroundCodes().foreground
+        var prefix = foreground
         if is_background:
-            prefix = GroundCodes().background
+            prefix = background
 
         return (
             prefix
@@ -239,7 +239,6 @@ fn ansi256_to_ansi(value: Int) raises -> ANSIColor:
     while i <= 15:
         let hb = hex_to_rgb(AnsiHex().values[i])
         let d = h.distance_HSLuv(hb)
-        print(h.__str__(), hb.__str__(), d)
 
         if d < md:
             md = d
@@ -303,12 +302,3 @@ fn hex_to_ansi256(color: RGB) -> ANSI256Color:
     if color_dist <= gray_dist:
         return ANSI256Color(16 + ci)
     return ANSI256Color(232 + grayIdx)
-
-
-fn sgr_format(n: String) -> String:
-    """SGR formatting: https://en.wikipedia.org/wiki/ANSI_escape_code#SGR_(Select_Graphic_Rendition)_parameters.
-
-    Args:
-        n: ANSI n code.
-    """
-    return chr(27) + "[" + n + "m"

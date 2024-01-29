@@ -1,24 +1,3 @@
-# ANSI color codes
-# const (
-# 	ANSIBlack ANSIColor = iota
-# 	ANSIRed
-# 	ANSIGreen
-# 	ANSIYellow
-# 	ANSIBlue
-# 	ANSIMagenta
-# 	ANSICyan
-# 	ANSIWhite
-# 	ANSIBrightBlack
-# 	ANSIBrightRed
-# 	ANSIBrightGreen
-# 	ANSIBrightYellow
-# 	ANSIBrightBlue
-# 	ANSIBrightMagenta
-# 	ANSIBrightCyan
-# 	ANSIBrightWhite
-# )
-
-
 # RGB values of ANSI colors (0-255).
 struct AnsiHex:
     var values: DynamicVector[String]

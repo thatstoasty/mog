@@ -1,9 +1,9 @@
-from stormlight.weave.gojo.bytes import buffer
-from stormlight.weave.gojo.bytes import bytes as bt
-from stormlight.weave.gojo.bytes.bytes import Byte
-from stormlight.weave.ansi import writer
-from stormlight.weave.ansi.ansi import is_terminator, Marker, printable_rune_width
-from stormlight.weave.stdlib.builtins.string import __string__mul__
+from mog.weave.gojo.bytes import buffer
+from mog.weave.gojo.bytes import bytes as bt
+from mog.weave.gojo.bytes.bytes import Byte
+from mog.weave.ansi import writer
+from mog.weave.ansi.ansi import is_terminator, Marker, printable_rune_width
+from mog.weave.stdlib.builtins.string import __string__mul__
 
 
 alias default_newline = "\n"
@@ -120,9 +120,8 @@ fn bytes(inout b: DynamicVector[Byte], limit: Int) raises -> DynamicVector[Byte]
 
 # String is shorthand for declaring a new default Wrap instance,
 # used to immediately wrap a string.
-fn to_string(s: String, limit: Int) raises -> String:
+fn string(s: String, limit: Int) raises -> String:
     var buf = s._buffer
     let b = bytes(buf, limit)
 
     return bt.to_string(b)
-

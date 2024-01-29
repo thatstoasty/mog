@@ -46,7 +46,7 @@ fn contains(vector: list[StringLiteral], value: StringLiteral) raises -> Bool:
     return False
 
 
-fn contains(vector: list[StringKey], value: StringKey) raises -> Bool:
+fn contains(vector: list[HashableStr], value: HashableStr) raises -> Bool:
     for item in vector:
         if item == value:
             return True
@@ -71,3 +71,8 @@ fn to_string(vector: list[String]) raises -> String:
             result += String(", ")
     result += String("]")
     return result
+
+
+fn extend[T: CollectionElement](inout vector: DynamicVector[T], other: DynamicVector[T]) raises:
+    for i in range(other.size):
+        vector.push_back(other[i])

@@ -1,5 +1,5 @@
-from stormlight.weave.gojo.collections import get_slice
-from stormlight.weave.gojo.bytes.util import to_string
+from mog.weave.gojo.collections import get_slice
+from mog.weave.gojo.bytes.util import to_string
 
 alias Byte = Int8
 

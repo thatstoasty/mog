@@ -1,4 +1,4 @@
-from stormlight.mist import Profile
+from mog.mist import Profile
 
 
 @value
@@ -8,5 +8,5 @@ struct Renderer:
     fn __init__(inout self) raises:
         self.color_profile = Profile()
 
-    fn set_color_profile(inout self, setting: String):
-        self.color_profile.setting = setting
+    fn set_color_profile(inout self, value: String):
+        self.color_profile.value = value

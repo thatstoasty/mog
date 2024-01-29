@@ -1,7 +1,7 @@
 """Ported from https:#github.com/lucasb-eyer/go-colorful/blob/master/colors.go#L470"""
 
-from stormlight.mist.hue.math import cube, clamp01, sq, pi, max_float64
-from stormlight.mist.hue.color import RGB
+from mog.mist.hue.math import cube, clamp01, sq, pi, max_float64
+from mog.mist.hue.color import RGB
 import math
 
 

@@ -4,10 +4,10 @@ from mog.join import join_vertical, join_horizontal
 
 
 fn main() raises:
-    let a: String = "Hello World!"
-    let b: String = "Line 2"
+    let a: String = "Hello World!\nThis is an example."
+    let b: String = "I could be more creative.\nBut, I'm out of ideas."
 
-    print(join_vertical(position.bottom, a, b))
+    # print(join_vertical(position.bottom, a, b))
     print(join_horizontal(position.bottom, a, b))
 
 

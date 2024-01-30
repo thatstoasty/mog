@@ -24,6 +24,8 @@ fn to_string(b: DynamicVector[Byte]) -> String:
 
 fn copy(inout target: DynamicVector[Byte], source: DynamicVector[Byte]) -> Int:
     var count = 0
+    print("target", to_string(target))
+    print("source", to_string(source))
 
     # TODO: End of strings include a null character which terminates the string. This is a hack to not write those to the buffer for now.
     for i in range(source.size):
@@ -32,6 +34,8 @@ fn copy(inout target: DynamicVector[Byte], source: DynamicVector[Byte]) -> Int:
             count += 1
 
     target = trim_null_characters(target)
+    print("trimmed target", to_string(target))
+    print("")
     return count
 
 

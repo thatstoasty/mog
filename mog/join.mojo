@@ -42,22 +42,21 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
 	# Break text blocks into lines and get max widths for each text block
     for i in range(len(strs)):
         let s = strs[i]
-        print(i, s)
         let lines = s.split("\n")
         var widest: Int = 0
         for i in range(lines.size):
             # TODO: Should be rune length instead of str length. Some runes are longer than 1 char.
             if len(lines[i]) > widest:
                 widest = len(lines[i])
-        print(widest)
         
-        blocks[i] = lines
-        max_widths[i] = widest
+        blocks.append(lines)
+        max_widths.append(widest)
         if len(lines) > max_height:
             max_height = len(lines)
-    
+
+
 	# Add extra lines to make each side the same height
-    for i in range(len(blocks)):
+    for i in range(blocks.size):
         if len(blocks[i]) >= max_height:
             continue
 
@@ -76,20 +75,21 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
             var top_lines = get_slice(extra_lines, int(top), int(len(extra_lines)))
             var bottom_lines = get_slice(extra_lines, int(bottom), int(len(extra_lines)))
             extend(top_lines, blocks[i])
-            extend(blocks[i], bottom_lines)  
-    
+            extend(blocks[i], bottom_lines)
+            
     # Merge lines
     var buf = DynamicVector[Byte]()
     var b = buffer.Buffer(buf)
-    for i in range(len(blocks[0])):
-        for j in range(len(blocks)):
-            print("writing", blocks[j][i])
+    for i in range(len(blocks)):
+        for j in range(len(blocks[i])):
+            # print("block", j, "line", i, blocks[j][i])
             _ = b.write_string(blocks[j][i])
 
             # Also make lines the same length
             let spaces = __string__mul__(" ", max_widths[j] - printable_rune_width(blocks[j][i]))
+            # print("spaces: ", spaces)
             _ = b.write_string(spaces)
-        if i < len(blocks[0])-1:
+        if i < len(blocks[0]) - 1:
             _ = b.write_string("\n")
 
     return b.string()

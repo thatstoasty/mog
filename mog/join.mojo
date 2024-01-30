@@ -81,7 +81,8 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
     var buf = DynamicVector[Byte]()
     var b = buffer.Buffer(buf)
     for i in range(len(blocks)):
-        for j in range(len(blocks[i])):
+        let block = blocks[i]
+        for j in range(len(block)):
             # print("block", j, "line", i, blocks[j][i])
             _ = b.write_string(blocks[j][i])
 
@@ -135,6 +136,8 @@ fn join_vertical(pos: Position, *strs: String) raises -> String:
             if len(lines[i]) > widest:
                 widest = len(lines[i])
         
+        blocks.append(lines)
+
         if widest > max_width:
             max_width = widest
 
@@ -142,7 +145,7 @@ fn join_vertical(pos: Position, *strs: String) raises -> String:
     var b = buffer.Buffer(buf)
     var w: Int = 0
     for i in range(len(blocks)):
-        let block = blocks[i]
+        var block = blocks[i]
         for j in range(len(block)):
             let line = block[j]
             w = max_width - printable_rune_width(line)
@@ -156,15 +159,14 @@ fn join_vertical(pos: Position, *strs: String) raises -> String:
             else:
                 if w < 1:
                     _ = b.write_string(line)
-                    break
+                else:
+                    let split = int(w * pos/2)
+                    let right = w - split
+                    let left = w - right
 
-                let split = int(w * pos)
-                let right = w - split
-                let left = w - right
-
-                _ = b.write_string(__string__mul__(" ", left))
-                _ = b.write_string(line)
-                _ = b.write_string(__string__mul__(" ", right))
+                    _ = b.write_string(__string__mul__(" ", left))
+                    _ = b.write_string(line)
+                    _ = b.write_string(__string__mul__(" ", right))
             
             if not (i == len(blocks)-1 and j == len(block)-1):
                 _ = b.write_string("\n")

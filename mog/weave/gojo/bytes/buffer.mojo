@@ -210,11 +210,12 @@ struct Buffer(io.Writer, io.Reader):
         buffer becomes too large, write_string will panic with [ErrTooLarge].
         """
         self.last_read = op_invalid
-        var m: Int
-        let ok: Bool
-        m, ok = self.try_grow_by_reslice(len(s))
-        if not ok:
-            m = self.grow(len(s))
+        # var m: Int
+        # let ok: Bool
+        # TODO: There's something wrong with the grow functions that add garbage and also blow up at times.
+        # m, ok = self.try_grow_by_reslice(len(s))
+        # if not ok:
+        #     m = self.grow(len(s))
 
         # var buf = get_slice(self.buf, m, len(self.buf))
 

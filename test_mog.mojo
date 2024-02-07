@@ -1,14 +1,18 @@
-from mog.style import Style
-import mog.position
-from mog.join import join_vertical, join_horizontal
+# from mog.style import Style
+# import mog.position
+# from mog.join import join_vertical, join_horizontal
 
 
 fn main() raises:
-    let a: String = "Hello World!\nThis is an example."
-    let b: String = "I could be more creative.\nBut, I'm out of ideas."
+    var t = DynamicVector[String]()
+    t.append("Hello")
+    t.append("World")
+    print(height("Hello World!\nThis is an example."))
+    # let a: String = "Hello World!\nThis is an example."
+    # let b: String = "I could be more creative.\nBut, I'm out of ideas."
 
-    print(join_vertical(position.center, a, b))
-    print(join_horizontal(position.bottom, a, b))
+    # print(join_vertical(position.center, a, b))
+    # print(join_horizontal(position.bottom, a, b))
 
 
 # fn main() raises:

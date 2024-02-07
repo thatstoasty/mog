@@ -1,10 +1,10 @@
 import mog.position
-from mog.weave.ansi.ansi import len_without_ansi
+from mog.external.weave.ansi.ansi import len_without_ansi
 from mog.position import Position
-from mog.mist import TerminalStyle
+from mog.external.mist import TerminalStyle
 from mog.math import max, min
 from mog.extensions import count
-from mog.stdlib.builtins.string import __string__mul__
+from mog.external.stdlib.builtins.string import __string__mul__
 
 
 # Perform text alignment. If the string is multi-lined, we also make all lines

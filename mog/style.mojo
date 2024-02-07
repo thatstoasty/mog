@@ -1,8 +1,15 @@
-from mog.mist.color import Color, NoColor, ANSIColor, ANSI256Color, RGBColor, AnyColor
-from mog.mist import TerminalStyle
-from mog.stdlib.builtins import dict, HashableStr
-from mog.stdlib.builtins.vector import contains
-from mog.stdlib.builtins.string import __string__mul__, join
+from mog.external.mist.color import (
+    Color,
+    NoColor,
+    ANSIColor,
+    ANSI256Color,
+    RGBColor,
+    AnyColor,
+)
+from mog.external.mist import TerminalStyle
+from mog.external.stdlib.builtins import dict, HashableStr
+from mog.external.stdlib.builtins.vector import contains
+from mog.external.stdlib.builtins.string import __string__mul__, join
 from mog.renderer import Renderer
 from mog.position import Position
 from mog.border import (
@@ -22,9 +29,9 @@ from mog.border import (
     plus_border,
 )
 from mog.math import max, min
-from mog.weave import wrap, wordwrap, truncate
+from mog.external.weave import wrap, wordwrap, truncate
 from mog.extensions import get_slice
-from mog.weave.ansi.ansi import len_without_ansi
+from mog.external.weave.ansi.ansi import len_without_ansi
 from mog.align import align_text_horizontal, align_text_vertical
 
 alias tab_width: Int = 4
@@ -130,7 +137,7 @@ struct Style:
             return RGBColor(val)
 
         let ansi_code: Int = atol(val)
-        if ansi_code > 16 :
+        if ansi_code > 16:
             return ANSI256Color(ansi_code)
         else:
             return ANSIColor(ansi_code)

@@ -207,14 +207,24 @@ struct Table():
                 let rendered = self.style(row_number_with_header_offset, column_number).render(cell)
                 print(rendered)
 
-                print("x", self.heights[0], get_height(rendered))
-                self.heights.append(max(self.heights[0], get_height(rendered)))
+                print(len(self.heights), row_number_with_header_offset, get_height(rendered))
+                if len(self.heights) < row_number_with_header_offset:
+                    self.heights.append(max(self.heights[row_number_with_header_offset], get_height(rendered)))
+                else:
+                    print("h")
+                    print(get_height(rendered))
+                    self.heights.append(get_height(rendered))
                 # self.heights.append(get_height(rendered))
                 # print("height", self.heights[row_number_with_header_offset])
                 # print("heights len1", len(self.heights), self.heights[row_number_with_header_offset])
-                self.widths[column_number] = max(
-                    self.widths[column_number], get_width(rendered)
-                )
+
+                if len(self.widths) < column_number:
+                    self.widths.append(max(self.widths[column_number], get_width(rendered)))
+                else:
+                    self.widths.append(get_width(rendered))
+                # self.widths[column_number] = max(
+                #     self.widths[column_number], get_width(rendered)
+                # )
                 # self.widths.append(get_width(rendered))
                 column_number += 1
             row_number += 1

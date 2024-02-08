@@ -42,7 +42,7 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
     var max_widths = list[Int](len(strs))
     var max_height: Int = 0
 
-    # Break text blocks into lines and get max widths for each text block
+        # Break text blocks into lines and get max widths for each text block
     for i in range(len(strs)):
         let s = strs[i]
         let lines = s.split("\n")
@@ -81,21 +81,26 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
             blocks[i] = top_lines
             blocks[i].extend(bottom_lines)
 
+    for i in range(len(blocks)):
+        for j in range(len(blocks[i])):
+            print("block", i, j, blocks[i][j])
+
     # Merge lines
     var buf = bytes()
     var b = _buffer.Buffer(buf)
+    # remember, all blocks have the same number of members now
+    print("len", len(blocks[0]))
     for i in range(len(blocks)):
-        let block = blocks[i]
-        for j in range(len(block)):
-            # print("block", j, "line", i, blocks[j][i])
-            _ = b.write_string(blocks[j][i])
+        for j in range(len(blocks[i])):
+            print("block", blocks[i][j])
+            _ = b.write_string(blocks[i][j])
 
             # Also make lines the same length
             let spaces = __string__mul__(
-                " ", max_widths[j] - printable_rune_width(blocks[j][i])
+                "", max_widths[j] - printable_rune_width(blocks[i][j])
             )
-            # print("spaces: ", spaces)
             _ = b.write_string(spaces)
+        
         if i < len(blocks[0]) - 1:
             _ = b.write_string("\n")
 

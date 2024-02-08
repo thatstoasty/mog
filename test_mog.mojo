@@ -7,7 +7,7 @@ fn main() raises:
     var t = DynamicVector[String]()
     t.append("Hello")
     t.append("World")
-    print(height("Hello World!\nThis is an example."))
+    # print(trim_right("Hello World!\nThis is an example.", "World"))
     # let a: String = "Hello World!\nThis is an example."
     # let b: String = "I could be more creative.\nBut, I'm out of ideas."
 

@@ -15,6 +15,7 @@ struct Border:
     var middle_right: String
     var middle: String
     var middle_top: String
+    var middle_bottom: String
 
     fn __init__(
         inout self,
@@ -30,6 +31,7 @@ struct Border:
         middle_right: String = "",
         middle: String = "",
         middle_top: String = "",
+        middle_bottom: String = "",
     ):
         self.top = top
         self.bottom = bottom
@@ -43,6 +45,7 @@ struct Border:
         self.middle_right = middle_right
         self.middle = middle
         self.middle_top = middle_top
+        self.middle_bottom = middle_bottom
 
     fn __eq__(self, other: Border) -> Bool:
         return (
@@ -58,6 +61,7 @@ struct Border:
             and self.middle_right == other.middle_right
             and self.middle == other.middle
             and self.middle_top == other.middle_top
+            and self.middle_bottom == other.middle_bottom
         )
 
     fn __ne__(self, other: Border) -> Bool:
@@ -74,6 +78,7 @@ struct Border:
             or self.middle_right != other.middle_right
             or self.middle != other.middle
             or self.middle_top != other.middle_top
+            or self.middle_bottom != other.middle_bottom
         )
 
 

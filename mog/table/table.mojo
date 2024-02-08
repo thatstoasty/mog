@@ -1,14 +1,27 @@
-from .weave.truncate import string
-from .weave.gojo.bytes.buffer import Buffer
-from .stdlib_extensions.builtins._bytes import bytes
-from .stdlib_extensions.builtinstring_builder.string import __string__mul__
-from mog import Style, Border
-from .border import ascii_border
-from .position import top, bottom, left, right, center
-from .join import join_horizontal
-from .table.rows import StringData
-from .size import get_height, get_width
-from .table.util import btoi
+from ..weave import truncate
+from ..weave.gojo.buffers._buffer import Buffer
+from ..weave.gojo.stdlib_extensions.builtins import bytes
+from ..stdlib_extensions.builtins.string import __string__mul__
+from ..style import Style
+from ..border import ascii_border, Border
+from ..position import top, bottom, left, right, center
+from ..join import join_horizontal
+from ..size import get_height, get_width
+from .rows import StringData, new_string_data
+from .util import btoi, median, largest, sum
+from math import max, min
+
+# TrimRight returns a slice of the string s, with all trailing
+# Unicode code points contained in cutset removed.
+#
+# To remove a suffix, use [TrimSuffix] instead.
+fn trim_right(s: String, cutset: String) -> String:
+    let index = s.find(cutset)
+    if index == -1:
+        return s
+    
+    return s[:index]
+
 
 # StyleFunction is the style fntion that determines the style of a Cell.
 #
@@ -32,16 +45,17 @@ from .table.util import btoi
 # 	               return Oddrowstyle
 #
 # 	    )
-alias StyleFunction = fn (row: Int, col: Int) -> Style
+alias StyleFunction = fn (row: Int, col: Int) raises -> Style
 
 
 # default_styles is a TableStyleFunction that returns a new Style with no attributes.
-fn default_styles() -> Style:
+fn default_styles(row: Int, col: Int) raises -> Style:
     return Style()
 
 
 # Table is a type for rendering tables.
-struct Table:
+@value
+struct Table():
     var style_function: StyleFunction
     var border: Border
 
@@ -67,28 +81,63 @@ struct Table:
     # heights tracks the height of each row.
     var heights: DynamicVector[Int]
 
+    fn __init__(
+        inout self,
+        style_function: StyleFunction,
+        border: Border,
+        border_style: Style,
+        data: StringData,
+        border_top: Bool = False,
+        border_bottom: Bool = False,
+        border_left: Bool = False,
+        border_right: Bool = False,
+        border_header: Bool = False,
+        border_column: Bool = False,
+        border_row: Bool = False,
+        headers: DynamicVector[String] = DynamicVector[String](),
+        width: Int = 0,
+        height: Int = 0,
+        offset: Int = 0,
+        widths: DynamicVector[Int] = DynamicVector[Int](),
+        heights: DynamicVector[Int] = DynamicVector[Int](),
+    ):
+        self.style_function = style_function
+        self.border = border
+        self.border_style = border_style
+        self.border_top = border_top
+        self.border_bottom = border_bottom
+        self.border_left = border_left
+        self.border_right = border_right
+        self.border_header = border_header
+        self.border_column = border_column
+        self.border_row = border_row
+        self.headers = headers
+        self.data = data
+        self.width = width
+        self.height = height
+        self.offset = offset
+        self.widths = widths
+        self.heights = heights
+
     # Clearrows clears the table rows.
-    fn clear_rows(self):
+    fn clear_rows(inout self):
         self.data = StringData(_rows=DynamicVector[DynamicVector[String]](), _columns=0)
 
     # style returns the style for a cell based on it's position (row, column).
-    fn style(self, row: Int, col: Int) -> Style:
-        if self.StyleFunction == nil:
-            return NewStyle()
-
-        return self.StyleFunction(row, col)
+    fn style(self, row: Int, col: Int) raises -> Style:
+        return self.style_function(row, col)
 
     # rows appends rows to the table data.
-    fn rows(self, *rows: DynamicVector[String]):
+    fn rows(inout self, *rows: DynamicVector[String]):
         for i in range(len(rows)):
             self.data.append(rows[i])
 
-    fn rows(self, rows: DynamicVector[DynamicVector[String]]):
+    fn rows(inout self, rows: DynamicVector[DynamicVector[String]]):
         for i in range(len(rows)):
             self.data.append(rows[i])
 
     # Row appends a row to the table data.
-    fn row(self, *row: String):
+    fn row(inout self, *row: String):
         var temp = DynamicVector[String]()
         for element in row:
             temp.append(element[])
@@ -109,7 +158,7 @@ struct Table:
         self.headers = headers
 
     # String returns the table as a String.
-    fn string(self) -> String:
+    fn string(inout self) raises -> String:
         let has_headers = len(self.headers) > 0
         let has_rows = self.data.rows() > 0
 
@@ -143,13 +192,13 @@ struct Table:
                 self.heights[0], get_height(self.style(0, i).render(cell))
             )
 
-        let row_number: Int = 0
-        let column_number: Int = 0
+        var row_number: Int = 0
+        var column_number: Int = 0
         while row_number < self.data.rows():
             while column_number < self.data.columns():
-                let cell = self.data.at(r, column_number)
+                let cell = self.data.at(row_number, column_number)
                 let row_number_with_header_offset = btoi(has_headers)
-                let rendered = self.style(row_number_with_header_offset, c).render(cell)
+                let rendered = self.style(row_number_with_header_offset, column_number).render(cell)
 
                 self.heights[row_number_with_header_offset] = max(
                     self.heights[row_number_with_header_offset], get_height(rendered)
@@ -217,10 +266,10 @@ struct Table:
                 var r: Int = 0
                 for r in range(self.data.rows()):
                     var rendered_cell = self.style(r + btoi(has_headers), i).render(
-                        self.data.At(r, i)
+                        self.data.at(r, i)
                     )
                     var non_whitespace_chars = get_width(
-                        strings.TrimRight(rendered_cell, " ")
+                        trim_right(rendered_cell, " ")
                     )
                     trimmed_width[r] = non_whitespace_chars + 1
 
@@ -233,7 +282,9 @@ struct Table:
                 differences[i] = self.widths[i] - column_medians[i]
 
             while width > self.width:
-                var index = largest(differences)
+                var index: Int = 0
+                var val: Int = 0
+                index, val = largest(differences)
                 if differences[index] < 1:
                     break
 
@@ -245,7 +296,9 @@ struct Table:
             # Table is still too wide, begin shrinking the columns based on the
             # largest column.
             while width > self.width:
-                index = largest(self.widths)
+                var index: Int = 0
+                var val: Int = 0
+                index, val = largest(self.widths)
                 if self.widths[index] < 1:
                     break
 
@@ -253,24 +306,24 @@ struct Table:
                 width -= 1
 
         if self.border_top:
-            string_builder.write_string(self.constructTopBorder())
-            string_builder.write_string("\n")
+            _ = string_builder.write_string(self.construct_top_border())
+            _ = string_builder.write_string("\n")
 
         if has_headers:
-            string_builder.write_string(self.constructHeaders())
-            string_builder.write_string("\n")
+            _ = string_builder.write_string(self.construct_headers())
+            _ = string_builder.write_string("\n")
 
         var r = self.offset
         while r < self.data.rows():
-            string_builder.write_string(self.construct_row(r))
+            _ = string_builder.write_string(self.construct_row(r))
             r += 1
 
         if self.border_bottom:
-            string_builder.write_string(self.construct_bottom_border())
+            _ = string_builder.write_string(self.construct_bottom_border())
 
-        var style = new_style()
-        style.max_height = self.compute_height()
-        style.max_width = self.width
+        var style = Style()
+        style.max_height(self.compute_height())
+        style.max_width(self.width)
         return style.render(string_builder.string())
 
     # compute_width computes the width of the table in it's current configuration.
@@ -295,63 +348,63 @@ struct Table:
         )
 
     # render returns the table as a String.
-    fn render(self) -> String:
+    fn render(inout self) raises -> String:
         return self.string()
 
     # constructTopBorder constructs the top border for the table given it's current
     # border configuration and data.
-    fn construct_top_border(self) -> String:
+    fn construct_top_border(self) raises -> String:
         var buffer = bytes()
         var string_builder = Buffer(buffer)
 
         if self.border_left:
-            string_builder.write_string(self.border_style.render(self.border.top_left))
+            _ = string_builder.write_string(self.border_style.render(self.border.top_left))
 
         var i: Int = 0
         while i < len(self.widths):
-            string_builder.write_string(
+            _ = string_builder.write_string(
                 self.border_style.render(
                     __string__mul__(self.border.top, self.widths[i])
                 )
             )
             if i < len(self.widths) - 1 and self.border_column:
-                string_builder.write_string(
+                _ = string_builder.write_string(
                     self.border_style.render(self.border.middle_top)
                 )
 
             i += 1
 
         if self.border_right:
-            string_builder.write_string(self.border_style.render(self.border.top_right))
+            _ = string_builder.write_string(self.border_style.render(self.border.top_right))
 
         return string_builder.string()
 
     # construct_bottom_border constructs the bottom border for the table given it's current
     # border configuration and data.
-    fn construct_bottom_border(self) -> String:
+    fn construct_bottom_border(self) raises -> String:
         var buffer = bytes()
         var string_builder = Buffer(buffer)
         if self.border_left:
-            string_builder.write_string(
+            _ = string_builder.write_string(
                 self.border_style.render(self.border.bottom_left)
             )
 
         var i: Int = 0
         while i < len(self.widths):
-            string_builder.write_string(
+            _ = string_builder.write_string(
                 self.border_style.render(
                     __string__mul__(self.border.bottom, self.widths[i])
                 )
             )
             if i < len(self.widths) - 1 and self.border_column:
-                string_builder.write_string(
+                _ = string_builder.write_string(
                     self.border_style.render(self.border.middle_bottom)
                 )
 
             i += 1
 
         if self.border_right:
-            string_builder.write_string(
+            _ = string_builder.write_string(
                 self.border_style.render(self.border.bottom_right)
             )
 
@@ -359,61 +412,65 @@ struct Table:
 
     # constructHeaders constructs the headers for the table given it's current
     # header configuration and data.
-    fn construct_headers(self) -> String:
+    fn construct_headers(self) raises -> String:
         var buffer = bytes()
         var string_builder = Buffer(buffer)
         if self.border_left:
-            string_builder.write_string(self.border_style.render(self.border.left))
+            _ = string_builder.write_string(self.border_style.render(self.border.left))
 
         for i in range(len(self.headers)):
             let header = self.headers[i]
-            string_builder.write_string(
-                self.style(0, i)
-                .max_height(1)
-                .width(self.widths[i])
-                .max_width(self.widths[i])
-                .render(truncate.string_with_tail(header, uint(self.widths[i]), "…"))
+            var style = self.style(0, i)
+            style.max_height(1)
+            style.width(self.widths[i])
+            style.max_width(self.widths[i])
+
+            _ = string_builder.write_string(
+                style.render(
+                    truncate.string_with_tail(header, UInt8(self.widths[i]), "...")
+                )
             )
-            if i < len(self.headers) - 1 and self.border_column:
-                string_builder.write_string(self.border_style.render(self.border.left))
+
+            if (i < len(self.headers) - 1) and (self.border_column):
+                _ = string_builder.write_string(self.border_style.render(self.border.left))
 
         if self.border_header:
             if self.border_right:
-                string_builder.write_string(self.border_style.render(self.border.right))
+                _ = string_builder.write_string(self.border_style.render(self.border.right))
 
-            string_builder.write_string("\n")
+            _ = string_builder.write_string("\n")
             if self.border_left:
-                string_builder.write_string(
+                _ = string_builder.write_string(
                     self.border_style.render(self.border.middle_left)
                 )
 
             var i: Int = 0
             while i < len(self.headers):
-                string_builder.write_string(
+                _ = string_builder.write_string(
                     self.border_style.render(
                         __string__mul__(self.border.bottom, self.widths[i])
                     )
                 )
                 if i < len(self.headers) - 1 and self.border_column:
-                    string_builder.write_string(
+                    _ = string_builder.write_string(
                         self.border_style.render(self.border.middle)
                     )
 
                 i += 1
 
             if self.border_right:
-                string_builder.write_string(
+                _ = string_builder.write_string(
                     self.border_style.render(self.border.middle_right)
                 )
 
         if self.border_right and not self.border_header:
-            string_builder.write_string(self.border_style.render(self.border.right))
+            _ = string_builder.write_string(self.border_style.render(self.border.right))
 
         return string_builder.string()
 
     # construct_row constructs the row for the table given an index and row data
     # based on the current configuration.
-    fn construct_row(self, index: Int) -> String:
+    fn construct_row(self, index: Int) raises -> String:
         var buffer = bytes()
         var string_builder = Buffer(buffer)
 
@@ -421,7 +478,7 @@ struct Table:
         let height = self.heights[index + btoi(has_headers)]
 
         var cells = DynamicVector[String]()
-        left = __string__mul__(
+        var left = __string__mul__(
             self.border_style.render(self.border.left) + "\n", height
         )
         if self.border_left:
@@ -429,7 +486,7 @@ struct Table:
 
         let c: Int = 0
         while c < self.data.columns():
-            var cell = self.data.At(index, c)
+            var cell = self.data.at(index, c)
             var style = self.style(index + 1, c)
             style.height(height)
             style.max_height(height)
@@ -438,43 +495,43 @@ struct Table:
 
             cells.append(
                 style.render(
-                    truncate.string_with_tail(cell, uint(self.widths[c] * height), "…")
+                    truncate.string_with_tail(cell, UInt8(self.widths[c] * height), "...")
                 )
             )
 
             if c < self.data.columns() - 1 and self.border_column:
-                cells = append(cells, left)
+                cells.append(left)
 
         if self.border_right:
-            right = __string__mul__(
+            var right = __string__mul__(
                 self.border_style.render(self.border.right) + "\n", height
             )
-            cells = append(cells, right)
+            cells.append(right)
 
         for i in range(len(cells)):
             let cell = cells[i]
-            cells[i] = strings.TrimRight(cell, "\n")
+            cells[i] = trim_right(cell, "\n")
 
-        string_builder.write_string(join_horizontal(position.top, cells) + "\n")
+        _ = string_builder.write_string(join_horizontal(position.top, cells) + "\n")
 
         if self.border_row and index < self.data.rows() - 1:
-            string_builder.write_string(
+            _ = string_builder.write_string(
                 self.border_style.render(self.border.middle_left)
             )
             var i: Int = 0
             while i < len(self.widths):
-                string_builder.write_string(
+                _ = string_builder.write_string(
                     self.border_style.render(
                         __string__mul__(self.border.middle, self.widths[i])
                     )
                 )
                 if i < len(self.widths) - 1 and self.border_column:
-                    string_builder.write_string(
+                    _ = string_builder.write_string(
                         self.border_style.render(self.border.middle)
                     )
 
                 i += 1
-            string_builder.write_string(
+            _ = string_builder.write_string(
                 self.border_style.render(self.border.middle_right) + "\n"
             )
 
@@ -485,15 +542,16 @@ struct Table:
 # attributes.
 #
 # By default, a table has no border, no styling, and no rows.
-fn new_table() -> Table:
+fn new_table() raises -> Table:
     return Table(
-        StyleFunction=default_styles,
+        style_function=default_styles,
         border=ascii_border(),
-        border_bottom=true,
-        border_column=true,
-        border_header=true,
-        border_left=true,
-        border_right=true,
-        border_top=true,
+        border_style=Style(),
+        border_bottom=True,
+        border_column=True,
+        border_header=True,
+        border_left=True,
+        border_right=True,
+        border_top=True,
         data=new_string_data(),
     )

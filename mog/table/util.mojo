@@ -1,3 +1,6 @@
+from math import round
+from algorithm.sort import sort
+
 # btoi converts a boolean to an integer, 1 if true, 0 if false.
 fn btoi(b: Bool) -> Int:
     if b:
@@ -6,43 +9,29 @@ fn btoi(b: Bool) -> Int:
     return 0
 
 
-# max returns the greater of two integers.
-fn max(a: Int, b: Int) -> Int:
-    if a > b:
-        return a
+# sum returns the sum of all integers in a slice.
+fn sum(numbers: DynamicVector[Int]) -> Int:
+    var sum: Int = 0
+    for i in range(len(numbers)):
+        sum += numbers[i]
 
-    return b
-
-
-# min returns the greater of two integers.
-fn min(a: Int, b: Int) -> Int:
-    if a < b:
-        return a
-
-    return b
+    return sum
 
 
-# # sum returns the sum of all integers in a slice.
-# fn sum(numbers: DynamicVector[Int]) -> Int:
-# 	var sum: Int = 0
-#     for number in numbers:
-#         sum += number
+# median returns the median of a slice of integers.
+fn median(n: DynamicVector[Int]) -> Int:
+    var sorted = n
+    sort(sorted)
 
-# 	return sum
+    if len(sorted) <= 0:
+        return 0
 
+    if len(sorted) % 2 == 0:
+        var middle = len(sorted) / 2 #nolint:gomnd
+        let median = (sorted[int(middle)-1] + sorted[int(middle)]) / 2
+        return int(round(median)) #nolint:gomnd
 
-# # median returns the median of a slice of integers.
-# fn median(n: DynamicVector[Int]) -> Int:
-# 	sort.Ints(n)
-
-# 	if len(n) <= 0:
-# 		return 0
-
-# 	if len(n)%2 == 0:
-# 		h := len(n) / 2            #nolint:gomnd
-# 		return (n[h-1] + n[h]) / 2 #nolint:gomnd
-
-# 	return n[len(n)/2]
+    return sorted[int(len(sorted)/2)]
 
 
 # largest returns the largest element and it's index from a slice of integers.

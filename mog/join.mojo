@@ -1,10 +1,13 @@
-from mog.position import Position, top, bottom, left, right, center
-from mog.extensions import get_slice
-from mog.external.stdlib.builtins.vector import extend
-from mog.external.stdlib.builtins.string import __string__mul__
-from mog.external.weave.ansi.ansi import printable_rune_width
-from mog.external.weave.gojo.bytes import buffer
-from mog.external.weave.gojo.bytes.bytes import Byte
+from .position import Position, top, bottom, left, right, center
+from .extensions import get_slice
+from .stdlib_extensions.builtins.vector import extend
+from .stdlib_extensions.builtins.string import __string__mul__
+from .weave.ansi.ansi import printable_rune_width
+from .weave.gojo.buffers import _buffer
+from .weave.gojo.buffers._bytes import Byte
+
+# Need to import the same bytes Class that weave is using. The exact one, otherwise the type check will actually fail.
+from .weave.gojo.stdlib_extensions.builtins import bytes
 
 
 # join_horizontal is a utility function for horizontally joining two
@@ -79,8 +82,8 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
             extend(blocks[i], bottom_lines)
 
     # Merge lines
-    var buf = DynamicVector[Byte]()
-    var b = buffer.Buffer(buf)
+    var buf = bytes()
+    var b = _buffer.Buffer(buf)
     for i in range(len(blocks)):
         let block = blocks[i]
         for j in range(len(block)):
@@ -171,8 +174,8 @@ fn join_horizontal(pos: Position, strs: DynamicVector[String]) raises -> String:
             extend(blocks[i], bottom_lines)
 
     # Merge lines
-    var buf = DynamicVector[Byte]()
-    var b = buffer.Buffer(buf)
+    var buf = bytes()
+    var b = _buffer.Buffer(buf)
     for i in range(len(blocks)):
         let block = blocks[i]
         for j in range(len(block)):
@@ -236,8 +239,8 @@ fn join_vertical(pos: Position, *strs: String) raises -> String:
         if widest > max_width:
             max_width = widest
 
-    var buf = DynamicVector[Byte]()
-    var b = buffer.Buffer(buf)
+    var buf = bytes()
+    var b = _buffer.Buffer(buf)
     var w: Int = 0
     for i in range(len(blocks)):
         var block = blocks[i]
@@ -296,8 +299,8 @@ fn join_vertical(pos: Position, strs: DynamicVector[String]) raises -> String:
         if widest > max_width:
             max_width = widest
 
-    var buf = DynamicVector[Byte]()
-    var b = buffer.Buffer(buf)
+    var buf = bytes()
+    var b = _buffer.Buffer(buf)
     var w: Int = 0
     for i in range(len(blocks)):
         var block = blocks[i]

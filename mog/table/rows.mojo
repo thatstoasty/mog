@@ -1,4 +1,4 @@
-from mog.table.util import max
+from .table.util import max
 
 
 # Data is the interface that wraps the basic methods of a table model.

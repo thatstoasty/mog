@@ -1,4 +1,4 @@
-from mog.external.mist import Profile
+from .mist import Profile
 
 
 @value

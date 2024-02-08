@@ -1,2 +1,2 @@
-from mog.style import Style
-from mog.border import Border
+from .style import Style
+from .border import Border

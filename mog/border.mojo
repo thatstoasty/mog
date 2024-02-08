@@ -1,4 +1,4 @@
-from mog.external.weave.ansi.ansi import len_without_ansi
+from .weave.ansi.ansi import len_without_ansi
 
 
 @value

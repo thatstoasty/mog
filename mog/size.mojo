@@ -1,5 +1,5 @@
-from mog.external.weave.ansi import ansi
-from mog.external.stdlib.builtins.string import split
+from .weave.ansi import ansi
+from .stdlib_extensions.builtins.string import split
 
 
 # Width returns the cell width of characters in the string. ANSI sequences are
@@ -8,8 +8,9 @@ from mog.external.stdlib.builtins.string import split
 #
 # You should use this instead of len(string) len([]rune(string) as neither
 # will give you accurate results.
-fn get_width(text: String) -> Int:
+fn get_width(text: String) raises -> Int:
     let strings = split(text, "\n")
+    var width: Int = 0
     for i in range(len(strings)):
         let l = strings[i]
         let w = ansi.printable_rune_width(l)
@@ -35,5 +36,5 @@ fn get_height(text: String) -> Int:
 # Size returns the width and height of the string in cells. ANSI sequences are
 # ignored and characters wider than one cell (such as Chinese characters and
 # emojis) are appropriately measured.
-fn get_size(text: String) -> (Int, Int):
-    return width(text), height(text)
+fn get_size(text: String) raises -> (Int, Int):
+    return get_width(text), get_height(text)

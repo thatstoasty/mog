@@ -1,12 +1,14 @@
-# from mog.external.weave.truncate import string
-from mog.external.weave.gojo.bytes.buffer import Buffer
-from mog.external.stdlib.builtins._bytes import bytes
-from mog.external.stdlib.builtinstring_builder.string import __string__mul__
+from .weave.truncate import string
+from .weave.gojo.bytes.buffer import Buffer
+from .stdlib_extensions.builtins._bytes import bytes
+from .stdlib_extensions.builtinstring_builder.string import __string__mul__
 from mog import Style, Border
-from mog.position import top, bottom, left, right, center
-from mog.join import join_horizontal
-from mog.table.rows import StringData
-from mog.size import get_height, get_width
+from .border import ascii_border
+from .position import top, bottom, left, right, center
+from .join import join_horizontal
+from .table.rows import StringData
+from .size import get_height, get_width
+from .table.util import btoi
 
 # StyleFunction is the style fntion that determines the style of a Cell.
 #
@@ -45,7 +47,7 @@ struct Table:
 
     var border_top: Bool
     var border_bottom: Bool
-    var orderLeft: Bool
+    var border_left: Bool
     var border_right: Bool
     var border_header: Bool
     var border_column: Bool
@@ -126,7 +128,7 @@ struct Table:
                 i += 1
 
         # Initialize the widths.
-        self.widths = DynamicVector[Int](max(len(self.headers), self.data.Columns()))
+        self.widths = DynamicVector[Int](max(len(self.headers), self.data.columns()))
         self.heights = DynamicVector[Int](btoi(has_headers) + self.data.rows())
 
         # The style fntion may affect width of the table. It's possible to set
@@ -415,30 +417,29 @@ struct Table:
         var buffer = bytes()
         var string_builder = Buffer(buffer)
 
-        has_headers = len(self.headers) > 0
-        height = self.heights[index + btoi(has_headers)]
+        let has_headers = len(self.headers) > 0
+        let height = self.heights[index + btoi(has_headers)]
 
         var cells = DynamicVector[String]()
         left = __string__mul__(
             self.border_style.render(self.border.left) + "\n", height
         )
         if self.border_left:
-            cells = append(cells, left)
+            cells.append(left)
 
         let c: Int = 0
-        while c < self.data.Columns():
-            let cell = self.data.At(index, c)
+        while c < self.data.columns():
+            var cell = self.data.At(index, c)
+            var style = self.style(index + 1, c)
+            style.height(height)
+            style.max_height(height)
+            style.width(self.widths[c])
+            style.max_width(self.widths[c])
 
-            cells = append(
-                cells,
-                self.style(index + 1, c)
-                .height(height)
-                .max_height(height)
-                .width(self.widths[c])
-                .max_width(self.widths[c])
-                .render(
+            cells.append(
+                style.render(
                     truncate.string_with_tail(cell, uint(self.widths[c] * height), "…")
-                ),
+                )
             )
 
             if c < self.data.columns() - 1 and self.border_column:
@@ -487,12 +488,12 @@ struct Table:
 fn new_table() -> Table:
     return Table(
         StyleFunction=default_styles,
-        border=RoundedBorder(),
+        border=ascii_border(),
         border_bottom=true,
         border_column=true,
         border_header=true,
         border_left=true,
         border_right=true,
         border_top=true,
-        data=NewStringData(),
+        data=new_string_data(),
     )

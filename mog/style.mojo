@@ -1,18 +1,6 @@
-from mog.external.mist.color import (
-    Color,
-    NoColor,
-    ANSIColor,
-    ANSI256Color,
-    RGBColor,
-    AnyColor,
-)
-from mog.external.mist import TerminalStyle
-from mog.external.stdlib.builtins import dict, HashableStr
-from mog.external.stdlib.builtins.vector import contains
-from mog.external.stdlib.builtins.string import __string__mul__, join
-from mog.renderer import Renderer
-from mog.position import Position
-from mog.border import (
+from .renderer import Renderer
+from .position import Position
+from .border import (
     Border,
     render_horizontal_edge,
     no_border,
@@ -28,11 +16,24 @@ from mog.border import (
     star_border,
     plus_border,
 )
-from mog.math import max, min
-from mog.external.weave import wrap, wordwrap, truncate
-from mog.extensions import get_slice
-from mog.external.weave.ansi.ansi import len_without_ansi
-from mog.align import align_text_horizontal, align_text_vertical
+from .math import max, min
+from .extensions import get_slice
+from .align import align_text_horizontal, align_text_vertical
+from .weave import wrap, wordwrap, truncate
+from .weave.ansi.ansi import len_without_ansi
+from .mist.color import (
+    Color,
+    NoColor,
+    ANSIColor,
+    ANSI256Color,
+    RGBColor,
+    AnyColor,
+)
+from .mist import TerminalStyle
+from .stdlib_extensions.builtins import dict, HashableStr
+from .stdlib_extensions.builtins.vector import contains
+from .stdlib_extensions.builtins.string import __string__mul__, join
+
 
 alias tab_width: Int = 4
 

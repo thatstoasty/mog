@@ -1,5 +1,7 @@
 from math import round
 from algorithm.sort import sort
+from ..stdlib_extensions.builtins import list
+
 
 # btoi converts a boolean to an integer, 1 if true, 0 if false.
 fn btoi(b: Bool) -> Int:
@@ -10,7 +12,7 @@ fn btoi(b: Bool) -> Int:
 
 
 # sum returns the sum of all integers in a slice.
-fn sum(numbers: DynamicVector[Int]) -> Int:
+fn sum(numbers: list[Int]) raises -> Int:
     var sum: Int = 0
     for i in range(len(numbers)):
         sum += numbers[i]
@@ -19,9 +21,9 @@ fn sum(numbers: DynamicVector[Int]) -> Int:
 
 
 # median returns the median of a slice of integers.
-fn median(n: DynamicVector[Int]) -> Int:
+fn median(n: list[Int]) raises -> Int:
     var sorted = n
-    sort(sorted)
+    sort(sorted._internal_vector)
 
     if len(sorted) <= 0:
         return 0
@@ -35,7 +37,7 @@ fn median(n: DynamicVector[Int]) -> Int:
 
 
 # largest returns the largest element and it's index from a slice of integers.
-fn largest(numbers: DynamicVector[Int]) raises -> (Int, Int):  # nolint:unparam
+fn largest(numbers: list[Int]) raises -> (Int, Int):  # nolint:unparam
     var largest: Int = 0
     var index: Int = 0
 

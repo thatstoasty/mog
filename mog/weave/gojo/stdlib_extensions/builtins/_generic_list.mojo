@@ -18,7 +18,7 @@ struct ListIter[T: CollectionElement]:
 
 
 @value
-struct list[T: CollectionElement](Sized, Movable):
+struct list[T: CollectionElement](Sized, Movable, CollectionElement):
     var _internal_vector: DynamicVector[T]
 
     fn __init__(inout self):

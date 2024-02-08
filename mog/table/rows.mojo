@@ -1,4 +1,5 @@
-from .util import max
+from math import max
+from ..stdlib_extensions.builtins import list
 
 
 # Data is the interface that wraps the basic methods of a table model.
@@ -19,7 +20,7 @@ trait Data:
 # StringData is a String-based implementation of the Data interface.
 @value
 struct StringData(Data):
-    var _rows: DynamicVector[DynamicVector[String]]
+    var _rows: list[list[String]]
     var _columns: Int
 
     # At returns the contents of the cell at the given index.
@@ -38,21 +39,21 @@ struct StringData(Data):
         return self._columns
 
     # Append appends the given row to the table.
-    fn append(inout self, row: DynamicVector[String]):
+    fn append(inout self, row: list[String]):
         self._columns = max(self._columns, len(row))
         self._rows.append(row)
 
     # Item appends the given row to the table.
-    fn item(inout self, rows: DynamicVector[String]) -> Self:
+    fn item(inout self, rows: list[String]) -> Self:
         self._columns = max(self._columns, len(rows))
         self._rows.append(rows)
         return self
 
 
 # new_string_data creates a new StringData with the given number of columns.
-fn new_string_data(*rows: DynamicVector[String]) -> StringData:
-    let string_data = StringData(
-        _rows=DynamicVector[DynamicVector[String]](), _columns=0
+fn new_string_data(*rows: list[String]) -> StringData:
+    var string_data = StringData(
+        _rows=list[list[String]](), _columns=0
     )
 
     for row in rows:

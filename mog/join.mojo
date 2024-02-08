@@ -1,6 +1,6 @@
 from .position import Position, top, bottom, left, right, center
 from .extensions import get_slice
-from .stdlib_extensions.builtins.vector import extend
+from .stdlib_extensions.builtins import list
 from .stdlib_extensions.builtins.string import __string__mul__
 from .weave.ansi.ansi import printable_rune_width
 from .weave.gojo.buffers import _buffer
@@ -36,10 +36,10 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
         return strs[0]
 
     # Groups of strings broken into multiple lines
-    var blocks = DynamicVector[DynamicVector[String]](len(strs))
+    var blocks = list[list[String]](len(strs))
 
     # Max line widths for the above text blocks
-    var max_widths = DynamicVector[Int](len(strs))
+    var max_widths = list[Int](len(strs))
     var max_height: Int = 0
 
     # Break text blocks into lines and get max widths for each text block
@@ -58,28 +58,28 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
             max_height = len(lines)
 
     # Add extra lines to make each side the same height
-    for i in range(blocks.size):
+    for i in range(len(blocks)):
         if len(blocks[i]) >= max_height:
             continue
 
-        var extra_lines = DynamicVector[String](max_height - len(blocks[i]))
+        var extra_lines = list[String](max_height - len(blocks[i]))
 
         if pos == top:
-            extend(blocks[i], extra_lines)
+            blocks[i].extend(extra_lines)
         elif pos == bottom:
-            extend(blocks[i], extra_lines)
+            extra_lines.extend(blocks[i])
+            blocks[i] = extra_lines
         else:
             let n = len(extra_lines)
             let split = UInt8(n) * pos
             let top_point = n - split
             let bottom_point = n - top
 
-            var top_lines = get_slice(extra_lines, int(top), int(len(extra_lines)))
-            var bottom_lines = get_slice(
-                extra_lines, int(bottom), int(len(extra_lines))
-            )
-            extend(top_lines, blocks[i])
-            extend(blocks[i], bottom_lines)
+            var top_lines = extra_lines[int(top):int(len(extra_lines))]
+            var bottom_lines = extra_lines[int(bottom):int(len(extra_lines))]
+            top_lines.extend(blocks[i])
+            blocks[i] = top_lines
+            blocks[i].extend(bottom_lines)
 
     # Merge lines
     var buf = bytes()
@@ -120,7 +120,8 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
 #
 # 	# Join on the top edge
 # 	str := lipgloss.join_horizontal(lipgloss.Top, blockA, blockB)
-fn join_horizontal(pos: Position, strs: DynamicVector[String]) raises -> String:
+fn join_horizontal(pos: Position, strs: list[String]) raises -> String:
+    print("original len", len(strs))
     if len(strs) == 0:
         return ""
 
@@ -128,10 +129,10 @@ fn join_horizontal(pos: Position, strs: DynamicVector[String]) raises -> String:
         return strs[0]
 
     # Groups of strings broken into multiple lines
-    var blocks = DynamicVector[DynamicVector[String]](len(strs))
+    var blocks = list[list[String]](len(strs))
 
     # Max line widths for the above text blocks
-    var max_widths = DynamicVector[Int](len(strs))
+    var max_widths = list[Int](len(strs))
     var max_height: Int = 0
 
     # Break text blocks into lines and get max widths for each text block
@@ -150,44 +151,49 @@ fn join_horizontal(pos: Position, strs: DynamicVector[String]) raises -> String:
             max_height = len(lines)
 
     # Add extra lines to make each side the same height
-    for i in range(blocks.size):
+    for i in range(len(blocks)):
         if len(blocks[i]) >= max_height:
             continue
 
-        var extra_lines = DynamicVector[String](max_height - len(blocks[i]))
+        var extra_lines = list[String](max_height - len(blocks[i]))
 
         if pos == top:
-            extend(blocks[i], extra_lines)
+            blocks[i].extend(extra_lines)
         elif pos == bottom:
-            extend(blocks[i], extra_lines)
+            extra_lines.extend(blocks[i])
+            blocks[i] = extra_lines
         else:
             let n = len(extra_lines)
             let split = UInt8(n) * pos
             let top_point = n - split
             let bottom_point = n - top
 
-            var top_lines = get_slice(extra_lines, int(top), int(len(extra_lines)))
-            var bottom_lines = get_slice(
-                extra_lines, int(bottom), int(len(extra_lines))
-            )
-            extend(top_lines, blocks[i])
-            extend(blocks[i], bottom_lines)
+            var top_lines = extra_lines[int(top):int(len(extra_lines))]
+            var bottom_lines = extra_lines[int(bottom):int(len(extra_lines))]
+            top_lines.extend(blocks[i])
+            blocks[i] = top_lines
+            blocks[i].extend(bottom_lines)
+
+    for i in range(len(blocks)):
+        for j in range(len(blocks[i])):
+            print("block", i, j, blocks[i][j])
 
     # Merge lines
     var buf = bytes()
     var b = _buffer.Buffer(buf)
+    # remember, all blocks have the same number of members now
+    print("len", len(blocks[0]))
     for i in range(len(blocks)):
-        let block = blocks[i]
-        for j in range(len(block)):
-            # print("block", j, "line", i, blocks[j][i])
-            _ = b.write_string(blocks[j][i])
+        for j in range(len(blocks[i])):
+            print("block", blocks[i][j])
+            _ = b.write_string(blocks[i][j])
 
             # Also make lines the same length
             let spaces = __string__mul__(
-                " ", max_widths[j] - printable_rune_width(blocks[j][i])
+                "", max_widths[j] - printable_rune_width(blocks[i][j])
             )
-            # print("spaces: ", spaces)
             _ = b.write_string(spaces)
+        
         if i < len(blocks[0]) - 1:
             _ = b.write_string("\n")
 
@@ -220,7 +226,7 @@ fn join_vertical(pos: Position, *strs: String) raises -> String:
         return strs[0]
 
     # Groups of strings broken into multiple lines
-    var blocks = DynamicVector[DynamicVector[String]](len(strs))
+    var blocks = list[list[String]](len(strs))
 
     # Max line widths for the above text blocks
     var max_width: Int = 0
@@ -272,7 +278,7 @@ fn join_vertical(pos: Position, *strs: String) raises -> String:
     return b.string()
 
 
-fn join_vertical(pos: Position, strs: DynamicVector[String]) raises -> String:
+fn join_vertical(pos: Position, strs: list[String]) raises -> String:
     if len(strs) == 0:
         return ""
 
@@ -280,7 +286,7 @@ fn join_vertical(pos: Position, strs: DynamicVector[String]) raises -> String:
         return strs[0]
 
     # Groups of strings broken into multiple lines
-    var blocks = DynamicVector[DynamicVector[String]](len(strs))
+    var blocks = list[list[String]](len(strs))
 
     # Max line widths for the above text blocks
     var max_width: Int = 0

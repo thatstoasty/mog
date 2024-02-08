@@ -76,8 +76,8 @@ struct Buffer(io.Writer, io.Reader):
         # if self == nil:
         #     # Special case, useful in debugging.
         #     return "<nil>"
-        var b = self.buf[self.off :]
-        return to_string(self.buf[self.off :])
+        var b = self.buf[self.off:]
+        return to_string(self.buf[self.off:])
 
     fn empty(self) -> Bool:
         """Reports whether the unread portion of the buffer is empty."""
@@ -201,7 +201,8 @@ struct Buffer(io.Writer, io.Reader):
         # if not ok:
         #     m = self.grow(p.size)
         # self.buf = get_slice[Byte](self.buf, m, len(self.buf))
-        return copy(self.buf, b)
+        self.buf += b
+        return len(b)
 
     fn write_string(inout self, s: String) raises -> Int:
         """Appends the contents of s to the buffer, growing the buffer as
@@ -219,8 +220,11 @@ struct Buffer(io.Writer, io.Reader):
 
         # TODO: Hacky way of getting rid of all the extra 0s that are added to the vector when it's resized.
         var s_buffer = to_bytes(s)
+        print("Writing:", s_buffer)
+        self.buf += s_buffer
+        print("Buffer after write:", self.string())
 
-        return copy(self.buf, s_buffer)
+        return len(s_buffer)
 
     # fn read_from(inout self, r: io.Reader) -> Int64:
     #     """Reads data from r until EOF and appends it to the buffer, growing

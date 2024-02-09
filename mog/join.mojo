@@ -81,18 +81,12 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
             blocks[i] = top_lines
             blocks[i].extend(bottom_lines)
 
-    for i in range(len(blocks)):
-        for j in range(len(blocks[i])):
-            print("block", i, j, blocks[i][j])
-
     # Merge lines
     var buf = bytes()
     var b = _buffer.Buffer(buf)
     # remember, all blocks have the same number of members now
-    print("len", len(blocks[0]))
     for i in range(len(blocks)):
         for j in range(len(blocks[i])):
-            print("block", blocks[i][j])
             _ = b.write_string(blocks[i][j])
 
             # Also make lines the same length
@@ -126,7 +120,6 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
 # 	# Join on the top edge
 # 	str := lipgloss.join_horizontal(lipgloss.Top, blockA, blockB)
 fn join_horizontal(pos: Position, strs: list[String]) raises -> String:
-    print("original len", len(strs))
     if len(strs) == 0:
         return ""
 
@@ -179,18 +172,12 @@ fn join_horizontal(pos: Position, strs: list[String]) raises -> String:
             blocks[i] = top_lines
             blocks[i].extend(bottom_lines)
 
-    for i in range(len(blocks)):
-        for j in range(len(blocks[i])):
-            print("block", i, j, blocks[i][j])
-
     # Merge lines
     var buf = bytes()
     var b = _buffer.Buffer(buf)
     # remember, all blocks have the same number of members now
-    print("len", len(blocks[0]))
     for i in range(len(blocks)):
         for j in range(len(blocks[i])):
-            print("block", blocks[i][j])
             _ = b.write_string(blocks[i][j])
 
             # Also make lines the same length

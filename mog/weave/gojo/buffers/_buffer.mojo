@@ -220,9 +220,7 @@ struct Buffer(io.Writer, io.Reader):
 
         # TODO: Hacky way of getting rid of all the extra 0s that are added to the vector when it's resized.
         var s_buffer = to_bytes(s)
-        print("Writing:", s_buffer)
         self.buf += s_buffer
-        print("Buffer after write:", self.string())
 
         return len(s_buffer)
 

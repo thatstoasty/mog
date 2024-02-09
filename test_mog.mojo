@@ -25,13 +25,14 @@ fn main() raises:
     var border = ascii_border()
     # table.border(border)
     # table.style_function(test_style_func)
-    table.set_headers("LANGUAGE", "FORMAL", "INFORMAL")
     table.row("French", "Bonjour", "Salut")
     table.row("Russian", "Zdravstvuyte", "Privet")
     # for i in range(table.data.rows()):
     #     for j in range(table.data.columns()):
     #         print(table.data.at(i, j))
     # print(table.data.columns())
+    print(table.render())
+    table.set_headers("LANGUAGE", "FORMAL", "INFORMAL")
     print(table.render())
     
     # var t = DynamicVector[String]()

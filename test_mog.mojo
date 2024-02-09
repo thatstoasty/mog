@@ -1,7 +1,8 @@
 # from mog.style import Style
 # import mog.position
 from mog.join import join_vertical, join_horizontal
-from mog.table import new_table, new_string_data
+from mog.table import new_table, new_string_data, Table
+from mog.table.table import default_styles
 from mog.border import ascii_border, Border
 from mog.style import Style
 from mog import position
@@ -21,10 +22,22 @@ fn test_style_func(row: Int, col: Int) raises -> Style:
 
 
 fn main() raises:
-    var table = new_table()
+    var table = Table(
+        style_function=default_styles,
+        border=ascii_border(),
+        border_style=Style(),
+        border_bottom=True,
+        border_column=True,
+        border_header=True,
+        border_left=True,
+        border_right=True,
+        border_top=True,
+        data=new_string_data(),
+        width=50
+    )
     var border = ascii_border()
     # table.border(border)
-    # table.style_function(test_style_func)
+    table.style_function = test_style_func
     table.row("French", "Bonjour", "Salut")
     table.row("Russian", "Zdravstvuyte", "Privet")
     # for i in range(table.data.rows()):

@@ -42,7 +42,7 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
     var max_widths = list[Int](len(strs))
     var max_height: Int = 0
 
-        # Break text blocks into lines and get max widths for each text block
+    # Break text blocks into lines and get max widths for each text block
     for i in range(len(strs)):
         let s = strs[i]
         let lines = s.split("\n")
@@ -75,8 +75,8 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
             let top_point = n - split
             let bottom_point = n - top
 
-            var top_lines = extra_lines[int(top):int(len(extra_lines))]
-            var bottom_lines = extra_lines[int(bottom):int(len(extra_lines))]
+            var top_lines = extra_lines[int(top) : int(len(extra_lines))]
+            var bottom_lines = extra_lines[int(bottom) : int(len(extra_lines))]
             top_lines.extend(blocks[i])
             blocks[i] = top_lines
             blocks[i].extend(bottom_lines)
@@ -94,7 +94,7 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
                 "", max_widths[j] - printable_rune_width(blocks[i][j])
             )
             _ = b.write_string(spaces)
-        
+
         if i < len(blocks[0]) - 1:
             _ = b.write_string("\n")
 
@@ -166,8 +166,8 @@ fn join_horizontal(pos: Position, strs: list[String]) raises -> String:
             let top_point = n - split
             let bottom_point = n - top
 
-            var top_lines = extra_lines[int(top):int(len(extra_lines))]
-            var bottom_lines = extra_lines[int(bottom):int(len(extra_lines))]
+            var top_lines = extra_lines[int(top) : int(len(extra_lines))]
+            var bottom_lines = extra_lines[int(bottom) : int(len(extra_lines))]
             top_lines.extend(blocks[i])
             blocks[i] = top_lines
             blocks[i].extend(bottom_lines)
@@ -185,7 +185,7 @@ fn join_horizontal(pos: Position, strs: list[String]) raises -> String:
                 "", max_widths[j] - printable_rune_width(blocks[i][j])
             )
             _ = b.write_string(spaces)
-        
+
         if i < len(blocks[0]) - 1:
             _ = b.write_string("\n")
 

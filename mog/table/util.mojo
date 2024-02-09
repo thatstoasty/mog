@@ -29,11 +29,11 @@ fn median(n: list[Int]) raises -> Int:
         return 0
 
     if len(sorted) % 2 == 0:
-        var middle = len(sorted) / 2 #nolint:gomnd
-        let median = (sorted[int(middle)-1] + sorted[int(middle)]) / 2
-        return int(round(median)) #nolint:gomnd
+        var middle = len(sorted) / 2  # nolint:gomnd
+        let median = (sorted[int(middle) - 1] + sorted[int(middle)]) / 2
+        return int(round(median))  # nolint:gomnd
 
-    return sorted[int(len(sorted)/2)]
+    return sorted[int(len(sorted) / 2)]
 
 
 # largest returns the largest element and it's index from a slice of integers.

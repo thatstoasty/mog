@@ -12,6 +12,7 @@ from .rows import StringData, new_string_data
 from .util import btoi, median, largest, sum
 from math import max, min
 
+
 # TrimRight returns a slice of the string s, with all trailing
 # Unicode code points contained in cutset removed.
 #
@@ -20,7 +21,7 @@ fn trim_right(s: String, cutset: String) -> String:
     let index = s.find(cutset)
     if index == -1:
         return s
-    
+
     return s[:index]
 
 
@@ -57,8 +58,9 @@ fn default_styles(row: Int, col: Int) raises -> Style:
 # Table is a type for rendering tables.
 # TODO: Need to figure out why the bottom edge is off by 2 in length
 
+
 @value
-struct Table():
+struct Table:
     var style_function: StyleFunction
     var border: Border
 
@@ -205,18 +207,23 @@ struct Table():
 
                 # self.heights[row_number_with_header_offset] = max(self.heights[row_number_with_header_offset], get_height(rendered))
                 if len(self.heights) < row_number_with_header_offset:
-                    self.heights[row_number_with_header_offset] = max(self.heights[row_number_with_header_offset], get_height(rendered))
+                    self.heights[row_number_with_header_offset] = max(
+                        self.heights[row_number_with_header_offset],
+                        get_height(rendered),
+                    )
                 else:
                     self.heights.append(get_height(rendered))
 
                 if len(self.headers) != 0:
-                    self.widths[column_number] = max(self.widths[column_number], get_width(rendered))
+                    self.widths[column_number] = max(
+                        self.widths[column_number], get_width(rendered)
+                    )
                 else:
                     self.widths.append(get_width(rendered))
-                
+
                 column_number += 1
             row_number += 1
-        
+
         # Table Resizing Logic.
         #
         # Given a user defined table width, we must ensure the table is exactly that
@@ -276,9 +283,7 @@ struct Table():
                     var rendered_cell = self.style(r + btoi(has_headers), i).render(
                         self.data.at(r, i)
                     )
-                    var non_whitespace_chars = get_width(
-                        trim_right(rendered_cell, " ")
-                    )
+                    var non_whitespace_chars = get_width(trim_right(rendered_cell, " "))
                     trimmed_width[r] = non_whitespace_chars + 1
 
                 column_medians[i] = median(trimmed_width)
@@ -366,7 +371,9 @@ struct Table():
         var string_builder = Buffer(buffer)
 
         if self.border_left:
-            _ = string_builder.write_string(self.border_style.render(self.border.top_left))
+            _ = string_builder.write_string(
+                self.border_style.render(self.border.top_left)
+            )
 
         var i: Int = 0
         while i < len(self.widths):
@@ -383,7 +390,9 @@ struct Table():
             i += 1
 
         if self.border_right:
-            _ = string_builder.write_string(self.border_style.render(self.border.top_right))
+            _ = string_builder.write_string(
+                self.border_style.render(self.border.top_right)
+            )
 
         return string_builder.string()
 
@@ -440,11 +449,15 @@ struct Table():
             )
 
             if (i < len(self.headers) - 1) and (self.border_column):
-                _ = string_builder.write_string(self.border_style.render(self.border.left))
+                _ = string_builder.write_string(
+                    self.border_style.render(self.border.left)
+                )
 
         if self.border_header:
             if self.border_right:
-                _ = string_builder.write_string(self.border_style.render(self.border.right))
+                _ = string_builder.write_string(
+                    self.border_style.render(self.border.right)
+                )
 
             _ = string_builder.write_string("\n")
             if self.border_left:
@@ -485,7 +498,6 @@ struct Table():
         let has_headers = len(self.headers) > 0
         let height = self.heights[index + btoi(has_headers)]
 
-
         var cells = list[String]()
         var left = __string__mul__(
             self.border_style.render(self.border.left) + "\n", height
@@ -501,7 +513,7 @@ struct Table():
             style.max_height(height)
             style.width(self.widths[c])
             style.max_width(self.widths[c])
-            
+
             cells.append(
                 style.render(
                     truncate.string_with_tail(cell, UInt8(self.widths[c] * height), ".")
@@ -510,7 +522,7 @@ struct Table():
 
             if c < self.data.columns() - 1 and self.border_column:
                 cells.append(left)
-            
+
             c += 1
 
         if self.border_right:

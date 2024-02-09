@@ -10,7 +10,7 @@ alias default_newline = "\n"
 alias default_tab_width = 4
 
 
-struct Wrap():
+struct Wrap:
     var limit: Int
     var newline: String
     var keep_newlines: Bool

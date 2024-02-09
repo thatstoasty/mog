@@ -1,5 +1,4 @@
 import .position
-from .position import Position
 from .math import max, min
 from .extensions import count
 from .stdlib_extensions.builtins.string import __string__mul__
@@ -11,7 +10,7 @@ from .mist import TerminalStyle
 # the same width by padding them with spaces. If a termenv style is passed,
 # use that to style the spaces added.
 fn align_text_horizontal(
-    text: String, pos: Position, width: Int, style: TerminalStyle
+    text: String, pos: position.Position, width: Int, style: TerminalStyle
 ) raises -> String:
     # TODO: Replace when get_lines works.
     let lines = text.split("\n")
@@ -61,7 +60,7 @@ fn align_text_horizontal(
     return aligned_text
 
 
-fn align_text_vertical(text: String, pos: Position, height: Int) raises -> String:
+fn align_text_vertical(text: String, pos: position.Position, height: Int) raises -> String:
     let text_height = count(text, "\n") + 1
     if height < text_height:
         return text

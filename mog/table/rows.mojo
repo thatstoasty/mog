@@ -52,9 +52,7 @@ struct StringData(Data):
 
 # new_string_data creates a new StringData with the given number of columns.
 fn new_string_data(*rows: list[String]) -> StringData:
-    var string_data = StringData(
-        _rows=list[list[String]](), _columns=0
-    )
+    var string_data = StringData(_rows=list[list[String]](), _columns=0)
 
     for row in rows:
         string_data._columns = max(string_data._columns, len(row[]))

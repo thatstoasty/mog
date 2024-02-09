@@ -55,6 +55,8 @@ fn default_styles(row: Int, col: Int) raises -> Style:
 
 
 # Table is a type for rendering tables.
+# TODO: Need to figure out why the bottom edge is off by 2 in length
+
 @value
 struct Table():
     var style_function: StyleFunction
@@ -211,7 +213,7 @@ struct Table():
                     self.widths[column_number] = max(self.widths[column_number], get_width(rendered))
                 else:
                     self.widths.append(get_width(rendered))
-
+                
                 column_number += 1
             row_number += 1
         

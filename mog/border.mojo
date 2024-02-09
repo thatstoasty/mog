@@ -88,14 +88,14 @@ fn ascii_border() -> Border:
         bottom="_",
         left="|",
         right="|",
-        top_left="r",
-        top_right="|",
-        bottom_left="l",
-        bottom_right="|",
-        middle_left="t",
-        middle_right="t",
-        middle="+",
-        middle_top="T",
+        top_left="*",
+        top_right="*",
+        bottom_left="*",
+        bottom_right="*",
+        middle_left="*",
+        middle_right="*",
+        middle="*",
+        middle_top="*",
     )
 
 

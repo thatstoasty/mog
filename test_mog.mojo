@@ -3,29 +3,34 @@
 from mog.join import join_vertical, join_horizontal
 from mog.table import new_table, new_string_data, Table
 from mog.table.table import default_styles
-from mog.border import ascii_border, Border
+from mog.border import star_border, ascii_border, Border
 from mog.style import Style
 from mog import position
 
 
 fn test_style_func(row: Int, col: Int) raises -> Style:
     var style = Style()
+    style.horizontal_alignment(position.center)
+    style.vertical_alignment(position.center)
     # style.padding(0, 1)
     if row == 0:
-        style.horizontal_alignment(position.center)
-        style.vertical_alignment(position.center)
+        style.foreground("#c9a0dc")
         return style
     elif row % 2 == 0:
+        style.foreground("#e58006")
         return style
     else:
         return style
 
 
 fn main() raises:
+    var border_style = Style()
+    border_style.foreground("#39E506")
+
     var table = Table(
         style_function=default_styles,
         border=ascii_border(),
-        border_style=Style(),
+        border_style=border_style,
         border_bottom=True,
         border_column=True,
         border_header=True,
@@ -35,7 +40,6 @@ fn main() raises:
         data=new_string_data(),
         width=50
     )
-    var border = ascii_border()
     # table.border(border)
     table.style_function = test_style_func
     table.row("French", "Bonjour", "Salut")

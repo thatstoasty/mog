@@ -1,7 +1,7 @@
+from math import max, min
 from ..weave import truncate
-from ..weave.gojo.buffers._buffer import Buffer
-from ..weave.gojo.stdlib_extensions.builtins import bytes
-from ..stdlib_extensions.builtins import list
+from ..weave.gojo.bytes import buffer
+from ..weave.gojo.builtins import Bytes
 from ..stdlib_extensions.builtins.string import __string__mul__
 from ..style import Style
 from ..border import ascii_border, Border
@@ -10,7 +10,6 @@ from ..join import join_horizontal
 from ..size import get_height, get_width
 from .rows import StringData, new_string_data
 from .util import btoi, median, largest, sum
-from math import max, min
 
 
 # TrimRight returns a slice of the string s, with all trailing
@@ -18,7 +17,7 @@ from math import max, min
 #
 # To remove a suffix, use [TrimSuffix] instead.
 fn trim_right(s: String, cutset: String) -> String:
-    let index = s.find(cutset)
+    var index = s.find(cutset)
     if index == -1:
         return s
 
@@ -73,7 +72,7 @@ struct Table:
     var border_row: Bool
 
     var border_style: Style
-    var headers: list[String]
+    var headers: DynamicVector[String]
     var data: StringData
 
     var width: Int
@@ -99,7 +98,7 @@ struct Table:
         border_header: Bool = False,
         border_column: Bool = False,
         border_row: Bool = False,
-        headers: list[String] = list[String](),
+        headers: DynamicVector[String] = DynamicVector[String](),
         width: Int = 0,
         height: Int = 0,
         offset: Int = 0,
@@ -126,52 +125,51 @@ struct Table:
 
     # Clearrows clears the table rows.
     fn clear_rows(inout self):
-        self.data = StringData(_rows=list[list[String]](), _columns=0)
+        self.data = StringData(_rows=DynamicVector[DynamicVector[String]](), _columns=0)
 
     # style returns the style for a cell based on it's position (row, column).
     fn style(self, row: Int, col: Int) raises -> Style:
         return self.style_function(row, col)
 
     # rows appends rows to the table data.
-    fn rows(inout self, *rows: list[String]):
+    fn rows(inout self, *rows: DynamicVector[String]):
         for i in range(len(rows)):
             self.data.append(rows[i])
 
-    fn rows(inout self, rows: list[list[String]]) raises:
+    fn rows(inout self, rows: DynamicVector[DynamicVector[String]]) raises:
         for i in range(len(rows)):
             self.data.append(rows[i])
 
     # Row appends a row to the table data.
     fn row(inout self, *row: String):
-        var temp = list[String]()
+        var temp = DynamicVector[String]()
         for element in row:
             temp.append(element[])
         self.data.append(temp)
 
     # Row appends a row to the table data.
-    fn row(inout self, row: list[String]):
+    fn row(inout self, row: DynamicVector[String]):
         self.data.append(row)
 
     # Headers sets the table headers.
     fn set_headers(inout self, *headers: String):
-        var temp = list[String]()
+        var temp = DynamicVector[String]()
         for element in headers:
             temp.append(element[])
         self.headers = temp
 
-    fn set_headers(inout self, headers: list[String]):
+    fn set_headers(inout self, headers: DynamicVector[String]):
         self.headers = headers
 
     # String returns the table as a String.
     fn string(inout self) raises -> String:
-        let has_headers = len(self.headers) > 0
-        let has_rows = self.data.rows() > 0
+        var has_headers = len(self.headers) > 0
+        var has_rows = self.data.rows() > 0
 
         if not has_headers and not has_rows:
             return ""
 
-        var buffer = bytes()
-        var string_builder = Buffer(buffer)
+        var string_builder = buffer.new_buffer()
 
         # Add empty cells to the headers, until it's the same length as the longest
         # row (only if there are at headers in the first place).
@@ -182,14 +180,14 @@ struct Table:
                 i += 1
 
         # Initialize the widths.
-        self.widths = DynamicVector[Int](max(len(self.headers), self.data.columns()))
-        self.heights = DynamicVector[Int](btoi(has_headers) + self.data.rows())
+        self.widths = DynamicVector[Int](capacity=max(len(self.headers), self.data.columns()))
+        self.heights = DynamicVector[Int](capacity=btoi(has_headers) + self.data.rows())
 
         # The style fntion may affect width of the table. It's possible to set
         # the StyleFunction after the headers and rows. Update the widths for a final
         # time.
         for i in range(len(self.headers)):
-            let cell = self.headers[i]
+            var cell = self.headers[i]
             self.widths.append(get_width(self.style(0, i).render(cell)))
 
             if i == 0:
@@ -201,9 +199,9 @@ struct Table:
         var column_number: Int = 0
         while row_number < self.data.rows():
             while column_number < self.data.columns():
-                let cell = self.data.at(row_number, column_number)
-                let row_number_with_header_offset = row_number + btoi(has_headers)
-                let rendered = self.style(row_number + 1, column_number).render(cell)
+                var cell = self.data.at(row_number, column_number)
+                var row_number_with_header_offset = row_number + btoi(has_headers)
+                var rendered = self.style(row_number + 1, column_number).render(cell)
 
                 # self.heights[row_number_with_header_offset] = max(self.heights[row_number_with_header_offset], get_height(rendered))
                 if len(self.heights) < row_number_with_header_offset:
@@ -274,9 +272,9 @@ struct Table:
         elif width > self.width and self.width > 0:
             # Table is too wide, calculate the median non-whitespace length of each
             # column, and shrink the columns based on the largest difference.
-            var column_medians = DynamicVector[Int](len(self.widths))
+            var column_medians = DynamicVector[Int](capacity=len(self.widths))
             for i in range(len(self.widths)):
-                var trimmed_width = DynamicVector[Int](self.data.rows())
+                var trimmed_width = DynamicVector[Int](capacity=self.data.rows())
 
                 var r: Int = 0
                 for r in range(self.data.rows()):
@@ -290,7 +288,7 @@ struct Table:
 
             # Find the biggest differences between the median and the column width.
             # Shrink the columns based on the largest difference.
-            var differences = DynamicVector[Int](len(self.widths))
+            var differences = DynamicVector[Int](capacity=len(self.widths))
             for i in range(len(self.widths)):
                 differences[i] = self.widths[i] - column_medians[i]
 
@@ -337,7 +335,7 @@ struct Table:
         var style = Style()
         style.max_height(self.compute_height())
         style.max_width(self.width)
-        return style.render(string_builder.string())
+        return style.render(str(string_builder))
 
     # compute_width computes the width of the table in it's current configuration.
     fn compute_width(self) raises -> Int:
@@ -349,7 +347,7 @@ struct Table:
 
     # compute_height computes the height of the table in it's current configuration.
     fn compute_height(self) raises -> Int:
-        let has_headers = len(self.headers) > 0
+        var has_headers = len(self.headers) > 0
         return (
             sum(self.heights)
             - 1
@@ -367,8 +365,7 @@ struct Table:
     # constructTopBorder constructs the top border for the table given it's current
     # border configuration and data.
     fn construct_top_border(self) raises -> String:
-        var buffer = bytes()
-        var string_builder = Buffer(buffer)
+        var string_builder = buffer.new_buffer()
 
         if self.border_left:
             _ = string_builder.write_string(
@@ -394,13 +391,12 @@ struct Table:
                 self.border_style.render(self.border.top_right)
             )
 
-        return string_builder.string()
+        return str(string_builder)
 
     # construct_bottom_border constructs the bottom border for the table given it's current
     # border configuration and data.
     fn construct_bottom_border(self) raises -> String:
-        var buffer = bytes()
-        var string_builder = Buffer(buffer)
+        var string_builder = buffer.new_buffer()
         if self.border_left:
             _ = string_builder.write_string(
                 self.border_style.render(self.border.bottom_left)
@@ -425,18 +421,17 @@ struct Table:
                 self.border_style.render(self.border.bottom_right)
             )
 
-        return string_builder.string()
+        return str(string_builder)
 
     # constructHeaders constructs the headers for the table given it's current
     # header configuration and data.
     fn construct_headers(self) raises -> String:
-        var buffer = bytes()
-        var string_builder = Buffer(buffer)
+        var string_builder = buffer.new_buffer()
         if self.border_left:
             _ = string_builder.write_string(self.border_style.render(self.border.left))
 
         for i in range(len(self.headers)):
-            let header = self.headers[i]
+            var header = self.headers[i]
             var style = self.style(0, i)
             style.max_height(1)
             style.width(self.widths[i])
@@ -444,7 +439,7 @@ struct Table:
 
             _ = string_builder.write_string(
                 style.render(
-                    truncate.string_with_tail(header, UInt8(self.widths[i]), ".")
+                    truncate.apply_truncate_with_tail(header, UInt8(self.widths[i]), ".")
                 )
             )
 
@@ -487,18 +482,17 @@ struct Table:
         if self.border_right and not self.border_header:
             _ = string_builder.write_string(self.border_style.render(self.border.right))
 
-        return string_builder.string()
+        return str(string_builder)
 
     # construct_row constructs the row for the table given an index and row data
     # based on the current configuration.
     fn construct_row(self, index: Int) raises -> String:
-        var buffer = bytes()
-        var string_builder = Buffer(buffer)
+        var string_builder = buffer.new_buffer()
 
-        let has_headers = len(self.headers) > 0
-        let height = self.heights[index + btoi(has_headers)]
+        var has_headers = len(self.headers) > 0
+        var height = self.heights[index + btoi(has_headers)]
 
-        var cells = list[String]()
+        var cells = DynamicVector[String]()
         var left = __string__mul__(
             self.border_style.render(self.border.left) + "\n", height
         )
@@ -516,7 +510,7 @@ struct Table:
 
             cells.append(
                 style.render(
-                    truncate.string_with_tail(cell, UInt8(self.widths[c] * height), ".")
+                    truncate.apply_truncate_with_tail(cell, UInt8(self.widths[c] * height), ".")
                 )
             )
 
@@ -532,7 +526,7 @@ struct Table:
             cells.append(right)
 
         for i in range(len(cells)):
-            let cell = cells[i]
+            var cell = cells[i]
             cells[i] = trim_right(cell, "\n")
 
         _ = string_builder.write_string(join_horizontal(position.top, cells) + "\n")
@@ -558,7 +552,7 @@ struct Table:
                 self.border_style.render(self.border.middle_right) + "\n"
             )
 
-        return string_builder.string()
+        return str(string_builder)
 
 
 # New returns a new Table that can be modified through different

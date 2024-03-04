@@ -1,19 +1,17 @@
+from .gojo.bytes import buffer
+from .gojo.builtins._bytes import Bytes
+from .gojo.io import traits as io
 from .ansi import writer
 from .ansi.ansi import is_terminator, Marker
-from .gojo.buffers import _buffer
-from .gojo.buffers import _bytes as bt
-from .gojo.stdlib_extensions.builtins import bytes
-from .stdlib_extensions.builtins.string import __string__mul__, strip
-from .stdlib_extensions.builtins.vector import contains
+from .utils import __string__mul__, strip
 
 
 @value
-struct Writer:
+struct Writer(StringableRaising, io.Writer):
     var padding: UInt8
 
     var ansi_writer: writer.Writer
-    var buf: _buffer.Buffer
-    var cache: _buffer.Buffer
+    var cache: buffer.Buffer
     var line_len: Int
     var ansi: Bool
 
@@ -27,54 +25,48 @@ struct Writer:
         self.line_len = line_len
         self.ansi = ansi
 
-        var buf = bytes()
-        self.buf = _buffer.Buffer(buf=buf)
-
-        var cache = bytes()
-        self.cache = _buffer.Buffer(buf=cache)
-
-        # This copies the buffer? I should probably try redoing this all with proper pointers
-        self.ansi_writer = writer.Writer(self.buf)
+        self.cache = buffer.new_buffer()
+        self.ansi_writer = writer.new_default_writer()
 
     # write is used to write content to the padding buffer.
-    fn write(inout self, b: bytes) raises -> Int:
-        for i in range(len(b)):
-            let c = chr(int(b[i]))
+    fn write(inout self, src: Bytes) raises -> Int:
+        for i in range(len(src)):
+            var c = chr(int(src[i]))
 
             if c == Marker:
                 self.ansi = True
             elif self.ansi:
-                if is_terminator(b[i]):
+                if is_terminator(src[i]):
                     self.ansi = False
             else:
-                self.line_len += len(c)
-
                 if c == "\n":
                     # end of current line, if pad right then add padding before newline
                     self.pad()
                     self.ansi_writer.reset_ansi()
                     self.line_len = 0
+                else:
+                    self.line_len += len(c)
 
-            _ = self.ansi_writer.write(bt.to_bytes(c))
+            _ = self.ansi_writer.write(Bytes(c))
 
-        return len(b)
+        return len(src)
 
     fn pad(inout self) raises:
         if self.padding > 0 and UInt8(self.line_len) < self.padding:
-            let padding = __string__mul__(" ", int(self.padding) - self.line_len)
-            _ = self.ansi_writer.write(bt.to_bytes(padding))
+            var padding = __string__mul__(" ", int(self.padding) - self.line_len)
+            _ = self.ansi_writer.write(Bytes(padding))
 
     # close will finish the padding operation.
     fn close(inout self) raises:
         return self.flush()
 
     # Bytes returns the padded result as a byte slice.
-    fn bytes(self) -> bytes:
+    fn bytes(self) raises -> Bytes:
         return self.cache.bytes()
 
     # String returns the padded result as a string.
-    fn string(self) -> String:
-        return self.cache.string()
+    fn __str__(self) raises -> String:
+        return str(self.cache)
 
     # flush will finish the padding operation. Always call it before trying to
     # retrieve the final result.
@@ -103,7 +95,7 @@ fn new_writer(width: UInt8) raises -> Writer:
 
 # Bytes is shorthand for declaring a new default padding-writer instance,
 # used to immediately pad a byte slice.
-fn to_bytes(b: bytes, width: UInt8) raises -> bytes:
+fn apply_padding_to_bytes(owned b: Bytes, width: UInt8) raises -> Bytes:
     var f = new_writer(width)
     _ = f.write(b)
     _ = f.flush()
@@ -113,8 +105,8 @@ fn to_bytes(b: bytes, width: UInt8) raises -> bytes:
 
 # String is shorthand for declaring a new default padding-writer instance,
 # used to immediately pad a string.
-fn string(s: String, width: UInt8) raises -> String:
-    var buf = bt.to_bytes(s)
-    let b = to_bytes(buf, width)
+fn apply_padding(owned s: String, width: UInt8) raises -> String:
+    var buf = Bytes(s)
+    var b = apply_padding_to_bytes(buf ^, width)
 
-    return bt.to_string(b)
+    return str(b)

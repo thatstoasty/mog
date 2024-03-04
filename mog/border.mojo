@@ -278,8 +278,8 @@ fn render_horizontal_edge(
         middle_copy = " "
 
     # TODO: Should be rune length here, just taking len of string for now.
-    let left_width = len(left)
-    let right_width = len(right)
+    var left_width = len(left)
+    var right_width = len(right)
 
     var runes: DynamicVector[String] = DynamicVector[String]()
     runes.append(middle_copy)

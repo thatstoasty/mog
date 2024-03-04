@@ -86,7 +86,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
             self._key_map.append(EMPTY_BUCKET)  # -1 means unused
 
     fn _rehash(inout self):
-        let old_mask_capacity = self._capacity
+        var old_mask_capacity = self._capacity
         self._capacity *= 2
         self._initialize_key_map(self._capacity)
 
@@ -94,13 +94,13 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
             self._put(self._keys.unchecked_get(i), self._values.unchecked_get(i), i)
 
     fn _put(inout self, key: K, value: V, rehash_index: Int):
-        let key_hash = hash(key)
-        let modulo_mask = self._capacity
+        var key_hash = hash(key)
+        var modulo_mask = self._capacity
         var key_map_index = key_hash % modulo_mask
         while True:
-            let key_index = self._key_map.unchecked_get(index=key_map_index)
+            var key_index = self._key_map.unchecked_get(index=key_map_index)
             if key_index == EMPTY_BUCKET:
-                let new_key_index: Int
+                var new_key_index: Int
                 if rehash_index == -1:
                     self._keys.append(key)
                     self._values.append(value)
@@ -112,7 +112,7 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
                 self._key_map.unchecked_set(key_map_index, new_key_index)
                 return
 
-            let existing_key = self._keys.unchecked_get(key_index)
+            var existing_key = self._keys.unchecked_get(key_index)
             if existing_key == key:
                 self._values.unchecked_set(key_index, value)
                 if self._deleted_mask.unchecked_get(key_index).value:
@@ -123,14 +123,14 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
             key_map_index = (key_map_index + 1) % modulo_mask
 
     fn __getitem__(self, key: K) raises -> V:
-        let key_hash = hash(key)
-        let modulo_mask = self._capacity
+        var key_hash = hash(key)
+        var modulo_mask = self._capacity
         var key_map_index = key_hash % modulo_mask
         while True:
-            let key_index = self._key_map.__getitem__(index=key_map_index)
+            var key_index = self._key_map.__getitem__(index=key_map_index)
             if key_index == EMPTY_BUCKET:
                 raise Error("Key not found")
-            let other_key = self._keys.unchecked_get(key_index)
+            var other_key = self._keys.unchecked_get(key_index)
             if other_key == key:
                 if self._deleted_mask[key_index]:
                     raise Error("Key not found")
@@ -144,14 +144,14 @@ struct dict[K: HashableCollectionElement, V: CollectionElement](Sized):
             return default
 
     fn pop(inout self, key: K) raises:
-        let key_hash = hash(key)
-        let modulo_mask = self._capacity
+        var key_hash = hash(key)
+        var modulo_mask = self._capacity
         var key_map_index = key_hash % modulo_mask
         while True:
-            let key_index = self._key_map.__getitem__(index=key_map_index)
+            var key_index = self._key_map.__getitem__(index=key_map_index)
             if key_index == EMPTY_BUCKET:
                 raise Error("KeyError, key not found.")
-            let other_key = self._keys.unchecked_get(key_index)
+            var other_key = self._keys.unchecked_get(key_index)
             if other_key == key:
                 self._count -= 1
                 self._deleted_mask[key_index] = True

@@ -1,319 +1,18 @@
-from ..buffers._bytes import to_bytes
-from ..stdlib_extensions.builtins._bytes import bytes, Byte
-
-alias Rune = Int32
-
-# Copyright 2009 The Go Authors. All rights reserved.
-# Use of this source code is governed by a BSD-style
-# license that can be found in the LICENSE file.
-
-# Package io provides basic interfaces to I/O primitives.
-# Its primary job is to wrap existing implementations of such primitives,
-# such as those in package os, into shared public interfaces that
-# abstract the fntionality, plus some other related primitives.
-#
-# Because these interfaces and primitives wrap lower-level operations with
-# various implementations, unless otherwise informed clients should not
-# assume they are safe for parallel execution.
-# Seek whence values.
-alias seek_start: UInt8 = 0  # seek relative to the origin of the file
-alias seek_current: UInt8 = 1  # seek relative to the current offset
-alias seek_end: UInt8 = 2  # seek relative to the end
-
-# ErrShortWrite means that a write accepted fewer bytes than requested
-# but failed to return an explicit error.
-alias ErrShortWrite = "short write"
-
-# errInvalidWrite means that a write returned an impossible count.
-alias errInvalidWrite = "invalid write result"
-
-# ErrShortBuffer means that a read required a longer buffer than was provided.
-alias ErrShortBuffer = "short buffer"
-
-# EOF is the error returned by Read when no more input is available.
-# (Read must return EOF itself, not an error wrapping EOF,
-# because callers will test for EOF using ==.)
-# fntions should return EOF only to signal a graceful end of input.
-# If the EOF occurs unexpectedly in a structured data stream,
-# the appropriate error is either [ErrUnexpectedEOF] or some other error
-# giving more detail.
-alias EOF = "EOF"
-
-# ErrUnexpectedEOF means that EOF was encountered in the
-# middle of reading a fixed-size block or data structure.
-alias ErrUnexpectedEOF = "unexpected EOF"
-
-# ErrNoProgress is returned by some clients of a [Reader] when
-# many calls to Read have failed to return any data or error,
-# usually the sign of a broken [Reader] implementation.
-alias ErrNoProgress = "multiple Read calls return no data or error"
-
-
-# Reader is the interface that wraps the basic Read method.
-#
-# Read reads up to len(p) bytes into p. It returns the number of bytes
-# read (0 <= n <= len(p)) and any error encountered. Even if Read
-# returns n < len(p), it may use all of p as scratch space during the call.
-# If some data is available but not len(p) bytes, Read conventionally
-# returns what is available instead of waiting for more.
-#
-# When Read encounters an error or end-of-file condition after
-# successfully reading n > 0 bytes, it returns the number of
-# bytes read. It may return the (non-nil) error from the same call
-# or return the error (and n == 0) from a subsequent call.
-# An instance of this general case is that a Reader returning
-# a non-zero number of bytes at the end of the input stream may
-# return either err == EOF or err == nil. The next Read should
-# return 0, EOF.
-#
-# Callers should always process the n > 0 bytes returned before
-# considering the error err. Doing so correctly handles I/O errors
-# that happen after reading some bytes and also both of the
-# allowed EOF behaviors.
-#
-# If len(p) == 0, Read should always return n == 0. It may return a
-# non-nil error if some error condition is known, such as EOF.
-#
-# Implementations of Read are discouraged from returning a
-# zero byte count with a nil error, except when len(p) == 0.
-# Callers should treat a return of 0 and nil as indicating that
-# nothing happened; in particular it does not indicate EOF.
-#
-# Implementations must not retain p.
-trait Reader(Movable, Copyable):
-    fn read(inout self, inout b: bytes) -> Int:
-        ...
-
-
-# Writer is the interface that wraps the basic Write method.
-#
-# Write writes len(p) bytes from p to the underlying data stream.
-# It returns the number of bytes written from p (0 <= n <= len(p))
-# and any error encountered that caused the write to stop early.
-# Write must return a non-nil error if it returns n < len(p).
-# Write must not modify the slice data, even temporarily.
-#
-# Implementations must not retain p.
-trait Writer(Movable, Copyable):
-    fn write(inout self, b: bytes) raises -> Int:
-        ...
-
-
-# Closer is the interface that wraps the basic Close method.
-#
-# The behavior of Close after the first call is undefined.
-# Specific implementations may document their own behavior.
-trait Closer(Movable, Copyable):
-    fn close(inout self, b: bytes) -> Int:
-        ...
-
-
-# Seeker is the interface that wraps the basic Seek method.
-#
-# Seek sets the offset for the next Read or Write to offset,
-# interpreted according to whence:
-# [seek_start] means relative to the start of the file,
-# [seek_current] means relative to the current offset, and
-# [seek_end] means relative to the end
-# (for example, offset = -2 specifies the penultimate byte of the file).
-# Seek returns the new offset relative to the start of the
-# file or an error, if any.
-#
-# Seeking to an offset before the start of the file is an error.
-# Seeking to any positive offset may be allowed, but if the new offset exceeds
-# the size of the underlying object the behavior of subsequent I/O operations
-# is implementation-dependent.
-trait Seeker(Movable, Copyable):
-    fn seek(inout self, offset: Int64, whence: Int) -> Int:
-        ...
-
-
-trait ReadWriter(Reader, Writer):
-    ...
-
-
-trait ReadCloser(Reader, Closer):
-    ...
-
-
-trait WriteCloser(Writer, Closer):
-    ...
-
-
-trait ReadWriteCloser(Reader, Writer, Closer):
-    ...
-
-
-trait ReadSeeker(Reader, Seeker):
-    ...
-
-
-trait ReadSeekCloser(Reader, Seeker, Closer):
-    ...
-
-
-trait WriteSeeker(Writer, Seeker):
-    ...
-
-
-trait ReadWriteSeeker(Reader, Writer, Seeker):
-    ...
-
-
-# ReaderFrom is the interface that wraps the ReadFrom method.
-#
-# ReadFrom reads data from r until EOF or error.
-# The return value n is the number of bytes read.
-# Any error except EOF encountered during the read is also returned.
-#
-# The [Copy] fntion uses [ReaderFrom] if available.
-trait ReaderFrom:
-    fn read_from[R: Reader](self, r: R) -> Int:
-        ...
-
-
-trait WriterReadFrom(Writer, ReaderFrom):
-    ...
-
-
-# WriterTo is the interface that wraps the WriteTo method.
-#
-# WriteTo writes data to w until there's no more data to write or
-# when an error occurs. The return value n is the number of bytes
-# written. Any error encountered during the write is also returned.
-#
-# The Copy fntion uses WriterTo if available.
-trait WriterTo:
-    fn write_to[W: Writer](self, w: W) -> Int:
-        ...
-
-
-trait ReaderWriteTo(Reader, WriterTo):
-    ...
-
-
-# ReaderAt is the interface that wraps the basic ReadAt method.
-#
-# ReadAt reads len(p) bytes into p starting at offset off in the
-# underlying input source. It returns the number of bytes
-# read (0 <= n <= len(p)) and any error encountered.
-#
-# When ReadAt returns n < len(p), it returns a non-nil error
-# explaining why more bytes were not returned. In this respect,
-# ReadAt is stricter than Read.
-#
-# Even if ReadAt returns n < len(p), it may use all of p as scratch
-# space during the call. If some data is available but not len(p) bytes,
-# ReadAt blocks until either all the data is available or an error occurs.
-# In this respect ReadAt is different from Read.
-#
-# If the n = len(p) bytes returned by ReadAt are at the end of the
-# input source, ReadAt may return either err == EOF or err == nil.
-#
-# If ReadAt is reading from an input source with a seek offset,
-# ReadAt should not affect nor be affected by the underlying
-# seek offset.
-#
-# Clients of ReadAt can execute parallel ReadAt calls on the
-# same input source.
-#
-# Implementations must not retain p.
-trait ReaderAt:
-    fn read_at(self, b: bytes, off: Int64) -> Int:
-        ...
-
-
-# WriterAt is the interface that wraps the basic WriteAt method.
-#
-# WriteAt writes len(p) bytes from p to the underlying data stream
-# at offset off. It returns the number of bytes written from p (0 <= n <= len(p))
-# and any error encountered that caused the write to stop early.
-# WriteAt must return a non-nil error if it returns n < len(p).
-#
-# If WriteAt is writing to a destination with a seek offset,
-# WriteAt should not affect nor be affected by the underlying
-# seek offset.
-#
-# Clients of WriteAt can execute parallel WriteAt calls on the same
-# destination if the ranges do not overlap.
-#
-# Implementations must not retain p.
-trait WriterAt:
-    fn write_at(self, b: bytes, off: Int64) -> Int:
-        ...
-
-
-# ByteReader is the interface that wraps the ReadByte method.
-#
-# ReadByte reads and returns the next byte from the input or
-# any error encountered. If ReadByte returns an error, no input
-# byte was consumed, and the returned byte value is undefined.
-#
-# ReadByte provides an efficient interface for byte-at-time
-# processing. A [Reader] that does not implement  ByteReader
-# can be wrapped using bufio.NewReader to add this method.
-trait ByteReader:
-    fn read_byte(self) -> Byte:
-        ...
-
-
-# ByteScanner is the interface that adds the UnreadByte method to the
-# basic ReadByte method.
-#
-# UnreadByte causes the next call to ReadByte to return the last byte read.
-# If the last operation was not a successful call to ReadByte, UnreadByte may
-# return an error, unread the last byte read (or the byte prior to the
-# last-unread byte), or (in implementations that support the [Seeker] interface)
-# seek to one byte before the current offset.
-trait ByteScanner:
-    fn unread_byte(self) -> Byte:
-        ...
-
-
-# ByteWriter is the interface that wraps the WriteByte method.
-trait ByteWriter:
-    fn write_byte(self, c: Byte) -> Int:
-        ...
-
-
-# RuneReader is the interface that wraps the ReadRune method.
-#
-# ReadRune reads a single encoded Unicode character
-# and returns the rune and its size in bytes. If no character is
-# available, err will be set.
-trait RuneReader:
-    fn read_rune(self) -> (Rune, Int):
-        ...
-
-
-# RuneScanner is the interface that adds the UnreadRune method to the
-# basic ReadRune method.
-#
-# UnreadRune causes the next call to ReadRune to return the last rune read.
-# If the last operation was not a successful call to ReadRune, UnreadRune may
-# return an error, unread the last rune read (or the rune prior to the
-# last-unread rune), or (in implementations that support the [Seeker] interface)
-# seek to the start of the rune before the current offset.
-trait RuneScanner(RuneReader):
-    fn unread_rune(self) -> Rune:
-        ...
-
-
-# StringWriter is the interface that wraps the WriteString method.
-trait StringWriter:
-    fn write_string(self, s: String) -> Int:
-        ...
+from collections.optional import Optional
+from ..builtins import cap, copy
+from ..builtins._bytes import Bytes, Byte, Bytes
+from .traits import Reader, Writer, StringWriter, ErrShortBuffer, EOF
 
 
 # WriteString writes the contents of the string s to w, which accepts a slice of bytes.
 # If w implements [StringWriter], [StringWriter.WriteString] is invoked directly.
 # Otherwise, [Writer.Write] is called exactly once.
 fn write_string[T: Writer](inout w: T, s: String) raises -> Int:
-    var s_buffer = to_bytes(s)
+    var s_buffer = Bytes(s)
     return w.write(s_buffer)
 
 
-fn write_string[T: StringWriter](w: T, s: String) -> Int:
+fn write_string[T: StringWriter](inout w: T, s: String) raises -> Int:
     return w.write_string(s)
 
 
@@ -325,20 +24,20 @@ fn write_string[T: StringWriter](w: T, s: String) -> Int:
 # If min is greater than the length of buf, read_at_least returns [ErrShortBuffer].
 # On return, n >= min if and only if err == nil.
 # If r returns an error having read at least min bytes, the error is dropped.
-fn read_at_least[R: Reader](inout r: R, buf: bytes, min: Int) raises -> Int:
-    if len(buf) < min:
+fn read_at_least[R: Reader](inout reader: R, dest: Bytes, min: Int) raises -> Int:
+    if len(dest) < min:
         raise Error(ErrShortBuffer)
 
     var n: Int = 0
     while n < min:
-        var sl = buf[n:]
-        let nn: Int = r.read(sl)
+        var sl = dest[n:]
+        var nn: Int = reader.read(sl)
         n += nn
 
     return n
 
 
-fn read_full[R: Reader](inout r: R, buf: bytes) raises -> Int:
+fn read_full[R: Reader](inout reader: R, dest: Bytes) raises -> Int:
     """Reads exactly len(buf) bytes from r into buf.
     It returns the number of bytes copied and an error if fewer bytes were read.
     The error is EOF only if no bytes were read.
@@ -347,7 +46,7 @@ fn read_full[R: Reader](inout r: R, buf: bytes) raises -> Int:
     On return, n == len(buf) if and only if err == nil.
     If r returns an error having read at least len(buf) bytes, the error is dropped.
     """
-    return read_at_least(r, buf, len(buf))
+    return read_at_least(reader, dest, len(dest))
 
 
 # fn copy_n[W: Writer, R: Reader](dst: W, src: R, n: Int64) raises -> Int64:
@@ -358,7 +57,7 @@ fn read_full[R: Reader](inout r: R, buf: bytes) raises -> Int:
 
 #     If dst implements [ReaderFrom], the copy is implemented using it.
 #     """
-#     let written = copy(dst, LimitReader(src, n))
+#     var written = copy(dst, LimitReader(src, n))
 #     if written == n:
 #         return n
 
@@ -400,31 +99,31 @@ fn read_full[R: Reader](inout r: R, buf: bytes) raises -> Int:
 # }
 
 
-# fn copy_buffer[W: Writer, R: Reader](dst: W, src: R, buf: bytes) raises -> Int64:
+# fn copy_buffer[W: Writer, R: Reader](dst: W, src: R, buf: Bytes) raises -> Int64:
 #     """Actual implementation of Copy and CopyBuffer.
 #     if buf is nil, one is allocated.
 #     """
-#     let nr: Int
+#     var nr: Int
 #     nr = src.read(buf)
 #     while True:
 #         if nr > 0:
-#             let nw: Int
+#             var nw: Int
 #             nw = dst.write(get_slice(buf, 0, nr))
 #             if nw < 0 or nr < nw:
 #                 nw = 0
 
-#             let written = Int64(nw)
+#             var written = Int64(nw)
 #             if nr != nw:
 #                 raise Error(ErrShortWrite)
 
 #     return written
 
 
-# fn copy_buffer[W: Writer, R: ReaderWriteTo](dst: W, src: R, buf: bytes) -> Int64:
+# fn copy_buffer[W: Writer, R: ReaderWriteTo](dst: W, src: R, buf: Bytes) -> Int64:
 #     return src.write_to(dst)
 
 
-# fn copy_buffer[W: WriterReadFrom, R: Reader](dst: W, src: R, buf: bytes) -> Int64:
+# fn copy_buffer[W: WriterReadFrom, R: Reader](dst: W, src: R, buf: Bytes) -> Int64:
 #     return dst.read_from(src)
 
 # # LimitReader returns a Reader that reads from r
@@ -673,25 +372,21 @@ fn read_full[R: Reader](inout r: R, buf: bytes) raises -> Int:
 # 	return c.Reader.(WriterTo).WriteTo(w)
 # }
 
-# # ReadAll reads from r until an error or EOF and returns the data it read.
-# # A successful call returns err == nil, not err == EOF. Because ReadAll is
-# # defined to read from src until EOF, it does not treat an EOF from Read
-# # as an error to be reported.
-# fn ReadAll(r Reader) (bytes, error) {
-# 	b := make(bytes, 0, 512)
-# 	for {
-# 		n, err := r.Read(b[len(b):cap(b)])
-# 		b = b[:len(b)+n]
-# 		if err != nil {
-# 			if err == EOF {
-# 				err = nil
-# 			}
-# 			return b, err
-# 		}
 
-# 		if len(b) == cap(b) {
-# 			# Add more capacity (let append pick how much).
-# 			b = append(b, 0)[:len(b)]
-# 		}
-# 	}
-# }
+# ReadAll reads from r until an error or EOF and returns the data it read.
+# A successful call returns err == nil, not err == EOF. Because ReadAll is
+# defined to read from src until EOF, it does not treat an EOF from Read
+# as an error to be reported.
+fn read_all[R: Reader](inout reader: R) raises -> Bytes:
+    var dest = Bytes()
+    var index: Int = 0
+
+    while True:
+        try:
+            index = reader.read(dest)
+        except e:
+            if e.__str__() == EOF:
+                break
+            raise
+
+    return dest

@@ -1,3 +1,4 @@
+from math import max, min
 from .renderer import Renderer
 from .position import Position
 from .border import (
@@ -16,7 +17,6 @@ from .border import (
     star_border,
     plus_border,
 )
-from .math import max, min
 from .extensions import get_slice
 from .align import align_text_horizontal, align_text_vertical
 from .weave import wrap, wordwrap, truncate
@@ -44,7 +44,7 @@ fn get_lines(s: String) raises -> (DynamicVector[String], Int):
     Args:
         s: The string to split.
     """
-    let lines = s.split("\n")
+    var lines = s.split("\n")
     var widest: Int = 0
     for i in range(lines.size):
         # TODO: Should be rune length instead of str length. Some runes are longer than 1 char.
@@ -74,13 +74,13 @@ alias TransformFunction = fn (s: String) -> String
 fn pad_left(text: String, n: Int, style: TerminalStyle) raises -> String:
     if n == 0:
         return text
-    let sp = __string__mul__(" ", n)
+    var sp = __string__mul__(" ", n)
 
     # if style != nil:
     #     sp = style.Styled(sp)
 
     var padded_text: String = ""
-    let lines = text.split("\n")
+    var lines = text.split("\n")
 
     for i in range(len(lines)):
         padded_text += sp
@@ -96,13 +96,13 @@ fn pad_right(text: String, n: Int, style: TerminalStyle) raises -> String:
     if n == 0 or text == "":
         return text
 
-    let sp = __string__mul__(" ", n)
+    var sp = __string__mul__(" ", n)
 
     # if style != nil:
     #     sp = style.Styled(sp)
 
     var padded_text: String = ""
-    let lines = text.split("\n")
+    var lines = text.split("\n")
 
     for i in range(len(lines)):
         padded_text += lines[i]
@@ -125,34 +125,34 @@ struct Style:
         self.value = ""
 
     fn get_as_bool(self, key: HashableStr, default: Bool) -> Bool:
-        let val = self.rules.get(key, default)
+        var val = self.rules.get(key, default)
 
         return to_bool(val)
 
     fn get_as_color(self, key: HashableStr) raises -> AnyColor:
-        let val = self.rules.get(key, "")
+        var val = self.rules.get(key, "")
         if val == "":
             return NoColor()
 
         if val[0] == "#":
             return RGBColor(val)
 
-        let ansi_code: Int = atol(val)
+        var ansi_code: Int = atol(val)
         if ansi_code > 16:
             return ANSI256Color(ansi_code)
         else:
             return ANSIColor(ansi_code)
 
     fn get_as_int(self, key: HashableStr, default: Int = 0) raises -> Int:
-        let val = self.rules.get(key, String(default))
+        var val = self.rules.get(key, String(default))
         return atol(val)
 
     fn get_as_position(self, key: HashableStr) raises -> Position:
-        let val = self.rules.get(key, "0")
+        var val = self.rules.get(key, "0")
         return Position(atol(val))
 
     fn get_border_style(self) raises -> Border:
-        let val = self.rules.get("border_style", "no_border")
+        var val = self.rules.get("border_style", "no_border")
         if val == "no_border":
             return no_border()
         elif val == "hidden_border":
@@ -291,10 +291,10 @@ struct Style:
         return styler.render(border)
 
     fn apply_border(self, text: String) raises -> String:
-        let top_set = self.is_set("border_top_key")
-        let right_set = self.is_set("border_right_key")
-        let bottom_set = self.is_set("border_bottom_key")
-        let left_set = self.is_set("border_left_key")
+        var top_set = self.is_set("border_top_key")
+        var right_set = self.is_set("border_right_key")
+        var bottom_set = self.is_set("border_bottom_key")
+        var left_set = self.is_set("border_left_key")
 
         var border = self.get_border_style()
         var has_top = self.get_as_bool("border_top_key", False)
@@ -303,20 +303,20 @@ struct Style:
         var has_left = self.get_as_bool("border_left_key", False)
 
         # FG Colors
-        let top_fg = self.get_as_color("border_top_foreground_key")
-        let right_fg = self.get_as_color("border_right_foreground_key")
-        let bottom_fg = self.get_as_color("border_bottom_foreground_key")
-        let left_fg = self.get_as_color("border_left_foreground_key")
+        var top_fg = self.get_as_color("border_top_foreground_key")
+        var right_fg = self.get_as_color("border_right_foreground_key")
+        var bottom_fg = self.get_as_color("border_bottom_foreground_key")
+        var left_fg = self.get_as_color("border_left_foreground_key")
 
         # BG Colors
-        let top_bg = self.get_as_color("border_top_background_key")
-        let right_bg = self.get_as_color("border_right_background_key")
-        let bottom_bg = self.get_as_color("border_bottom_background_key")
-        let left_bg = self.get_as_color("border_left_background_key")
+        var top_bg = self.get_as_color("border_top_background_key")
+        var right_bg = self.get_as_color("border_right_background_key")
+        var bottom_bg = self.get_as_color("border_bottom_background_key")
+        var left_bg = self.get_as_color("border_left_background_key")
 
         # If a border is set and no sides have been specifically turned on or off
         # render borders on all sideself.
-        let borderless = no_border()
+        var borderless = no_border()
         if border != borderless and not (
             top_set or right_set or bottom_set or left_set
         ):
@@ -331,10 +331,10 @@ struct Style:
         ):
             return text
 
-        # let result: Tuple[DynamicVector[String], Int]
+        # var result: Tuple[DynamicVector[String], Int]
         # TODO: Issues returning a memory only type in a tuple. Fix later.
         # result = get_lines(text)
-        let lines = text.split("\n")
+        var lines = text.split("\n")
 
         # TODO: Using len_without_ansi for now until I switch over to bytes buffer and Writers
         var width: Int = 0
@@ -413,9 +413,9 @@ struct Style:
 
         # TODO: Do the ansi characters here impact the len of left and right runes? Need to check
         for i in range(lines.size):
-            let line = lines[i]
+            var line = lines[i]
             if has_left:
-                let r = left_runes[left_index]
+                var r = left_runes[left_index]
                 left_index += 1
 
                 if left_index >= len(left_runes):
@@ -426,7 +426,7 @@ struct Style:
             styled_border += line
 
             if has_right:
-                let r = right_runes[right_index]
+                var r = right_runes[right_index]
                 right_index += 1
 
                 if right_index >= len(right_runes):
@@ -450,14 +450,14 @@ struct Style:
 
     fn apply_margins(self, text: String, inline: Bool) raises -> String:
         var padded_text: String = text
-        let top_margin = self.get_as_int("margin_top_key")
-        let right_margin = self.get_as_int("margin_right_key")
-        let bottom_margin = self.get_as_int("margin_bottom_key")
-        let left_margin = self.get_as_int("margin_left_key")
+        var top_margin = self.get_as_int("margin_top_key")
+        var right_margin = self.get_as_int("margin_right_key")
+        var bottom_margin = self.get_as_int("margin_bottom_key")
+        var left_margin = self.get_as_int("margin_left_key")
 
         var styler: TerminalStyle = TerminalStyle(self.r.color_profile)
 
-        let bgc = self.get_as_color("margin_background_key")
+        var bgc = self.get_as_color("margin_background_key")
 
         # TODO: Leave out color checks until I can have some sort of type checking
         # if bgc != NoColor():
@@ -470,17 +470,17 @@ struct Style:
         # Top/bottom margin
         if not inline:
             # Issues with unpacking tuple that contains DynamicVector (memory only typed). Just doing calculation here instead.
-            # let lines: DynamicVector[String]
-            # let width: Int
+            # var lines: DynamicVector[String]
+            # var width: Int
             # lines, width = get_lines(padded_text)
-            let lines = text.split("\n")
+            var lines = text.split("\n")
             var width: Int = 0
             for i in range(lines.size):
                 # TODO: Should be rune length instead of str length. Some runes are longer than 1 char.
                 if len(lines[i]) > width:
                     width = len(lines[i])
 
-            let spaces = __string__mul__(" ", width)
+            var spaces = __string__mul__(" ", width)
 
             if top_margin > 0:
                 padded_text = __string__mul__("\n", top_margin) + padded_text
@@ -492,45 +492,45 @@ struct Style:
     fn render(self, text: String) raises -> String:
         var input_text: String = text
 
-        let p = self.r.color_profile
+        var p = self.r.color_profile
         var term_style = TerminalStyle(p)
         var term_style_space = TerminalStyle(p)
-        let term_style_whitespace = TerminalStyle(p)
+        var term_style_whitespace = TerminalStyle(p)
 
-        let bold: Bool = self.get_as_bool("bold", False)
-        let italic: Bool = self.get_as_bool("italic", False)
-        let underline: Bool = self.get_as_bool("underline", False)
-        let crossout: Bool = self.get_as_bool("crossout", False)
-        let reverse: Bool = self.get_as_bool("reverse", False)
-        let blink: Bool = self.get_as_bool("blink", False)
-        let faint: Bool = self.get_as_bool("faint", False)
+        var bold: Bool = self.get_as_bool("bold", False)
+        var italic: Bool = self.get_as_bool("italic", False)
+        var underline: Bool = self.get_as_bool("underline", False)
+        var crossout: Bool = self.get_as_bool("crossout", False)
+        var reverse: Bool = self.get_as_bool("reverse", False)
+        var blink: Bool = self.get_as_bool("blink", False)
+        var faint: Bool = self.get_as_bool("faint", False)
 
-        let fg = self.get_as_color("foreground")
-        let bg = self.get_as_color("background")
+        var fg = self.get_as_color("foreground")
+        var bg = self.get_as_color("background")
 
-        let width: Int = self.get_as_int("width")
-        let height: Int = self.get_as_int("height")
-        let top_padding: Int = self.get_as_int("padding_top")
-        let right_padding: Int = self.get_as_int("padding_right")
-        let bottom_padding: Int = self.get_as_int("padding_bottom")
-        let left_padding: Int = self.get_as_int("padding_left")
+        var width: Int = self.get_as_int("width")
+        var height: Int = self.get_as_int("height")
+        var top_padding: Int = self.get_as_int("padding_top")
+        var right_padding: Int = self.get_as_int("padding_right")
+        var bottom_padding: Int = self.get_as_int("padding_bottom")
+        var left_padding: Int = self.get_as_int("padding_left")
 
-        let horizontal_align: Position = self.get_as_position("horizontal_alignment")
-        let vertical_align: Position = self.get_as_position("vertical_alignment")
+        var horizontal_align: Position = self.get_as_position("horizontal_alignment")
+        var vertical_align: Position = self.get_as_position("vertical_alignment")
 
-        let color_whitespace: Bool = self.get_as_bool("color_whitespace", True)
-        let inline: Bool = self.get_as_bool("inline", False)
-        let max_width: Int = self.get_as_int("max_width")
-        let max_height: Int = self.get_as_int("max_height")
+        var color_whitespace: Bool = self.get_as_bool("color_whitespace", True)
+        var inline: Bool = self.get_as_bool("inline", False)
+        var max_width: Int = self.get_as_int("max_width")
+        var max_height: Int = self.get_as_int("max_height")
 
-        let underline_spaces = underline and self.get_as_bool("underline_spaces", True)
-        let crossout_spaces = crossout and self.get_as_bool("crossout_spaces", True)
+        var underline_spaces = underline and self.get_as_bool("underline_spaces", True)
+        var crossout_spaces = crossout and self.get_as_bool("crossout_spaces", True)
 
         # Do we need to style whitespace (padding and space outside paragraphs) separately?
-        let style_whitespace = reverse
+        var style_whitespace = reverse
 
         # Do we need to style spaces separately?
-        let use_space_styler = underline_spaces or crossout_spaces
+        var use_space_styler = underline_spaces or crossout_spaces
 
         # transform = self.get_as_transform("transform")
 
@@ -567,20 +567,20 @@ struct Style:
 
         # Word wrap
         if (not inline) and (width > 0):
-            let wrap_at = width - left_padding - right_padding
-            input_text = wordwrap.string(input_text, wrap_at)
-            input_text = wrap.string(input_text, wrap_at)  # force-wrap long strings
+            var wrap_at = width - left_padding - right_padding
+            input_text = wordwrap.apply_wordwrap(input_text, wrap_at)
+            input_text = wrap.apply_wrap(input_text, wrap_at)  # force-wrap long strings
 
         input_text = self.maybe_convert_tabs(input_text)
 
         var styled_text: String = ""
-        let lines = input_text.split("\n")
+        var lines = input_text.split("\n")
         for i in range(lines.size):
-            let line = lines[i]
+            var line = lines[i]
             if use_space_styler:
                 # Look for spaces and apply a different styler
                 for i in range(len_without_ansi(line)):
-                    let character = line[i]
+                    var character = line[i]
                     if character == " ":
                         styled_text += term_style_space.render(character)
                     else:
@@ -621,21 +621,21 @@ struct Style:
             var lines = styled_text.split("\n")
 
             for i in range(lines.size):
-                lines[i] = truncate.string(lines[i], max_width)
+                lines[i] = truncate.apply_truncate(lines[i], max_width)
 
             styled_text = join("\n", lines)
 
         # Truncate according to max_height
         if max_height > 0:
-            let lines = styled_text.split("\n")
-            let truncated_lines = get_slice(lines, 0, min(max_height, len(lines)))
+            var lines = styled_text.split("\n")
+            var truncated_lines = get_slice(lines, 0, min(max_height, len(lines)))
             styled_text = join("\n", truncated_lines)
 
         # if transform:
         #     return transform(styled_text)
 
         # Apply border at the end
-        let number_of_lines = len(styled_text.split("\n"))
+        var number_of_lines = len(styled_text.split("\n"))
         if not (number_of_lines == 0 and width == 0):
             var st: TerminalStyle = TerminalStyle(self.r.color_profile)
             if color_whitespace or style_whitespace:

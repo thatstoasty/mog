@@ -9,15 +9,15 @@ fn linearize(v: Float64) -> Float64:
     if v <= 0.04045:
         return v / 12.92
 
-    let lhs: Float64 = (v + 0.055) / 1.055
-    let rhs: Float64 = 2.4
+    var lhs: Float64 = (v + 0.055) / 1.055
+    var rhs: Float64 = 2.4
     return lhs**rhs
 
 
 fn linear_rgb_to_xyz(r: Float64, g: Float64, b: Float64) -> (Float64, Float64, Float64):
-    let x: Float64 = 0.41239079926595948 * r + 0.35758433938387796 * g + 0.18048078840183429 * b
-    let y: Float64 = 0.21263900587151036 * r + 0.71516867876775593 * g + 0.072192315360733715 * b
-    let z: Float64 = 0.019330818715591851 * r + 0.11919477979462599 * g + 0.95053215224966058 * b
+    var x: Float64 = 0.41239079926595948 * r + 0.35758433938387796 * g + 0.18048078840183429 * b
+    var y: Float64 = 0.21263900587151036 * r + 0.71516867876775593 * g + 0.072192315360733715 * b
+    var z: Float64 = 0.019330818715591851 * r + 0.11919477979462599 * g + 0.95053215224966058 * b
 
     return x, y, z
 
@@ -38,8 +38,8 @@ fn luv_to_xyz_white_ref(
     var x: Float64 = 0
     var z: Float64 = 0
     if l != 0.0:
-        let ubis = (u / (13.0 * l)) + un
-        let vbis = (v / (13.0 * l)) + vn
+        var ubis = (u / (13.0 * l)) + un
+        var vbis = (v / (13.0 * l)) + vn
         x = y * 9.0 * ubis / (4.0 * vbis)
         z = y * (12.0 - (3.0 * ubis) - (20.0 * vbis)) / (4.0 * vbis)
     else:
@@ -52,7 +52,7 @@ fn luv_to_xyz_white_ref(
 # For this part, we do as R's graphics.hcl does, not as wikipedia does.
 # Or is it the same?
 fn xyz_to_uv(x: Float64, y: Float64, z: Float64) -> (Float64, Float64):
-    let denom = x + (15.0 * y) + (3.0 * z)
+    var denom = x + (15.0 * y) + (3.0 * z)
     var u: Float64
     var v: Float64
 
@@ -71,22 +71,22 @@ fn xyz_to_uv(x: Float64, y: Float64, z: Float64) -> (Float64, Float64):
 fn xyz_to_Luv_white_ref(
     x: Float64, y: Float64, z: Float64, wref: DynamicVector[Float64]
 ) -> (Float64, Float64, Float64):
-    let l: Float64
+    var l: Float64
     if y / wref[1] <= 6.0 / 29.0 * 6.0 / 29.0 * 6.0 / 29.0:
         l = y / wref[1] * (29.0 / 3.0 * 29.0 / 3.0 * 29.0 / 3.0) / 100.0
     else:
         l = 1.16 * math.cbrt(y / wref[1]) - 0.16
 
-    let ubis: Float64
-    let vbis: Float64
+    var ubis: Float64
+    var vbis: Float64
     ubis, vbis = xyz_to_uv(x, y, z)
 
-    let un: Float64
-    let vn: Float64
+    var un: Float64
+    var vn: Float64
     un, vn = xyz_to_uv(wref[0], wref[1], wref[2])
 
-    let u: Float64
-    let v: Float64
+    var u: Float64
+    var v: Float64
     u = 13.0 * l * (ubis - un)
     v = 13.0 * l * (vbis - vn)
 
@@ -95,7 +95,7 @@ fn xyz_to_Luv_white_ref(
 
 fn LuvToLuvLCh(L: Float64, u: Float64, v: Float64) -> (Float64, Float64, Float64):
     # Oops, floating point workaround necessary if u ~= v and both are very small (i.e. almost zero).
-    let h: Float64
+    var h: Float64
     if math.abs(v - u) > 1e-4 and math.abs(u) > 1e-4:
         h = math.mod(
             57.29577951308232087721 * math.atan2(v, u) + 360.0, 360.0
@@ -103,8 +103,8 @@ fn LuvToLuvLCh(L: Float64, u: Float64, v: Float64) -> (Float64, Float64, Float64
     else:
         h = 0.0
 
-    let l = L
-    let c = math.sqrt(sq(u) + sq(v))
+    var l = L
+    var c = math.sqrt(sq(u) + sq(v))
 
     return l, c, h
 
@@ -118,11 +118,37 @@ fn hSLuvD65() -> DynamicVector[Float64]:
     return vector
 
 
-fn getBounds(l: Float64) -> DynamicVector[DynamicVector[Float64]]:
-    let sub2: Float64
-    let sub1 = (l + 16.0**3.0) / 1560896.0
-    let epsilon = 0.0088564516790356308
-    let kappa = 903.2962962962963
+fn get_bounds_matrix() -> DynamicVector[DynamicVector[Float64]]:
+    var m = DynamicVector[DynamicVector[Float64]]()
+    var m1 = DynamicVector[Float64]()
+    m1.append(3.2409699419045214)
+    m1.append(-1.5373831775700935)
+    m1.append(-0.49861076029300328)
+    m.append(m1)
+
+    var m2 = DynamicVector[Float64]()
+    m2.append(-0.96924363628087983)
+    m2.append(-0.96924363628087983)
+    m2.append(0.041555057407175613)
+    m.append(m2)
+
+    var m3 = DynamicVector[Float64]()
+    m3.append(0.055630079696993609)
+    m3.append(-0.20397695888897657)
+    m3.append(1.0569715142428786)
+    m.append(m3)
+
+    return m
+
+
+alias bounds_matrix = get_bounds_matrix()
+
+
+fn get_bounds(l: Float64) -> DynamicVector[DynamicVector[Float64]]:
+    var sub2: Float64
+    var sub1 = (l + 16.0**3.0) / 1560896.0
+    var epsilon = 0.0088564516790356308
+    var kappa = 903.2962962962963
 
     var ret: DynamicVector[DynamicVector[Float64]] = DynamicVector[
         DynamicVector[Float64]
@@ -158,24 +184,7 @@ fn getBounds(l: Float64) -> DynamicVector[DynamicVector[Float64]]:
     ret.append(ret5)
     ret.append(ret6)
 
-    var m = DynamicVector[DynamicVector[Float64]]()
-    var m1 = DynamicVector[Float64]()
-    m1.append(3.2409699419045214)
-    m1.append(-1.5373831775700935)
-    m1.append(-0.49861076029300328)
-    m.append(m1)
-
-    var m2 = DynamicVector[Float64]()
-    m2.append(-0.96924363628087983)
-    m2.append(-0.96924363628087983)
-    m2.append(0.041555057407175613)
-    m.append(m2)
-
-    var m3 = DynamicVector[Float64]()
-    m3.append(0.055630079696993609)
-    m3.append(-0.20397695888897657)
-    m3.append(1.0569715142428786)
-    m.append(m3)
+    var m = bounds_matrix
 
     if sub1 > epsilon:
         sub2 = sub1
@@ -185,11 +194,11 @@ fn getBounds(l: Float64) -> DynamicVector[DynamicVector[Float64]]:
     for i in range(len(m)):
         var k = 0
         while k < 2:
-            let top1 = (284517.0 * m[i][0] - 94839.0 * m[i][2]) * sub2
-            let top2 = (
+            var top1 = (284517.0 * m[i][0] - 94839.0 * m[i][2]) * sub2
+            var top2 = (
                 838422.0 * m[i][2] + 769860.0 * m[i][1] + 731718.0 * m[i][0]
             ) * l * sub2 - 769860.0 * Float64(k) * l
-            let bottom = (
+            var bottom = (
                 632260.0 * m[i][2] - 126452.0 * m[i][1]
             ) * sub2 + 126452.0 * Float64(k)
             ret[i * 2 + k][0] = top1 / bottom
@@ -199,18 +208,18 @@ fn getBounds(l: Float64) -> DynamicVector[DynamicVector[Float64]]:
     return ret
 
 
-fn lengthOfRayUntilIntersect(theta: Float64, x: Float64, y: Float64) -> Float64:
+fn length_of_ray_until_intersect(theta: Float64, x: Float64, y: Float64) -> Float64:
     return y / (math.sin(theta) - x * math.cos(theta))
 
 
-fn maxChromaForLH(l: Float64, h: Float64) -> Float64:
-    let hRad = h / 360.0 * pi() * 2.0
-    var minLength = max_float64()
-    let bounds = getBounds(l)
+fn max_chroma_for_lh(l: Float64, h: Float64) -> Float64:
+    var hRad = h / 360.0 * pi * 2.0
+    var minLength = max_float64
+    var bounds = get_bounds(l)
 
     for i in range(len(bounds)):
-        let line = bounds[i]
-        let length = lengthOfRayUntilIntersect(hRad, line[0], line[1])
+        var line = bounds[i]
+        var length = length_of_ray_until_intersect(hRad, line[0], line[1])
         if length > 0.0 and length < minLength:
             minLength = length
 
@@ -219,15 +228,15 @@ fn maxChromaForLH(l: Float64, h: Float64) -> Float64:
 
 fn LuvLch_to_HSLuv(l: Float64, c: Float64, h: Float64) -> (Float64, Float64, Float64):
     # [-1..1] but the code expects it to be [-100..100]
-    let tmp_l: Float64 = l * 100.0
-    let tmp_c: Float64 = c * 100.0
+    var tmp_l: Float64 = l * 100.0
+    var tmp_c: Float64 = c * 100.0
 
-    let s: Float64
-    let max: Float64
+    var s: Float64
+    var max: Float64
     if l > 99.9999999 or l < 0.00000001:
         s = 0.0
     else:
-        max = maxChromaForLH(l, h)
+        max = max_chroma_for_lh(l, h)
         s = c / max * 100.0
 
     return h, clamp01(s / 100.0), clamp01(l / 100.0)
@@ -235,13 +244,13 @@ fn LuvLch_to_HSLuv(l: Float64, c: Float64, h: Float64) -> (Float64, Float64, Flo
 
 fn xyz_to_linear_rgb(x: Float64, y: Float64, z: Float64) -> (Float64, Float64, Float64):
     """Converts from CIE XYZ-space to Linear RGB space."""
-    let r = (3.2409699419045214 * x) - (1.5373831775700935 * y) - (
+    var r = (3.2409699419045214 * x) - (1.5373831775700935 * y) - (
         0.49861076029300328 * z
     )
-    let g = (-0.96924363628087983 * x) + (1.8759675015077207 * y) + (
+    var g = (-0.96924363628087983 * x) + (1.8759675015077207 * y) + (
         0.041555057407175613 * z
     )
-    let b = (0.055630079696993609 * x) - (0.20397695888897657 * y) + (
+    var b = (0.055630079696993609 * x) - (0.20397695888897657 * y) + (
         1.0569715142428786 * z
     )
 
@@ -260,9 +269,9 @@ fn LinearRgb(r: Float64, g: Float64, b: Float64) -> RGB:
 
 
 fn xyz(x: Float64, y: Float64, z: Float64) -> RGB:
-    let r: Float64
-    let g: Float64
-    let b: Float64
+    var r: Float64
+    var g: Float64
+    var b: Float64
 
     r, g, b = xyz_to_linear_rgb(x, y, z)
     return LinearRgb(r, g, b)
@@ -272,9 +281,9 @@ fn xyz(x: Float64, y: Float64, z: Float64) -> RGB:
 # into account a given reference white. (i.e. the monitor's white)
 # L* is in [0..1] and both u* and v* are in about [-1..1]
 fn LuvWhiteRef(l: Float64, u: Float64, v: Float64, wref: DynamicVector[Float64]) -> RGB:
-    let x: Float64
-    let y: Float64
-    let z: Float64
+    var x: Float64
+    var y: Float64
+    var z: Float64
     x, y, z = luv_to_xyz_white_ref(l, u, v, wref)
 
     return xyz(x, y, z)
@@ -300,9 +309,9 @@ struct RGB:
     fn LinearRgb(self) -> (Float64, Float64, Float64):
         """LinearRgb converts the color into the linear RGB space (see http://www.sjbrown.co.uk/2004/05/14/gamma-correct-rendering/).
         """
-        let r: Float64
-        let g: Float64
-        let b: Float64
+        var r: Float64
+        var g: Float64
+        var b: Float64
 
         r = linearize(self.R)
         g = linearize(self.G)
@@ -310,37 +319,37 @@ struct RGB:
         return r, g, b
 
     fn xyz(self) -> (Float64, Float64, Float64):
-        let r: Float64
-        let g: Float64
-        let b: Float64
+        var r: Float64
+        var g: Float64
+        var b: Float64
         r, g, b = self.LinearRgb()
 
-        let x: Float64
-        let y: Float64
-        let z: Float64
+        var x: Float64
+        var y: Float64
+        var z: Float64
         x, y, z = linear_rgb_to_xyz(r, g, b)
         return x, y, z
 
     fn Luv_white_ref(self, wref: DynamicVector[Float64]) -> (Float64, Float64, Float64):
         """Converts the given color to CIE L*u*v* space, taking into account a given reference white. (i.e. the monitor's white)
         L* is in [0..1] and both u* and v* are in about [-1..1]."""
-        let x: Float64
-        let y: Float64
-        let z: Float64
+        var x: Float64
+        var y: Float64
+        var z: Float64
         x, y, z = self.xyz()
 
-        let l: Float64
-        let u: Float64
-        let v: Float64
+        var l: Float64
+        var u: Float64
+        var v: Float64
         l, u, v = xyz_to_Luv_white_ref(x, y, z, wref)
         return l, u, v
 
     fn LuvLCh_white_ref(
         self, wref: DynamicVector[Float64]
     ) -> (Float64, Float64, Float64):
-        let l: Float64
-        let u: Float64
-        let v: Float64
+        var l: Float64
+        var u: Float64
+        var v: Float64
         l, u, v = self.Luv_white_ref(wref)
 
         return LuvToLuvLCh(l, u, v)
@@ -351,21 +360,21 @@ struct RGB:
         color space. Hue in [0..360], a Saturation [0..1], and a Luminance
         (lightness) in [0..1].
         """
-        let wref: DynamicVector[Float64] = hSLuvD65()
-        let l: Float64
-        let c: Float64
-        let h: Float64
+        var wref: DynamicVector[Float64] = hSLuvD65()
+        var l: Float64
+        var c: Float64
+        var h: Float64
         l, c, h = self.LuvLCh_white_ref(wref)
 
         return LuvLch_to_HSLuv(l, c, h)
 
     fn distance_HSLuv(self, c2: RGB) -> Float64:
-        let h1: Float64
-        let s1: Float64
-        let l1: Float64
-        let h2: Float64
-        let s2: Float64
-        let l2: Float64
+        var h1: Float64
+        var s1: Float64
+        var l1: Float64
+        var h2: Float64
+        var s2: Float64
+        var l2: Float64
 
         h1, s1, l1 = self.HSLuv()
         h2, s2, l2 = c2.HSLuv()

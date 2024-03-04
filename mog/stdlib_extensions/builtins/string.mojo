@@ -13,14 +13,14 @@ fn __string__mul__(input_string: String, n: Int) -> String:
 fn rjust(input_string: String, width: Int, fillchar: String = " ") raises -> String:
     if len(fillchar) != 1:
         raise Error(" The fill character must be exactly one character long")
-    let extra = width - len(input_string)
+    var extra = width - len(input_string)
     return __string__mul__(fillchar, extra) + input_string
 
 
 fn ljust(input_string: String, width: Int, fillchar: String = " ") raises -> String:
     if len(fillchar) != 1:
         raise Error(" The fill character must be exactly one character long")
-    let extra = width - len(input_string)
+    var extra = width - len(input_string)
     return input_string + __string__mul__(fillchar, extra)
 
 
@@ -132,8 +132,8 @@ fn expandtabs(input_string: String, tabsize: Int = 8) -> String:
 
 
 fn strip(input_string: String, chars: String = _ALL_WHITESPACES) -> String:
-    let lstrip_index = _lstrip_index(input_string, chars)
-    let rstrip_index = _rstrip_index(input_string, chars)
+    var lstrip_index = _lstrip_index(input_string, chars)
+    var rstrip_index = _rstrip_index(input_string, chars)
     return input_string[lstrip_index:rstrip_index]
 
 

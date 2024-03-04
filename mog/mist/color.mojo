@@ -1,7 +1,7 @@
 from collections.dict import Dict, KeyElement
 from utils.variant import Variant
 from .hue import RGB, max_float64
-from .ansi_colors import AnsiHex
+from .ansi_colors import ansi_hex_codes
 
 
 @value
@@ -87,12 +87,12 @@ struct ANSIColor(Color):
 
     fn string(self) -> String:
         """String returns the ANSI Sequence for the color and the text."""
-        return AnsiHex().values[self.value]
+        return ansi_hex_codes[self.value]
 
     fn convert_to_rgb(self) raises -> RGB:
         """Converts an ANSI color to RGB by looking up the hex value and converting it.
         """
-        let hex: String = AnsiHex().values[self.value]
+        var hex: String = ansi_hex_codes[self.value]
 
         return hex_to_rgb(hex)
 
@@ -123,12 +123,12 @@ struct ANSI256Color(Color):
 
     fn string(self) -> String:
         """String returns the ANSI Sequence for the color and the text."""
-        return AnsiHex().values[self.value]
+        return ansi_hex_codes[self.value]
 
     fn convert_to_rgb(self) raises -> RGB:
         """Converts an ANSI color to RGB by looking up the hex value and converting it.
         """
-        let hex: String = AnsiHex().values[self.value]
+        var hex: String = ansi_hex_codes[self.value]
 
         return hex_to_rgb(hex)
 
@@ -137,7 +137,7 @@ struct ANSI256Color(Color):
 #     """Converts a base 10 number to base 16."""
 #     var sum: Int = value
 #     while value > 1:
-#         let remainder = sum % 16
+#         var remainder = sum % 16
 #         sum = sum / 16
 #         print(remainder, sum)
 
@@ -165,11 +165,11 @@ fn convert_base16_to_base10(value: String) raises -> Int:
     mapping["d"] = 13
     mapping["e"] = 14
     mapping["f"] = 15
-
-    let length = len(value)
+    
+    var length = len(value)
     var sum: Int = 0
     for i in range(length - 1, -1, -1):
-        let exponent = length - 1 - i
+        var exponent = length - 1 - i
         sum += mapping[value[i]] * (16**exponent)
 
     return sum
@@ -184,16 +184,15 @@ fn hex_to_rgb(value: String) raises -> RGB:
     Returns:
         RGB color.
     """
-    let hex = value[1:]
+    var hex = value[1:]
     var indices = DynamicVector[Int]()
     indices.append(0)
     indices.append(2)
     indices.append(4)
 
     var results = DynamicVector[Int]()
-
-    for i in range(len(indices)):
-        let base_10 = convert_base16_to_base10(hex[indices[i] : indices[i] + 2])
+    for i in indices:
+        var base_10 = convert_base16_to_base10(hex[i[] : i[] + 2])
         results.append(atol(base_10))
 
     return RGB(results[0], results[1], results[2])
@@ -206,7 +205,7 @@ struct RGBColor(Color):
     var value: String
 
     fn __init__(inout self, value: String):
-        self.value = value.tolower()
+        self.value = value.lower()
 
     fn __eq__(self, other: RGBColor) -> Bool:
         return self.value == other.value
@@ -220,7 +219,7 @@ struct RGBColor(Color):
         Args:
             is_background: Whether the color is a background color.
         """
-        let rgb = hex_to_rgb(self.value)
+        var rgb = hex_to_rgb(self.value)
 
         var prefix = foreground
         if is_background:
@@ -248,14 +247,14 @@ fn ansi256_to_ansi(value: Int) raises -> ANSIColor:
         value: ANSI256 color value.
     """
     var r: Int = 0
-    var md = max_float64()
+    var md = max_float64
 
-    let h = hex_to_rgb(AnsiHex().values[value])
+    var h = hex_to_rgb(ansi_hex_codes[value])
 
     var i: Int = 0
     while i <= 15:
-        let hb = hex_to_rgb(AnsiHex().values[i])
-        let d = h.distance_HSLuv(hb)
+        var hb = hex_to_rgb(ansi_hex_codes[i])
+        var d = h.distance_HSLuv(hb)
 
         if d < md:
             md = d
@@ -283,10 +282,10 @@ fn hex_to_ansi256(color: RGB) -> ANSI256Color:
     """
     # Calculate the nearest 0-based color index at 16..231
     # Originally had * 255 in each of these
-    let r: Float64 = v2ci(color.R)  # 0..5 each
-    let g: Float64 = v2ci(color.G)
-    let b: Float64 = v2ci(color.B)
-    let ci: Int = int((36 * r) + (6 * g) + b)  # 0..215
+    var r: Float64 = v2ci(color.R)  # 0..5 each
+    var g: Float64 = v2ci(color.G)
+    var b: Float64 = v2ci(color.B)
+    var ci: Int = int((36 * r) + (6 * g) + b)  # 0..215
 
     # Calculate the represented colors back from the index
     var i2cv: DynamicVector[Int] = DynamicVector[Int]()
@@ -296,25 +295,25 @@ fn hex_to_ansi256(color: RGB) -> ANSI256Color:
     i2cv.append(0xAF)
     i2cv.append(0xD7)
     i2cv.append(0xFF)
-    let cr = i2cv[int(r)]  # r/g/b, 0..255 each
-    let cg = i2cv[int(g)]
-    let cb = i2cv[int(b)]
+    var cr = i2cv[int(r)]  # r/g/b, 0..255 each
+    var cg = i2cv[int(g)]
+    var cb = i2cv[int(b)]
 
     # Calculate the nearest 0-based gray index at 232..255
-    let grayIdx: Int
-    let average = (r + g + b) / 3
+    var grayIdx: Int
+    var average = (r + g + b) / 3
     if average > 238:
         grayIdx = 23
     else:
         grayIdx = int((average - 3) / 10)  # 0..23
-    let gv = 8 + 10 * grayIdx  # same value for r/g/b, 0..255
+    var gv = 8 + 10 * grayIdx  # same value for r/g/b, 0..255
 
     # Return the one which is nearer to the original input rgb value
     # Originall had / 255.0 for r, g, and b in each of these
-    let c2 = RGB(cr, cg, cb)
-    let g2 = RGB(gv, gv, gv)
-    let color_dist = color.distance_HSLuv(c2)
-    let gray_dist = color.distance_HSLuv(g2)
+    var c2 = RGB(cr, cg, cb)
+    var g2 = RGB(gv, gv, gv)
+    var color_dist = color.distance_HSLuv(c2)
+    var gray_dist = color.distance_HSLuv(g2)
 
     if color_dist <= gray_dist:
         return ANSI256Color(16 + ci)

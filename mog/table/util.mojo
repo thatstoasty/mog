@@ -1,6 +1,5 @@
 from math import round
 from algorithm.sort import sort
-from ..stdlib_extensions.builtins import list
 
 
 # btoi converts a boolean to an integer, 1 if true, 0 if false.
@@ -12,7 +11,7 @@ fn btoi(b: Bool) -> Int:
 
 
 # sum returns the sum of all integers in a slice.
-fn sum(numbers: list[Int]) raises -> Int:
+fn sum(numbers: DynamicVector[Int]) raises -> Int:
     var sum: Int = 0
     for i in range(len(numbers)):
         sum += numbers[i]
@@ -21,28 +20,28 @@ fn sum(numbers: list[Int]) raises -> Int:
 
 
 # median returns the median of a slice of integers.
-fn median(n: list[Int]) raises -> Int:
+fn median(n: DynamicVector[Int]) raises -> Int:
     var sorted = n
-    sort(sorted._internal_vector)
+    sort(sorted)
 
     if len(sorted) <= 0:
         return 0
 
     if len(sorted) % 2 == 0:
         var middle = len(sorted) / 2  # nolint:gomnd
-        let median = (sorted[int(middle) - 1] + sorted[int(middle)]) / 2
+        var median = (sorted[int(middle) - 1] + sorted[int(middle)]) / 2
         return int(round(median))  # nolint:gomnd
 
     return sorted[int(len(sorted) / 2)]
 
 
 # largest returns the largest element and it's index from a slice of integers.
-fn largest(numbers: list[Int]) raises -> (Int, Int):  # nolint:unparam
+fn largest(numbers: DynamicVector[Int]) raises -> (Int, Int):  # nolint:unparam
     var largest: Int = 0
     var index: Int = 0
 
     for i in range(len(numbers)):
-        let element = numbers[i]
+        var element = numbers[i]
 
         if numbers[i] > numbers[index]:
             largest = element

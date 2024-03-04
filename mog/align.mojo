@@ -1,5 +1,5 @@
+from math import max, min
 import .position
-from .math import max, min
 from .extensions import count
 from .stdlib_extensions.builtins.string import __string__mul__
 from .weave.ansi.ansi import len_without_ansi
@@ -13,7 +13,7 @@ fn align_text_horizontal(
     text: String, pos: position.Position, width: Int, style: TerminalStyle
 ) raises -> String:
     # TODO: Replace when get_lines works.
-    let lines = text.split("\n")
+    var lines = text.split("\n")
     var widest_line: Int = 0
     for i in range(lines.size):
         # TODO: Should be rune length instead of str length. Some runes are longer than 1 char.
@@ -24,7 +24,7 @@ fn align_text_horizontal(
     var aligned_text: String = ""
     for i in range(lines.size):
         var line = lines[i]
-        let line_width = len_without_ansi(line)  # TODO: Should be rune length
+        var line_width = len_without_ansi(line)  # TODO: Should be rune length
 
         var short_amount = widest_line - line_width  # difference from the widest line
         short_amount += max(
@@ -39,8 +39,8 @@ fn align_text_horizontal(
                 line = spaces + line
             elif pos == position.center:
                 # Note: remainder goes on the right.
-                let left = short_amount / 2
-                let right = left + short_amount % 2
+                var left = short_amount / 2
+                var right = left + short_amount % 2
 
                 var left_spaces = __string__mul__(" ", int(left))
                 var right_spaces = __string__mul__(" ", int(right))
@@ -61,7 +61,7 @@ fn align_text_horizontal(
 
 
 fn align_text_vertical(text: String, pos: position.Position, height: Int) raises -> String:
-    let text_height = count(text, "\n") + 1
+    var text_height = count(text, "\n") + 1
     if height < text_height:
         return text
 

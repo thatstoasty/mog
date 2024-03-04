@@ -78,13 +78,13 @@ struct TerminalStyle:
             return None
 
         if color.isa[ANSIColor]():
-            let c = color.get[ANSIColor]()
+            var c = color.get[ANSIColor]()[]
             self.styles.push_back(c.sequence(True))
         elif color.isa[ANSI256Color]():
-            let c = color.get[ANSI256Color]()
+            var c = color.get[ANSI256Color]()[]
             self.styles.push_back(c.sequence(True))
         elif color.isa[RGBColor]():
-            let c = color.get[RGBColor]()
+            var c = color.get[RGBColor]()[]
             self.styles.push_back(c.sequence(True))
 
     fn foreground(inout self, color: AnyColor) raises -> None:
@@ -92,13 +92,13 @@ struct TerminalStyle:
             return None
 
         if color.isa[ANSIColor]():
-            let c = color.get[ANSIColor]()
+            var c = color.get[ANSIColor]()[]
             self.styles.push_back(c.sequence(False))
         elif color.isa[ANSI256Color]():
-            let c = color.get[ANSI256Color]()
+            var c = color.get[ANSI256Color]()[]
             self.styles.push_back(c.sequence(False))
         elif color.isa[RGBColor]():
-            let c = color.get[RGBColor]()
+            var c = color.get[RGBColor]()[]
             self.styles.push_back(c.sequence(False))
 
     fn render(self, text: String) -> String:

@@ -1,23 +1,24 @@
+from .gojo.bytes import buffer
+from .gojo.builtins._bytes import Bytes
+from .gojo.io import traits as io
 from .ansi import writer
 from .ansi.ansi import is_terminator, Marker, printable_rune_width
-from .gojo.buffers import _buffer
-from .gojo.buffers import _bytes as bt
-from .stdlib_extensions.builtins.string import __string__mul__
-from .gojo.stdlib_extensions.builtins import bytes
+from .utils import __string__mul__
 
 
 alias default_newline = "\n"
 alias default_tab_width = 4
 
 
-struct Wrap:
+@value
+struct Wrap(StringableRaising, io.Writer):
     var limit: Int
     var newline: String
     var keep_newlines: Bool
     var preserve_space: Bool
     var tab_width: Int
 
-    var buf: _buffer.Buffer
+    var buf: buffer.Buffer
     var line_len: Int
     var ansi: Bool
     var forceful_newline: Bool
@@ -39,9 +40,7 @@ struct Wrap:
         self.preserve_space = preserve_space
         self.tab_width = tab_width
 
-        # TODO: Ownership of the DynamicVector should be moved to the buffer
-        var buf = bytes()
-        self.buf = _buffer.new_buffer(buf=buf)
+        self.buf = buffer.new_buffer()
         self.line_len = line_len
         self.ansi = ansi
         self.forceful_newline = forceful_newline
@@ -50,21 +49,21 @@ struct Wrap:
         _ = self.buf.write_byte(ord(self.newline))
         self.line_len = 0
 
-    fn write(inout self, b: bytes) raises -> Int:
-        let tab_space = __string__mul__(" ", self.tab_width)
-        var s = bt.to_string(b)
+    fn write(inout self, src: Bytes) raises -> Int:
+        var tab_space = __string__mul__(" ", self.tab_width)
+        var s = str(src)
 
         s = s.replace("\t", tab_space)
         if not self.keep_newlines:
             s = s.replace("\n", "")
 
-        let width = printable_rune_width(s)
+        var width = printable_rune_width(s)
         if self.limit <= 0 or self.line_len + width <= self.limit:
             self.line_len += width
-            return self.buf.write(b)
+            return self.buf.write(src)
 
         for i in range(len(s)):
-            let c = s[i]
+            var c = s[i]
             if c == Marker:
                 self.ansi = True
             elif self.ansi:
@@ -75,7 +74,7 @@ struct Wrap:
                 self.forceful_newline = False
                 continue
             else:
-                let width = len(c)
+                var width = len(c)
 
                 if self.line_len + width > self.limit:
                     self.add_newline()
@@ -91,15 +90,15 @@ struct Wrap:
 
             _ = self.buf.write_string(c)
 
-        return len(b)
+        return len(src)
 
     # Bytes returns the wrapped result as a byte slice.
-    fn bytes(self) -> bytes:
+    fn bytes(self) raises -> Bytes:
         return self.buf.bytes()
 
     # String returns the wrapped result as a string.
-    fn string(self) -> String:
-        return self.buf.string()
+    fn __str__(self) raises -> String:
+        return str(self.buf)
 
 
 # new_writer returns a new instance of a wrapping writer, initialized with
@@ -110,7 +109,7 @@ fn new_writer(limit: Int) -> Wrap:
 
 # Bytes is shorthand for declaring a new default Wrap instance,
 # used to immediately wrap a byte slice.
-fn to_bytes(inout b: bytes, limit: Int) raises -> bytes:
+fn apply_wrap_to_bytes(owned b: Bytes, limit: Int) raises -> Bytes:
     var f = new_writer(limit)
     _ = f.write(b)
 
@@ -119,8 +118,8 @@ fn to_bytes(inout b: bytes, limit: Int) raises -> bytes:
 
 # String is shorthand for declaring a new default Wrap instance,
 # used to immediately wrap a string.
-fn string(s: String, limit: Int) raises -> String:
-    var buf = bt.to_bytes(s)
-    let b = to_bytes(buf, limit)
+fn apply_wrap(s: String, limit: Int) raises -> String:
+    var buf = Bytes(s)
+    var b = apply_wrap_to_bytes(buf ^, limit)
 
-    return bt.to_string(b)
+    return str(b)

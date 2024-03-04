@@ -12,8 +12,8 @@ fn reverse[T: CollectionElement](vector: DynamicVector[T]) -> DynamicVector[T]:
 
 fn reverse_in_place[T: CollectionElement](inout vector: DynamicVector[T]) raises:
     for i in range(vector.size // 2):
-        let mirror_i = vector.size - 1 - i
-        let tmp = vector[i]
+        var mirror_i = vector.size - 1 - i
+        var tmp = vector[i]
         vector[i] = vector[mirror_i]
         vector[mirror_i] = tmp
 

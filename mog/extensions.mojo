@@ -1,6 +1,6 @@
 # Strings
 fn count(text: String, substr: String) raises -> Int:
-    let chunks = text.split(substr)
+    var chunks = text.split(substr)
 
     return chunks.size
 
@@ -16,3 +16,12 @@ fn get_slice[
         i += 1
 
     return slice
+
+
+fn __string__mul__(input_string: String, n: Int) -> String:
+    var result: String = ""
+    for _ in range(n):
+        result += input_string
+    return result
+
+

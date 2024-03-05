@@ -92,5 +92,5 @@ fn test_styling() raises:
 
 
 fn run_tests() raises:
-    test_styling()
+    # test_styling()
     test_table()

@@ -407,11 +407,11 @@ struct Style:
             elif not has_right:
                 border.bottom_right = ""
 
-        # TODO: Grabbing first char for now, later limit corners to one rune when runes implemented.
-        border.top_left = border.top_left[:1]
-        border.top_right = border.top_right[:1]
-        border.bottom_right = border.bottom_right[:1]
-        border.bottom_left = border.bottom_left[:1]
+        # TODO: Commenting out for now, later when unicode is supported, this should be limiting corner to 1 rune length
+        # border.top_left = border.top_left[:1]
+        # border.top_right = border.top_right[:1]
+        # border.bottom_right = border.bottom_right[:1]
+        # border.bottom_left = border.bottom_left[:1]
 
         # TODO: Instead of stringbuilder, just using string concatenation for now. Replace later when buffered writer and string builder is implemented.
         var styled_border: String = ""

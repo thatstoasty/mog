@@ -3,7 +3,7 @@
 from mog.join import join_vertical, join_horizontal
 from mog.table import new_table, new_string_data, Table
 from mog.table.table import default_styles
-from mog.border import star_border, ascii_border, Border
+from mog.border import star_border, ascii_border, Border, rounded_border
 from mog.style import Style
 from mog import position
 from time import now
@@ -81,7 +81,7 @@ fn test_styling() raises:
     style.padding_left(1)
 
     style.horizontal_alignment(position.center)
-    style.border("ascii_border")
+    style.border("rounded_border")
     style.foreground("#c9a0dc")
     style.border_foreground("#39E506")
 

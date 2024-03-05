@@ -362,7 +362,7 @@ struct Table():
     fn render(inout self) raises -> String:
         return self.__str__()
 
-    # constructTopBorder constructs the top border for the table given it's current
+    # construct_top_border constructs the top border for the table given it's current
     # border configuration and data.
     fn construct_top_border(self) raises -> String:
         var string_builder = StringBuilder()
@@ -403,9 +403,11 @@ struct Table():
 
         var i: Int = 0
         while i < len(self.widths):
+            # TODO: There's a bug with calculating widths. The bottom border is off by 2. Need to fix it.
+            # But for now, all the lines will be of equal length since it's a table, so we can just use self.widths[0] for each line.
             _ = string_builder.write_string(
                 self.border_style.render(
-                    __string__mul__(self.border.bottom, self.widths[i])
+                    __string__mul__(self.border.bottom, self.widths[0])
                 )
             )
             if i < len(self.widths) - 1 and self.border_column:
@@ -422,7 +424,7 @@ struct Table():
 
         return str(string_builder)
 
-    # constructHeaders constructs the headers for the table given it's current
+    # construct_headers constructs the headers for the table given it's current
     # header configuration and data.
     fn construct_headers(self) raises -> String:
         var string_builder = StringBuilder()

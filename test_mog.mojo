@@ -86,9 +86,13 @@ fn test_styling() raises:
     style.horizontal_alignment(position.center)
     style.border("ascii_border")
     style.foreground("#c9a0dc")
-    print(style.render("Hello World!\nThis is a test of the stormlight style system. Which can wrap lines that are longer than the limit.\n\nYep."))
+
+    var start_time = now()
+    print(style.render("Hello World!\nThis is a test of the mog style system. Which can wrap lines that are longer than the limit.\n\nYep."))
+    var execution_time = now() - start_time
+    print("Headered Execution Time: ", execution_time, execution_time / 1e9)
 
 
 fn main() raises:
-    # test_styling()
+    test_styling()
     test_table()

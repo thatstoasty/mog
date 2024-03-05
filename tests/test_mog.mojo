@@ -91,6 +91,6 @@ fn test_styling() raises:
     print("Headered Execution Time: ", execution_time, execution_time / 1e9)
 
 
-fn main() raises:
+fn run_tests() raises:
     test_styling()
     test_table()

@@ -268,6 +268,18 @@ struct Style:
             self.set_rule("border_bottom_key", "True")
         if left:
             self.set_rule("border_left_key", "True")
+    
+    fn border_foreground(inout self, color: String):
+        self.set_rule("border_top_foreground_key", color)
+        self.set_rule("border_right_foreground_key", color)
+        self.set_rule("border_bottom_foreground_key", color)
+        self.set_rule("border_left_foreground_key", color)
+    
+    fn border_background(inout self, color: String):
+        self.set_rule("border_top_background_key", color)
+        self.set_rule("border_right_background_key", color)
+        self.set_rule("border_bottom_background_key", color)
+        self.set_rule("border_left_background_key", color)
 
     fn padding_top(inout self, width: UInt8):
         self.set_rule("padding_top", String(width))

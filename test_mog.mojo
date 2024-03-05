@@ -72,9 +72,6 @@ fn test_table() raises:
 
 
 fn test_styling() raises:
-    var border_style = Style()
-    border_style.foreground("#39E506")
-
     var style = Style()
     style.bold()
     style.width(50)
@@ -86,6 +83,7 @@ fn test_styling() raises:
     style.horizontal_alignment(position.center)
     style.border("ascii_border")
     style.foreground("#c9a0dc")
+    style.border_foreground("#39E506")
 
     var start_time = now()
     print(style.render("Hello World!\nThis is a test of the mog style system. Which can wrap lines that are longer than the limit.\n\nYep."))

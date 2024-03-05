@@ -25,6 +25,7 @@ fn test_style_func(row: Int, col: Int) raises -> Style:
 
 
 fn test_table() raises:
+    print("Testing table creation with and without headers")
     var border_style = Style()
     border_style.foreground("#39E506")
 
@@ -67,6 +68,7 @@ fn test_table() raises:
 
 
 fn test_styling() raises:
+    print("Testing Style rendering")
     var style = Style()
     style.bold()
     style.width(50)
@@ -92,5 +94,5 @@ fn test_styling() raises:
 
 
 fn run_tests() raises:
-    # test_styling()
+    test_styling()
     test_table()

@@ -66,4 +66,4 @@ fn test_vertical_join() raises:
 
 fn run_tests() raises:
     test_horizontal_join()
-    # test_vertical_join()
+    test_vertical_join()

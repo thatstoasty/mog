@@ -83,7 +83,7 @@ fn test_styling() raises:
     style.horizontal_alignment(position.center)
     style.border("ascii_border")
     style.foreground("#c9a0dc")
-    style.border_foreground("#39E506")
+    style.border_background("#39E506")
 
     var start_time = now()
     print(style.render("Hello World!\nThis is a test of the mog style system. Which can wrap lines that are longer than the limit.\n\nYep."))

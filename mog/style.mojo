@@ -354,9 +354,6 @@ struct Style:
         ):
             return text
 
-        # var result: Tuple[DynamicVector[String], Int]
-        # TODO: Issues returning a memory only type in a tuple. Fix later.
-        # result = get_lines(text)
         var lines = text.split("\n")
 
         # TODO: Using len_without_ansi for now until I switch over to bytes buffer and Writers
@@ -413,8 +410,7 @@ struct Style:
         # border.bottom_right = border.bottom_right[:1]
         # border.bottom_left = border.bottom_left[:1]
 
-        # TODO: Instead of stringbuilder, just using string concatenation for now. Replace later when buffered writer and string builder is implemented.
-        var styled_border: String = ""
+        var builder = StringBuilder()
 
         # Render top
         if has_top:
@@ -422,8 +418,8 @@ struct Style:
                 border.top_left, border.top, border.top_right, width
             )
             top = self.style_border(top, top_fg, top_bg)
-            styled_border += top
-            styled_border += "\n"
+            builder.write_string(top)
+            builder.write_string("\n")
 
         # Render sides
         var left_runes = DynamicVector[String]()
@@ -444,9 +440,9 @@ struct Style:
                 if left_index >= len(left_runes):
                     left_index = 0
 
-                styled_border += self.style_border(r, left_fg, left_bg)
+                builder.write_string(self.style_border(r, left_fg, left_bg))
 
-            styled_border += line
+            builder.write_string(line)
 
             if has_right:
                 var r = right_runes[right_index]
@@ -455,10 +451,10 @@ struct Style:
                 if right_index >= len(right_runes):
                     right_index = 0
 
-                styled_border += self.style_border(r, right_fg, right_bg)
+                builder.write_string(self.style_border(r, right_fg, right_bg))
 
             if i < len(lines) - 1:
-                styled_border += "\n"
+                builder.write_string("\n")
 
         # Render bottom
         if has_bottom:
@@ -466,10 +462,10 @@ struct Style:
                 border.bottom_left, border.bottom, border.bottom_right, width
             )
             bottom = self.style_border(bottom, bottom_fg, bottom_bg)
-            styled_border += "\n"
-            styled_border += bottom
+            builder.write_string("\n")
+            builder.write_string(bottom)
 
-        return styled_border
+        return str(builder)
 
     fn apply_margins(self, text: String, inline: Bool) raises -> String:
         var padded_text: String = text
@@ -482,9 +478,8 @@ struct Style:
 
         var bgc = self.get_as_color("margin_background_key")
 
-        # TODO: Leave out color checks until I can have some sort of type checking
-        # if bgc != NoColor():
-        styler.background(bgc)
+        if not bgc.isa[NoColor]():
+            styler.background(bgc)
 
         # Add left and right margin
         padded_text = pad_left(padded_text, left_margin, styler)
@@ -492,10 +487,6 @@ struct Style:
 
         # Top/bottom margin
         if not inline:
-            # Issues with unpacking tuple that contains DynamicVector (memory only typed). Just doing calculation here instead.
-            # var lines: DynamicVector[String]
-            # var width: Int
-            # lines, width = get_lines(padded_text)
             var lines = text.split("\n")
             var width: Int = 0
             for i in range(lines.size):
@@ -595,7 +586,7 @@ struct Style:
 
         input_text = self.maybe_convert_tabs(input_text)
 
-        var builder: StringBuilder = StringBuilder()
+        var builder = StringBuilder()
         var lines = input_text.split("\n")
         for i in range(lines.size):
             var line = lines[i]
@@ -619,16 +610,16 @@ struct Style:
         # Padding
         if not inline:
             if left_padding > 0:
-                var st: TerminalStyle = TerminalStyle(self.r.color_profile)
+                var style = TerminalStyle(self.r.color_profile)
                 if color_whitespace or style_whitespace:
-                    st = term_style_whitespace
-                styled_text = pad_left(styled_text, left_padding, st)
+                    style = term_style_whitespace
+                styled_text = pad_left(styled_text, left_padding, style)
 
             if right_padding > 0:
-                var st: TerminalStyle = TerminalStyle(self.r.color_profile)
+                var style = TerminalStyle(self.r.color_profile)
                 if color_whitespace or style_whitespace:
-                    st = term_style_whitespace
-                styled_text = pad_right(styled_text, right_padding, st)
+                    style = term_style_whitespace
+                styled_text = pad_right(styled_text, right_padding, style)
 
             if top_padding > 0:
                 styled_text = __string__mul__("\n", top_padding) + styled_text
@@ -661,11 +652,11 @@ struct Style:
         # Apply border at the end
         var number_of_lines = len(styled_text.split("\n"))
         if not (number_of_lines == 0 and width == 0):
-            var st: TerminalStyle = TerminalStyle(self.r.color_profile)
+            var style = TerminalStyle(self.r.color_profile)
             if color_whitespace or style_whitespace:
-                st = term_style_whitespace
+                style = term_style_whitespace
             styled_text = align_text_horizontal(
-                styled_text, horizontal_align, width, st
+                styled_text, horizontal_align, width, style
             )
 
         if not inline:

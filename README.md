@@ -1,4 +1,4 @@
 # mog
 
 TODO: 
-- Add the `Table` struct and functions
+- Proper rune and unicode character handling.

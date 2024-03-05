@@ -1,10 +1,7 @@
 from .position import Position, top, bottom, left, right, center
 from .extensions import get_slice, __string__mul__
 from .weave.ansi.ansi import printable_rune_width
-from .weave.gojo.bytes import buffer
-
-# Need to import the same bytes Class that weave is using. The exact one, otherwise the type check will actually fail.
-from .weave.gojo.builtins import Bytes
+from .gojo.strings import StringBuilder
 
 
 # join_horizontal is a utility function for horizontally joining two
@@ -79,22 +76,23 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
             blocks[i].extend(bottom_lines)
 
     # Merge lines
-    var b = buffer.new_buffer()
+    var builder = StringBuilder()
     # remember, all blocks have the same number of members now
-    for i in range(len(blocks)):
+    for i in range(len(blocks[0])):
         for j in range(len(blocks[i])):
-            _ = b.write_string(blocks[i][j])
+            var block = blocks[j]
+            _ = builder.write_string(block[i])
 
             # Also make lines the same length
             var spaces = __string__mul__(
-                "", max_widths[j] - printable_rune_width(blocks[i][j])
+                "", max_widths[j] - printable_rune_width(block[i])
             )
-            _ = b.write_string(spaces)
+            _ = builder.write_string(spaces)
 
         if i < len(blocks[0]) - 1:
-            _ = b.write_string("\n")
+            _ = builder.write_string("\n")
 
-    return str(b)
+    return str(builder)
 
 
 # join_horizontal is a utility function for horizontally joining two
@@ -169,22 +167,23 @@ fn join_horizontal(pos: Position, strs: DynamicVector[String]) raises -> String:
             blocks[i].extend(bottom_lines)
 
     # Merge lines
-    var b = buffer.new_buffer()
+    var builder = StringBuilder()
     # remember, all blocks have the same number of members now
-    for i in range(len(blocks)):
+    for i in range(len(blocks[0])):
         for j in range(len(blocks[i])):
-            _ = b.write_string(blocks[i][j])
+            var block = blocks[j]
+            _ = builder.write_string(block[i])
 
             # Also make lines the same length
             var spaces = __string__mul__(
-                "", max_widths[j] - printable_rune_width(blocks[i][j])
+                "", max_widths[j] - printable_rune_width(block[i])
             )
-            _ = b.write_string(spaces)
+            _ = builder.write_string(spaces)
 
         if i < len(blocks[0]) - 1:
-            _ = b.write_string("\n")
+            _ = builder.write_string("\n")
 
-    return str(b)
+    return str(builder)
 
 
 # join_vertical is a utility function for vertically joining two potentially
@@ -232,7 +231,7 @@ fn join_vertical(pos: Position, *strs: String) raises -> String:
         if widest > max_width:
             max_width = widest
 
-    var b = buffer.new_buffer()
+    var builder = StringBuilder()
     var w: Int = 0
     for i in range(len(blocks)):
         var block = blocks[i]
@@ -241,27 +240,27 @@ fn join_vertical(pos: Position, *strs: String) raises -> String:
             w = max_width - printable_rune_width(line)
 
             if pos == left:
-                _ = b.write_string(line)
-                _ = b.write_string(__string__mul__(" ", w))
+                _ = builder.write_string(line)
+                _ = builder.write_string(__string__mul__(" ", w))
             elif pos == right:
-                _ = b.write_string(__string__mul__(" ", w))
-                _ = b.write_string(line)
+                _ = builder.write_string(__string__mul__(" ", w))
+                _ = builder.write_string(line)
             else:
                 if w < 1:
-                    _ = b.write_string(line)
+                    _ = builder.write_string(line)
                 else:
                     var split = int(w * pos / 2)
                     var right = w - split
                     var left = w - right
 
-                    _ = b.write_string(__string__mul__(" ", left))
-                    _ = b.write_string(line)
-                    _ = b.write_string(__string__mul__(" ", right))
+                    _ = builder.write_string(__string__mul__(" ", left))
+                    _ = builder.write_string(line)
+                    _ = builder.write_string(__string__mul__(" ", right))
 
             if not (i == len(blocks) - 1 and j == len(block) - 1):
-                _ = b.write_string("\n")
+                _ = builder.write_string("\n")
 
-    return str(b)
+    return str(builder)
 
 
 fn join_vertical(pos: Position, strs: DynamicVector[String]) raises -> String:
@@ -291,7 +290,7 @@ fn join_vertical(pos: Position, strs: DynamicVector[String]) raises -> String:
         if widest > max_width:
             max_width = widest
 
-    var b = buffer.new_buffer()
+    var builder = StringBuilder()
     var w: Int = 0
     for i in range(len(blocks)):
         var block = blocks[i]
@@ -300,24 +299,24 @@ fn join_vertical(pos: Position, strs: DynamicVector[String]) raises -> String:
             w = max_width - printable_rune_width(line)
 
             if pos == left:
-                _ = b.write_string(line)
-                _ = b.write_string(__string__mul__(" ", w))
+                _ = builder.write_string(line)
+                _ = builder.write_string(__string__mul__(" ", w))
             elif pos == right:
-                _ = b.write_string(__string__mul__(" ", w))
-                _ = b.write_string(line)
+                _ = builder.write_string(__string__mul__(" ", w))
+                _ = builder.write_string(line)
             else:
                 if w < 1:
-                    _ = b.write_string(line)
+                    _ = builder.write_string(line)
                 else:
                     var split = int(w * pos / 2)
                     var right = w - split
                     var left = w - right
 
-                    _ = b.write_string(__string__mul__(" ", left))
-                    _ = b.write_string(line)
-                    _ = b.write_string(__string__mul__(" ", right))
+                    _ = builder.write_string(__string__mul__(" ", left))
+                    _ = builder.write_string(line)
+                    _ = builder.write_string(__string__mul__(" ", right))
 
             if not (i == len(blocks) - 1 and j == len(block) - 1):
-                _ = b.write_string("\n")
+                _ = builder.write_string("\n")
 
-    return str(b)
+    return str(builder)

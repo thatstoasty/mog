@@ -39,16 +39,11 @@ fn test_table() raises:
         border_right=True,
         border_top=True,
         data=new_string_data(),
-        width=50
+        width=50,
     )
-    # table.border(border)
     table.style_function = test_style_func
     table.row("French", "Bonjour", "Salut")
     table.row("Russian", "Zdravstvuyte", "Privet")
-    # for i in range(table.data.rows()):
-    #     for j in range(table.data.columns()):
-    #         print(table.data.at(i, j))
-    # print(table.data.columns())
 
     var headerless_start_time = now()
     print(table.render())
@@ -59,16 +54,16 @@ fn test_table() raises:
     print(table.render())
     var headered_execution_time = now() - headerless_start_time
 
-    print("Headerless Execution Time: ", headerless_execution_time, headerless_execution_time / 1e9)
-    print("Headered Execution Time: ", headered_execution_time, headered_execution_time / 1e9)
-    # var t = DynamicVector[String]()
-    # t.append("Hello")
-    # t.append("World")
-    # let a: String = "Hello World!\nThis is an example."
-    # let b: String = "I could be more creative.\nBut, I'm out of ideas."
-
-    # print(join_vertical(position.center, a, b))
-    # print(join_horizontal(position.bottom, a, b))
+    print(
+        "Headerless Execution Time: ",
+        headerless_execution_time,
+        headerless_execution_time / 1e9,
+    )
+    print(
+        "Headered Execution Time: ",
+        headered_execution_time,
+        headered_execution_time / 1e9,
+    )
 
 
 fn test_styling() raises:
@@ -86,7 +81,12 @@ fn test_styling() raises:
     style.border_foreground("#39E506")
 
     var start_time = now()
-    print(style.render("Hello World!\nThis is a test of the mog style system. Which can wrap lines that are longer than the limit.\n\nYep."))
+    print(
+        style.render(
+            "Hello World!\nThis is a test of the mog style system. Which can wrap lines"
+            " that are longer than the limit.\n\nYep."
+        )
+    )
     var execution_time = now() - start_time
     print("Headered Execution Time: ", execution_time, execution_time / 1e9)
 

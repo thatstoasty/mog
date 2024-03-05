@@ -79,7 +79,7 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
     var builder = StringBuilder()
     # remember, all blocks have the same number of members now
     for i in range(len(blocks[0])):
-        for j in range(len(blocks[i])):
+        for j in range(len(blocks)):
             var block = blocks[j]
             _ = builder.write_string(block[i])
 
@@ -170,7 +170,7 @@ fn join_horizontal(pos: Position, strs: DynamicVector[String]) raises -> String:
     var builder = StringBuilder()
     # remember, all blocks have the same number of members now
     for i in range(len(blocks[0])):
-        for j in range(len(blocks[i])):
+        for j in range(len(blocks)):
             var block = blocks[j]
             _ = builder.write_string(block[i])
 

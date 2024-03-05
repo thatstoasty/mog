@@ -530,7 +530,6 @@ struct Table():
             var cell = cells[i]
             cells[i] = trim_right(cell, "\n")
 
-        print(join_horizontal(position.top, cells) + "\n")
         _ = string_builder.write_string(join_horizontal(position.top, cells) + "\n")
 
         if self.border_row and index < self.data.rows() - 1:

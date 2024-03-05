@@ -6,6 +6,7 @@ from mog.table.table import default_styles
 from mog.border import star_border, ascii_border, Border
 from mog.style import Style
 from mog import position
+from time import now
 
 
 fn test_style_func(row: Int, col: Int) raises -> Style:
@@ -23,7 +24,7 @@ fn test_style_func(row: Int, col: Int) raises -> Style:
         return style
 
 
-fn main() raises:
+fn test_table() raises:
     var border_style = Style()
     border_style.foreground("#39E506")
 
@@ -48,10 +49,18 @@ fn main() raises:
     #     for j in range(table.data.columns()):
     #         print(table.data.at(i, j))
     # print(table.data.columns())
+
+    var headerless_start_time = now()
     print(table.render())
+    var headerless_execution_time = now() - headerless_start_time
+
     table.set_headers("LANGUAGE", "FORMAL", "INFORMAL")
+    var headered_start_time = now()
     print(table.render())
-    
+    var headered_execution_time = now() - headerless_start_time
+
+    print("Headerless Execution Time: ", headerless_execution_time, headerless_execution_time / 1e9)
+    print("Headered Execution Time: ", headered_execution_time, headered_execution_time / 1e9)
     # var t = DynamicVector[String]()
     # t.append("Hello")
     # t.append("World")
@@ -62,17 +71,24 @@ fn main() raises:
     # print(join_horizontal(position.bottom, a, b))
 
 
-# fn main() raises:
-#     var style = Style()
-#     style.bold()
-#     style.width(50)
-#     style.padding_top(1)
-#     style.padding_right(1)
-#     style.padding_bottom(1)
-#     style.padding_left(1)
+fn test_styling() raises:
+    var border_style = Style()
+    border_style.foreground("#39E506")
 
-#     style.horizontal_alignment(position.center)
-#     style.border("ascii_border")
-#     style.foreground("#c9a0dc")
-#     # style.background("#2d2d2d")
-#     print(style.render("Hello World!\nThis is a test of the stormlight style system. Which can wrap lines that are longer than the limit.\n\nYep."))
+    var style = Style()
+    style.bold()
+    style.width(50)
+    style.padding_top(1)
+    style.padding_right(1)
+    style.padding_bottom(1)
+    style.padding_left(1)
+
+    style.horizontal_alignment(position.center)
+    style.border("ascii_border")
+    style.foreground("#c9a0dc")
+    print(style.render("Hello World!\nThis is a test of the stormlight style system. Which can wrap lines that are longer than the limit.\n\nYep."))
+
+
+fn main() raises:
+    # test_styling()
+    test_table()

@@ -1,4 +1,5 @@
 from math import max, min
+from .string_dict import Dict
 from .renderer import Renderer
 from .position import Position
 from .border import (
@@ -17,7 +18,7 @@ from .border import (
     star_border,
     plus_border,
 )
-from .extensions import get_slice
+from .extensions import get_slice, __string__mul__, join, contains
 from .align import align_text_horizontal, align_text_vertical
 from .weave import wrap, wordwrap, truncate
 from .weave.ansi.ansi import len_without_ansi
@@ -30,9 +31,7 @@ from .mist.color import (
     AnyColor,
 )
 from .mist import TerminalStyle
-from .stdlib_extensions.builtins import dict, HashableStr
-from .stdlib_extensions.builtins.vector import contains
-from .stdlib_extensions.builtins.string import __string__mul__, join
+from .gojo.strings import StringBuilder
 
 
 alias tab_width: Int = 4
@@ -116,43 +115,55 @@ fn pad_right(text: String, n: Int, style: TerminalStyle) raises -> String:
 @value
 struct Style:
     var r: Renderer
-    var rules: dict[HashableStr, String]
+    var rules: Dict[String]
     var value: String
 
     fn __init__(inout self) raises:
         self.r = Renderer()
-        self.rules = dict[HashableStr, String]()
+        self.rules = Dict[String]()
         self.value = ""
 
-    fn get_as_bool(self, key: HashableStr, default: Bool) -> Bool:
-        var val = self.rules.get(key, default)
+    fn get_as_bool(self, key: String, default: Bool) -> Bool:
+        # TODO: This is failing with an out of bounds error. Must be a bug with Dict?      
+        var result = self.rules.get(key, String(default))
+        if result == String(default):
+            return default
+        
+        return to_bool(result)
 
-        return to_bool(val)
-
-    fn get_as_color(self, key: HashableStr) raises -> AnyColor:
-        var val = self.rules.get(key, "")
-        if val == "":
+    fn get_as_color(self, key: String) raises -> AnyColor:
+        var result = self.rules.get(key, "")
+        if result == "":
             return NoColor()
 
-        if val[0] == "#":
-            return RGBColor(val)
+        if result[0] == "#":
+            return RGBColor(result)
 
-        var ansi_code: Int = atol(val)
+        var ansi_code: Int = atol(result)
         if ansi_code > 16:
             return ANSI256Color(ansi_code)
         else:
             return ANSIColor(ansi_code)
 
-    fn get_as_int(self, key: HashableStr, default: Int = 0) raises -> Int:
-        var val = self.rules.get(key, String(default))
-        return atol(val)
+    fn get_as_int(self, key: String, default: Int = 0) raises -> Int:
+        var result = self.rules.get(key, String(default))
+        if result == String(default):
+            return default
+        
+        return atol(result)
 
-    fn get_as_position(self, key: HashableStr) raises -> Position:
-        var val = self.rules.get(key, "0")
-        return Position(atol(val))
+    fn get_as_position(self, key: String) raises -> Position:
+        var result = self.rules.get(key, "")
+        if result == "":
+            return Position(0)
+
+        return Position(atol(result))
 
     fn get_border_style(self) raises -> Border:
-        var val = self.rules.get("border_style", "no_border")
+        var val = self.rules.get("border_style", "")
+        if val == "":
+            return no_border()
+        
         if val == "no_border":
             return no_border()
         elif val == "hidden_border":
@@ -180,19 +191,19 @@ struct Style:
         else:
             return no_border()
 
-    fn is_set(self, key: HashableStr) -> Bool:
-        for item in self.rules.items():
-            if item.key == key:
+    fn is_set(self, key: String) -> Bool:
+        for i in range(len(self.rules.keys)):
+            if String(self.rules.keys[i]) == key:
                 return True
 
         return False
 
-    # fn get_as_transform(self, key: HashableStr) raises -> TransformFunction:
+    # fn get_as_transform(self, key: String) raises -> TransformFunction:
     #     var val = self.rules.get(key, "0")
     #     return val
 
-    fn set_rule(inout self, key: HashableStr, value: String):
-        self.rules[key] = value
+    fn set_rule(inout self, key: String, value: String):
+        self.rules.put(key, value)
 
     fn bold(inout self):
         self.set_rule("bold", "True")
@@ -533,7 +544,6 @@ struct Style:
         var use_space_styler = underline_spaces or crossout_spaces
 
         # transform = self.get_as_transform("transform")
-
         if len(self.rules) == 0:
             return self.maybe_convert_tabs(input_text)
 
@@ -573,7 +583,7 @@ struct Style:
 
         input_text = self.maybe_convert_tabs(input_text)
 
-        var styled_text: String = ""
+        var builder: StringBuilder = StringBuilder()
         var lines = input_text.split("\n")
         for i in range(lines.size):
             var line = lines[i]
@@ -582,15 +592,17 @@ struct Style:
                 for i in range(len_without_ansi(line)):
                     var character = line[i]
                     if character == " ":
-                        styled_text += term_style_space.render(character)
+                        builder.write_string(term_style_space.render(character))
                     else:
-                        styled_text += term_style.render(character)
+                        builder.write_string(term_style.render(character))
             else:
-                styled_text += term_style.render(line)
+                builder.write_string(term_style.render(line))
 
             # Readd the newlines
             if i != len(lines) - 1:
-                styled_text += "\n"
+                builder.write_string("\n")
+        
+        var styled_text = str(builder)
 
         # Padding
         if not inline:

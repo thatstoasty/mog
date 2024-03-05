@@ -1,6 +1,5 @@
 from .position import Position, top, bottom, left, right, center
-from .extensions import get_slice
-from .stdlib_extensions.builtins.string import __string__mul__
+from .extensions import get_slice, __string__mul__
 from .weave.ansi.ansi import printable_rune_width
 from .weave.gojo.bytes import buffer
 

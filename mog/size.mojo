@@ -1,5 +1,5 @@
 from .weave.ansi import ansi
-from .stdlib_extensions.builtins.string import split
+from .extensions import split
 
 
 # Width returns the cell width of characters in the string. ANSI sequences are

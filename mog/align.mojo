@@ -1,7 +1,6 @@
 from math import max, min
 import .position
-from .extensions import count
-from .stdlib_extensions.builtins.string import __string__mul__
+from .extensions import count, __string__mul__
 from .weave.ansi.ansi import len_without_ansi
 from .mist import TerminalStyle
 

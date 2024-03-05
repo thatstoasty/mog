@@ -1,8 +1,8 @@
 from math import max, min
 from ..weave import truncate
-from ..weave.gojo.bytes import buffer
 from ..weave.gojo.builtins import Bytes
-from ..stdlib_extensions.builtins.string import __string__mul__
+from ..gojo.strings import StringBuilder
+from ..extensions import __string__mul__
 from ..style import Style
 from ..border import ascii_border, Border
 from ..position import top, bottom, left, right, center
@@ -59,7 +59,7 @@ fn default_styles(row: Int, col: Int) raises -> Style:
 
 
 @value
-struct Table:
+struct Table():
     var style_function: StyleFunction
     var border: Border
 
@@ -162,14 +162,14 @@ struct Table:
         self.headers = headers
 
     # String returns the table as a String.
-    fn string(inout self) raises -> String:
+    fn __str__(inout self) raises -> String:
         var has_headers = len(self.headers) > 0
         var has_rows = self.data.rows() > 0
 
         if not has_headers and not has_rows:
             return ""
 
-        var string_builder = buffer.new_buffer()
+        var string_builder = StringBuilder()
 
         # Add empty cells to the headers, until it's the same length as the longest
         # row (only if there are at headers in the first place).
@@ -360,13 +360,12 @@ struct Table:
 
     # render returns the table as a String.
     fn render(inout self) raises -> String:
-        return self.string()
+        return self.__str__()
 
     # constructTopBorder constructs the top border for the table given it's current
     # border configuration and data.
     fn construct_top_border(self) raises -> String:
-        var string_builder = buffer.new_buffer()
-
+        var string_builder = StringBuilder()
         if self.border_left:
             _ = string_builder.write_string(
                 self.border_style.render(self.border.top_left)
@@ -396,7 +395,7 @@ struct Table:
     # construct_bottom_border constructs the bottom border for the table given it's current
     # border configuration and data.
     fn construct_bottom_border(self) raises -> String:
-        var string_builder = buffer.new_buffer()
+        var string_builder = StringBuilder()
         if self.border_left:
             _ = string_builder.write_string(
                 self.border_style.render(self.border.bottom_left)
@@ -426,7 +425,7 @@ struct Table:
     # constructHeaders constructs the headers for the table given it's current
     # header configuration and data.
     fn construct_headers(self) raises -> String:
-        var string_builder = buffer.new_buffer()
+        var string_builder = StringBuilder()
         if self.border_left:
             _ = string_builder.write_string(self.border_style.render(self.border.left))
 
@@ -487,7 +486,7 @@ struct Table:
     # construct_row constructs the row for the table given an index and row data
     # based on the current configuration.
     fn construct_row(self, index: Int) raises -> String:
-        var string_builder = buffer.new_buffer()
+        var string_builder = StringBuilder()
 
         var has_headers = len(self.headers) > 0
         var height = self.heights[index + btoi(has_headers)]

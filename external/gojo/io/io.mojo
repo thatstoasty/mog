@@ -1,32 +1,59 @@
 from collections.optional import Optional
 from ..builtins import cap, copy
-from ..builtins._bytes import Bytes, Byte, Bytes
-from .traits import Reader, Writer, StringWriter, ErrShortBuffer, EOF
+from ..builtins._bytes import Bytes, Byte
 
 
-# WriteString writes the contents of the string s to w, which accepts a slice of bytes.
-# If w implements [StringWriter], [StringWriter.WriteString] is invoked directly.
-# Otherwise, [Writer.Write] is called exactly once.
-fn write_string[T: Writer](inout w: T, s: String) raises -> Int:
-    var s_buffer = Bytes(s)
-    return w.write(s_buffer)
+alias BUFFER_SIZE = 4096
 
 
-fn write_string[T: StringWriter](inout w: T, s: String) raises -> Int:
-    return w.write_string(s)
+fn write_string[W: Writer](inout writer: W, string: String) raises -> Int:
+    """Writes the contents of the string s to w, which accepts a slice of bytes.
+    If w implements [StringWriter], [StringWriter.write_string] is invoked directly.
+    Otherwise, [Writer.write] is called exactly once.
+
+    Args:
+        writer: The writer to write to.
+        string: The string to write.
+
+    Returns:
+        The number of bytes written and an error, if any.
+    """
+    return writer.write(string.as_bytes())
 
 
-# read_at_least reads from r into buf until it has read at least min bytes.
-# It returns the number of bytes copied and an error if fewer bytes were read.
-# The error is EOF only if no bytes were read.
-# If an EOF happens after reading fewer than min bytes,
-# read_at_least returns [ErrUnexpectedEOF].
-# If min is greater than the length of buf, read_at_least returns [ErrShortBuffer].
-# On return, n >= min if and only if err == nil.
-# If r returns an error having read at least min bytes, the error is dropped.
+fn write_string[W: StringWriter](inout writer: W, string: String) raises -> Int:
+    """Writes the contents of the string s to w, which accepts a slice of bytes.
+    If w implements [StringWriter], [StringWriter.write_string] is invoked directly.
+    Otherwise, [Writer.write] is called exactly once.
+
+    Args:
+        writer: The writer to write to.
+        string: The string to write.
+
+    Returns:
+        The number of bytes written and an error, if any."""
+    return writer.write_string(string)
+
+
 fn read_at_least[R: Reader](inout reader: R, dest: Bytes, min: Int) raises -> Int:
+    """Reads from r into buf until it has read at least min bytes.
+    It returns the number of bytes copied and an error if fewer bytes were read.
+    The error is EOF only if no bytes were read.
+    If an EOF happens after reading fewer than min bytes,
+    read_at_least returns [ERR_UNEXPECTED_EOF].
+    If min is greater than the length of buf, read_at_least returns [ERR_SHORT_BUFFER].
+    On return, n >= min if and only if err == nil.
+    If r returns an error having read at least min bytes, the error is dropped.
+
+    Args:
+        reader: The reader to read from.
+        dest: The buffer to read into.
+        min: The minimum number of bytes to read.
+
+    Returns:
+        The number of bytes read."""
     if len(dest) < min:
-        raise Error(ErrShortBuffer)
+        raise Error(io.ERR_SHORT_BUFFER)
 
     var n: Int = 0
     while n < min:
@@ -42,7 +69,7 @@ fn read_full[R: Reader](inout reader: R, dest: Bytes) raises -> Int:
     It returns the number of bytes copied and an error if fewer bytes were read.
     The error is EOF only if no bytes were read.
     If an EOF happens after reading some but not all the bytes,
-    read_full returns [ErrUnexpectedEOF].
+    read_full returns [ERR_UNEXPECTED_EOF].
     On return, n == len(buf) if and only if err == nil.
     If r returns an error having read at least len(buf) bytes, the error is dropped.
     """
@@ -63,18 +90,18 @@ fn read_full[R: Reader](inout reader: R, dest: Bytes) raises -> Int:
 
 #     if written < n:
 #         # src stopped early; must have been EOF.
-#         raise Error(ErrUnexpectedEOF)
+#         raise Error(ERR_UNEXPECTED_EOF)
 
 #     return written
 
 
 # fn copy[W: Writer, R: Reader](dst: W, src: R, n: Int64) -> Int64:
-#     """Copy copies from src to dst until either EOF is reached
+#     """copy copies from src to dst until either EOF is reached
 # on src or an error occurs. It returns the number of bytes
 # copied and the first error encountered while copying, if any.
 
-# A successful Copy returns err == nil, not err == EOF.
-# Because Copy is defined to read from src until EOF, it does
+# A successful copy returns err == nil, not err == EOF.
+# Because copy is defined to read from src until EOF, it does
 # not treat an EOF from Read as an error to be reported.
 
 # If src implements [WriterTo],
@@ -84,7 +111,7 @@ fn read_full[R: Reader](inout reader: R, dest: Bytes) raises -> Int:
 # """
 #     return copy_buffer(dst, src, nil)
 
-# # CopyBuffer is identical to Copy except that it stages through the
+# # CopyBuffer is identical to copy except that it stages through the
 # # provided buffer (if one is required) rather than allocating a
 # # temporary one. If buf is nil, one is allocated; otherwise if it has
 # # zero length, CopyBuffer panics.
@@ -100,7 +127,7 @@ fn read_full[R: Reader](inout reader: R, dest: Bytes) raises -> Int:
 
 
 # fn copy_buffer[W: Writer, R: Reader](dst: W, src: R, buf: Bytes) raises -> Int64:
-#     """Actual implementation of Copy and CopyBuffer.
+#     """Actual implementation of copy and CopyBuffer.
 #     if buf is nil, one is allocated.
 #     """
 #     var nr: Int
@@ -114,7 +141,7 @@ fn read_full[R: Reader](inout reader: R, dest: Bytes) raises -> Int:
 
 #             var written = Int64(nw)
 #             if nr != nw:
-#                 raise Error(ErrShortWrite)
+#                 raise Error(ERR_SHORT_WRITE)
 
 #     return written
 
@@ -195,11 +222,11 @@ fn read_full[R: Reader](inout reader: R, dest: Bytes) raises -> Int:
 # 	switch whence {
 # 	default:
 # 		return 0, errWhence
-# 	case seek_start:
+# 	case SEEK_START:
 # 		offset += s.base
-# 	case seek_current:
+# 	case SEEK_CURRENT:
 # 		offset += s.off
-# 	case seek_end:
+# 	case SEEK_END:
 # 		offset += s.limit
 # 	}
 # 	if offset < s.base {
@@ -268,9 +295,9 @@ fn read_full[R: Reader](inout reader: R, dest: Bytes) raises -> Int:
 # 	switch whence {
 # 	default:
 # 		return 0, errWhence
-# 	case seek_start:
+# 	case SEEK_START:
 # 		offset += o.base
-# 	case seek_current:
+# 	case SEEK_CURRENT:
 # 		offset += o.off
 # 	}
 # 	if offset < o.base {
@@ -310,7 +337,7 @@ fn read_full[R: Reader](inout reader: R, dest: Bytes) raises -> Int:
 
 # type discard struct{}
 
-# # discard implements ReaderFrom as an optimization so Copy to
+# # discard implements ReaderFrom as an optimization so copy to
 # # io.Discard can avoid doing unnecessary work.
 # var _ ReaderFrom = discard{}
 
@@ -318,7 +345,7 @@ fn read_full[R: Reader](inout reader: R, dest: Bytes) raises -> Int:
 # 	return len(p), nil
 # }
 
-# fn (discard) WriteString(s string) (Int, error) {
+# fn (discard) write_string(s string) (Int, error) {
 # 	return len(s), nil
 # }
 
@@ -373,12 +400,18 @@ fn read_full[R: Reader](inout reader: R, dest: Bytes) raises -> Int:
 # }
 
 
-# ReadAll reads from r until an error or EOF and returns the data it read.
-# A successful call returns err == nil, not err == EOF. Because ReadAll is
-# defined to read from src until EOF, it does not treat an EOF from Read
-# as an error to be reported.
 fn read_all[R: Reader](inout reader: R) raises -> Bytes:
-    var dest = Bytes()
+    """Reads from r until an error or EOF and returns the data it read.
+    A successful call returns err == nil, not err == EOF. Because ReadAll is
+    defined to read from src until EOF, it does not treat an EOF from Read
+    as an error to be reported.
+
+    Args:
+        reader: The reader to read from.
+
+    Returns:
+        The data read."""
+    var dest = Bytes(BUFFER_SIZE)
     var index: Int = 0
 
     while True:

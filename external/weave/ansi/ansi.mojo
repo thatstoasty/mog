@@ -1,4 +1,4 @@
-from ..gojo.builtins._bytes import Bytes
+from external.gojo.builtins._bytes import Bytes
 
 alias Marker = "\x1B"
 alias Rune = Int32

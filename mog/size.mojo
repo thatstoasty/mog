@@ -1,4 +1,4 @@
-from .weave.ansi import ansi
+from external.weave.ansi import ansi
 from .extensions import split
 
 

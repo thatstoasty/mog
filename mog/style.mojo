@@ -1,5 +1,5 @@
 from math import max, min
-from .string_dict import Dict
+from external.string_dict import Dict
 from .renderer import Renderer
 from .position import Position
 from .border import (
@@ -20,9 +20,9 @@ from .border import (
 )
 from .extensions import get_slice, __string__mul__, join, contains
 from .align import align_text_horizontal, align_text_vertical
-from .weave import wrap, wordwrap, truncate
-from .weave.ansi.ansi import len_without_ansi
-from .mist.color import (
+from external.weave import wrap, wordwrap, truncate
+from external.weave.ansi.ansi import len_without_ansi
+from external.mist.color import (
     Color,
     NoColor,
     ANSIColor,
@@ -30,8 +30,8 @@ from .mist.color import (
     RGBColor,
     AnyColor,
 )
-from .mist import TerminalStyle
-from .gojo.strings import StringBuilder
+from external.mist import TerminalStyle
+from external.gojo.strings import StringBuilder
 
 
 alias tab_width: Int = 4
@@ -418,8 +418,8 @@ struct Style:
                 border.top_left, border.top, border.top_right, width
             )
             top = self.style_border(top, top_fg, top_bg)
-            builder.write_string(top)
-            builder.write_string("\n")
+            _ = builder.write_string(top)
+            _ = builder.write_string("\n")
 
         # Render sides
         var left_runes = DynamicVector[String]()
@@ -440,9 +440,9 @@ struct Style:
                 if left_index >= len(left_runes):
                     left_index = 0
 
-                builder.write_string(self.style_border(r, left_fg, left_bg))
+                _ = builder.write_string(self.style_border(r, left_fg, left_bg))
 
-            builder.write_string(line)
+            _ = builder.write_string(line)
 
             if has_right:
                 var r = right_runes[right_index]
@@ -451,10 +451,10 @@ struct Style:
                 if right_index >= len(right_runes):
                     right_index = 0
 
-                builder.write_string(self.style_border(r, right_fg, right_bg))
+                _ = builder.write_string(self.style_border(r, right_fg, right_bg))
 
             if i < len(lines) - 1:
-                builder.write_string("\n")
+                _ = builder.write_string("\n")
 
         # Render bottom
         if has_bottom:
@@ -462,8 +462,8 @@ struct Style:
                 border.bottom_left, border.bottom, border.bottom_right, width
             )
             bottom = self.style_border(bottom, bottom_fg, bottom_bg)
-            builder.write_string("\n")
-            builder.write_string(bottom)
+            _ = builder.write_string("\n")
+            _ = builder.write_string(bottom)
 
         return str(builder)
 
@@ -595,15 +595,15 @@ struct Style:
                 for i in range(len_without_ansi(line)):
                     var character = line[i]
                     if character == " ":
-                        builder.write_string(term_style_space.render(character))
+                        _ = builder.write_string(term_style_space.render(character))
                     else:
-                        builder.write_string(term_style.render(character))
+                        _ = builder.write_string(term_style.render(character))
             else:
-                builder.write_string(term_style.render(line))
+                _ = builder.write_string(term_style.render(line))
 
             # Readd the newlines
             if i != len(lines) - 1:
-                builder.write_string("\n")
+                _ = builder.write_string("\n")
         
         var styled_text = str(builder)
 

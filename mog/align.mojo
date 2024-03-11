@@ -1,8 +1,8 @@
 from math import max, min
 import .position
 from .extensions import count, __string__mul__
-from .weave.ansi.ansi import len_without_ansi
-from .mist import TerminalStyle
+from external.weave.ansi.ansi import len_without_ansi
+from external.mist import TerminalStyle
 
 
 # Perform text alignment. If the string is multi-lined, we also make all lines

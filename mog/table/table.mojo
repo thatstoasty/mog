@@ -1,7 +1,7 @@
 from math import max, min
-from ..weave import truncate
-from ..weave.gojo.builtins import Bytes
-from ..gojo.strings import StringBuilder
+from external.weave import truncate
+from external.gojo.builtins import Bytes
+from external.gojo.strings import StringBuilder
 from ..extensions import __string__mul__
 from ..style import Style
 from ..border import ascii_border, Border

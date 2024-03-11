@@ -1,6 +1,6 @@
-from .gojo.bytes import buffer
-from .gojo.builtins._bytes import Bytes
-from .gojo.io import traits as io
+from external.gojo.bytes import buffer
+from external.gojo.builtins._bytes import Bytes
+import external.gojo.io
 from .ansi import writer
 from .ansi.ansi import is_terminator, Marker
 from .utils import __string__mul__, strip

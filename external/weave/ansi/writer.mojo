@@ -1,6 +1,6 @@
-from ..gojo.bytes import buffer
-from ..gojo.builtins._bytes import Bytes
-from ..gojo.io import traits as io
+from external.gojo.bytes import buffer
+from external.gojo.builtins._bytes import Bytes
+from external.gojo.io import traits as io
 from .ansi import Marker, is_terminator
 
 

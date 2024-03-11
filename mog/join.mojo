@@ -1,7 +1,7 @@
 from .position import Position, top, bottom, left, right, center
 from .extensions import get_slice, __string__mul__
-from .weave.ansi.ansi import printable_rune_width
-from .gojo.strings import StringBuilder
+from external.weave.ansi.ansi import printable_rune_width
+from external.gojo.strings import StringBuilder
 
 
 # join_horizontal is a utility function for horizontally joining two

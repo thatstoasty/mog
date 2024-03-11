@@ -1,5 +1,4 @@
-# from mog.style import Style
-# import mog.position
+from tests.wrapper import MojoTest
 from mog.join import join_vertical, join_horizontal
 from mog.table import new_table, new_string_data, Table
 from mog.table.table import default_styles
@@ -9,7 +8,7 @@ from mog import position
 from time import now
 
 
-fn test_style_func(row: Int, col: Int) raises -> Style:
+fn dummy_style_func(row: Int, col: Int) raises -> Style:
     var style = Style()
     style.horizontal_alignment(position.center)
     style.vertical_alignment(position.center)
@@ -25,7 +24,7 @@ fn test_style_func(row: Int, col: Int) raises -> Style:
 
 
 fn test_table() raises:
-    print("Testing table creation with and without headers")
+    var test = MojoTest("Testing table creation with and without headers")
     var border_style = Style()
     border_style.foreground("#39E506")
 
@@ -42,7 +41,7 @@ fn test_table() raises:
         data=new_string_data(),
         width=50,
     )
-    table.style_function = test_style_func
+    table.style_function = dummy_style_func
     table.row("French", "Bonjour", "Salut")
     table.row("Russian", "Zdravstvuyte", "Privet")
 
@@ -68,7 +67,7 @@ fn test_table() raises:
 
 
 fn test_styling() raises:
-    print("Testing Style rendering")
+    var test = MojoTest("Testing Style rendering")
     var style = Style()
     style.bold()
     style.width(50)
@@ -93,6 +92,6 @@ fn test_styling() raises:
     print("Headered Execution Time: ", execution_time, execution_time / 1e9)
 
 
-fn run_tests() raises:
+fn main() raises:
     test_styling()
     test_table()

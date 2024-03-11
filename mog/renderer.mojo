@@ -1,4 +1,4 @@
-from .mist import Profile
+from external.mist import Profile
 
 
 @value

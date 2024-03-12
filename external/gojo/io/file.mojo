@@ -1,5 +1,5 @@
-from ..builtins._bytes import Bytes, Byte
-from ..builtins import copy
+from ..builtins import Bytes, Byte, copy
+from .io import BUFFER_SIZE
 
 
 struct FileWrapper(io.ReadWriteSeeker, io.ByteReader):
@@ -24,11 +24,12 @@ struct FileWrapper(io.ReadWriteSeeker, io.ByteReader):
     fn read(inout self, inout dest: Bytes) raises -> Int:
         # Pretty hacky way to force the filehandle read into the defined trait.
         # Call filehandle.read, convert result into bytes, copy into dest (overwrites the first X elements), then return a slice minus all the extra 0 filled elements.
-        var result = self.handle.read()
+        var result = self.handle.read(dest.available())
         if len(result) == 0:
             raise Error(io.EOF)
 
-        var elements_copied = copy(dest, Bytes(result))
+        var bytes_result = Bytes(result)
+        var elements_copied = copy(dest, bytes_result[: len(bytes_result)])
         dest = dest[:elements_copied]
         return elements_copied
 
@@ -39,9 +40,30 @@ struct FileWrapper(io.ReadWriteSeeker, io.ByteReader):
         if len(result) == 0:
             raise Error(io.EOF)
 
-        var elements_copied = copy(dest, Bytes(result))
+        var bytes_result = Bytes(result)
+        var elements_copied = copy(dest, bytes_result[: len(bytes_result)])
         dest = dest[:elements_copied]
         return elements_copied
+
+    fn read_all(inout self) raises -> Bytes:
+        var result = Bytes(BUFFER_SIZE)
+        while True:
+            try:
+                var temp = Bytes(BUFFER_SIZE)
+                _ = self.read(temp, BUFFER_SIZE)
+
+                # If new bytes will overflow the result, resize it.
+                if len(result) + len(temp) > result.size():
+                    result.resize(result.size() * 2)
+                result += temp
+
+                if len(temp) < BUFFER_SIZE:
+                    raise Error(io.EOF)
+            except e:
+                if str(e) == "EOF":
+                    break
+                raise
+        return result
 
     fn read_byte(inout self) raises -> Byte:
         return self.read_bytes(1)[0]

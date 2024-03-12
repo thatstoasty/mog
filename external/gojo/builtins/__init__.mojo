@@ -67,7 +67,7 @@ fn copy(inout target: Bytes, source: Bytes, start: Int = 0) -> Int:
     """
     var count = 0
 
-    for i in range(source.size()):
+    for i in range(len(source)):
         target[i + start] = source[i]
         count += 1
 

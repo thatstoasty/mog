@@ -36,15 +36,28 @@ struct Bytes(Stringable, Sized, CollectionElement):
         for string in strs:
             self._vector.extend(string[].as_bytes())
             total_length += len(string[])
-        
+
         self.write_position = total_length
 
-    fn size(self) -> Int:
-        """Returns the position of the last byte written to Bytes since it is 0 initialized."""
-        return self.write_position
-    
     fn __len__(self) -> Int:
+        return self.write_position
+
+    fn size(self) -> Int:
+        """Returns the position of the last byte written to Bytes since it is 0 initialized.
+        """
         return len(self._vector)
+
+    fn resize(inout self, new_size: Int):
+        """Resizes the Bytes to the new size. If the new size is larger than the current size, the new bytes are 0 initialized.
+        """
+        self._vector.resize(new_size, 0)
+
+        # If the internal vector was resized to a smaller size than what was already written, the write position should be moved back.
+        if new_size < self.write_position:
+            self.write_position = new_size
+
+    fn available(self) -> Int:
+        return len(self._vector) - self.write_position
 
     fn __getitem__(self, index: Int) -> Int8:
         return self._vector[index]
@@ -53,15 +66,15 @@ struct Bytes(Stringable, Sized, CollectionElement):
         # TODO: Specifying no end to the span sets span end to this super large int for some reason.
         # Set it to len of the vector if that happens. Otherwise, if end is just too large in general, throw OOB error.
 
-        # TODO: If no end was given, then it defaults to that large int. 
+        # TODO: If no end was given, then it defaults to that large int.
         # Accidentally including the 0 (null) characters will mess up strings due to null termination. __str__ expects the exact length of the string from self.write_position.
         var end = limits.end
         if limits.end == 9223372036854775807:
-            end = len(self)
-        elif limits.end > len(self) + 1:
+            end = self.size()
+        elif limits.end > self.size() + 1:
             var error = "Bytes: Index out of range for limits.end. Received: " + str(
                 limits.end
-            ) + " but the length is " + str((len(self)))
+            ) + " but the length is " + str((self.size()))
             raise Error(error)
 
         var new_bytes = Self(size=self.capacity())
@@ -81,9 +94,9 @@ struct Bytes(Stringable, Sized, CollectionElement):
             self.write_position = index + 1
 
     fn __eq__(self, other: Self) -> Bool:
-        if self.size() != other.size():
+        if len(self) != len(other):
             return False
-        for i in range(self.size()):
+        for i in range(len(self)):
             if self[i] != other[i]:
                 return False
         return True
@@ -92,10 +105,10 @@ struct Bytes(Stringable, Sized, CollectionElement):
         return not self.__eq__(other)
 
     fn __add__(self, other: Self) -> Self:
-        var new_vector = DynamicVector[Int8](capacity=self.size() + other.size())
-        for i in range(self.size()):
+        var new_vector = DynamicVector[Int8](capacity=len(self) + len(other))
+        for i in range(len(self)):
             new_vector.push_back(self[i])
-        for i in range(other.size()):
+        for i in range(len(other)):
             new_vector.push_back(other[i])
         return Bytes(new_vector)
 
@@ -107,9 +120,9 @@ struct Bytes(Stringable, Sized, CollectionElement):
         # var added_size = length_of_self + length_of_other
         # if self._vector.capacity < added_size:
         #     self._vector.reserve(added_size * 2)
-        
+
         # Copy over data starting from the write position.
-        for i in range(other.size()):
+        for i in range(len(other)):
             self._vector[self.write_position] = other[i]
             self.write_position += 1
 
@@ -156,7 +169,7 @@ struct Bytes(Stringable, Sized, CollectionElement):
             The index of the first occurrence of the byte c.
         """
         var i = 0
-        for i in range(self.size()):
+        for i in range(len(self)):
             if self[i] == c:
                 return i
 
@@ -171,8 +184,8 @@ struct Bytes(Stringable, Sized, CollectionElement):
         Returns:
             True if the Bytes struct begins with prefix; otherwise, False.
         """
-        var len_comparison = self.size() >= prefix.size()
-        var prefix_comparison = self[0 : prefix.size()] == prefix
+        var len_comparison = len(self) >= len(prefix)
+        var prefix_comparison = self[0 : len(prefix)] == prefix
         return len_comparison and prefix_comparison
 
     fn has_suffix(self, suffix: Self) raises -> Bool:
@@ -184,10 +197,8 @@ struct Bytes(Stringable, Sized, CollectionElement):
         Returns:
             True if the Bytes struct ends with suffix; otherwise, False.
         """
-        var len_comparison = self.size() >= suffix.size()
-        var suffix_comparison = self[
-            self.size() - suffix.size() : self.size()
-        ] == suffix
+        var len_comparison = len(self) >= len(suffix)
+        var suffix_comparison = self[len(self) - len(suffix) : len(self)] == suffix
         return len_comparison and suffix_comparison
 
     fn capacity(self) -> Int:

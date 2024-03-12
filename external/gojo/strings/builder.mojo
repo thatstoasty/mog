@@ -45,7 +45,7 @@ struct StringBuilder(Stringable, Sized, io.Writer, io.ByteWriter, io.StringWrite
           string if the string builder is empty.
         """
         # Don't need to add a null terminator because we can pass the length of the string.
-        return StringRef(self._vector._vector.data.value, self._vector.size())
+        return StringRef(self._vector._vector.data.value, len(self._vector))
 
     fn write(inout self, src: Bytes) raises -> Int:
         """
@@ -85,7 +85,7 @@ struct StringBuilder(Stringable, Sized, io.Writer, io.ByteWriter, io.StringWrite
         Returns:
           The length of the string builder.
         """
-        return self._vector.size()
+        return len(self._vector)
 
     fn __getitem__(self, index: Int) -> String:
         """

@@ -78,7 +78,7 @@ struct Reader(
         if off >= Int64(len(self.string)):
             raise Error(io.EOF)
 
-        var copied_elements_count = copy(dest, self.string[off:])
+        var copied_elements_count = copy(dest, self.string[int(off) :])
         if copied_elements_count < len(dest):
             raise Error(io.EOF)
 
@@ -227,7 +227,7 @@ struct Reader(
         self.prev_rune = -1
 
 
-fn new_reader(string: String) -> Reader:
+fn new_reader(string: String = "") -> Reader:
     """Returns a new [Reader] reading from the provided string.
     It is similar to [bytes.new_buffer] but more efficient and non-writable.
 
@@ -235,10 +235,3 @@ fn new_reader(string: String) -> Reader:
         string: The string to read from.
     """
     return Reader(string)
-
-
-fn new_default_reader() -> Reader:
-    """Returns a new [Reader] reading from the provided string.
-    It is similar to [bytes.new_buffer] but more efficient and non-writable.
-    """
-    return new_reader("")

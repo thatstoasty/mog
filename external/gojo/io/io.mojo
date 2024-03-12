@@ -416,10 +416,18 @@ fn read_all[R: Reader](inout reader: R) raises -> Bytes:
 
     while True:
         try:
-            index = reader.read(dest)
+            var temp = Bytes(BUFFER_SIZE)
+            _ = reader.read(temp)
+
+            # If new bytes will overflow the result, resize it.
+            if len(dest) + len(temp) > dest.size():
+                dest.resize(dest.size() * 2)
+            dest += temp
+
+            if len(temp) < BUFFER_SIZE:
+                raise Error(io.EOF)
         except e:
-            if e.__str__() == EOF:
+            if str(e) == "EOF":
                 break
             raise
-
     return dest

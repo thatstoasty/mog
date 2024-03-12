@@ -8,7 +8,7 @@ from ..io import (
     WriterTo,
     StringWriter,
     ReaderFrom,
-    BUFFER_SIZE
+    BUFFER_SIZE,
 )
 from ..builtins import cap, copy
 from ..builtins._bytes import (
@@ -49,6 +49,10 @@ alias ERR_TOO_LARGE = "buffer.Buffer: too large"
 alias ERR_NEGATIVE_READ = "buffer.Buffer: reader returned negative count from read"
 alias ERR_SHORT_WRITE = "short write"
 
+alias i1 = __mlir_type.i1
+alias i1_1 = __mlir_attr.`1: i1`
+alias i1_0 = __mlir_attr.`0: i1`
+
 
 @value
 struct Buffer(
@@ -76,13 +80,13 @@ struct Buffer(
         self.last_read = OP_INVALID
 
     fn bytes(self) raises -> Bytes:
-        """Returns a slice of length self.__len__() holding the unread portion of the buffer.
+        """Returns a slice of length self.buf.size() holding the unread portion of the buffer.
         The slice is valid for use only until the next buffer modification (that is,
         only until the next call to a method like [Buffer.read], [Buffer.write], [Buffer.reset], or [Buffer.truncate]).
         The slice aliases the buffer content at least until the next buffer modification,
         so immediate changes to the slice will affect the result of future reads.
         """
-        return self.buf[self.off:self.buf.size()]
+        return self.buf[self.off : len(self.buf)]
 
     fn available_buffer(self) raises -> Bytes:
         """Returns an empty buffer with self.Available() capacity.
@@ -90,7 +94,7 @@ struct Buffer(
         passed to an immediately succeeding [Buffer.write] call.
         The buffer is only valid until the next write operation on self.
         """
-        return self.buf[self.buf.size():]
+        return self.buf[len(self.buf) :]
 
     fn __str__(self) raises -> String:
         """Returns the contents of the unread portion of the buffer
@@ -98,16 +102,16 @@ struct Buffer(
 
         To build strings more efficiently, see the strings.Builder type.
         """
-        return str(self.buf[self.off:self.buf.size()])
+        return str(self.buf[self.off : len(self.buf)])
 
     fn empty(self) -> Bool:
         """Reports whether the unread portion of the buffer is empty."""
-        return self.buf.size() <= self.off
+        return len(self.buf) <= self.off
 
     fn __len__(self) -> Int:
         """Returns the number of bytes of the unread portion of the buffer;
-        self.__len__() == len(self.Bytes())."""
-        return self.buf.size() - self.off
+        self.buf.size() == len(self.Bytes())."""
+        return len(self.buf) - self.off
 
     fn cap(self) -> Int:
         """Cap returns the capacity of the buffer's underlying byte slice, that is, the
@@ -116,7 +120,7 @@ struct Buffer(
 
     fn available(self) -> Int:
         """Returns how many bytes are unused in the buffer."""
-        return cap(self.buf) - self.buf.size()
+        return self.buf.size() - len(self.buf)
 
     fn truncate(inout self, position: Int) raises:
         """Discards all but the first n unread bytes from the buffer
@@ -131,7 +135,7 @@ struct Buffer(
             return
 
         self.last_read = OP_INVALID
-        if position < 0 or position > self.__len__():
+        if position < 0 or position > self.buf.size():
             raise Error("buffer.Buffer: truncation out of range")
 
         self.buf = self.buf[: self.off + position]
@@ -148,14 +152,14 @@ struct Buffer(
         """Inlineable version of grow for the fast-case where the
         internal buffer only needs to be resliced.
         It returns the index where bytes should be written and whether it succeeded."""
-        var l = self.__len__()
+        var buffer_already_used = len(self.buf)
 
-        if n <= cap(self.buf) - l:
+        if n <= cap(self.buf) - buffer_already_used:
             # FIXME: It seems like reslicing in go can extend the length of the slice. Doens't work like that for my get slice impl.
             # Instead, just add bytes of len(n) to the end of the buffer for now.
             # self.buf = self.buf[: l + n]
             self.buf += Bytes(n)
-            return l, True
+            return buffer_already_used, True
 
         return 0, False
 
@@ -163,7 +167,7 @@ struct Buffer(
         """Grows the buffer to guarantee space for n more bytes.
         It returns the index where bytes should be written.
         If the buffer can't grow it will panic with ERR_TOO_LARGE."""
-        var m: Int = self.__len__()
+        var m: Int = self.buf.size()
         # If buffer is empty, reset to recover space.
         if m == 0 and self.off != 0:
             self.reset()
@@ -175,8 +179,9 @@ struct Buffer(
         if ok:
             return i
 
-        if len(self.buf) == 0 and n <= SMALL_BUFFER_SIZE:
-            self.buf = Bytes(SMALL_BUFFER_SIZE)
+        # If buffer length is 0 and elements being added is less than small_buffer_size, resize the buffer and write from the beginning.
+        if self.buf.size() == 0 and n <= SMALL_BUFFER_SIZE:
+            self.buf.resize(SMALL_BUFFER_SIZE)
             return 0
 
         var c = cap(self.buf)
@@ -229,9 +234,9 @@ struct Buffer(
         self.last_read = OP_INVALID
         var m: Int
         var ok: Bool
-        m, ok = self.try_grow_by_reslice(src.size())
+        m, ok = self.try_grow_by_reslice(len(src))
         if not ok:
-            m = self.grow(src.size())
+            m = self.grow(len(src))
         return copy(self.buf, src, m)
 
     fn write_string(inout self, src: String) raises -> Int:
@@ -285,12 +290,12 @@ struct Buffer(
         # TODO(http:#golang.org/issue/51462): We should rely on the append-make
         # pattern so that the compiler can call runtime.growslice. For example:
         # 	return append(b, make(bytes, n)...)
-        # This avoids unnecessary zero-ing of the first len(b) bytes of the
+        # This avoids unnecessary zero-ing of the first b.size() bytes of the
         # allocated slice, but this pattern causes b to escape onto the heap.
         #
         # Instead use the append-make pattern with a nil slice to ensure that
         # we allocate buffers rounded up to the closest size class.
-        var c = len(b) + n  # ensure enough space for n elements
+        var c = b.size() + n  # ensure enough space for n elements
         if c < 2 * cap(b):
             # The growth rate has historically always been 2x. In the future,
             # we could rely purely on append to determine the growth rate.
@@ -303,9 +308,9 @@ struct Buffer(
 
         # # var b2 = append(bytes(nil), make(bytes, c)...)
         # _ = copy(b2, b)
-        # return b2[:len(b)]
+        # return b2[:b.size()]
         # b._vector.reserve(c)
-        return resizedbuffer[: len(b)]
+        return resizedbuffer[: b.size()]
 
     fn write_to[W: Writer](inout self, inout writer: W) raises -> Int64:
         """Writes data to w until the buffer is drained or an error occurs.
@@ -320,10 +325,10 @@ struct Buffer(
             The number of bytes written to the writer.
         """
         self.last_read = OP_INVALID
-        var n_bytes: Int = self.__len__()
+        var n_bytes: Int = len(self.buf)
         var n: Int64 = 0
         if n_bytes > 0:
-            var sl = self.buf[self.off:self.buf.size()]
+            var sl = self.buf[self.off : n_bytes]
             var bytes_written = writer.write(sl)
             if bytes_written > n_bytes:
                 raise Error("buffer.Buffer.write_to: invalid write count")
@@ -400,19 +405,19 @@ struct Buffer(
         if self.empty():
             # Buffer is empty, reset to recover space.
             self.reset()
-            if len(dest) == 0:
+            if dest.size() == 0:
                 return 0
             raise Error(io.EOF)
 
-        var bytebuffer = self.buf[self.off :]
-        var index = copy(dest, bytebuffer)
+        var byte_buffer = self.buf[self.off : len(self.buf)]
+        var index = copy(dest, byte_buffer)
         self.off += index
         if index > 0:
             self.last_read = OP_READ
-        
+
         return index
 
-    fn next(inout self, inout number_of_bytes: Int) raises -> Bytes:
+    fn next(inout self, number_of_bytes: Int) raises -> Bytes:
         """Returns a slice containing the next n bytes from the buffer,
         advancing the buffer as if the bytes had been returned by [Buffer.read].
         If there are fewer than n bytes in the buffer, next returns the entire buffer.
@@ -425,13 +430,14 @@ struct Buffer(
             A slice containing the next n bytes from the buffer.
         """
         self.last_read = OP_INVALID
-        var m = self.__len__()
-        if number_of_bytes > m:
-            number_of_bytes = m
+        var m = self.buf.size()
+        var bytes_to_read = number_of_bytes
+        if bytes_to_read > m:
+            bytes_to_read = m
 
-        var data = self.buf[self.off : self.off + number_of_bytes]
-        self.off += number_of_bytes
-        if number_of_bytes > 0:
+        var data = self.buf[self.off : self.off + bytes_to_read]
+        self.off += bytes_to_read
+        if bytes_to_read > 0:
             self.last_read = OP_READ
 
         return data
@@ -521,31 +527,48 @@ struct Buffer(
         Returns:
             A Bytes struct containing the data up to and including the delimiter.
         """
-        var sl = self.read_slice(delim)
+        var line = Bytes(BUFFER_SIZE)
+        try:
+            _ = self.read_slice(delim, line)
+        except e:
+            if str(e) == io.EOF:
+                return str(line)
+            raise
+
         # return a copy of slice. The buffer's backing array may
         # be overwritten by later calls.
         var lines = Bytes(4096)
-        for i in range(sl.size()):
-            lines.append(sl[i])
+        for i in range(len(line)):
+            lines.append(line[i])
         return lines
 
-    fn read_slice(inout self, delim: Byte) raises -> Bytes:
+    fn read_slice(inout self, delim: Byte, inout line: Bytes) raises -> Bytes:
         """Like read_bytes but returns a reference to internal buffer data.
+        TODO: not returning a reference yet. Also, this returns Bytes and Error in Go,
+        but we arent't returning Errors as values until Mojo tuple returns supports Memory Only types.
 
         Args:
             delim: The delimiter to read until.
+            line: The buffer to read into.
 
         Returns:
             A Bytes struct containing the data up to and including the delimiter.
         """
-        var i = self.buf[self.off:self.buf.size()].index_byte(delim)
+        var at_eof = False
+        var i = self.buf[self.off : len(self.buf)].index_byte(delim)
         var end = self.off + i + 1
-        if i < 0:
-            end = self.buf.size()
 
-        var line = self.buf[self.off : end]
+        if i < 0:
+            end = len(self.buf)
+            at_eof = True
+
+        line = self.buf[self.off : end]
         self.off = end
         self.last_read = OP_READ
+
+        if at_eof:
+            raise Error(io.EOF)
+
         return line
 
     fn read_string(inout self, delim: Byte) raises -> String:
@@ -562,8 +585,16 @@ struct Buffer(
         Returns:
             A string containing the data up to and including the delimiter.
         """
-        var sl = self.read_slice(delim)
-        return str(sl)
+        var line = Bytes(BUFFER_SIZE)
+
+        try:
+            _ = self.read_slice(delim, line)
+        except e:
+            if str(e) == io.EOF:
+                return str(line)
+            raise
+
+        return str(line)
 
 
 fn new_buffer() -> Buffer:

@@ -82,10 +82,20 @@ fn test_styling() raises:
     style.border_foreground("#39E506")
 
     var start_time = now()
+
+    # TODO: Joining blocks of different height does not work
+    print(style.render("You should be able to join blocks of different heights"))
     print(
-        style.render(
-            "Hello World!\nThis is a test of the mog style system. Which can wrap lines"
-            " that are longer than the limit.\n\nYep."
+        join_horizontal(
+            position.center,
+            style.render(
+                "Hello World!\nThis is a test of the mog style system. Which can wrap lines"
+                " that are longer than the limit.\n\nYep."
+            ),
+            style.render(
+                "Hello World!\nThis is a test of the mog style system. Which can wrap lines"
+                " that are longer than the limit.\n\nYep."
+            ),
         )
     )
     var execution_time = now() - start_time

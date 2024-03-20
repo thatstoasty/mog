@@ -334,7 +334,7 @@ struct Table():
 
         var style = Style()
         style.max_height(self.compute_height())
-        style.max_width(self.width)
+        # style.max_width(self.width) # TODO: Max width truncation causes issues due to unicode chars being multiple bytes
         return style.render(str(string_builder))
 
     # compute_width computes the width of the table in it's current configuration.
@@ -382,7 +382,6 @@ struct Table():
                 _ = string_builder.write_string(
                     self.border_style.render(self.border.middle_top)
                 )
-
             i += 1
 
         if self.border_right:

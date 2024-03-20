@@ -636,6 +636,7 @@ struct Style:
             var lines = styled_text.split("\n")
 
             for i in range(lines.size):
+                # TODO: Truncate breaks Table rendering when using unicode characters due to the incorrect tracking of character length.
                 lines[i] = truncate.apply_truncate(lines[i], max_width)
 
             styled_text = join("\n", lines)

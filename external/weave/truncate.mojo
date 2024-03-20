@@ -2,7 +2,7 @@ from external.gojo.bytes import buffer
 from external.gojo.builtins._bytes import Bytes
 import external.gojo.io
 from .ansi import writer
-from .ansi.ansi import is_terminator, Marker, printable_rune_width
+from .ansi.ansi import is_terminator, Marker, printable_rune_width, chars_count
 from .utils import __string__mul__, strip
 
 
@@ -33,9 +33,12 @@ struct Writer(StringableRaising, io.Writer):
         self.width -= UInt8(tw)
         var cur_width: UInt8 = 0
 
+        # TODO: This does not work properly for characters with length > 1. 
+        # For example a unicode char could have 3 bytes, this logic considers it to be 3 characters long even though its not.
+        # chars_count doesn't work as well because we're going byte by byte, unsure of how to fix this atm.
         for i in range(len(src)):
-            var c = chr(int(src[i]))
-            if c == Marker:
+            var c = src[i]
+            if c == ord(Marker):
                 # ANSI escape sequence
                 self.ansi = True
             elif self.ansi:

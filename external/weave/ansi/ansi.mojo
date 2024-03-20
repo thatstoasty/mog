@@ -1,3 +1,6 @@
+from algorithm.functional import vectorize
+from memory.unsafe import DTypePointer
+from sys.info import simdwidthof
 from external.gojo.builtins._bytes import Bytes
 
 alias Marker = "\x1B"
@@ -38,6 +41,24 @@ fn len_without_ansi(s: Bytes) -> Int:
     return length
 
 
+alias simd_width_u8 = simdwidthof[DType.uint8]()
+
+# Gets the proper length for strings!
+fn chars_count(s: String) -> Int:
+    """Returns the number of characters in the given string
+    https://mzaks.medium.com/counting-chars-with-simd-in-mojo-140ee730bd4d."""
+    var p = s._as_ptr().bitcast[DType.uint8]()
+    var string_byte_length = len(s)
+    var result = 0
+    
+    @parameter
+    fn count[simd_width: Int](offset: Int):
+        result += ((p.simd_load[simd_width](offset) >> 6) != 0b10).cast[DType.uint8]().reduce_add().to_int()
+    
+    vectorize[count, simd_width_u8](string_byte_length)
+    return result
+
+
 # TODO: Not actual rune length until utf8 encoding is implemented
 fn printable_rune_width(s: String) -> Int:
     """Returns the cell width of the given string."""
@@ -54,6 +75,6 @@ fn printable_rune_width(s: String) -> Int:
                 # ANSI sequence terminated
                 ansi = False
         else:
-            n += len(c)
+            n += chars_count(c)
 
     return n

@@ -30,7 +30,7 @@ fn test_table() raises:
 
     var table = Table(
         style_function=default_styles,
-        border=ascii_border(),
+        border=rounded_border(),
         border_style=border_style,
         border_bottom=True,
         border_column=True,

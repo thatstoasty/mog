@@ -37,7 +37,7 @@ from external.gojo.strings import StringBuilder
 alias tab_width: Int = 4
 
 
-fn get_lines(s: String) raises -> (DynamicVector[String], Int):
+fn get_lines(s: String) raises -> (List[String], Int):
     """Split a string into lines, additionally returning the size of the widest line.
 
     Args:
@@ -54,7 +54,7 @@ fn get_lines(s: String) raises -> (DynamicVector[String], Int):
 
 
 fn to_bool(s: String) -> Bool:
-    var truthy_values: DynamicVector[String] = DynamicVector[String]()
+    var truthy_values: List[String] = List[String]()
     truthy_values.append("true")
     truthy_values.append("True")
     truthy_values.append("TRUE")
@@ -124,32 +124,33 @@ struct Style:
         self.value = ""
 
     fn get_as_bool(self, key: String, default: Bool) -> Bool:
-        # TODO: This is failing with an out of bounds error. Must be a bug with Dict?      
+        # TODO: This is failing with an out of bounds error. Must be a bug with Dict?
         var result = self.rules.get(key, String(default))
         if result == String(default):
             return default
-        
+
         return to_bool(result)
 
-    fn get_as_color(self, key: String) raises -> AnyColor:
-        var result = self.rules.get(key, "")
-        if result == "":
-            return NoColor()
+    fn get_as_color(self, key: String) -> String:
+        return self.rules.get(key, "")
+        # var result = self.rules.get(key, "")
+        # if result == "":
+        #     return NoColor()
 
-        if result[0] == "#":
-            return RGBColor(result)
+        # if result[0] == "#":
+        #     return RGBColor(result)
 
-        var ansi_code: Int = atol(result)
-        if ansi_code > 16:
-            return ANSI256Color(ansi_code)
-        else:
-            return ANSIColor(ansi_code)
+        # var ansi_code = atol(result)
+        # if ansi_code > 16:
+        #     return ANSI256Color(ansi_code)
+        # else:
+        #     return ANSIColor(ansi_code)
 
     fn get_as_int(self, key: String, default: Int = 0) raises -> Int:
         var result = self.rules.get(key, String(default))
         if result == String(default):
             return default
-        
+
         return atol(result)
 
     fn get_as_position(self, key: String) raises -> Position:
@@ -163,7 +164,7 @@ struct Style:
         var val = self.rules.get("border_style", "")
         if val == "":
             return no_border()
-        
+
         if val == "no_border":
             return no_border()
         elif val == "hidden_border":
@@ -268,13 +269,13 @@ struct Style:
             self.set_rule("border_bottom_key", "True")
         if left:
             self.set_rule("border_left_key", "True")
-    
+
     fn border_foreground(inout self, color: String):
         self.set_rule("border_top_foreground_key", color)
         self.set_rule("border_right_foreground_key", color)
         self.set_rule("border_bottom_foreground_key", color)
         self.set_rule("border_left_foreground_key", color)
-    
+
     fn border_background(inout self, color: String):
         self.set_rule("border_top_background_key", color)
         self.set_rule("border_right_background_key", color)
@@ -305,11 +306,10 @@ struct Style:
         else:
             return text.replace("\t", __string__mul__(" ", default_tab_width))
 
-    fn style_border(self, border: String, fg: AnyColor, bg: AnyColor) raises -> String:
-        var styler: TerminalStyle = TerminalStyle(self.r.color_profile)
-
-        styler.foreground(fg)
-        styler.background(bg)
+    fn style_border(self, border: String, fg: String, bg: String) -> String:
+        var styler = TerminalStyle.new(self.r.color_profile).foreground(fg).background(
+            bg
+        )
 
         return styler.render(border)
 
@@ -422,11 +422,11 @@ struct Style:
             _ = builder.write_string("\n")
 
         # Render sides
-        var left_runes = DynamicVector[String]()
+        var left_runes = List[String]()
         left_runes.append(border.left)
         var left_index = 0
 
-        var right_runes = DynamicVector[String]()
+        var right_runes = List[String]()
         right_runes.append(border.right)
         var right_index = 0
 
@@ -478,8 +478,9 @@ struct Style:
 
         var bgc = self.get_as_color("margin_background_key")
 
-        if not bgc.isa[NoColor]():
-            styler.background(bgc)
+        # if not bgc.isa[NoColor]():
+        if bgc != "":
+            styler = styler.background(bgc)
 
         # Add left and right margin
         padded_text = pad_left(padded_text, left_margin, styler)
@@ -551,29 +552,29 @@ struct Style:
             return self.maybe_convert_tabs(input_text)
 
         if bold:
-            term_style.bold()
+            term_style = term_style.bold()
         if italic:
-            term_style.italic()
+            term_style = term_style.italic()
         if underline:
-            term_style.underline()
+            term_style = term_style.underline()
         if reverse:
-            term_style.reverse()
+            term_style = term_style.reverse()
         if blink:
-            term_style.blink()
+            term_style = term_style.blink()
         if faint:
-            term_style.faint()
+            term_style = term_style.faint()
         if crossout:
-            term_style.crossout()
+            term_style = term_style.crossout()
 
-        if not fg.isa[NoColor]():
-            term_style.foreground(fg)
-        if not bg.isa[NoColor]():
-            term_style.background(bg)
+        if fg != "":
+            term_style = term_style.foreground(fg)
+        if bg != "":
+            term_style = term_style.background(bg)
 
         if underline_spaces:
-            term_style_space.underline()
+            term_style = term_style_space.underline()
         if crossout_spaces:
-            term_style_space.crossout()
+            term_style = term_style_space.crossout()
 
         if inline:
             input_text = input_text.replace("\n", "")
@@ -604,7 +605,7 @@ struct Style:
             # Readd the newlines
             if i != len(lines) - 1:
                 _ = builder.write_string("\n")
-        
+
         var styled_text = str(builder)
 
         # Padding
@@ -665,3 +666,6 @@ struct Style:
             styled_text = self.apply_margins(styled_text, inline)
 
         return styled_text
+
+    fn copy(self) -> Self:
+        return self

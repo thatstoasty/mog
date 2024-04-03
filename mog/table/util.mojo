@@ -11,7 +11,7 @@ fn btoi(b: Bool) -> Int:
 
 
 # sum returns the sum of all integers in a slice.
-fn sum(numbers: DynamicVector[Int]) raises -> Int:
+fn sum(numbers: List[Int]) raises -> Int:
     var sum: Int = 0
     for i in range(len(numbers)):
         sum += numbers[i]
@@ -20,7 +20,7 @@ fn sum(numbers: DynamicVector[Int]) raises -> Int:
 
 
 # median returns the median of a slice of integers.
-fn median(n: DynamicVector[Int]) raises -> Int:
+fn median(n: List[Int]) raises -> Int:
     var sorted = n
     sort(sorted)
 
@@ -36,7 +36,7 @@ fn median(n: DynamicVector[Int]) raises -> Int:
 
 
 # largest returns the largest element and it's index from a slice of integers.
-fn largest(numbers: DynamicVector[Int]) raises -> (Int, Int):  # nolint:unparam
+fn largest(numbers: List[Int]) raises -> (Int, Int):  # nolint:unparam
     var largest: Int = 0
     var index: Int = 0
 

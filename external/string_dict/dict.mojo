@@ -1,11 +1,12 @@
 from math.bit import bit_length, ctpop
 from memory import memset_zero, memcpy
+from collections import List
 from .string_eq import eq
 from .keys_container import KeysContainer
 from .ahasher import ahash
 
 struct Dict[
-    V: CollectionElement, 
+    V: CollectionElement,
     hash: fn(String) -> UInt64 = ahash,
     KeyCountType: DType = DType.uint32,
     KeyOffsetType: DType = DType.uint32,
@@ -14,7 +15,7 @@ struct Dict[
 ](Sized):
     var keys: KeysContainer[KeyOffsetType]
     var key_hashes: DTypePointer[KeyCountType]
-    var values: DynamicVector[V]
+    var values: List[V]
     var key_map: DTypePointer[KeyCountType]
     var deleted_mask: DTypePointer[DType.uint8]
     var count: Int
@@ -22,9 +23,9 @@ struct Dict[
 
     fn __init__(inout self, capacity: Int = 16):
         constrained[
-            KeyCountType == DType.uint8 or 
-            KeyCountType == DType.uint16 or 
-            KeyCountType == DType.uint32 or 
+            KeyCountType == DType.uint8 or
+            KeyCountType == DType.uint16 or
+            KeyCountType == DType.uint32 or
             KeyCountType == DType.uint64,
             "KeyCountType needs to be an unsigned integer"
         ]()
@@ -41,7 +42,7 @@ struct Dict[
             self.key_hashes = DTypePointer[KeyCountType].alloc(self.capacity)
         else:
             self.key_hashes = DTypePointer[KeyCountType].alloc(0)
-        self.values = DynamicVector[V](capacity=capacity)
+        self.values = List[V](capacity=capacity)
         self.key_map = DTypePointer[KeyCountType].alloc(self.capacity)
         memset_zero(self.key_map, self.capacity)
         @parameter
@@ -49,7 +50,7 @@ struct Dict[
             self.deleted_mask = DTypePointer[DType.uint8].alloc(self.capacity >> 3)
             memset_zero(self.deleted_mask, self.capacity >> 3)
         else:
-            self.deleted_mask = DTypePointer[DType.uint8].alloc(0)            
+            self.deleted_mask = DTypePointer[DType.uint8].alloc(0)
 
     fn __copyinit__(inout self, existing: Self):
         self.count = existing.count
@@ -95,7 +96,7 @@ struct Dict[
     fn put(inout self, key: String, value: V):
         if self.count / self.capacity >= 0.87:
             self._rehash()
-        
+
         var key_hash = hash(key).cast[KeyCountType]()
         var modulo_mask = self.capacity - 1
         var key_map_index = (key_hash & modulo_mask).to_int()
@@ -106,7 +107,7 @@ struct Dict[
                 @parameter
                 if caching_hashes:
                     self.key_hashes.store(key_map_index, key_hash)
-                self.values.push_back(value)
+                self.values.append(value)
                 self.count += 1
                 self.key_map.store(key_map_index, SIMD[KeyCountType, 1](self.keys.count))
                 return
@@ -131,7 +132,7 @@ struct Dict[
                             self.count += 1
                             self._not_deleted(key_index - 1)
                     return
-            
+
             key_map_index = (key_map_index + 1) & modulo_mask
 
     @always_inline
@@ -147,7 +148,7 @@ struct Dict[
         var p = self.deleted_mask.offset(offset)
         var mask = p.load()
         p.store(mask | (1 << bit_index))
-    
+
     @always_inline
     fn _not_deleted(self, index: Int):
         var offset = index >> 3
@@ -164,12 +165,12 @@ struct Dict[
         var mask_capacity = self.capacity >> 3
         self.key_map = DTypePointer[KeyCountType].alloc(self.capacity)
         memset_zero(self.key_map, self.capacity)
-        
+
         var key_hashes = self.key_hashes
         @parameter
         if caching_hashes:
             key_hashes = DTypePointer[KeyCountType].alloc(self.capacity)
-            
+
         @parameter
         if destructive:
             var deleted_mask = DTypePointer[DType.uint8].alloc(mask_capacity)
@@ -202,8 +203,8 @@ struct Dict[
                     key_map_index = (key_map_index + 1) & modulo_mask
             @parameter
             if caching_hashes:
-                key_hashes[key_map_index] = key_hash  
-        
+                key_hashes[key_map_index] = key_hash
+
         @parameter
         if caching_hashes:
             self.key_hashes.free()
@@ -216,7 +217,7 @@ struct Dict[
             return default
 
         @parameter
-        if destructive: 
+        if destructive:
             if self._is_deleted(key_index - 1):
                 return default
         return self.values[key_index - 1]
@@ -243,7 +244,7 @@ struct Dict[
             var key_index = self.key_map.load(key_map_index).to_int()
             if key_index == 0:
                 return key_index
-            
+
             @parameter
             if caching_hashes:
                 var other_key_hash = self.key_hashes[key_map_index]
@@ -255,29 +256,23 @@ struct Dict[
                 var other_key = self.keys[key_index - 1]
                 if eq(other_key, key):
                     return key_index
-            
+
             key_map_index = (key_map_index + 1) & modulo_mask
 
     fn debug(self):
         print("Dict count:", self.count, "and capacity:", self.capacity)
         print("KeyMap:")
         for i in range(self.capacity):
-            print_no_newline(self.key_map.load(i))
-            if i < self.capacity - 1:
-                print_no_newline(", ")
-            else:
-                print("")
+            var end = ", " if i < self.capacity - 1 else "\n"
+            print(self.key_map.load(i), end=end)
         print("Keys:")
         self.keys.print_keys()
         @parameter
         if caching_hashes:
             print("KeyHashes:")
             for i in range(self.capacity):
+                var end = ", " if i < self.capacity - 1 else "\n"
                 if self.key_map.load(i) > 0:
-                    print_no_newline(self.key_hashes.load(i))
+                    print(self.key_hashes.load(i), end=end)
                 else:
-                    print_no_newline(0)
-                if i < self.capacity - 1:
-                        print_no_newline(", ")
-                else:
-                    print("")
+                    print(0, end=end)

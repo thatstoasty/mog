@@ -1,6 +1,4 @@
-"""Ported from https:#github.com/lucasb-eyer/go-colorful/blob/master/colors.go#L470"""
-
-from .helpers import cube, clamp01, sq, pi, max_float64
+from .math import cube, clamp01, sq, pi, max_float64
 from .color import RGB
 import math
 
@@ -31,7 +29,7 @@ fn LuvLCh_to_Luv(l: Float64, c: Float64, h: Float64) -> (Float64, Float64, Float
 # Generates a color by using data given in LuvLCh space, taking
 # into account a given reference white. (i.e. the monitor's white)
 # h values are in [0..360], C and L values are in [0..1]
-# fn LuvLChWhiteRef(l: Float64, c: Float64, h: Float64, wref: DynamicVector[Float64]) -> RGB:
+# fn LuvLChWhiteRef(l: Float64, c: Float64, h: Float64, wref: List[Float64]) -> RGB:
 #     var L: Float64
 #     var u: Float64
 #     var v: Float64

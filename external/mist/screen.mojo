@@ -65,7 +65,7 @@ alias show_cursor_seq = "?25h"
 alias hide_cursor_seq = "?25l"
 
 
-fn __string__mul__(input_string: String, n: Int) -> String:
+fn __string__mul__(input_string: String, n: UInt16) -> String:
     var result: String = ""
     for _ in range(n):
         result += input_string
@@ -101,7 +101,7 @@ fn sprintf(text: String, *strs: String) -> String:
     return output
 
 
-fn sprintf(text: String, *ints: Int) -> String:
+fn sprintf(text: String, *ints: UInt16) -> String:
     var output: String = text
     for i in range(len(ints)):
         output = replace(output, "%d", String(ints[i]), 1)
@@ -117,13 +117,17 @@ fn sprintf(text: String, *floats: Float64) -> String:
     return output
 
 
-# Reset the terminal to its default style, removing any active styles.
 fn reset_terminal():
-    print_no_newline(csi + reset + "m")
+    """Reset the terminal to its default style, removing any active styles."""
+    print(csi + reset + "m", end="")
 
 
-# SetForegroundColor sets the default foreground color.
-fn set_foreground_color(color: AnyColor) raises:
+fn set_foreground_color(color: AnyColor):
+    """Sets the default foreground color.
+
+    Args:
+        color: The color to set.
+    """
     var c: String = ""
 
     if color.isa[ANSIColor]():
@@ -133,11 +137,15 @@ fn set_foreground_color(color: AnyColor) raises:
     elif color.isa[RGBColor]():
         c = color.get[RGBColor]()[].sequence(False)
 
-    print_no_newline(osc + set_foreground_color_seq, c)
+    print(osc + set_foreground_color_seq, c, end="")
 
 
-# SetBackgroundColor sets the default background color.
-fn set_background_color(color: AnyColor) raises:
+fn set_background_color(color: AnyColor):
+    """Sets the default background color.
+
+    Args:
+        color: The color to set.
+    """
     var c: String = ""
     if color.isa[NoColor]():
         pass
@@ -148,11 +156,15 @@ fn set_background_color(color: AnyColor) raises:
     elif color.isa[RGBColor]():
         c = color.get[RGBColor]()[].sequence(True)
 
-    print_no_newline(osc + set_background_color_seq, c)
+    print(osc + set_background_color_seq, c, end="")
 
 
-# SetCursorColor sets the cursor color.
-fn set_cursor_color(color: AnyColor) raises:
+fn set_cursor_color(color: AnyColor):
+    """Sets the cursor color.
+
+    Args:
+        color: The color to set.
+    """
     var c: String = ""
     if color.isa[NoColor]():
         pass
@@ -163,218 +175,265 @@ fn set_cursor_color(color: AnyColor) raises:
     elif color.isa[RGBColor]():
         c = color.get[RGBColor]()[].sequence(True)
 
-    print_no_newline(osc + set_cursor_color_seq, c)
+    print(osc + set_cursor_color_seq, c, end="")
 
 
-# restore_screen restores a previously saved screen state.
 fn restore_screen():
-    print_no_newline(csi + restore_screen_seq)
+    """Restores a previously saved screen state."""
+    print(csi + restore_screen_seq, end="")
 
 
-# SaveScreen saves the screen state.
 fn save_screen():
-    print_no_newline(csi + save_screen_seq)
+    """Saves the screen state."""
+    print(csi + save_screen_seq, end="")
 
 
-# AltScreen switches to the alternate screen buffer. The former view can be
-# restored with ExitAltScreen().
 fn alt_screen():
-    print_no_newline(csi + alt_screen_seq)
+    """Switches to the alternate screen buffer. The former view can be restored with ExitAltScreen().
+    """
+    print(csi + alt_screen_seq, end="")
 
 
-# ExitAltScreen exits the alternate screen buffer and returns to the former
-# terminal view.
 fn exit_alt_screen():
-    print_no_newline(csi + exit_alt_screen_seq)
+    """Exits the alternate screen buffer and returns to the former terminal view."""
+    print(csi + exit_alt_screen_seq, end="")
 
 
-# ClearScreen clears the visible portion of the terminal.
 fn clear_screen():
-    print_no_newline(sprintf(csi + erase_display_seq, 2))
+    """Clears the visible portion of the terminal."""
+    print(sprintf(csi + erase_display_seq, UInt16(2)), end="")
     move_cursor(1, 1)
 
 
-# MoveCursor moves the cursor to a given position.
-fn move_cursor(row: Int, column: Int):
-    print_no_newline(sprintf(csi + cursor_position_seq, row, column))
+fn move_cursor(row: UInt16, column: UInt16):
+    """Moves the cursor to a given position.
+
+    Args:
+        row: The row to move to.
+        column: The column to move to.
+    """
+    print(sprintf(csi + cursor_position_seq, row, column), end="")
 
 
-# TODO: Show and Hide cursor don't seem to work ATM.
-# HideCursor hides the cursor.
 fn hide_cursor():
-    print_no_newline(csi + hide_cursor_seq)
+    """TODO: Show and Hide cursor don't seem to work ATM. HideCursor hides the cursor.
+    """
+    print(csi + hide_cursor_seq, end="")
 
 
-# ShowCursor shows the cursor.
 fn show_cursor():
-    print_no_newline(csi + show_cursor_seq)
+    """Shows the cursor."""
+    print(csi + show_cursor_seq, end="")
 
 
-# SaveCursorPosition saves the cursor position.
 fn save_cursor_position():
-    print_no_newline(csi + save_cursor_position_seq)
+    """Saves the cursor position."""
+    print(csi + save_cursor_position_seq, end="")
 
 
-# RestoreCursorPosition restores a saved cursor position.
 fn restore_cursor_position():
-    print_no_newline(csi + restore_cursor_position_seq)
+    """Restores a saved cursor position."""
+    print(csi + restore_cursor_position_seq, end="")
 
 
-# CursorUp moves the cursor up a given number of lines.
-fn cursor_up(n: Int):
-    print_no_newline(sprintf(csi + cursor_up_seq, n))
+fn cursor_up(n: UInt16):
+    """Moves the cursor up a given number of lines.
+
+    Args:
+        n: The number of lines to move up.
+    """
+    print(sprintf(csi + cursor_up_seq, n), end="")
 
 
-# CursorDown moves the cursor down a given number of lines.
-fn cursor_down(n: Int):
-    print_no_newline(sprintf(csi + cursor_down_seq, n))
+fn cursor_down(n: UInt16):
+    """Moves the cursor down a given number of lines.
+
+    Args:
+        n: The number of lines to move down.
+    """
+    print(sprintf(csi + cursor_down_seq, n), end="")
 
 
-# CursorForward moves the cursor up a given number of lines.
-fn cursor_forward(n: Int):
-    print_no_newline(sprintf(csi + cursor_forward_seq, n))
+fn cursor_forward(n: UInt16):
+    """Moves the cursor up a given number of lines.
+
+    Args:
+        n: The number of lines to move forward.
+    """
+    print(sprintf(csi + cursor_forward_seq, n), end="")
 
 
-# CursorBack moves the cursor backwards a given number of cells.
-fn cursor_back(n: Int):
-    print_no_newline(sprintf(csi + cursor_back_seq, n))
+fn cursor_back(n: UInt16):
+    """Moves the cursor backwards a given number of cells.
+
+    Args:
+        n: The number of cells to move back.
+    """
+    print(sprintf(csi + cursor_back_seq, n), end="")
 
 
-# CursorNextLine moves the cursor down a given number of lines and places it at
-# the beginning of the line.
-fn cursor_next_line(n: Int):
-    print_no_newline(sprintf(csi + cursor_next_line_seq, n))
+fn cursor_next_line(n: UInt16):
+    """Moves the cursor down a given number of lines and places it at the beginning of the line.
+
+    Args:
+        n: The number of lines to move down.
+    """
+    print(sprintf(csi + cursor_next_line_seq, n), end="")
 
 
-# CursorPrevLine moves the cursor up a given number of lines and places it at
-# the beginning of the line.
-fn cursor_prev_line(n: Int):
-    print_no_newline(sprintf(csi + cursor_previous_line_seq, n))
+fn cursor_prev_line(n: UInt16):
+    """Moves the cursor up a given number of lines and places it at the beginning of the line.
+
+    Args:
+        n: The number of lines to move back.
+    """
+    print(sprintf(csi + cursor_previous_line_seq, n), end="")
 
 
-# ClearLine clears the current line.
 fn clear_line():
-    print_no_newline(csi + erase_entire_line_seq)
+    """Clears the current line."""
+    print(csi + erase_entire_line_seq, end="")
 
 
-# ClearLineLeft clears the line to the left of the cursor.
 fn clear_line_left():
-    print_no_newline(csi + erase_line_left_seq)
+    """Clears the line to the left of the cursor."""
+    print(csi + erase_line_left_seq, end="")
 
 
-# ClearLineRight clears the line to the right of the cursor.
 fn clear_line_right():
-    print_no_newline(csi + erase_line_right_seq)
+    """Clears the line to the right of the cursor."""
+    print(csi + erase_line_right_seq, end="")
 
 
-# ClearLines clears a given number of lines.
-fn clear_lines(n: Int):
-    var clear_line = sprintf(csi + erase_line_seq, 2)
-    var cursor_up = sprintf(csi + cursor_up_seq, 1)
+fn clear_lines(n: UInt16):
+    """Clears a given number of lines.
+
+    Args:
+        n: The number of lines to clear.
+    """
+    var clear_line = sprintf(csi + erase_line_seq, UInt16(2))
+    var cursor_up = sprintf(csi + cursor_up_seq, UInt16(1))
     var movement = __string__mul__(cursor_up + clear_line, n)
-    print_no_newline(clear_line + movement)
+    print(clear_line + movement, end="")
 
 
-# ChangeScrollingRegion sets the scrolling region of the terminal.
-fn change_scrolling_region(top: Int, bottom: Int):
-    print_no_newline(sprintf(csi + change_scrolling_region_seq, top, bottom))
+fn change_scrolling_region(top: UInt16, bottom: UInt16):
+    """Sets the scrolling region of the terminal.
+
+    Args:
+        top: The top of the scrolling region.
+        bottom: The bottom of the scrolling region.
+    """
+    print(sprintf(csi + change_scrolling_region_seq, top, bottom), end="")
 
 
-# InsertLines inserts the given number of lines at the top of the scrollable
-# region, pushing lines below down.
-fn insert_lines(n: Int):
-    print_no_newline(sprintf(csi + insert_line_seq, n))
+fn insert_lines(n: UInt16):
+    """Inserts the given number of lines at the top of the scrollable
+    region, pushing lines below down.
+
+    Args:
+        n: The number of lines to insert.
+    """
+    print(sprintf(csi + insert_line_seq, n), end="")
 
 
-# DeleteLines deletes the given number of lines, pulling any lines in
-# the scrollable region below up.
-fn delete_lines(n: Int):
-    print_no_newline(sprintf(csi + delete_line_seq, n))
+fn delete_lines(n: UInt16):
+    """Deletes the given number of lines, pulling any lines in
+    the scrollable region below up.
+
+    Args:
+        n: The number of lines to delete.
+    """
+    print(sprintf(csi + delete_line_seq, n), end="")
 
 
-# EnableMousePress enables X10 mouse mode. Button press events are sent only.
 fn enable_mouse_press():
-    print_no_newline(csi + enable_mouse_press_seq)
+    """Enables X10 mouse mode. Button press events are sent only."""
+    print(csi + enable_mouse_press_seq, end="")
 
 
-# DisableMousePress disables X10 mouse mode.
 fn disable_mouse_press():
-    print_no_newline(csi + disable_mouse_press_seq)
+    """Disables X10 mouse mode."""
+    print(csi + disable_mouse_press_seq, end="")
 
 
-# EnableMouse enables Mouse Tracking mode.
 fn enable_mouse():
-    print_no_newline(csi + enable_mouse_seq)
+    """Enables Mouse Tracking mode."""
+    print(csi + enable_mouse_seq, end="")
 
 
-# DisableMouse disables Mouse Tracking mode.
 fn disable_mouse():
-    print_no_newline(csi + disable_mouse_seq)
+    """Disables Mouse Tracking mode."""
+    print(csi + disable_mouse_seq, end="")
 
 
-# EnableMouseHilite enables Hilite Mouse Tracking mode.
 fn enable_mouse_hilite():
-    print_no_newline(csi + enable_mouse_hilite_seq)
+    """Enables Hilite Mouse Tracking mode."""
+    print(csi + enable_mouse_hilite_seq, end="")
 
 
-# DisableMouseHilite disables Hilite Mouse Tracking mode.
 fn disable_mouse_hilite():
-    print_no_newline(csi + disable_mouse_hilite_seq)
+    """Disables Hilite Mouse Tracking mode."""
+    print(csi + disable_mouse_hilite_seq, end="")
 
 
-# EnableMouseCellMotion enables Cell Motion Mouse Tracking mode.
 fn enable_mouse_cell_motion():
-    print_no_newline(csi + enable_mouse_cell_motion_seq)
+    """Enables Cell Motion Mouse Tracking mode."""
+    print(csi + enable_mouse_cell_motion_seq, end="")
 
 
-# DisableMouseCellMotion disables Cell Motion Mouse Tracking mode.
 fn disable_mouse_cell_motion():
-    print_no_newline(csi + disable_mouse_cell_motion_seq)
+    """Disables Cell Motion Mouse Tracking mode."""
+    print(csi + disable_mouse_cell_motion_seq, end="")
 
 
-# EnableMouseAllMotion enables All Motion Mouse mode.
 fn enable_mouse_all_motion():
-    print_no_newline(csi + enable_mouse_all_motion_seq)
+    """Enables All Motion Mouse mode."""
+    print(csi + enable_mouse_all_motion_seq, end="")
 
 
-# DisableMouseAllMotion disables All Motion Mouse mode.
 fn disable_mouse_all_motion():
-    print_no_newline(csi + disable_mouse_all_motion_seq)
+    """Disables All Motion Mouse mode."""
+    print(csi + disable_mouse_all_motion_seq, end="")
 
 
-# EnableMouseExtendedMotion enables Extended Mouse mode (SGR). This should be
-# enabled in conjunction with EnableMouseCellMotion, and EnableMouseAllMotion.
 fn enable_mouse_extended_mode():
-    print_no_newline(csi + enable_mouse_extended_mode_seq)
+    """Enables Extended Mouse mode (SGR). This should be
+    enabled in conjunction with EnableMouseCellMotion, and EnableMouseAllMotion."""
+    print(csi + enable_mouse_extended_mode_seq, end="")
 
 
-# DisableMouseExtendedMotion disables Extended Mouse mode (SGR).
 fn disable_mouse_extended_mode():
-    print_no_newline(csi + disable_mouse_extended_mode_seq)
+    """Disables Extended Mouse mode (SGR)."""
+    print(csi + disable_mouse_extended_mode_seq, end="")
 
 
-# EnableMousePixelsMotion enables Pixel Motion Mouse mode (SGR-Pixels). This
-# should be enabled in conjunction with EnableMouseCellMotion, and
-# EnableMouseAllMotion.
 fn enable_mouse_pixels_mode():
-    print_no_newline(csi + enable_mouse_pixels_mode_seq)
+    """Enables Pixel Motion Mouse mode (SGR-Pixels). This
+    should be enabled in conjunction with EnableMouseCellMotion, and
+    EnableMouseAllMotion."""
+    print(csi + enable_mouse_pixels_mode_seq, end="")
 
 
-# DisableMousePixelsMotion disables Pixel Motion Mouse mode (SGR-Pixels).
 fn disable_mouse_pixels_mode():
-    print_no_newline(csi + disable_mouse_pixels_mode_seq)
+    """Disables Pixel Motion Mouse mode (SGR-Pixels)."""
+    print(csi + disable_mouse_pixels_mode_seq, end="")
 
 
-# SetWindowTitle sets the terminal window title.
 fn set_window_title(title: String):
-    print_no_newline(osc + set_window_title_seq, title)
+    """Sets the terminal window title.
+
+    Args:
+        title: The title to set.
+    """
+    print(osc + set_window_title_seq, title, end="")
 
 
-# EnableBracketedPaste enables bracketed paste.
 fn enable_bracketed_paste():
-    print_no_newline(csi + enable_bracketed_paste_seq)
+    """Enables bracketed paste."""
+    print(csi + enable_bracketed_paste_seq, end="")
 
 
-# DisableBracketedPaste disables bracketed paste.
 fn disable_bracketed_paste():
-    print_no_newline(csi + disable_bracketed_paste_seq)
+    """Disables bracketed paste."""
+    print(csi + disable_bracketed_paste_seq, end="")

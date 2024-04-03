@@ -89,12 +89,12 @@ fn test_styling() raises:
         join_horizontal(
             position.center,
             style.render(
-                "Hello World!\nThis is a test of the mog style system. Which can wrap lines"
-                " that are longer than the limit.\n\nYep."
+                "Hello World!\nThis is a test of the mog style system. Which can wrap"
+                " lines that are longer than the limit.\n\nYep."
             ),
             style.render(
-                "Hello World!\nThis is a test of the mog style system. Which can wrap lines"
-                " that are longer than the limit.\n\nYep."
+                "Hello World!\nThis is a test of the mog style system. Which can wrap"
+                " lines that are longer than the limit.\n\nYep."
             ),
         )
     )

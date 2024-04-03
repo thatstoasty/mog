@@ -8,5 +8,5 @@ struct Renderer:
     fn __init__(inout self) raises:
         self.color_profile = Profile()
 
-    fn set_color_profile(inout self, value: String):
+    fn set_color_profile(inout self, value: Int):
         self.color_profile.value = value

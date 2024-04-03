@@ -1,5 +1,6 @@
 from external.gojo.bytes import buffer
-from external.gojo.builtins._bytes import Bytes
+from external.gojo.builtins import Result
+from external.gojo.builtins.bytes import Byte, has_suffix
 from external.gojo.io import traits as io
 from .ansi import Marker, is_terminator
 
@@ -11,22 +12,22 @@ struct Writer(io.Writer):
     var ansi_seq: buffer.Buffer
     var last_seq: buffer.Buffer
     var seq_changed: Bool
-    var rune_buf: Bytes
+    # var rune_buf: List[Byte]
 
-    fn __init__(inout self, owned forward: buffer.Buffer) raises:
+    fn __init__(inout self, owned forward: buffer.Buffer):
         self.forward = forward
         self.ansi = False
         self.ansi_seq = buffer.new_buffer()
         self.last_seq = buffer.new_buffer()
         self.seq_changed = False
-        self.rune_buf = Bytes()
+        # self.rune_buf = List[Byte](capacity=4096)
 
     # write is used to write content to the ANSI buffer.
-    fn write(inout self, src: Bytes) raises -> Int:
-        """TODO: Writing Bytes instead of encoded runes rn."""
+    fn write(inout self, src: List[Byte]) -> Result[Int]:
+        """TODO: Writing List[Byte] instead of encoded runes rn."""
         for i in range(len(src)):
             var char = chr(int(src[i]))
-            # TODO: Skipping null terminator Bytes for now until I figure out how to deal with them. They come from the empty spaces in a dynamicvector
+            # TODO: Skipping null terminator List[Byte] for now until I figure out how to deal with them. They come from the empty spaces in a List
             if src[i] == 0:
                 pass
             elif char == Marker:
@@ -39,7 +40,7 @@ struct Writer(io.Writer):
                 if is_terminator(src[i]):
                     self.ansi = False
 
-                    if self.ansi_seq.bytes().has_suffix(Bytes(String("[0m"))):
+                    if has_suffix(self.ansi_seq.bytes(), String("[0m").as_bytes()):
                         # reset sequence
                         self.last_seq.reset()
                         self.seq_changed = False
@@ -53,34 +54,34 @@ struct Writer(io.Writer):
 
         return len(src)
 
-    fn write_byte(inout self, byte: Int8) raises -> Int:
+    fn write_byte(inout self, byte: Byte) -> Int:
         _ = self.forward.write_byte(byte)
         return 1
 
     # fn writeRune(r rune) (Int, error)
     #     if self.runeBuf == nil
-    #         self.runeBuf = make(Bytes, utf8.UTFMax)
+    #         self.runeBuf = make(List[Byte], utf8.UTFMax)
     #
     #     n := utf8.EncodeRune(self.runeBuf, r)
     #     return self.Forward.write(self.runeBuf[:n])
     #
 
-    fn last_sequence(self) raises -> String:
+    fn last_sequence(self) -> String:
         return str(self.last_seq)
 
-    fn reset_ansi(inout self) raises:
+    fn reset_ansi(inout self):
         if not self.seq_changed:
             return
-        var ansi_code = Bytes(String("\x1b[0m"))
-        var b = Bytes()
+        var ansi_code = String("\x1b[0m").as_bytes()
+        var b = List[Byte](capacity=512)
         for i in range(len(ansi_code)):
             b[i] = ansi_code[i]
         _ = self.forward.write(b)
 
-    fn restore_ansi(inout self) raises:
+    fn restore_ansi(inout self):
         _ = self.forward.write(self.last_seq.bytes())
 
 
-fn new_default_writer() raises -> Writer:
+fn new_default_writer() -> Writer:
     var buf = buffer.new_buffer()
     return Writer(buf ^)

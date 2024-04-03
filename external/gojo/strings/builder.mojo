@@ -1,9 +1,8 @@
 # Adapted from https://github.com/maniartech/mojo-strings/blob/master/strings/builder.mojo
-# Modified to use DynamicVector[Int8] instead of DynamicVector[String]
+# Modified to use List[Int8] instead of List[String]
 
-from collections.vector import DynamicVector
 import ..io
-from ..builtins._bytes import Bytes
+from ..builtins import Byte, Result, WrappedError
 
 
 @value
@@ -31,10 +30,10 @@ struct StringBuilder(Stringable, Sized, io.Writer, io.ByteWriter, io.StringWrite
       ```
     """
 
-    var _vector: Bytes
+    var _vector: List[Byte]
 
-    fn __init__(inout self):
-        self._vector = Bytes(4096)
+    fn __init__(inout self, size: Int = 4096):
+        self._vector = List[Byte](capacity=size)
 
     fn __str__(self) -> String:
         """
@@ -44,20 +43,44 @@ struct StringBuilder(Stringable, Sized, io.Writer, io.ByteWriter, io.StringWrite
           The string representation of the string builder. Returns an empty
           string if the string builder is empty.
         """
-        # Don't need to add a null terminator because we can pass the length of the string.
-        return StringRef(self._vector._vector.data.value, len(self._vector))
+        var copy = List[Byte](self._vector)
+        if copy[-1] != 0:
+            copy.append(0)
+        return String(copy)
 
-    fn write(inout self, src: Bytes) raises -> Int:
+    fn get_bytes(self) -> List[Int8]:
+        """
+        Returns a deepcopy of the byte array of the string builder.
+
+        Returns:
+          The byte array of the string builder.
+        """
+        return List[Byte](self._vector)
+
+    fn get_null_terminated_bytes(self) -> List[Int8]:
+        """
+        Returns a deepcopy of the byte array of the string builder with a null terminator.
+
+        Returns:
+          The byte array of the string builder with a null terminator.
+        """
+        var copy = List[Byte](self._vector)
+        if copy[-1] != 0:
+            copy.append(0)
+
+        return copy
+
+    fn write(inout self, src: List[Byte]) -> Result[Int]:
         """
         Appends a byte array to the builder buffer.
 
         Args:
           src: The byte array to append.
         """
-        self._vector += src
-        return len(src)
+        self._vector.extend(src)
+        return Result(len(src), None)
 
-    fn write_byte(inout self, byte: Int8) raises -> Int:
+    fn write_byte(inout self, byte: Int8) -> Result[Int]:
         """
         Appends a byte array to the builder buffer.
 
@@ -65,9 +88,9 @@ struct StringBuilder(Stringable, Sized, io.Writer, io.ByteWriter, io.StringWrite
             byte: The byte array to append.
         """
         self._vector.append(byte)
-        return 1
+        return Result(1, None)
 
-    fn write_string(inout self, src: String) raises -> Int:
+    fn write_string(inout self, src: String) -> Result[Int]:
         """
         Appends a string to the builder buffer.
 
@@ -76,7 +99,7 @@ struct StringBuilder(Stringable, Sized, io.Writer, io.ByteWriter, io.StringWrite
         """
         var string_buffer = src.as_bytes()
         self._vector.extend(string_buffer)
-        return len(string_buffer)
+        return Result(len(string_buffer), None)
 
     fn __len__(self) -> Int:
         """

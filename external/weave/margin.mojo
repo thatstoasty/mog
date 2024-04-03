@@ -1,5 +1,6 @@
 from external.gojo.bytes import buffer
-from external.gojo.builtins._bytes import Bytes
+from external.gojo.builtins.bytes import Byte
+from external.gojo.builtins import Result
 import external.gojo.io
 from .ansi import writer
 from .ansi.ansi import is_terminator, Marker
@@ -7,7 +8,7 @@ from .utils import __string__mul__, strip
 
 
 @value
-struct Writer(StringableRaising, io.Writer):
+struct Writer(Stringable, io.Writer):
     var buf: buffer.Buffer
     var pw: padding.Writer
     var iw: indent.Writer
@@ -19,35 +20,37 @@ struct Writer(StringableRaising, io.Writer):
 
     # close will finish the margin operation. Always call it before trying to
     # retrieve the final result.
-    fn close(inout self) raises:
+    fn close(inout self):
         _ = self.pw.close()
         _ = self.buf.write(self.pw.bytes())
 
-    # Bytes returns the result as a byte slice.
-    fn bytes(self) raises -> Bytes:
+    # List[Byte] returns the result as a byte slice.
+    fn bytes(self) -> List[Byte]:
         return self.buf.bytes()
 
     # String returns the result as a string.
-    fn __str__(self) raises -> String:
+    fn __str__(self) -> String:
         return str(self.buf)
 
-    fn write(inout self, src: Bytes) raises -> Int:
+    fn write(inout self, src: List[Byte]) -> Result[Int]:
         _ = self.iw.write(src)
         var n = self.pw.write(self.iw.bytes())
 
         return n
 
 
-fn new_writer(width: UInt8, margin: UInt8) raises -> Writer:
+fn new_writer(width: UInt8, margin: UInt8) -> Writer:
     var pw = padding.new_writer(width)
     var iw = indent.new_writer(margin)
 
     return Writer(pw, iw)
 
 
-# Bytes is shorthand for declaring a new default margin-writer instance,
+# List[Byte] is shorthand for declaring a new default margin-writer instance,
 # used to immediately apply a margin to a byte slice.
-fn apply_margin_to_bytes(owned b: Bytes, width: UInt8, margin: UInt8) raises -> Bytes:
+fn apply_margin_to_bytes(
+    owned b: List[Byte], width: UInt8, margin: UInt8
+) -> List[Byte]:
     var f = new_writer(width, margin)
     _ = f.write(b)
     _ = f.close()
@@ -57,8 +60,9 @@ fn apply_margin_to_bytes(owned b: Bytes, width: UInt8, margin: UInt8) raises -> 
 
 # String is shorthand for declaring a new default margin-writer instance,
 # used to immediately apply margin a string.
-fn apply_margin(owned s: String, width: UInt8, margin: UInt8) raises -> String:
-    var buf = Bytes(s)
+fn apply_margin(owned s: String, width: UInt8, margin: UInt8) -> String:
+    var buf = s.as_bytes()
     var b = apply_margin_to_bytes(buf ^, width, margin)
+    b.append(0)
 
-    return str(b)
+    return String(b)

@@ -1,6 +1,5 @@
 from math import max, min
 from external.weave import truncate
-from external.gojo.builtins import Bytes
 from external.gojo.strings import StringBuilder
 from ..extensions import __string__mul__
 from ..style import Style
@@ -59,7 +58,7 @@ fn default_styles(row: Int, col: Int) raises -> Style:
 
 
 @value
-struct Table():
+struct Table:
     var style_function: StyleFunction
     var border: Border
 
@@ -72,7 +71,7 @@ struct Table():
     var border_row: Bool
 
     var border_style: Style
-    var headers: DynamicVector[String]
+    var headers: List[String]
     var data: StringData
 
     var width: Int
@@ -80,10 +79,10 @@ struct Table():
     var offset: Int
 
     # widths tracks the width of each column.
-    var widths: DynamicVector[Int]
+    var widths: List[Int]
 
     # heights tracks the height of each row.
-    var heights: DynamicVector[Int]
+    var heights: List[Int]
 
     fn __init__(
         inout self,
@@ -98,12 +97,12 @@ struct Table():
         border_header: Bool = False,
         border_column: Bool = False,
         border_row: Bool = False,
-        headers: DynamicVector[String] = DynamicVector[String](),
+        headers: List[String] = List[String](),
         width: Int = 0,
         height: Int = 0,
         offset: Int = 0,
-        widths: DynamicVector[Int] = DynamicVector[Int](),
-        heights: DynamicVector[Int] = DynamicVector[Int](),
+        widths: List[Int] = List[Int](),
+        heights: List[Int] = List[Int](),
     ):
         self.style_function = style_function
         self.border = border
@@ -125,40 +124,40 @@ struct Table():
 
     # Clearrows clears the table rows.
     fn clear_rows(inout self):
-        self.data = StringData(_rows=DynamicVector[DynamicVector[String]](), _columns=0)
+        self.data = StringData(_rows=List[List[String]](), _columns=0)
 
     # style returns the style for a cell based on it's position (row, column).
     fn style(self, row: Int, col: Int) raises -> Style:
         return self.style_function(row, col)
 
     # rows appends rows to the table data.
-    fn rows(inout self, *rows: DynamicVector[String]):
+    fn rows(inout self, *rows: List[String]):
         for i in range(len(rows)):
             self.data.append(rows[i])
 
-    fn rows(inout self, rows: DynamicVector[DynamicVector[String]]) raises:
+    fn rows(inout self, rows: List[List[String]]) raises:
         for i in range(len(rows)):
             self.data.append(rows[i])
 
     # Row appends a row to the table data.
     fn row(inout self, *row: String):
-        var temp = DynamicVector[String]()
+        var temp = List[String]()
         for element in row:
             temp.append(element[])
         self.data.append(temp)
 
     # Row appends a row to the table data.
-    fn row(inout self, row: DynamicVector[String]):
+    fn row(inout self, row: List[String]):
         self.data.append(row)
 
     # Headers sets the table headers.
     fn set_headers(inout self, *headers: String):
-        var temp = DynamicVector[String]()
+        var temp = List[String]()
         for element in headers:
             temp.append(element[])
         self.headers = temp
 
-    fn set_headers(inout self, headers: DynamicVector[String]):
+    fn set_headers(inout self, headers: List[String]):
         self.headers = headers
 
     # String returns the table as a String.
@@ -180,8 +179,8 @@ struct Table():
                 i += 1
 
         # Initialize the widths.
-        self.widths = DynamicVector[Int](capacity=max(len(self.headers), self.data.columns()))
-        self.heights = DynamicVector[Int](capacity=btoi(has_headers) + self.data.rows())
+        self.widths = List[Int](capacity=max(len(self.headers), self.data.columns()))
+        self.heights = List[Int](capacity=btoi(has_headers) + self.data.rows())
 
         # The style fntion may affect width of the table. It's possible to set
         # the StyleFunction after the headers and rows. Update the widths for a final
@@ -272,9 +271,9 @@ struct Table():
         elif width > self.width and self.width > 0:
             # Table is too wide, calculate the median non-whitespace length of each
             # column, and shrink the columns based on the largest difference.
-            var column_medians = DynamicVector[Int](capacity=len(self.widths))
+            var column_medians = List[Int](capacity=len(self.widths))
             for i in range(len(self.widths)):
-                var trimmed_width = DynamicVector[Int](capacity=self.data.rows())
+                var trimmed_width = List[Int](capacity=self.data.rows())
 
                 var r: Int = 0
                 for r in range(self.data.rows()):
@@ -288,7 +287,7 @@ struct Table():
 
             # Find the biggest differences between the median and the column width.
             # Shrink the columns based on the largest difference.
-            var differences = DynamicVector[Int](capacity=len(self.widths))
+            var differences = List[Int](capacity=len(self.widths))
             for i in range(len(self.widths)):
                 differences[i] = self.widths[i] - column_medians[i]
 
@@ -439,7 +438,9 @@ struct Table():
 
             _ = string_builder.write_string(
                 style.render(
-                    truncate.apply_truncate_with_tail(header, UInt8(self.widths[i]), ".")
+                    truncate.apply_truncate_with_tail(
+                        header, UInt8(self.widths[i]), "."
+                    )
                 )
             )
 
@@ -492,7 +493,7 @@ struct Table():
         var has_headers = len(self.headers) > 0
         var height = self.heights[index + btoi(has_headers)]
 
-        var cells = DynamicVector[String]()
+        var cells = List[String]()
         var left = __string__mul__(
             self.border_style.render(self.border.left) + "\n", height
         )
@@ -510,7 +511,9 @@ struct Table():
 
             cells.append(
                 style.render(
-                    truncate.apply_truncate_with_tail(cell, UInt8(self.widths[c] * height), ".")
+                    truncate.apply_truncate_with_tail(
+                        cell, UInt8(self.widths[c] * height), "."
+                    )
                 )
             )
 

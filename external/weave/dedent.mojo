@@ -1,5 +1,5 @@
 from external.gojo.bytes import buffer
-from external.gojo.builtins._bytes import Bytes
+from external.gojo.builtins import Byte
 
 
 # String automatically detects the maximum indentation shared by all lines and

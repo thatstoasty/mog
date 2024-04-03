@@ -2,4 +2,10 @@ from .style import osc, st
 
 
 fn notify(title: String, body: String):
-    print_no_newline(osc + "777;notify;" + title + ";" + body + st)
+    """Sends a notification to the terminal.
+
+    Args:
+        title: The title of the notification.
+        body: The body of the notification.
+    """
+    print(osc + "777;notify;" + title + ";" + body + st, end="")

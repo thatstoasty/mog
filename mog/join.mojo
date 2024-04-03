@@ -30,10 +30,10 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
         return strs[0]
 
     # Groups of strings broken into multiple lines
-    var blocks = DynamicVector[DynamicVector[String]](capacity=len(strs))
+    var blocks = List[List[String]](capacity=len(strs))
 
     # Max line widths for the above text blocks
-    var max_widths = DynamicVector[Int](capacity=len(strs))
+    var max_widths = List[Int](capacity=len(strs))
     var max_height: Int = 0
 
     # Break text blocks into lines and get max widths for each text block
@@ -56,7 +56,7 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
         if len(blocks[i]) >= max_height:
             continue
 
-        var extra_lines = DynamicVector[String](capacity=max_height - len(blocks[i]))
+        var extra_lines = List[String](capacity=max_height - len(blocks[i]))
 
         if pos == top:
             blocks[i].extend(extra_lines)
@@ -70,7 +70,9 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
             var bottom_point = n - top
 
             var top_lines = get_slice(extra_lines, int(top), int(len(extra_lines)))
-            var bottom_lines = get_slice(extra_lines, int(bottom), int(len(extra_lines)))
+            var bottom_lines = get_slice(
+                extra_lines, int(bottom), int(len(extra_lines))
+            )
             top_lines.extend(blocks[i])
             blocks[i] = top_lines
             blocks[i].extend(bottom_lines)
@@ -113,7 +115,7 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
 #
 # 	# Join on the top edge
 # 	str := lipgloss.join_horizontal(lipgloss.Top, blockA, blockB)
-fn join_horizontal(pos: Position, strs: DynamicVector[String]) raises -> String:
+fn join_horizontal(pos: Position, strs: List[String]) raises -> String:
     if len(strs) == 0:
         return ""
 
@@ -121,10 +123,10 @@ fn join_horizontal(pos: Position, strs: DynamicVector[String]) raises -> String:
         return strs[0]
 
     # Groups of strings broken into multiple lines
-    var blocks = DynamicVector[DynamicVector[String]](capacity=len(strs))
+    var blocks = List[List[String]](capacity=len(strs))
 
     # Max line widths for the above text blocks
-    var max_widths = DynamicVector[Int](capacity=len(strs))
+    var max_widths = List[Int](capacity=len(strs))
     var max_height: Int = 0
 
     # Break text blocks into lines and get max widths for each text block
@@ -147,7 +149,7 @@ fn join_horizontal(pos: Position, strs: DynamicVector[String]) raises -> String:
         if len(blocks[i]) >= max_height:
             continue
 
-        var extra_lines = DynamicVector[String](capacity=max_height - len(blocks[i]))
+        var extra_lines = List[String](capacity=max_height - len(blocks[i]))
 
         if pos == top:
             blocks[i].extend(extra_lines)
@@ -161,7 +163,9 @@ fn join_horizontal(pos: Position, strs: DynamicVector[String]) raises -> String:
             var bottom_point = n - top
 
             var top_lines = get_slice(extra_lines, int(top), int(len(extra_lines)))
-            var bottom_lines = get_slice(extra_lines, int(bottom), int(len(extra_lines)))
+            var bottom_lines = get_slice(
+                extra_lines, int(bottom), int(len(extra_lines))
+            )
             top_lines.extend(blocks[i])
             blocks[i] = top_lines
             blocks[i].extend(bottom_lines)
@@ -212,7 +216,7 @@ fn join_vertical(pos: Position, *strs: String) raises -> String:
         return strs[0]
 
     # Groups of strings broken into multiple lines
-    var blocks = DynamicVector[DynamicVector[String]](capacity=len(strs))
+    var blocks = List[List[String]](capacity=len(strs))
 
     # Max line widths for the above text blocks
     var max_width: Int = 0
@@ -263,7 +267,7 @@ fn join_vertical(pos: Position, *strs: String) raises -> String:
     return str(builder)
 
 
-fn join_vertical(pos: Position, strs: DynamicVector[String]) raises -> String:
+fn join_vertical(pos: Position, strs: List[String]) raises -> String:
     if len(strs) == 0:
         return ""
 
@@ -271,7 +275,7 @@ fn join_vertical(pos: Position, strs: DynamicVector[String]) raises -> String:
         return strs[0]
 
     # Groups of strings broken into multiple lines
-    var blocks = DynamicVector[DynamicVector[String]](capacity=len(strs))
+    var blocks = List[List[String]](capacity=len(strs))
 
     # Max line widths for the above text blocks
     var max_width: Int = 0

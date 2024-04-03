@@ -59,7 +59,9 @@ fn align_text_horizontal(
     return aligned_text
 
 
-fn align_text_vertical(text: String, pos: position.Position, height: Int) raises -> String:
+fn align_text_vertical(
+    text: String, pos: position.Position, height: Int
+) raises -> String:
     var text_height = count(text, "\n") + 1
     if height < text_height:
         return text

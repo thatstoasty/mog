@@ -19,7 +19,7 @@ trait Data:
 # StringData is a String-based implementation of the Data interface.
 @value
 struct StringData(Data):
-    var _rows: DynamicVector[DynamicVector[String]]
+    var _rows: List[List[String]]
     var _columns: Int
 
     # At returns the contents of the cell at the given index.
@@ -38,20 +38,20 @@ struct StringData(Data):
         return self._columns
 
     # Append appends the given row to the table.
-    fn append(inout self, row: DynamicVector[String]):
+    fn append(inout self, row: List[String]):
         self._columns = max(self._columns, len(row))
         self._rows.append(row)
 
     # Item appends the given row to the table.
-    fn item(inout self, rows: DynamicVector[String]) -> Self:
+    fn item(inout self, rows: List[String]) -> Self:
         self._columns = max(self._columns, len(rows))
         self._rows.append(rows)
         return self
 
 
 # new_string_data creates a new StringData with the given number of columns.
-fn new_string_data(*rows: DynamicVector[String]) -> StringData:
-    var string_data = StringData(_rows=DynamicVector[DynamicVector[String]](), _columns=0)
+fn new_string_data(*rows: List[String]) -> StringData:
+    var string_data = StringData(_rows=List[List[String]](), _columns=0)
 
     for row in rows:
         string_data._columns = max(string_data._columns, len(row[]))

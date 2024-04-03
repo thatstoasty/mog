@@ -1,4 +1,5 @@
-from .helpers import cube, clamp01, sq, pi, max_float64
+from .math import cube, clamp01, sq, pi, max_float64
+import math
 
 
 fn clamped(rgb: RGB) -> RGB:
@@ -23,7 +24,7 @@ fn linear_rgb_to_xyz(r: Float64, g: Float64, b: Float64) -> (Float64, Float64, F
 
 
 fn luv_to_xyz_white_ref(
-    l: Float64, u: Float64, v: Float64, wref: DynamicVector[Float64]
+    l: Float64, u: Float64, v: Float64, wref: List[Float64]
 ) -> (Float64, Float64, Float64):
     var y: Float64
     if l <= 0.08:
@@ -69,7 +70,7 @@ fn xyz_to_uv(x: Float64, y: Float64, z: Float64) -> (Float64, Float64):
 
 
 fn xyz_to_Luv_white_ref(
-    x: Float64, y: Float64, z: Float64, wref: DynamicVector[Float64]
+    x: Float64, y: Float64, z: Float64, wref: List[Float64]
 ) -> (Float64, Float64, Float64):
     var l: Float64
     if y / wref[1] <= 6.0 / 29.0 * 6.0 / 29.0 * 6.0 / 29.0:
@@ -109,82 +110,29 @@ fn LuvToLuvLCh(L: Float64, u: Float64, v: Float64) -> (Float64, Float64, Float64
     return l, c, h
 
 
-fn hSLuvD65() -> DynamicVector[Float64]:
-    var vector: DynamicVector[Float64] = DynamicVector[Float64]()
-    vector.append(0.95045592705167)
-    vector.append(1.0)
-    vector.append(1.089057750759878)
-
-    return vector
+alias hSLuvD65: List[Float64] = List[Float64](0.95045592705167, 1.0, 1.089057750759878)
 
 
-fn get_bounds_matrix() -> DynamicVector[DynamicVector[Float64]]:
-    var m = DynamicVector[DynamicVector[Float64]]()
-    var m1 = DynamicVector[Float64]()
-    m1.append(3.2409699419045214)
-    m1.append(-1.5373831775700935)
-    m1.append(-0.49861076029300328)
-    m.append(m1)
-
-    var m2 = DynamicVector[Float64]()
-    m2.append(-0.96924363628087983)
-    m2.append(-0.96924363628087983)
-    m2.append(0.041555057407175613)
-    m.append(m2)
-
-    var m3 = DynamicVector[Float64]()
-    m3.append(0.055630079696993609)
-    m3.append(-0.20397695888897657)
-    m3.append(1.0569715142428786)
-    m.append(m3)
-
-    return m
-
-
-alias bounds_matrix = get_bounds_matrix()
-
-
-fn get_bounds(l: Float64) -> DynamicVector[DynamicVector[Float64]]:
+fn getBounds(l: Float64) -> List[List[Float64]]:
     var sub2: Float64
     var sub1 = (l + 16.0**3.0) / 1560896.0
     var epsilon = 0.0088564516790356308
     var kappa = 903.2962962962963
 
-    var ret: DynamicVector[DynamicVector[Float64]] = DynamicVector[
-        DynamicVector[Float64]
-    ]()
-    var ret1 = DynamicVector[Float64]()
-    ret1.append(0)
-    ret1.append(0)
+    var ret = List[List[Float64]](
+        List[Float64](0, 0),
+        List[Float64](0, 0),
+        List[Float64](0, 0),
+        List[Float64](0, 0),
+        List[Float64](0, 0),
+        List[Float64](0, 0),
+    )
 
-    var ret2 = DynamicVector[Float64]()
-    ret2.append(0)
-    ret2.append(0)
-
-    var ret3 = DynamicVector[Float64]()
-    ret3.append(0)
-    ret3.append(0)
-
-    var ret4 = DynamicVector[Float64]()
-    ret4.append(0)
-    ret4.append(0)
-
-    var ret5 = DynamicVector[Float64]()
-    ret5.append(0)
-    ret5.append(0)
-
-    var ret6 = DynamicVector[Float64]()
-    ret6.append(0)
-    ret6.append(0)
-
-    ret.append(ret1)
-    ret.append(ret2)
-    ret.append(ret3)
-    ret.append(ret4)
-    ret.append(ret5)
-    ret.append(ret6)
-
-    var m = bounds_matrix
+    var m = List[List[Float64]](
+        List[Float64](3.2409699419045214, -1.5373831775700935, -0.49861076029300328),
+        List[Float64](-0.96924363628087983, 1.8759675015077207, 0.041555057407175613),
+        List[Float64](0.055630079696993609, -0.20397695888897657, 1.0569715142428786),
+    )
 
     if sub1 > epsilon:
         sub2 = sub1
@@ -208,18 +156,18 @@ fn get_bounds(l: Float64) -> DynamicVector[DynamicVector[Float64]]:
     return ret
 
 
-fn length_of_ray_until_intersect(theta: Float64, x: Float64, y: Float64) -> Float64:
+fn lengthOfRayUntilIntersect(theta: Float64, x: Float64, y: Float64) -> Float64:
     return y / (math.sin(theta) - x * math.cos(theta))
 
 
-fn max_chroma_for_lh(l: Float64, h: Float64) -> Float64:
+fn maxChromaForLH(l: Float64, h: Float64) -> Float64:
     var hRad = h / 360.0 * pi * 2.0
     var minLength = max_float64
-    var bounds = get_bounds(l)
+    var bounds = getBounds(l)
 
     for i in range(len(bounds)):
         var line = bounds[i]
-        var length = length_of_ray_until_intersect(hRad, line[0], line[1])
+        var length = lengthOfRayUntilIntersect(hRad, line[0], line[1])
         if length > 0.0 and length < minLength:
             minLength = length
 
@@ -236,7 +184,7 @@ fn LuvLch_to_HSLuv(l: Float64, c: Float64, h: Float64) -> (Float64, Float64, Flo
     if l > 99.9999999 or l < 0.00000001:
         s = 0.0
     else:
-        max = max_chroma_for_lh(l, h)
+        max = maxChromaForLH(l, h)
         s = c / max * 100.0
 
     return h, clamp01(s / 100.0), clamp01(l / 100.0)
@@ -264,7 +212,7 @@ fn delinearize(v: Float64) -> Float64:
     return 1.055 * (v ** (1.0 / 2.4)) - 0.055
 
 
-fn LinearRgb(r: Float64, g: Float64, b: Float64) -> RGB:
+fn linear_rgb(r: Float64, g: Float64, b: Float64) -> RGB:
     return RGB(delinearize(r), delinearize(g), delinearize(b))
 
 
@@ -274,13 +222,13 @@ fn xyz(x: Float64, y: Float64, z: Float64) -> RGB:
     var b: Float64
 
     r, g, b = xyz_to_linear_rgb(x, y, z)
-    return LinearRgb(r, g, b)
+    return linear_rgb(r, g, b)
 
 
 # Generates a color by using data given in CIE L*u*v* space, taking
 # into account a given reference white. (i.e. the monitor's white)
 # L* is in [0..1] and both u* and v* are in about [-1..1]
-fn LuvWhiteRef(l: Float64, u: Float64, v: Float64, wref: DynamicVector[Float64]) -> RGB:
+fn LuvWhiteRef(l: Float64, u: Float64, v: Float64, wref: List[Float64]) -> RGB:
     var x: Float64
     var y: Float64
     var z: Float64
@@ -306,23 +254,19 @@ struct RGB:
             + ")"
         )
 
-    fn LinearRgb(self) -> (Float64, Float64, Float64):
-        """LinearRgb converts the color into the linear RGB space (see http://www.sjbrown.co.uk/2004/05/14/gamma-correct-rendering/).
+    fn linear_rgb(self) -> (Float64, Float64, Float64):
+        """Converts the color into the linear RGB space (see http://www.sjbrown.co.uk/2004/05/14/gamma-correct-rendering/).
         """
-        var r: Float64
-        var g: Float64
-        var b: Float64
-
-        r = linearize(self.R)
-        g = linearize(self.G)
-        b = linearize(self.B)
+        var r = linearize(self.R)
+        var g = linearize(self.G)
+        var b = linearize(self.B)
         return r, g, b
 
     fn xyz(self) -> (Float64, Float64, Float64):
         var r: Float64
         var g: Float64
         var b: Float64
-        r, g, b = self.LinearRgb()
+        r, g, b = self.linear_rgb()
 
         var x: Float64
         var y: Float64
@@ -330,7 +274,7 @@ struct RGB:
         x, y, z = linear_rgb_to_xyz(r, g, b)
         return x, y, z
 
-    fn Luv_white_ref(self, wref: DynamicVector[Float64]) -> (Float64, Float64, Float64):
+    fn Luv_white_ref(self, wref: List[Float64]) -> (Float64, Float64, Float64):
         """Converts the given color to CIE L*u*v* space, taking into account a given reference white. (i.e. the monitor's white)
         L* is in [0..1] and both u* and v* are in about [-1..1]."""
         var x: Float64
@@ -344,9 +288,7 @@ struct RGB:
         l, u, v = xyz_to_Luv_white_ref(x, y, z, wref)
         return l, u, v
 
-    fn LuvLCh_white_ref(
-        self, wref: DynamicVector[Float64]
-    ) -> (Float64, Float64, Float64):
+    fn LuvLCh_white_ref(self, wref: List[Float64]) -> (Float64, Float64, Float64):
         var l: Float64
         var u: Float64
         var v: Float64
@@ -360,7 +302,7 @@ struct RGB:
         color space. Hue in [0..360], a Saturation [0..1], and a Luminance
         (lightness) in [0..1].
         """
-        var wref: DynamicVector[Float64] = hSLuvD65()
+        var wref: List[Float64] = hSLuvD65
         var l: Float64
         var c: Float64
         var h: Float64

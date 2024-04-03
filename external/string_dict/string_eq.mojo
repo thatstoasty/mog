@@ -7,13 +7,13 @@ fn eq(a: StringRef, b: String) -> Bool:
     var p2 = b._as_ptr()
     var offset = 0
     alias step = 16
-    while l - offset >= step:
-        var unequal = p1.simd_load[step](offset) != p2.simd_load[step](offset)
-        if unequal.reduce_or():
-            return False
+    while (
+        l - offset >= step
+        and (p1.load[width=step](offset) == p2.load[width=step](offset)).reduce_and()
+    ):
         offset += step
-    while l - offset > 0:
-        if p1.load(offset) != p2.load(offset):
-            return False
+    if l - offset >= step:
+        return False
+    while l - offset > 0 and p1.load(offset) == p2.load(offset):
         offset += 1
-    return True
+    return l - offset == 0

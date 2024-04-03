@@ -1,5 +1,6 @@
 from external.gojo.bytes import buffer
-from external.gojo.builtins._bytes import Bytes
+from external.gojo.builtins import Result
+from external.gojo.builtins.bytes import Byte
 import external.gojo.io
 from .ansi import writer
 from .ansi.ansi import is_terminator, Marker, printable_rune_width
@@ -11,7 +12,7 @@ alias default_tab_width = 4
 
 
 @value
-struct Wrap(StringableRaising, io.Writer):
+struct Wrap(Stringable, io.Writer):
     var limit: Int
     var newline: String
     var keep_newlines: Bool
@@ -45,13 +46,15 @@ struct Wrap(StringableRaising, io.Writer):
         self.ansi = ansi
         self.forceful_newline = forceful_newline
 
-    fn add_newline(inout self) raises:
+    fn add_newline(inout self):
         _ = self.buf.write_byte(ord(self.newline))
         self.line_len = 0
 
-    fn write(inout self, src: Bytes) raises -> Int:
+    fn write(inout self, src: List[Byte]) -> Result[Int]:
         var tab_space = __string__mul__(" ", self.tab_width)
-        var s = str(src)
+        var copy = List[Byte](src)
+        copy.append(0)
+        var s = String(copy)
 
         s = s.replace("\t", tab_space)
         if not self.keep_newlines:
@@ -92,12 +95,12 @@ struct Wrap(StringableRaising, io.Writer):
 
         return len(src)
 
-    # Bytes returns the wrapped result as a byte slice.
-    fn bytes(self) raises -> Bytes:
+    # List[Byte] returns the wrapped result as a byte slice.
+    fn bytes(self) -> List[Byte]:
         return self.buf.bytes()
 
     # String returns the wrapped result as a string.
-    fn __str__(self) raises -> String:
+    fn __str__(self) -> String:
         return str(self.buf)
 
 
@@ -107,9 +110,9 @@ fn new_writer(limit: Int) -> Wrap:
     return Wrap(limit=limit)
 
 
-# Bytes is shorthand for declaring a new default Wrap instance,
+# List[Byte] is shorthand for declaring a new default Wrap instance,
 # used to immediately wrap a byte slice.
-fn apply_wrap_to_bytes(owned b: Bytes, limit: Int) raises -> Bytes:
+fn apply_wrap_to_bytes(owned b: List[Byte], limit: Int) -> List[Byte]:
     var f = new_writer(limit)
     _ = f.write(b)
 
@@ -118,8 +121,9 @@ fn apply_wrap_to_bytes(owned b: Bytes, limit: Int) raises -> Bytes:
 
 # String is shorthand for declaring a new default Wrap instance,
 # used to immediately wrap a string.
-fn apply_wrap(s: String, limit: Int) raises -> String:
-    var buf = Bytes(s)
+fn apply_wrap(s: String, limit: Int) -> String:
+    var buf = s.as_bytes()
     var b = apply_wrap_to_bytes(buf ^, limit)
+    b.append(0)
 
-    return str(b)
+    return String(b)

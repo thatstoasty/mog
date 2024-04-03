@@ -281,7 +281,7 @@ fn render_horizontal_edge(
     var left_width = len(left)
     var right_width = len(right)
 
-    var runes = DynamicVector[String]()
+    var runes = List[String]()
     runes.append(middle_copy)
 
     var output: String = left
@@ -298,7 +298,7 @@ fn render_horizontal_edge(
         # TODO: Should be rune length here, just taking len of string for now.
         # i += len(runes[j])
         # TODO: Try assuming length of all characters to be 1, despite unicode chars being 1-4 bytes.
-        # This hacky temp fix allows unicode characters to be used in constructing the border. 
+        # This hacky temp fix allows unicode characters to be used in constructing the border.
         # If the actual length is used, then the border horizontal edge terminates early.
         i += 1
 

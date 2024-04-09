@@ -101,8 +101,7 @@ fn pad_left(text: String, n: Int, style: TerminalStyle) raises -> String:
         return text
     var sp = repeat(" ", n)
 
-    # if style != nil:
-    #     sp = style.Styled(sp)
+    sp = style.render(sp)
 
     var padded_text: String = ""
     var lines = text.split("\n")
@@ -123,8 +122,7 @@ fn pad_right(text: String, n: Int, style: TerminalStyle) raises -> String:
 
     var sp = repeat(" ", n)
 
-    # if style != nil:
-    #     sp = style.Styled(sp)
+    sp = style.render(sp)
 
     var padded_text: String = ""
     var lines = text.split("\n")
@@ -663,7 +661,6 @@ struct Style:
             var lines = styled_text.split("\n")
 
             for i in range(len(lines)):
-                # TODO: Truncate breaks Table rendering when using unicode characters due to the incorrect tracking of character length.
                 lines[i] = truncate.apply_truncate(lines[i], max_width)
 
             styled_text = join("\n", lines)

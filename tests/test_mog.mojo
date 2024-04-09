@@ -135,6 +135,34 @@ fn test_styling() raises:
     var execution_time = now() - start_time
     print("Headered Execution Time: ", execution_time, execution_time / 1e9)
 
+    var borderless_style = Style()
+    borderless_style.width(75)
+    borderless_style.padding_top(1)
+    borderless_style.padding_right(1)
+    borderless_style.padding_bottom(1)
+    borderless_style.padding_left(1)
+
+    borderless_style.horizontal_alignment(position.center)
+    borderless_style.border("no_border")
+    borderless_style.background("#c9a0dc")
+
+    print(
+        join_horizontal(
+            position.center,
+            borderless_style.render(
+                "You should be able to join blocks of different heights"
+            ),
+            borderless_style.render(
+                "Hello World!\nThis is a test of the mog style system. Which can wrap"
+                " lines that are longer than the limit.\n\nYep."
+            ),
+            borderless_style.render(
+                "This is to validate that more than three blocks can be joined.\nI hope this works!\n"
+                " Lines that are longer than the limit can be a pain.\n\nSome more text."
+            ),
+        )
+    )
+
 
 fn main() raises:
     test_styling()

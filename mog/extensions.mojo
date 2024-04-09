@@ -5,20 +5,7 @@ fn count(text: String, substr: String) raises -> Int:
     return chunks.size
 
 
-# Collections
-fn get_slice[
-    T: CollectionElement
-](collection: List[T], start: Int, end: Int) -> List[T]:
-    var slice = List[T]()
-    var i = start
-    while i < end:
-        slice.append(collection[i])
-        i += 1
-
-    return slice
-
-
-fn __string__mul__(input_string: String, n: Int) -> String:
+fn repeat(input_string: String, n: Int) -> String:
     var result: String = ""
     for _ in range(n):
         result += input_string
@@ -44,7 +31,7 @@ fn split(
         maxsplit = len(input_string)
 
     if not sep:
-        return get_slice(from_string(input_string), 0, maxsplit)
+        return from_string(input_string)[0:maxsplit]
 
     var output = List[String]()
     var start = 0

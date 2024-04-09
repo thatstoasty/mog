@@ -1,7 +1,9 @@
-from .position import Position, top, bottom, left, right, center
-from .extensions import get_slice, __string__mul__
-from external.weave.ansi.ansi import printable_rune_width
+import math
+from external.weave.ansi.ansi import len_without_ansi
 from external.gojo.strings import StringBuilder
+from .position import Position, top, bottom, left, right, center
+from .extensions import repeat
+from .size import rune_count_in_string
 
 
 # join_horizontal is a utility function for horizontally joining two
@@ -41,10 +43,10 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
         var s = strs[i]
         var lines = s.split("\n")
         var widest: Int = 0
-        for i in range(lines.size):
-            # TODO: Should be rune length instead of str length. Some runes are longer than 1 char.
-            if len(lines[i]) > widest:
-                widest = len(lines[i])
+        for i in range(len(lines)):
+            var rune_count = len_without_ansi(lines[i])
+            if rune_count > widest:
+                widest = rune_count
 
         blocks.append(lines)
         max_widths.append(widest)
@@ -55,8 +57,8 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
     for i in range(len(blocks)):
         if len(blocks[i]) >= max_height:
             continue
-
-        var extra_lines = List[String](capacity=max_height - len(blocks[i]))
+        var extra_lines = List[String]()
+        extra_lines.resize(max_height - len(blocks[i]), "")
 
         if pos == top:
             blocks[i].extend(extra_lines)
@@ -65,14 +67,12 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
             blocks[i] = extra_lines
         else:
             var n = len(extra_lines)
-            var split = UInt8(n) * pos
+            var split = int(n * pos)
             var top_point = n - split
-            var bottom_point = n - top
+            var bottom_point = n - top_point
 
-            var top_lines = get_slice(extra_lines, int(top), int(len(extra_lines)))
-            var bottom_lines = get_slice(
-                extra_lines, int(bottom), int(len(extra_lines))
-            )
+            var top_lines = extra_lines[int(top_point):len(extra_lines)]
+            var bottom_lines = extra_lines[int(bottom_point):len(extra_lines)]
             top_lines.extend(blocks[i])
             blocks[i] = top_lines
             blocks[i].extend(bottom_lines)
@@ -86,8 +86,8 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
             _ = builder.write_string(block[i])
 
             # Also make lines the same length
-            var spaces = __string__mul__(
-                "", max_widths[j] - printable_rune_width(block[i])
+            var spaces = repeat(
+                " ", max_widths[j] - len_without_ansi(block[i])
             )
             _ = builder.write_string(spaces)
 
@@ -134,10 +134,10 @@ fn join_horizontal(pos: Position, strs: List[String]) raises -> String:
         var s = strs[i]
         var lines = s.split("\n")
         var widest: Int = 0
-        for i in range(lines.size):
-            # TODO: Should be rune length instead of str length. Some runes are longer than 1 char.
-            if len(lines[i]) > widest:
-                widest = len(lines[i])
+        for i in range(len(lines)):
+            var rune_count = len_without_ansi(lines[i])
+            if rune_count > widest:
+                widest = rune_count
 
         blocks.append(lines)
         max_widths.append(widest)
@@ -149,7 +149,8 @@ fn join_horizontal(pos: Position, strs: List[String]) raises -> String:
         if len(blocks[i]) >= max_height:
             continue
 
-        var extra_lines = List[String](capacity=max_height - len(blocks[i]))
+        var extra_lines = List[String]()
+        extra_lines.resize(max_height - len(blocks[i]), "")
 
         if pos == top:
             blocks[i].extend(extra_lines)
@@ -158,14 +159,12 @@ fn join_horizontal(pos: Position, strs: List[String]) raises -> String:
             blocks[i] = extra_lines
         else:
             var n = len(extra_lines)
-            var split = UInt8(n) * pos
+            var split = int(n * pos)
             var top_point = n - split
-            var bottom_point = n - top
+            var bottom_point = n - top_point
 
-            var top_lines = get_slice(extra_lines, int(top), int(len(extra_lines)))
-            var bottom_lines = get_slice(
-                extra_lines, int(bottom), int(len(extra_lines))
-            )
+            var top_lines = extra_lines[int(top_point):len(extra_lines)]
+            var bottom_lines = extra_lines[int(bottom_point):len(extra_lines)]
             top_lines.extend(blocks[i])
             blocks[i] = top_lines
             blocks[i].extend(bottom_lines)
@@ -179,8 +178,8 @@ fn join_horizontal(pos: Position, strs: List[String]) raises -> String:
             _ = builder.write_string(block[i])
 
             # Also make lines the same length
-            var spaces = __string__mul__(
-                "", max_widths[j] - printable_rune_width(block[i])
+            var spaces = repeat(
+                "", max_widths[j] - len_without_ansi(block[i])
             )
             _ = builder.write_string(spaces)
 
@@ -225,10 +224,10 @@ fn join_vertical(pos: Position, *strs: String) raises -> String:
         var s = strs[i]
         var lines = s.split("\n")
         var widest: Int = 0
-        for i in range(lines.size):
-            # TODO: Should be rune length instead of str length. Some runes are longer than 1 char.
-            if len(lines[i]) > widest:
-                widest = len(lines[i])
+        for i in range(len(lines)):
+            var rune_count = len_without_ansi(lines[i])
+            if rune_count> widest:
+                widest = rune_count
 
         blocks.append(lines)
 
@@ -241,13 +240,13 @@ fn join_vertical(pos: Position, *strs: String) raises -> String:
         var block = blocks[i]
         for j in range(len(block)):
             var line = block[j]
-            w = max_width - printable_rune_width(line)
+            w = max_width - len_without_ansi(line)
 
             if pos == left:
                 _ = builder.write_string(line)
-                _ = builder.write_string(__string__mul__(" ", w))
+                _ = builder.write_string(repeat(" ", w))
             elif pos == right:
-                _ = builder.write_string(__string__mul__(" ", w))
+                _ = builder.write_string(repeat(" ", w))
                 _ = builder.write_string(line)
             else:
                 if w < 1:
@@ -257,9 +256,9 @@ fn join_vertical(pos: Position, *strs: String) raises -> String:
                     var right = w - split
                     var left = w - right
 
-                    _ = builder.write_string(__string__mul__(" ", left))
+                    _ = builder.write_string(repeat(" ", left))
                     _ = builder.write_string(line)
-                    _ = builder.write_string(__string__mul__(" ", right))
+                    _ = builder.write_string(repeat(" ", right))
 
             if not (i == len(blocks) - 1 and j == len(block) - 1):
                 _ = builder.write_string("\n")
@@ -284,10 +283,10 @@ fn join_vertical(pos: Position, strs: List[String]) raises -> String:
         var s = strs[i]
         var lines = s.split("\n")
         var widest: Int = 0
-        for i in range(lines.size):
-            # TODO: Should be rune length instead of str length. Some runes are longer than 1 char.
-            if len(lines[i]) > widest:
-                widest = len(lines[i])
+        for i in range(len(lines)):
+            var rune_count = len_without_ansi(lines[i])
+            if rune_count > widest:
+                widest = rune_count
 
         blocks.append(lines)
 
@@ -300,13 +299,13 @@ fn join_vertical(pos: Position, strs: List[String]) raises -> String:
         var block = blocks[i]
         for j in range(len(block)):
             var line = block[j]
-            w = max_width - printable_rune_width(line)
+            w = max_width - len_without_ansi(line)
 
             if pos == left:
                 _ = builder.write_string(line)
-                _ = builder.write_string(__string__mul__(" ", w))
+                _ = builder.write_string(repeat(" ", w))
             elif pos == right:
-                _ = builder.write_string(__string__mul__(" ", w))
+                _ = builder.write_string(repeat(" ", w))
                 _ = builder.write_string(line)
             else:
                 if w < 1:
@@ -316,9 +315,9 @@ fn join_vertical(pos: Position, strs: List[String]) raises -> String:
                     var right = w - split
                     var left = w - right
 
-                    _ = builder.write_string(__string__mul__(" ", left))
+                    _ = builder.write_string(repeat(" ", left))
                     _ = builder.write_string(line)
-                    _ = builder.write_string(__string__mul__(" ", right))
+                    _ = builder.write_string(repeat(" ", right))
 
             if not (i == len(blocks) - 1 and j == len(block) - 1):
                 _ = builder.write_string("\n")

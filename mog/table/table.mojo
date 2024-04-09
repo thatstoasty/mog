@@ -1,7 +1,7 @@
 from math import max, min
 from external.weave import truncate
 from external.gojo.strings import StringBuilder
-from ..extensions import __string__mul__
+from ..extensions import repeat
 from ..style import Style
 from ..border import ascii_border, Border
 from ..position import top, bottom, left, right, center
@@ -374,7 +374,7 @@ struct Table:
         while i < len(self.widths):
             _ = string_builder.write_string(
                 self.border_style.render(
-                    __string__mul__(self.border.top, self.widths[i])
+                    repeat(self.border.top, self.widths[i])
                 )
             )
             if i < len(self.widths) - 1 and self.border_column:
@@ -405,7 +405,7 @@ struct Table:
             # But for now, all the lines will be of equal length since it's a table, so we can just use self.widths[0] for each line.
             _ = string_builder.write_string(
                 self.border_style.render(
-                    __string__mul__(self.border.bottom, self.widths[0])
+                    repeat(self.border.bottom, self.widths[0])
                 )
             )
             if i < len(self.widths) - 1 and self.border_column:
@@ -465,7 +465,7 @@ struct Table:
             while i < len(self.headers):
                 _ = string_builder.write_string(
                     self.border_style.render(
-                        __string__mul__(self.border.bottom, self.widths[i])
+                        repeat(self.border.bottom, self.widths[i])
                     )
                 )
                 if i < len(self.headers) - 1 and self.border_column:
@@ -494,7 +494,7 @@ struct Table:
         var height = self.heights[index + btoi(has_headers)]
 
         var cells = List[String]()
-        var left = __string__mul__(
+        var left = repeat(
             self.border_style.render(self.border.left) + "\n", height
         )
         if self.border_left:
@@ -523,7 +523,7 @@ struct Table:
             c += 1
 
         if self.border_right:
-            var right = __string__mul__(
+            var right = repeat(
                 self.border_style.render(self.border.right) + "\n", height
             )
             cells.append(right)
@@ -542,7 +542,7 @@ struct Table:
             while i < len(self.widths):
                 _ = string_builder.write_string(
                     self.border_style.render(
-                        __string__mul__(self.border.middle, self.widths[i])
+                        repeat(self.border.middle, self.widths[i])
                     )
                 )
                 if i < len(self.widths) - 1 and self.border_column:

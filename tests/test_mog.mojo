@@ -83,18 +83,52 @@ fn test_styling() raises:
 
     var start_time = now()
 
-    # TODO: Joining blocks of different height does not work
     print(style.render("You should be able to join blocks of different heights"))
     print(
         join_horizontal(
-            position.center,
+            position.top,
+            style.render(
+                "You should be able to join blocks of different heights"
+            ),
             style.render(
                 "Hello World!\nThis is a test of the mog style system. Which can wrap"
                 " lines that are longer than the limit.\n\nYep."
             ),
             style.render(
+                "This is to validate that more than three blocks can be joined.\nI hope this works!\n"
+                " Lines that are longer than the limit can be a pain.\n\nSome more text."
+            ),
+        )
+    )
+    print(
+        join_horizontal(
+            position.bottom,
+            style.render(
+                "You should be able to join blocks of different heights"
+            ),
+            style.render(
                 "Hello World!\nThis is a test of the mog style system. Which can wrap"
                 " lines that are longer than the limit.\n\nYep."
+            ),
+            style.render(
+                "This is to validate that more than three blocks can be joined.\nI hope this works!\n"
+                " Lines that are longer than the limit can be a pain.\n\nSome more text."
+            ),
+        )
+    )
+    print(
+        join_horizontal(
+            position.center,
+            style.render(
+                "You should be able to join blocks of different heights"
+            ),
+            style.render(
+                "Hello World!\nThis is a test of the mog style system. Which can wrap"
+                " lines that are longer than the limit.\n\nYep."
+            ),
+            style.render(
+                "This is to validate that more than three blocks can be joined.\nI hope this works!\n"
+                " Lines that are longer than the limit can be a pain.\n\nSome more text."
             ),
         )
     )

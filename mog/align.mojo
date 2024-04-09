@@ -1,8 +1,9 @@
 from math import max, min
-import .position
-from .extensions import count, __string__mul__
 from external.weave.ansi.ansi import len_without_ansi
 from external.mist import TerminalStyle
+from external.gojo.strings import StringBuilder
+import .position
+from .extensions import count, repeat
 
 
 # Perform text alignment. If the string is multi-lined, we also make all lines
@@ -14,16 +15,14 @@ fn align_text_horizontal(
     # TODO: Replace when get_lines works.
     var lines = text.split("\n")
     var widest_line: Int = 0
-    for i in range(lines.size):
-        # TODO: Should be rune length instead of str length. Some runes are longer than 1 char.
+    for i in range(len(lines)):
         if len_without_ansi(lines[i]) > widest_line:
             widest_line = len_without_ansi(lines[i])
 
-    # TODO: Use string builder or buffered writer for this later.
-    var aligned_text: String = ""
-    for i in range(lines.size):
+    var aligned_text = StringBuilder()
+    for i in range(len(lines)):
         var line = lines[i]
-        var line_width = len_without_ansi(line)  # TODO: Should be rune length
+        var line_width = len_without_ansi(line)
 
         var short_amount = widest_line - line_width  # difference from the widest line
         short_amount += max(
@@ -31,7 +30,7 @@ fn align_text_horizontal(
         )  # difference from the total width, if set
         if short_amount > 0:
             if pos == position.right:
-                var spaces = __string__mul__(" ", short_amount)
+                var spaces = repeat(" ", short_amount)
 
                 # Removed the nil check before rendering the spaces in whatever style for now.
                 spaces = style.render(spaces)
@@ -41,22 +40,22 @@ fn align_text_horizontal(
                 var left = short_amount / 2
                 var right = left + short_amount % 2
 
-                var left_spaces = __string__mul__(" ", int(left))
-                var right_spaces = __string__mul__(" ", int(right))
+                var left_spaces = repeat(" ", int(left))
+                var right_spaces = repeat(" ", int(right))
 
                 left_spaces = style.render(left_spaces)
                 right_spaces = style.render(right_spaces)
                 line = left_spaces + line + right_spaces
             elif pos == position.left:
-                var spaces = __string__mul__(" ", int(short_amount))
+                var spaces = repeat(" ", int(short_amount))
                 spaces = style.render(spaces)
                 line += spaces
 
-        aligned_text += line
+        _ = aligned_text.write_string(line)
         if i < len(lines) - 1:
-            aligned_text += "\n"
+            _ = aligned_text.write_string("\n")
 
-    return aligned_text
+    return str(aligned_text)
 
 
 fn align_text_vertical(
@@ -67,7 +66,7 @@ fn align_text_vertical(
         return text
 
     if pos == position.top:
-        return text + __string__mul__("\n", height - text_height)
+        return text + repeat("\n", height - text_height)
 
     if pos == position.center:
         var top_padding = (height - text_height) / 2
@@ -78,12 +77,12 @@ fn align_text_vertical(
             bottom_padding += 1
 
         return (
-            __string__mul__("\n", int(top_padding))
+            repeat("\n", int(top_padding))
             + text
-            + __string__mul__("\n", int(bottom_padding))
+            + repeat("\n", int(bottom_padding))
         )
 
     if pos == position.bottom:
-        return __string__mul__("\n", height - text_height) + text
+        return repeat("\n", height - text_height) + text
 
     return text

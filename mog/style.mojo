@@ -18,7 +18,8 @@ from .border import (
     star_border,
     plus_border,
 )
-from .extensions import get_slice, __string__mul__, join, contains
+from .size import rune_count_in_string
+from .extensions import repeat, join, contains
 from .align import align_text_horizontal, align_text_vertical
 from external.weave import wrap, wordwrap, truncate
 from external.weave.ansi.ansi import len_without_ansi
@@ -45,10 +46,10 @@ fn get_lines(s: String) raises -> (List[String], Int):
     """
     var lines = s.split("\n")
     var widest: Int = 0
-    for i in range(lines.size):
+    for i in range(len(lines)):
         # TODO: Should be rune length instead of str length. Some runes are longer than 1 char.
-        if len(lines[i]) > widest:
-            widest = len(lines[i])
+        if rune_count_in_string(lines[i]) > widest:
+            widest = rune_count_in_string(lines[i])
 
     return lines, widest
 
@@ -66,6 +67,31 @@ fn to_bool(s: String) -> Bool:
     return False
 
 
+fn str_to_float(s: String) raises -> Float64:
+    try:
+        # locate decimal point
+        var dot_pos = s.find(".")
+        # grab the integer part of the number
+        var int_str = s[0:dot_pos]
+        # grab the decimal part of the number
+        var num_str = s[dot_pos + 1 : len(s)]
+        # set the numerator to be the integer equivalent
+        var numerator = atol(num_str)
+        # construct denom_str to be "1" + "0"s for the length of the fraction
+        var denom_str = String()
+        for _ in range(len(num_str)):
+            denom_str += "0"
+        var denominator = atol("1" + denom_str)
+        # school-level maths here :)
+        var frac = numerator / denominator
+
+        # return the number as a Float64
+        var result: Float64 = atol(int_str) + frac
+        return result
+    except:
+        raise Error("Failed to convert " + s + " to a float.")
+
+
 alias TransformFunction = fn (s: String) -> String
 
 
@@ -73,7 +99,7 @@ alias TransformFunction = fn (s: String) -> String
 fn pad_left(text: String, n: Int, style: TerminalStyle) raises -> String:
     if n == 0:
         return text
-    var sp = __string__mul__(" ", n)
+    var sp = repeat(" ", n)
 
     # if style != nil:
     #     sp = style.Styled(sp)
@@ -95,7 +121,7 @@ fn pad_right(text: String, n: Int, style: TerminalStyle) raises -> String:
     if n == 0 or text == "":
         return text
 
-    var sp = __string__mul__(" ", n)
+    var sp = repeat(" ", n)
 
     # if style != nil:
     #     sp = style.Styled(sp)
@@ -158,7 +184,7 @@ struct Style:
         if result == "":
             return Position(0)
 
-        return Position(atol(result))
+        return Position(str_to_float(result))
 
     fn get_border_style(self) raises -> Border:
         var val = self.rules.get("border_style", "")
@@ -304,7 +330,7 @@ struct Style:
         if default_tab_width == 0:
             return text.replace("\t", "")
         else:
-            return text.replace("\t", __string__mul__(" ", default_tab_width))
+            return text.replace("\t", repeat(" ", default_tab_width))
 
     fn style_border(self, border: String, fg: String, bg: String) -> String:
         var styler = TerminalStyle.new(self.r.color_profile).foreground(fg).background(
@@ -358,17 +384,17 @@ struct Style:
 
         # TODO: Using len_without_ansi for now until I switch over to bytes buffer and Writers
         var width: Int = 0
-        for i in range(lines.size):
+        for i in range(len(lines)):
             # TODO: Should be rune length instead of str length. Some runes are longer than 1 char.
-            if len_without_ansi(lines[i]) > width:
-                width = len_without_ansi(lines[i])
+            var rune_count = len_without_ansi(lines[i])
+            if rune_count > width:
+                width = rune_count
 
         if has_left:
             if border.left == "":
                 border.left = " "
 
-            # TODO: Should be checking max rune length instead of str length
-            width += len(border.left)
+            width += rune_count_in_string(border.left)
 
         if has_right and border.right == "":
             border.right = " "
@@ -414,7 +440,7 @@ struct Style:
 
         # Render top
         if has_top:
-            var top: String = render_horizontal_edge(
+            var top = render_horizontal_edge(
                 border.top_left, border.top, border.top_right, width
             )
             top = self.style_border(top, top_fg, top_bg)
@@ -431,7 +457,7 @@ struct Style:
         var right_index = 0
 
         # TODO: Do the ansi characters here impact the len of left and right runes? Need to check
-        for i in range(lines.size):
+        for i in range(len(lines)):
             var line = lines[i]
             if has_left:
                 var r = left_runes[left_index]
@@ -490,17 +516,17 @@ struct Style:
         if not inline:
             var lines = text.split("\n")
             var width: Int = 0
-            for i in range(lines.size):
+            for i in range(len(lines)):
                 # TODO: Should be rune length instead of str length. Some runes are longer than 1 char.
                 if len(lines[i]) > width:
                     width = len(lines[i])
 
-            var spaces = __string__mul__(" ", width)
+            var spaces = repeat(" ", width)
 
             if top_margin > 0:
-                padded_text = __string__mul__("\n", top_margin) + padded_text
+                padded_text = repeat("\n", top_margin) + padded_text
             if bottom_margin > 0:
-                padded_text += __string__mul__("\n", bottom_margin)
+                padded_text += repeat("\n", bottom_margin)
 
         return padded_text
 
@@ -589,7 +615,7 @@ struct Style:
 
         var builder = StringBuilder()
         var lines = input_text.split("\n")
-        for i in range(lines.size):
+        for i in range(len(lines)):
             var line = lines[i]
             if use_space_styler:
                 # Look for spaces and apply a different styler
@@ -623,10 +649,10 @@ struct Style:
                 styled_text = pad_right(styled_text, right_padding, style)
 
             if top_padding > 0:
-                styled_text = __string__mul__("\n", top_padding) + styled_text
+                styled_text = repeat("\n", top_padding) + styled_text
 
             if bottom_padding > 0:
-                styled_text += __string__mul__("\n", bottom_padding)
+                styled_text += repeat("\n", bottom_padding)
 
         # Alignment
         if height > 0:
@@ -636,7 +662,7 @@ struct Style:
         if max_width > 0:
             var lines = styled_text.split("\n")
 
-            for i in range(lines.size):
+            for i in range(len(lines)):
                 # TODO: Truncate breaks Table rendering when using unicode characters due to the incorrect tracking of character length.
                 lines[i] = truncate.apply_truncate(lines[i], max_width)
 
@@ -645,7 +671,7 @@ struct Style:
         # Truncate according to max_height
         if max_height > 0:
             var lines = styled_text.split("\n")
-            var truncated_lines = get_slice(lines, 0, min(max_height, len(lines)))
+            var truncated_lines = lines[0:min(max_height, len(lines))]
             styled_text = join("\n", truncated_lines)
 
         # if transform:

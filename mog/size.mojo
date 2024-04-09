@@ -1,5 +1,28 @@
+from algorithm.functional import vectorize
+from memory.unsafe import DTypePointer
+from sys.info import simdwidthof
 from external.weave.ansi import ansi
 from .extensions import split
+
+alias simd_width_u8 = simdwidthof[DType.uint8]()
+
+
+fn rune_count_in_string(s: String) -> Int:
+    var p = s._as_ptr().bitcast[DType.uint8]()
+    var string_byte_length = len(s)
+    var result = 0
+
+    @parameter
+    fn count[simd_width: Int](offset: Int):
+        result += (
+            ((p.load[width=simd_width](offset) >> 6) != 0b10)
+            .cast[DType.uint8]()
+            .reduce_add()
+            .to_int()
+        )
+
+    vectorize[count, simd_width_u8](string_byte_length)
+    return result
 
 
 # Width returns the cell width of characters in the string. ANSI sequences are

@@ -15,8 +15,8 @@ fn test_horizontal_join() raises:
     test.assert_equal(
         bottom_aligned,
         (
-            "Hello World!I could be more creative.\nThis is an example.But, I'm out of"
-            " ideas."
+            "Hello World!I could be more creative.\nThis is an example.But, I'm"
+            " out of ideas."
         ),
     )
 
@@ -26,8 +26,8 @@ fn test_horizontal_join() raises:
     test.assert_equal(
         top_aligned,
         (
-            "Hello World!I could be more creative.\nThis is an example.But, I'm out of"
-            " ideas."
+            "Hello World!I could be more creative.\nThis is an example.But, I'm"
+            " out of ideas."
         ),
     )
 
@@ -37,8 +37,8 @@ fn test_horizontal_join() raises:
     test.assert_equal(
         center_aligned,
         (
-            "Hello World!I could be more creative.\nThis is an example.But, I'm out of"
-            " ideas."
+            "Hello World!I could be more creative.\nThis is an example.But, I'm"
+            " out of ideas."
         ),
     )
 
@@ -54,8 +54,8 @@ fn test_vertical_join() raises:
     test.assert_equal(
         right_aligned,
         (
-            "             Hello World!\n      This is an example.\nI could be more"
-            " creative.\n   But, I'm out of ideas."
+            "             Hello World!\n      This is an example.\nI could be"
+            " more creative.\n   But, I'm out of ideas."
         ),
     )
 
@@ -65,8 +65,8 @@ fn test_vertical_join() raises:
     test.assert_equal(
         left_aligned,
         (
-            "Hello World!             \nThis is an example.      \nI could be more"
-            " creative.\nBut, I'm out of ideas.   "
+            "Hello World!             \nThis is an example.      \nI could be"
+            " more creative.\nBut, I'm out of ideas.   "
         ),
     )
 
@@ -76,8 +76,8 @@ fn test_vertical_join() raises:
     test.assert_equal(
         center_aligned,
         (
-            "      Hello World!       \n   This is an example.   \nI could be more"
-            " creative.\n But, I'm out of ideas.  "
+            "      Hello World!       \n   This is an example.   \nI could be"
+            " more creative.\n But, I'm out of ideas.  "
         ),
     )
 

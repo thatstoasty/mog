@@ -55,7 +55,9 @@ struct TerminalStyle:
     var styles: List[String]
     var profile: Profile
 
-    fn __init__(inout self, profile: Profile, *, styles: List[String] = List[String]()):
+    fn __init__(
+        inout self, profile: Profile, *, styles: List[String] = List[String]()
+    ):
         """Constructs a TerminalStyle. Use new instead of __init__ to chain function calls.
 
         Args:

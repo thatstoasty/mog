@@ -81,7 +81,7 @@ fn new_writer(width: UInt8, tail: String) -> Writer:
 # List[Byte] is shorthand for declaring a new default truncate-writer instance,
 # used to immediately truncate a byte slice.
 fn apply_truncate_to_bytes(owned b: List[Byte], width: UInt8) -> List[Byte]:
-    return apply_truncate_to_bytes_with_tail(b ^, width, "")
+    return apply_truncate_to_bytes_with_tail(b^, width, "")
 
 
 # List[Byte] is shorthand for declaring a new default truncate-writer instance,
@@ -99,14 +99,16 @@ fn apply_truncate_to_bytes_with_tail(
 # String is shorthand for declaring a new default truncate-writer instance,
 # used to immediately truncate a string.
 fn apply_truncate(owned s: String, width: UInt8) -> String:
-    return apply_truncate_with_tail(s ^, width, "")
+    return apply_truncate_with_tail(s^, width, "")
 
 
 # string_with_tail is shorthand for declaring a new default truncate-writer instance,
 # used to immediately truncate a string. A tail is then added to the end of the
 # string.
-fn apply_truncate_with_tail(owned s: String, width: UInt8, tail: String) -> String:
+fn apply_truncate_with_tail(
+    owned s: String, width: UInt8, tail: String
+) -> String:
     var buf = s.as_bytes()
-    var b = apply_truncate_to_bytes_with_tail(buf ^, width, tail)
+    var b = apply_truncate_to_bytes_with_tail(buf^, width, tail)
     b.append(0)
     return String(b)

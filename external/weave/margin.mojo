@@ -62,7 +62,7 @@ fn apply_margin_to_bytes(
 # used to immediately apply margin a string.
 fn apply_margin(owned s: String, width: UInt8, margin: UInt8) -> String:
     var buf = s.as_bytes()
-    var b = apply_margin_to_bytes(buf ^, width, margin)
+    var b = apply_margin_to_bytes(buf^, width, margin)
     b.append(0)
 
     return String(b)

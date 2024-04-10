@@ -6,7 +6,9 @@ from ..builtins import Byte, Result, WrappedError
 
 
 @value
-struct StringBuilder(Stringable, Sized, io.Writer, io.ByteWriter, io.StringWriter):
+struct StringBuilder(
+    Stringable, Sized, io.Writer, io.ByteWriter, io.StringWriter
+):
     """
     A string builder class that allows for efficient string management and concatenation.
     This class is useful when you need to build a string by appending multiple strings

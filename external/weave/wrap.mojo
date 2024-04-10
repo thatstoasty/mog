@@ -84,7 +84,11 @@ struct Wrap(Stringable, io.Writer):
                     self.forceful_newline = True
 
                 if self.line_len == 0:
-                    if self.forceful_newline and not self.preserve_space and c == " ":
+                    if (
+                        self.forceful_newline
+                        and not self.preserve_space
+                        and c == " "
+                    ):
                         continue
                 else:
                     self.forceful_newline = False
@@ -123,7 +127,7 @@ fn apply_wrap_to_bytes(owned b: List[Byte], limit: Int) -> List[Byte]:
 # used to immediately wrap a string.
 fn apply_wrap(s: String, limit: Int) -> String:
     var buf = s.as_bytes()
-    var b = apply_wrap_to_bytes(buf ^, limit)
+    var b = apply_wrap_to_bytes(buf^, limit)
     b.append(0)
 
     return String(b)

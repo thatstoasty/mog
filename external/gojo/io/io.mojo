@@ -21,7 +21,9 @@ fn write_string[W: Writer](inout writer: W, string: String) -> Result[Int]:
     return writer.write(string.as_bytes())
 
 
-fn write_string[W: StringWriter](inout writer: W, string: String) -> Result[Int]:
+fn write_string[
+    W: StringWriter
+](inout writer: W, string: String) -> Result[Int]:
     """Writes the contents of the string s to w, which accepts a slice of bytes.
     If w implements [StringWriter], [StringWriter.write_string] is invoked directly.
     Otherwise, [Writer.write] is called exactly once.

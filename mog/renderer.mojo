@@ -5,7 +5,7 @@ from external.mist import Profile
 struct Renderer:
     var color_profile: Profile
 
-    fn __init__(inout self) raises:
+    fn __init__(inout self):
         self.color_profile = Profile()
 
     fn set_color_profile(inout self, value: Int):

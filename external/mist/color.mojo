@@ -10,7 +10,7 @@ struct StringKey(KeyElement):
     var s: String
 
     fn __init__(inout self, owned s: String):
-        self.s = s ^
+        self.s = s^
 
     fn __init__(inout self, s: StringLiteral):
         self.s = String(s)

@@ -66,7 +66,7 @@ fn test_table() raises:
     )
 
 
-fn test_styling() raises:
+fn test_horizontal_joined_paragraphs() raises:
     var test = MojoTest("Testing Style rendering")
     var style = Style()
     style.bold()
@@ -83,7 +83,9 @@ fn test_styling() raises:
 
     var start_time = now()
 
-    print(style.render("You should be able to join blocks of different heights"))
+    print(
+        style.render("You should be able to join blocks of different heights")
+    )
     print(
         join_horizontal(
             position.top,
@@ -91,12 +93,13 @@ fn test_styling() raises:
                 "You should be able to join blocks of different heights"
             ),
             style.render(
-                "Hello World!\nThis is a test of the mog style system. Which can wrap"
-                " lines that are longer than the limit.\n\nYep."
+                "Hello World!\nThis is a test of the mog style system. Which"
+                " can wrap lines that are longer than the limit.\n\nYep."
             ),
             style.render(
-                "This is to validate that more than three blocks can be joined.\nI hope this works!\n"
-                " Lines that are longer than the limit can be a pain.\n\nSome more text."
+                "This is to validate that more than three blocks can be"
+                " joined.\nI hope this works!\n Lines that are longer than the"
+                " limit can be a pain.\n\nSome more text."
             ),
         )
     )
@@ -107,12 +110,13 @@ fn test_styling() raises:
                 "You should be able to join blocks of different heights"
             ),
             style.render(
-                "Hello World!\nThis is a test of the mog style system. Which can wrap"
-                " lines that are longer than the limit.\n\nYep."
+                "Hello World!\nThis is a test of the mog style system. Which"
+                " can wrap lines that are longer than the limit.\n\nYep."
             ),
             style.render(
-                "This is to validate that more than three blocks can be joined.\nI hope this works!\n"
-                " Lines that are longer than the limit can be a pain.\n\nSome more text."
+                "This is to validate that more than three blocks can be"
+                " joined.\nI hope this works!\n Lines that are longer than the"
+                " limit can be a pain.\n\nSome more text."
             ),
         )
     )
@@ -123,27 +127,30 @@ fn test_styling() raises:
                 "You should be able to join blocks of different heights"
             ),
             style.render(
-                "Hello World!\nThis is a test of the mog style system. Which can wrap"
-                " lines that are longer than the limit.\n\nYep."
+                "Hello World!\nThis is a test of the mog style system. Which"
+                " can wrap lines that are longer than the limit.\n\nYep."
             ),
             style.render(
-                "This is to validate that more than three blocks can be joined.\nI hope this works!\n"
-                " Lines that are longer than the limit can be a pain.\n\nSome more text."
+                "This is to validate that more than three blocks can be"
+                " joined.\nI hope this works!\n Lines that are longer than the"
+                " limit can be a pain.\n\nSome more text."
             ),
         )
     )
     var execution_time = now() - start_time
     print("Headered Execution Time: ", execution_time, execution_time / 1e9)
 
+
+fn test_borderless_paragraph() raises:
     var borderless_style = Style()
-    borderless_style.width(75)
+    borderless_style.width(50)
     borderless_style.padding_top(1)
     borderless_style.padding_right(1)
     borderless_style.padding_bottom(1)
     borderless_style.padding_left(1)
 
     borderless_style.horizontal_alignment(position.center)
-    borderless_style.border("no_border")
+    borderless_style.border("hidden_border")
     borderless_style.background("#c9a0dc")
 
     print(
@@ -153,17 +160,19 @@ fn test_styling() raises:
                 "You should be able to join blocks of different heights"
             ),
             borderless_style.render(
-                "Hello World!\nThis is a test of the mog style system. Which can wrap"
-                " lines that are longer than the limit.\n\nYep."
+                "Hello World!\nThis is a test of the mog style system. Which"
+                " can wrap lines that are longer than the limit.\n\nYep."
             ),
             borderless_style.render(
-                "This is to validate that more than three blocks can be joined.\nI hope this works!\n"
-                " Lines that are longer than the limit can be a pain.\n\nSome more text."
+                "This is to validate that more than three blocks can be"
+                " joined.\nI hope this works!\n Lines that are longer than the"
+                " limit can be a pain.\n\nSome more text."
             ),
         )
     )
 
 
 fn main() raises:
-    test_styling()
-    test_table()
+    # test_horizontal_joined_paragraphs()
+    test_borderless_paragraph()
+    # test_table()

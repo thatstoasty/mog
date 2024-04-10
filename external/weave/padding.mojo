@@ -54,7 +54,9 @@ struct Writer(Stringable, io.Writer):
 
     fn pad(inout self):
         if self.padding > 0 and UInt8(self.line_len) < self.padding:
-            var padding = __string__mul__(" ", int(self.padding) - self.line_len)
+            var padding = __string__mul__(
+                " ", int(self.padding) - self.line_len
+            )
             _ = self.ansi_writer.write(padding.as_bytes())
 
     # close will finish the padding operation.
@@ -108,7 +110,7 @@ fn apply_padding_to_bytes(owned b: List[Byte], width: UInt8) -> List[Byte]:
 # used to immediately pad a string.
 fn apply_padding(owned s: String, width: UInt8) -> String:
     var buf = s.as_bytes()
-    var b = apply_padding_to_bytes(buf ^, width)
+    var b = apply_padding_to_bytes(buf^, width)
     b.append(0)
 
     return String(b)

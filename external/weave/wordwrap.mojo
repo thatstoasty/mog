@@ -167,7 +167,7 @@ fn apply_wordwrap_to_bytes(owned b: List[Byte], limit: Int) -> List[Byte]:
 # used to immediately wrap a string.
 fn apply_wordwrap(s: String, limit: Int) -> String:
     var buf = s.as_bytes()
-    var b = apply_wordwrap_to_bytes(buf ^, limit)
+    var b = apply_wordwrap_to_bytes(buf^, limit)
     b.append(0)
 
     return String(b)

@@ -71,8 +71,8 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
             var top_point = n - split
             var bottom_point = n - top_point
 
-            var top_lines = extra_lines[int(top_point):len(extra_lines)]
-            var bottom_lines = extra_lines[int(bottom_point):len(extra_lines)]
+            var top_lines = extra_lines[int(top_point) : len(extra_lines)]
+            var bottom_lines = extra_lines[int(bottom_point) : len(extra_lines)]
             top_lines.extend(blocks[i])
             blocks[i] = top_lines
             blocks[i].extend(bottom_lines)
@@ -86,9 +86,7 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
             _ = builder.write_string(block[i])
 
             # Also make lines the same length
-            var spaces = repeat(
-                " ", max_widths[j] - len_without_ansi(block[i])
-            )
+            var spaces = repeat(" ", max_widths[j] - len_without_ansi(block[i]))
             _ = builder.write_string(spaces)
 
         if i < len(blocks[0]) - 1:
@@ -163,8 +161,8 @@ fn join_horizontal(pos: Position, strs: List[String]) raises -> String:
             var top_point = n - split
             var bottom_point = n - top_point
 
-            var top_lines = extra_lines[int(top_point):len(extra_lines)]
-            var bottom_lines = extra_lines[int(bottom_point):len(extra_lines)]
+            var top_lines = extra_lines[int(top_point) : len(extra_lines)]
+            var bottom_lines = extra_lines[int(bottom_point) : len(extra_lines)]
             top_lines.extend(blocks[i])
             blocks[i] = top_lines
             blocks[i].extend(bottom_lines)
@@ -178,9 +176,7 @@ fn join_horizontal(pos: Position, strs: List[String]) raises -> String:
             _ = builder.write_string(block[i])
 
             # Also make lines the same length
-            var spaces = repeat(
-                "", max_widths[j] - len_without_ansi(block[i])
-            )
+            var spaces = repeat("", max_widths[j] - len_without_ansi(block[i]))
             _ = builder.write_string(spaces)
 
         if i < len(blocks[0]) - 1:
@@ -226,7 +222,7 @@ fn join_vertical(pos: Position, *strs: String) raises -> String:
         var widest: Int = 0
         for i in range(len(lines)):
             var rune_count = len_without_ansi(lines[i])
-            if rune_count> widest:
+            if rune_count > widest:
                 widest = rune_count
 
         blocks.append(lines)

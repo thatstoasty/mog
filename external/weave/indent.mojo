@@ -80,7 +80,9 @@ fn new_writer(indent: UInt8) -> Writer:
 
 # List[Byte] is shorthand for declaring a new default indent-writer instance,
 # used to immediately indent a byte slice.
-fn apply_indent_to_bytes(owned b: List[Byte], indent: UInt8) raises -> List[Byte]:
+fn apply_indent_to_bytes(
+    owned b: List[Byte], indent: UInt8
+) raises -> List[Byte]:
     var f = new_writer(indent)
     _ = f.write(b)
 
@@ -91,7 +93,7 @@ fn apply_indent_to_bytes(owned b: List[Byte], indent: UInt8) raises -> List[Byte
 # used to immediately indent a string.
 fn apply_indent(owned s: String, indent: UInt8) raises -> String:
     var buf = s.as_bytes()
-    var b = apply_indent_to_bytes(buf ^, indent)
+    var b = apply_indent_to_bytes(buf^, indent)
     b.append(0)
 
     return String(b)

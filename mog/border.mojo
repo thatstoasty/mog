@@ -1,6 +1,7 @@
 from external.weave.ansi.ansi import len_without_ansi
 from .size import rune_count_in_string
 
+
 @value
 struct Border:
     var top: String
@@ -277,13 +278,10 @@ fn render_horizontal_edge(
     if middle == "":
         middle_copy = " "
 
-    # TODO: Should be rune length here, just taking len of string for now.
     var left_width = rune_count_in_string(left)
     var right_width = rune_count_in_string(right)
 
-    var runes = List[String]()
-    runes.append(middle_copy)
-
+    var runes = List[String](middle_copy)
     var output: String = left
 
     var i = left_width + right_width
@@ -292,15 +290,10 @@ fn render_horizontal_edge(
         output += runes[j]
         j += 1
 
-        if j >= runes.size:
+        if j >= len(runes):
             j = 0
 
-        # TODO: Should be rune length here, just taking len of string for now.
         i += rune_count_in_string(runes[j])
-        # TODO: Try assuming length of all characters to be 1, despite unicode chars being 1-4 bytes.
-        # This hacky temp fix allows unicode characters to be used in constructing the border.
-        # If the actual length is used, then the border horizontal edge terminates early.
-        # i += 1
 
     output += right
 

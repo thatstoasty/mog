@@ -20,18 +20,18 @@ fn from_string(input_value: String) -> List[String]:
 
 
 fn split(
-    input_string: String, sep: String = " ", owned maxsplit: Int = -1
+    input_string: String, sep: String = " ", owned max_split: Int = -1
 ) raises -> List[String]:
     """The separator can be multiple characters long."""
     var result = List[String]()
-    if maxsplit == 0:
+    if max_split == 0:
         result.append(input_string)
         return result
-    if maxsplit < 0:
-        maxsplit = len(input_string)
+    if max_split < 0:
+        max_split = len(input_string)
 
     if not sep:
-        return from_string(input_string)[0:maxsplit]
+        return from_string(input_string)[0:max_split]
 
     var output = List[String]()
     var start = 0
@@ -43,7 +43,7 @@ fn split(
             start = end + len(sep)
             split_count += 1
 
-            if maxsplit > 0 and split_count >= maxsplit:
+            if max_split > 0 and split_count >= max_split:
                 break
 
     output.append(input_string[start:])

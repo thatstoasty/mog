@@ -9,7 +9,9 @@ fn eq(a: StringRef, b: String) -> Bool:
     alias step = 16
     while (
         l - offset >= step
-        and (p1.load[width=step](offset) == p2.load[width=step](offset)).reduce_and()
+        and (
+            p1.load[width=step](offset) == p2.load[width=step](offset)
+        ).reduce_and()
     ):
         offset += step
     if l - offset >= step:

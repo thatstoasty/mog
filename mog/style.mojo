@@ -142,10 +142,13 @@ struct Style:
     var rules: Dict[String]
     var value: String
 
-    fn __init__(inout self) raises:
+    fn __init__(inout self):
         self.r = Renderer()
         self.rules = Dict[String]()
         self.value = ""
+
+    fn new(self) -> Self:
+        return Self()
 
     fn get_as_bool(self, key: String, default: Bool) -> Bool:
         # TODO: This is failing with an out of bounds error. Must be a bug with Dict?
@@ -331,9 +334,9 @@ struct Style:
             return text.replace("\t", repeat(" ", default_tab_width))
 
     fn style_border(self, border: String, fg: String, bg: String) -> String:
-        var styler = TerminalStyle.new(self.r.color_profile).foreground(fg).background(
-            bg
-        )
+        var styler = TerminalStyle.new(self.r.color_profile).foreground(
+            fg
+        ).background(bg)
 
         return styler.render(border)
 
@@ -475,7 +478,9 @@ struct Style:
                 if right_index >= len(right_runes):
                     right_index = 0
 
-                _ = builder.write_string(self.style_border(r, right_fg, right_bg))
+                _ = builder.write_string(
+                    self.style_border(r, right_fg, right_bg)
+                )
 
             if i < len(lines) - 1:
                 _ = builder.write_string("\n")
@@ -554,19 +559,27 @@ struct Style:
         var bottom_padding: Int = self.get_as_int("padding_bottom")
         var left_padding: Int = self.get_as_int("padding_left")
 
-        var horizontal_align: Position = self.get_as_position("horizontal_alignment")
-        var vertical_align: Position = self.get_as_position("vertical_alignment")
+        var horizontal_align: Position = self.get_as_position(
+            "horizontal_alignment"
+        )
+        var vertical_align: Position = self.get_as_position(
+            "vertical_alignment"
+        )
 
         var color_whitespace: Bool = self.get_as_bool("color_whitespace", True)
         var inline: Bool = self.get_as_bool("inline", False)
         var max_width: Int = self.get_as_int("max_width")
         var max_height: Int = self.get_as_int("max_height")
 
-        var underline_spaces = underline and self.get_as_bool("underline_spaces", True)
-        var crossout_spaces = crossout and self.get_as_bool("crossout_spaces", True)
+        var underline_spaces = underline and self.get_as_bool(
+            "underline_spaces", True
+        )
+        var crossout_spaces = crossout and self.get_as_bool(
+            "crossout_spaces", True
+        )
 
         # Do we need to style whitespace (padding and space outside paragraphs) separately?
-        var style_whitespace = reverse
+        var use_whitespace_styler = reverse
 
         # Do we need to style spaces separately?
         var use_space_styler = underline_spaces or crossout_spaces
@@ -583,6 +596,7 @@ struct Style:
             term_style = term_style.underline()
         if reverse:
             term_style = term_style.reverse()
+            term_style_whitespace = term_style_whitespace.reverse()
         if blink:
             term_style = term_style.blink()
         if faint:
@@ -592,8 +606,16 @@ struct Style:
 
         if fg != "":
             term_style = term_style.foreground(fg)
+            if use_space_styler:
+                term_style_space = term_style_space.foreground(fg)
+            if use_whitespace_styler:
+                term_style_whitespace = term_style_whitespace.foreground(fg)
         if bg != "":
             term_style = term_style.background(bg)
+            if use_space_styler:
+                term_style_space = term_style_space.background(bg)
+            if color_whitespace:
+                term_style_whitespace = term_style_whitespace.background(bg)
 
         if underline_spaces:
             term_style = term_style_space.underline()
@@ -607,7 +629,9 @@ struct Style:
         if (not inline) and (width > 0):
             var wrap_at = width - left_padding - right_padding
             input_text = wordwrap.apply_wordwrap(input_text, wrap_at)
-            input_text = wrap.apply_wrap(input_text, wrap_at)  # force-wrap long strings
+            input_text = wrap.apply_wrap(
+                input_text, wrap_at
+            )  # force-wrap long strings
 
         input_text = self.maybe_convert_tabs(input_text)
 
@@ -620,7 +644,9 @@ struct Style:
                 for i in range(len_without_ansi(line)):
                     var character = line[i]
                     if character == " ":
-                        _ = builder.write_string(term_style_space.render(character))
+                        _ = builder.write_string(
+                            term_style_space.render(character)
+                        )
                     else:
                         _ = builder.write_string(term_style.render(character))
             else:
@@ -636,13 +662,13 @@ struct Style:
         if not inline:
             if left_padding > 0:
                 var style = TerminalStyle(self.r.color_profile)
-                if color_whitespace or style_whitespace:
+                if color_whitespace or use_whitespace_styler:
                     style = term_style_whitespace
                 styled_text = pad_left(styled_text, left_padding, style)
 
             if right_padding > 0:
                 var style = TerminalStyle(self.r.color_profile)
-                if color_whitespace or style_whitespace:
+                if color_whitespace or use_whitespace_styler:
                     style = term_style_whitespace
                 styled_text = pad_right(styled_text, right_padding, style)
 
@@ -654,7 +680,9 @@ struct Style:
 
         # Alignment
         if height > 0:
-            styled_text = align_text_vertical(styled_text, vertical_align, height)
+            styled_text = align_text_vertical(
+                styled_text, vertical_align, height
+            )
 
         # Truncate according to max_width
         if max_width > 0:
@@ -668,7 +696,7 @@ struct Style:
         # Truncate according to max_height
         if max_height > 0:
             var lines = styled_text.split("\n")
-            var truncated_lines = lines[0:min(max_height, len(lines))]
+            var truncated_lines = lines[0 : min(max_height, len(lines))]
             styled_text = join("\n", truncated_lines)
 
         # if transform:
@@ -678,7 +706,7 @@ struct Style:
         var number_of_lines = len(styled_text.split("\n"))
         if not (number_of_lines == 0 and width == 0):
             var style = TerminalStyle(self.r.color_profile)
-            if color_whitespace or style_whitespace:
+            if color_whitespace or use_whitespace_styler:
                 style = term_style_whitespace
             styled_text = align_text_horizontal(
                 styled_text, horizontal_align, width, style

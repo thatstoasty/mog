@@ -148,7 +148,8 @@ struct Buffer(
     fn try_grow_by_reslice(inout self, n: Int) -> (Int, Bool):
         """Inlineable version of grow for the fast-case where the
         internal buffer only needs to be resliced.
-        It returns the index where bytes should be written and whether it succeeded."""
+        It returns the index where bytes should be written and whether it succeeded.
+        """
         var buffer_already_used = len(self.buf)
 
         if n <= self.buf.capacity - buffer_already_used:
@@ -351,7 +352,9 @@ struct Buffer(
 
             # all bytes should have been written, by definition of write method in io.Writer
             if bytes_written != bytes_to_write:
-                return Result(total_bytes_written, WrappedError(ERR_SHORT_WRITE))
+                return Result(
+                    total_bytes_written, WrappedError(ERR_SHORT_WRITE)
+                )
 
         # Buffer is now empty; reset.
         self.reset()
@@ -515,8 +518,8 @@ struct Buffer(
         """
         if self.last_read == OP_INVALID:
             return WrappedError(
-                "buffer.Buffer: unread_byte: previous operation was not a successful"
-                " read"
+                "buffer.Buffer: unread_byte: previous operation was not a"
+                " successful read"
             )
 
         self.last_read = OP_INVALID
@@ -607,7 +610,7 @@ fn new_buffer() -> Buffer:
     sufficient to initialize a [Buffer].
     """
     var b = List[Byte](capacity=BUFFER_SIZE)
-    return Buffer(b ^)
+    return Buffer(b^)
 
 
 fn new_buffer(owned buf: List[Byte]) -> Buffer:
@@ -627,7 +630,7 @@ fn new_buffer(owned buf: List[Byte]) -> Buffer:
     Returns:
         A new [Buffer] initialized with the provided bytes.
     """
-    return Buffer(buf ^)
+    return Buffer(buf^)
 
 
 fn new_buffer(owned s: String) -> Buffer:
@@ -645,4 +648,4 @@ fn new_buffer(owned s: String) -> Buffer:
         A new [Buffer] initialized with the provided string.
     """
     var bytes_buffer = List[Byte](s.as_bytes())
-    return Buffer(bytes_buffer ^)
+    return Buffer(bytes_buffer^)

@@ -27,7 +27,7 @@ fn printable_rune_width(s: String) -> Int:
         else:
             n += rune_count_in_string(c)
 
-    return n # Assume all characters have a printable length of 1 for now
+    return n  # Assume all characters have a printable length of 1 for now
 
 
 from algorithm.functional import vectorize
@@ -36,6 +36,7 @@ from sys.info import simdwidthof
 
 
 alias simd_width_u8 = simdwidthof[DType.uint8]()
+
 
 fn rune_count_in_string(s: String) -> Int:
     var p = s._as_ptr().bitcast[DType.uint8]()
@@ -58,14 +59,16 @@ fn rune_count_in_string(s: String) -> Int:
 # The default lowest and highest continuation byte.
 alias locb = 0b10000000
 alias hicb = 0b10111111
-alias RUNE_SELF  = 0x80 # Characters below RuneSelf are represented as themselves in a single byte
+alias RUNE_SELF = 0x80  # Characters below RuneSelf are represented as themselves in a single byte
+
 
 # acceptRange gives the range of valid values for the second byte in a UTF-8
 # sequence.
 @value
 struct AcceptRange(CollectionElement):
-	var lo: UInt8 # lowest value for second byte.
-	var hi: UInt8 # highest value for second byte.
+    var lo: UInt8  # lowest value for second byte.
+    var hi: UInt8  # highest value for second byte.
+
 
 # ACCEPT_RANGES has size 16 to avoid bounds checks in the code that uses it.
 alias ACCEPT_RANGES = List[AcceptRange](
@@ -80,38 +83,279 @@ alias ACCEPT_RANGES = List[AcceptRange](
 # table below. The first nibble is an index into acceptRanges or F for
 # special one-byte cases. The second nibble is the Rune length or the
 # Status for the special one-byte case.
-alias xx = 0xF1 # invalid: size 1
-alias as1 = 0xF0 # ASCII: size 1
-alias s1 = 0x02 # accept 0, size 2
-alias s2 = 0x13 # accept 1, size 3
-alias s3 = 0x03 # accept 0, size 3
-alias s4 = 0x23 # accept 2, size 3
-alias s5 = 0x34 # accept 3, size 4
-alias s6 = 0x04 # accept 0, size 4
-alias s7 = 0x44 # accept 4, size 4
+alias xx = 0xF1  # invalid: size 1
+alias as1 = 0xF0  # ASCII: size 1
+alias s1 = 0x02  # accept 0, size 2
+alias s2 = 0x13  # accept 1, size 3
+alias s3 = 0x03  # accept 0, size 3
+alias s4 = 0x23  # accept 2, size 3
+alias s5 = 0x34  # accept 3, size 4
+alias s6 = 0x04  # accept 0, size 4
+alias s7 = 0x44  # accept 4, size 4
 
 
 # first is information about the first byte in a UTF-8 sequence.
 var first = List[UInt8](
-	#   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
-	as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, # 0x00-0x0F
-	as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, # 0x10-0x1F
-	as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, # 0x20-0x2F
-	as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, # 0x30-0x3F
-	as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, # 0x40-0x4F
-	as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, # 0x50-0x5F
-	as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, # 0x60-0x6F
-	as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, as1, # 0x70-0x7F
-	#   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
-	xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, # 0x80-0x8F
-	xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, # 0x90-0x9F
-	xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, # 0xA0-0xAF
-	xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, # 0xB0-0xBF
-	xx, xx, s1, s1, s1, s1, s1, s1, s1, s1, s1, s1, s1, s1, s1, s1, # 0xC0-0xCF
-	s1, s1, s1, s1, s1, s1, s1, s1, s1, s1, s1, s1, s1, s1, s1, s1, # 0xD0-0xDF
-	s2, s3, s3, s3, s3, s3, s3, s3, s3, s3, s3, s3, s3, s4, s3, s3, # 0xE0-0xEF
-	s5, s6, s6, s6, s7, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, xx, # 0xF0-0xFF
+    #   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,  # 0x00-0x0F
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,  # 0x10-0x1F
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,  # 0x20-0x2F
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,  # 0x30-0x3F
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,  # 0x40-0x4F
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,  # 0x50-0x5F
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,  # 0x60-0x6F
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,
+    as1,  # 0x70-0x7F
+    #   1   2   3   4   5   6   7   8   9   A   B   C   D   E   F
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,  # 0x80-0x8F
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,  # 0x90-0x9F
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,  # 0xA0-0xAF
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,  # 0xB0-0xBF
+    xx,
+    xx,
+    s1,
+    s1,
+    s1,
+    s1,
+    s1,
+    s1,
+    s1,
+    s1,
+    s1,
+    s1,
+    s1,
+    s1,
+    s1,
+    s1,  # 0xC0-0xCF
+    s1,
+    s1,
+    s1,
+    s1,
+    s1,
+    s1,
+    s1,
+    s1,
+    s1,
+    s1,
+    s1,
+    s1,
+    s1,
+    s1,
+    s1,
+    s1,  # 0xD0-0xDF
+    s2,
+    s3,
+    s3,
+    s3,
+    s3,
+    s3,
+    s3,
+    s3,
+    s3,
+    s3,
+    s3,
+    s3,
+    s3,
+    s4,
+    s3,
+    s3,  # 0xE0-0xEF
+    s5,
+    s6,
+    s6,
+    s6,
+    s7,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,
+    xx,  # 0xF0-0xFF
 )
+
 
 # RuneCountInString is like [RuneCount] but its input is a string.
 fn RuneCountInString(s: String) -> Int:
@@ -129,20 +373,20 @@ fn RuneCountInString(s: String) -> Int:
 
         var x = first[new_ord(c)]
         if x == xx:
-            i += 1 # invalid.
+            i += 1  # invalid.
             n += 1
             continue
 
         var size = int(x & 7)
         if i + size > ns:
-            i += 1 # Short or invalid.
+            i += 1  # Short or invalid.
             n += 1
             continue
 
-        var accept = ACCEPT_RANGES[int(x>>4)]
-        var c1 = new_ord(s[i+1])
-        var c2 = new_ord(s[i+2])
-        var c3 = new_ord(s[i+3])
+        var accept = ACCEPT_RANGES[int(x >> 4)]
+        var c1 = new_ord(s[i + 1])
+        var c2 = new_ord(s[i + 2])
+        var c3 = new_ord(s[i + 3])
         if c1 < int(accept.lo) or accept.hi < c1:
             size = 1
         elif size == 2:
@@ -257,13 +501,13 @@ fn new_chr(c: Int) -> String:
 
 
 fn _utf8_len(val: Int) -> Int:
-        debug_assert(val > 0x10FFFF, "Value is not a valid Unicode code point")
-        alias sizes = SIMD[DType.int32, 4](
-            0, 0b1111_111, 0b1111_1111_111, 0b1111_1111_1111_1111
-        )
-        var values = SIMD[DType.int32, 4](val)
-        var mask = values > sizes
-        return mask.cast[DType.uint8]().reduce_add().to_int()
+    debug_assert(val > 0x10FFFF, "Value is not a valid Unicode code point")
+    alias sizes = SIMD[DType.int32, 4](
+        0, 0b1111_111, 0b1111_1111_111, 0b1111_1111_1111_1111
+    )
+    var values = SIMD[DType.int32, 4](val)
+    var mask = values > sizes
+    return mask.cast[DType.uint8]().reduce_add().to_int()
 
 
 fn shift(s: String) -> Int:

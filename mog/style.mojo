@@ -519,6 +519,80 @@ struct Style:
         new_style.set_rule(PADDING_LEFT_KEY, width)
         return new_style
 
+    fn margin(self, *widths: Int) -> Style:
+        """Shorthand method for setting padding on all sides at once.
+
+        With one argument, the value is applied to all sides.
+
+        With two arguments, the value is applied to the vertical and horizontal
+        sides, in that order.
+
+        With three arguments, the value is applied to the top side, the horizontal
+        sides, and the bottom side, in that order.
+
+        With four arguments, the value is applied clockwise starting from the top
+        side, followed by the right side, then the bottom, and finally the left.
+
+        With more than four arguments no padding will be added.
+
+        Args:
+            widths: The padding widths to apply.
+        """
+        var top = 0
+        var bottom = 0
+        var left = 0
+        var right = 0
+        var new_style = self.copy()
+        var widths_specified = len(widths)
+        if widths_specified == 1:
+            top = widths[0]
+            bottom = widths[0]
+            left = widths[0]
+            right = widths[0]
+        elif widths_specified == 2:
+            top = widths[0]
+            bottom = widths[0]
+            left = widths[1]
+            right = widths[1]
+        elif widths_specified == 3:
+            top = widths[0]
+            left = widths[1]
+            right = widths[1]
+            bottom = widths[2]
+        elif widths_specified == 4:
+            top = widths[0]
+            right = widths[1]
+            bottom = widths[2]
+            left = widths[3]
+        else:
+            return new_style
+
+        new_style = new_style.margin_top(top) \
+        .padding_right(right) \
+        .margin_bottom(bottom) \
+        .margin_left(left)
+        return new_style
+
+    fn margin_top(self, width: Int) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule(MARGIN_TOP_KEY, width)
+        return new_style
+
+    fn margin_right(self, width: Int) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule(MARGIN_RIGHT_KEY, width)
+        return new_style
+
+    fn margin_bottom(self, width: Int) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule(MARGIN_BOTTOM_KEY, width)
+        return new_style
+
+    fn margin_left(self, width: Int) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule(MARGIN_LEFT_KEY, width)
+        return new_style
+
     fn maybe_convert_tabs(self, text: String) raises -> String:
         var DEFAULT_TAB_WIDTH: Int = tab_width
         if self.is_set(TAB_WIDTH_KEY):
@@ -532,19 +606,6 @@ struct Style:
             return text.replace("\t", repeat(" ", DEFAULT_TAB_WIDTH))
 
     fn style_border(self, border: String, fg: AnyColor, bg: AnyColor) -> String:
-        # return self.rules.get(key, "")
-        # var result = self.rules.get(key, "")
-        # if result == "":
-        #     return NoColor()
-
-        # if result[0] == "#":
-        #     return RGBColor(result)
-
-        # var ansi_code = atol(result)
-        # if ansi_code > 16:
-        #     return ANSI256Color(ansi_code)
-        # else:
-        #     return ANSIColor(ansi_code)
         var fg_code: String = ""
         if fg.isa[NoColor]():
             pass
@@ -749,8 +810,8 @@ struct Style:
             var width: Int = 0
             for i in range(len(lines)):
                 # TODO: Should be rune length instead of str length. Some runes are longer than 1 char.
-                if len(lines[i]) > width:
-                    width = len(lines[i])
+                if printable_rune_width(lines[i]) > width:
+                    width = printable_rune_width(lines[i])
 
             var spaces = repeat(" ", width)
 

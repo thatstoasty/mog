@@ -140,10 +140,7 @@ fn test_horizontal_joined_paragraphs() raises:
 fn test_borderless_paragraph() raises:
     var borderless_style = Style.new(). \
     width(50). \
-    padding_top(1). \
-    padding_right(1). \
-    padding_bottom(1). \
-    padding_left(1). \
+    padding(1, 2). \
     horizontal_alignment(position.center). \
     border(hidden_border()). \
     background("#c9a0dc")

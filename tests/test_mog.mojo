@@ -168,6 +168,6 @@ fn test_borderless_paragraph() raises:
 
 
 fn main() raises:
-    # test_horizontal_joined_paragraphs()
-    test_borderless_paragraph()
+    test_horizontal_joined_paragraphs()
+    # test_borderless_paragraph()
     # test_table()

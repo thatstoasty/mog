@@ -195,17 +195,17 @@ fn pad_right(text: String, n: Int, style: TerminalStyle) raises -> String:
     return padded_text
 
 
-fn get_sequence_from_anycolor(color: AnyColor, is_background: Bool) -> String:
+fn get_value_from_anycolor(color: AnyColor, is_background: Bool) -> String:
     var code: String = ""
     if color.isa[NoColor]():
         return code
 
     if color.isa[ANSIColor]():
-        return color.take[ANSIColor]().sequence(True)
+        return color.get[ANSIColor]()[].value
     elif color.isa[ANSI256Color]():
-        return color.take[ANSI256Color]().sequence(True)
+        return color.get[ANSI256Color]()[].value
     elif color.isa[RGBColor]():
-        return color.take[RGBColor]().sequence(True)
+        return color.get[RGBColor]()[].value
 
     return code
 
@@ -243,11 +243,10 @@ struct Style:
 
         return default
 
-    fn get_as_color(self, key: String, default: AnyColor = NoColor()) -> AnyColor:
+    fn get_as_color(self, key: String, default: AnyColor) -> AnyColor:
         var result = self.rules.get(key, default)
         if result.isa[AnyColor]():
-            var val = result.take[AnyColor]()
-            return val
+            return result.take[AnyColor]()
 
         return default
 
@@ -405,6 +404,7 @@ struct Style:
     fn background(self, color: String) -> Style:
         var new_style = self.copy()
         new_style.set_rule(BACKGROUND_KEY, self.renderer.color_profile.color(color))
+
         return new_style
 
     fn border(
@@ -431,18 +431,18 @@ struct Style:
 
     fn border_foreground(self, color: String) -> Style:
         var new_style = self.copy()
-        new_style.set_rule(BORDER_TOP_FOREGROUND_KEY, color)
-        new_style.set_rule(BORDER_RIGHT_FOREGROUND_KEY, color)
-        new_style.set_rule(BORDER_BOTTOM_FOREGROUND_KEY, color)
-        new_style.set_rule(BORDER_LEFT_FOREGROUND_KEY, color)
+        new_style.set_rule(BORDER_TOP_FOREGROUND_KEY, self.renderer.color_profile.color(color))
+        new_style.set_rule(BORDER_RIGHT_FOREGROUND_KEY, self.renderer.color_profile.color(color))
+        new_style.set_rule(BORDER_BOTTOM_FOREGROUND_KEY, self.renderer.color_profile.color(color))
+        new_style.set_rule(BORDER_LEFT_FOREGROUND_KEY, self.renderer.color_profile.color(color))
         return new_style
 
     fn border_background(self, color: String) -> Style:
         var new_style = self.copy()
-        new_style.set_rule(BORDER_TOP_BACKGROUND_KEY, color)
-        new_style.set_rule(BORDER_RIGHT_BACKGROUND_KEY, color)
-        new_style.set_rule(BORDER_BOTTOM_BACKGROUND_KEY, color)
-        new_style.set_rule(BORDER_LEFT_BACKGROUND_KEY, color)
+        new_style.set_rule(BORDER_TOP_BACKGROUND_KEY, self.renderer.color_profile.color(color))
+        new_style.set_rule(BORDER_RIGHT_BACKGROUND_KEY, self.renderer.color_profile.color(color))
+        new_style.set_rule(BORDER_BOTTOM_BACKGROUND_KEY, self.renderer.color_profile.color(color))
+        new_style.set_rule(BORDER_LEFT_BACKGROUND_KEY, self.renderer.color_profile.color(color))
         return new_style
 
     fn padding(self, *widths: Int) -> Style:
@@ -549,21 +549,21 @@ struct Style:
         if fg.isa[NoColor]():
             pass
         elif fg.isa[ANSIColor]():
-            fg_code = fg.take[ANSIColor]().sequence(False)
+            fg_code = fg.take[ANSIColor]().value
         elif fg.isa[ANSI256Color]():
-            fg_code = fg.take[ANSI256Color]().sequence(False)
+            fg_code = fg.take[ANSI256Color]().value
         elif fg.isa[RGBColor]():
-            fg_code = fg.take[RGBColor]().sequence(False)
+            fg_code = fg.take[RGBColor]().value
 
         var bg_code: String = ""
         if bg.isa[NoColor]():
             pass
         elif bg.isa[ANSIColor]():
-            bg_code = bg.take[ANSIColor]().sequence(True)
+            bg_code = bg.take[ANSIColor]().value
         elif bg.isa[ANSI256Color]():
-            bg_code = bg.take[ANSI256Color]().sequence(True)
+            bg_code = bg.take[ANSI256Color]().value
         elif bg.isa[RGBColor]():
-            bg_code = bg.take[RGBColor]().sequence(True)
+            bg_code = bg.take[RGBColor]().value
 
         var styler = TerminalStyle.new(self.renderer.color_profile).foreground(
             fg_code
@@ -737,7 +737,7 @@ struct Style:
         var bgc = self.get_as_color(MARGIN_BACKGROUND_KEY, NoColor())
 
         if not bgc.isa[NoColor]():
-            styler = styler.background(get_sequence_from_anycolor(bgc, True))
+            styler = styler.background(get_value_from_anycolor(bgc, True))
 
         # Add left and right margin
         padded_text = pad_left(padded_text, left_margin, styler)
@@ -833,14 +833,14 @@ struct Style:
             term_style = term_style.crossout()
 
         if not fg.isa[NoColor]():
-            var fg_code = get_sequence_from_anycolor(fg, False)
+            var fg_code = get_value_from_anycolor(fg, False)
             term_style = term_style.foreground(fg_code)
             if use_space_styler:
                 term_style_space = term_style_space.foreground(fg_code)
             if use_whitespace_styler:
                 term_style_whitespace = term_style_whitespace.foreground(fg_code)
         if not bg.isa[NoColor]():
-            var bg_code = get_sequence_from_anycolor(fg, True)
+            var bg_code = get_value_from_anycolor(bg, True)
             term_style = term_style.background(bg_code)
             if use_space_styler:
                 term_style_space = term_style_space.background(bg_code)

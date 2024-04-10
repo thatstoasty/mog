@@ -532,7 +532,26 @@ fn shift(s: String) -> Int:
     return result
 
 
+from math.bit import ctlz
+
+fn string_iterator(s: String, it: fn (String)->None):
+    var bytes = len(s)
+    var p = s._as_ptr().bitcast[DType.uint8]()
+    while bytes > 0:
+        var char_length = ((p.load() >> 7 == 0).cast[DType.uint8]() * 1 + ctlz(~p.load())).to_int()
+        var sp = DTypePointer[DType.int8].alloc(char_length + 1)
+        memcpy(sp, p.bitcast[DType.int8](), char_length)
+        sp[char_length] = 0
+        it(String(sp, char_length + 1))
+        bytes -= char_length
+        p += char_length
+
+
 fn main():
+    fn print_str(s: String):
+        print(s)
+    string_iterator("Hello World", print_str)
+    string_iterator("Hello 🔥, How is it 🦵🏼 today?", print_str)
     # var corner: String = "╭"
     # for i in corner.as_bytes():
     #     print(i[])

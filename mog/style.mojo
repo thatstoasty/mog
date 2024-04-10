@@ -141,20 +141,23 @@ struct Style:
     var renderer: Renderer
     var rules: Dict[String]
 
-    fn __init__(
-        inout self,
-        renderer: Renderer = Renderer(),
-        rules: Dict[String] = Dict[String](),
-    ):
+    fn __init__(inout self, renderer: Renderer = Renderer()):
+        """Initialize a new Style object.
+
+        Args:
+            renderer: The renderer to use for rendering the style. Will query terminal for profile by default.
+        """
         self.renderer = Renderer()
         self.rules = Dict[String]()
 
     @staticmethod
-    fn new(
-        renderer: Renderer = Renderer(),
-        rules: Dict[String] = Dict[String](),
-    ) -> Self:
-        return Self(renderer, rules)
+    fn new(renderer: Renderer = Renderer()) -> Self:
+        """Create a new Style object. Use this instead of init.
+
+        Args:
+            renderer: The renderer to use for rendering the style. Will query terminal for profile by default.
+        """
+        return Self(renderer,)
 
     fn get_as_bool(self, key: String, default: Bool) -> Bool:
         var result = self.rules.get(key, String(default))

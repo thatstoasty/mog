@@ -110,7 +110,14 @@ fn main() raises:
     border_style.foreground("238")
     # var table = mog.new_table()
     var table = mog.Table(
-        style_function=make_style_func[style, header_style, selected_style, type_colors, dim_type_colors, data](),
+        style_function=make_style_func[
+            style,
+            header_style,
+            selected_style,
+            type_colors,
+            dim_type_colors,
+            data,
+        ](),
         border=rounded_border(),
         border_style=border_style,
         border_bottom=True,

@@ -42,7 +42,7 @@ alias PropertyKey = Int
 alias BOLD_KEY: PropertyKey = 0
 alias ITALIC_KEY: PropertyKey = 1
 alias UNDERLINE_KEY: PropertyKey = 2
-alias crossout_KEY: PropertyKey = 3
+alias CROSSOUT_KEY: PropertyKey = 3
 alias REVERSE_KEY: PropertyKey = 4
 alias BLINK_KEY: PropertyKey = 5
 alias FAINT_KEY: PropertyKey = 6
@@ -212,8 +212,13 @@ fn get_value_from_anycolor(color: AnyColor, is_background: Bool) -> String:
 
 alias Rule = Variant[Bool, Border, Int, Position, AnyColor]
 
+
 @value
 struct Style:
+    """Terminal styler.
+
+    More documentation to come."""
+
     var renderer: Renderer
     var rules: Dict[Rule]
 
@@ -233,9 +238,20 @@ struct Style:
         Args:
             renderer: The renderer to use for rendering the style. Will query terminal for profile by default.
         """
-        return Self(renderer,)
+        return Self(
+            renderer,
+        )
 
     fn get_as_bool(self, key: String, default: Bool = False) -> Bool:
+        """Get a rule as a boolean value.
+
+        Args:
+            key: The key to get.
+            default: The default value to return if the rule is not set.
+
+        Returns:
+            The boolean value.
+        """
         var result = self.rules.get(key, default)
         if result.isa[Bool]():
             var val = result.take[Bool]()
@@ -244,27 +260,31 @@ struct Style:
         return default
 
     fn get_as_color(self, key: String, default: AnyColor) -> AnyColor:
+        """Get a rule as an AnyColor value.
+
+        Args:
+            key: The key to get.
+            default: The default value to return if the rule is not set.
+
+        Returns:
+            The color value.
+        """
         var result = self.rules.get(key, default)
         if result.isa[AnyColor]():
             return result.take[AnyColor]()
 
         return default
 
-        # return self.rules.get(key, "")
-        # var result = self.rules.get(key, "")
-        # if result == "":
-        #     return NoColor()
+    fn get_as_int(self, key: String, default: Int = 0) -> Int:
+        """Get a rule as an integer value.
 
-        # if result[0] == "#":
-        #     return RGBColor(result)
+        Args:
+            key: The key to get.
+            default: The default value to return if the rule is not set.
 
-        # var ansi_code = atol(result)
-        # if ansi_code > 16:
-        #     return ANSI256Color(ansi_code)
-        # else:
-        #     return ANSIColor(ansi_code)
-
-    fn get_as_int(self, key: String, default: Int = 0) raises -> Int:
+        Returns:
+            The integer value.
+        """
         var result = self.rules.get(key, default)
         if result.isa[Int]():
             var val = result.take[Int]()
@@ -272,7 +292,16 @@ struct Style:
 
         return default
 
-    fn get_as_position(self, key: String, default: Position = 0) raises -> Position:
+    fn get_as_position(self, key: String, default: Position = 0) -> Position:
+        """Get a rule as a Position value.
+
+        Args:
+            key: The key to get.
+            default: The default value to return if the rule is not set.
+
+        Returns:
+            The Position value.
+        """
         var result = self.rules.get(key, default)
         if result.isa[Position]():
             var val = result.take[Position]()
@@ -280,130 +309,247 @@ struct Style:
 
         return default
 
-    fn get_border_style(self, default: Border = Border()) raises -> Border:
+    fn get_border_style(self, default: Border = Border()) -> Border:
+        """Get the Border style rule.
+
+        Args:
+            default: The default value to return if the rule is not set.
+
+        Returns:
+            The Border style.
+        """
         var result = self.rules.get(BORDER_STYLE_KEY, default)
         if result.isa[Border]():
             var val = result.take[Border]()
             return val
 
         return default
-        # var val = self.rules.get(BORDER_STYLE_KEY, "")
-        # if val == "":
-        #     return no_border()
-
-        # if val == "no_border":
-        #     return no_border()
-        # elif val == "hidden_border":
-        #     return hidden_border()
-        # elif val == "double_border":
-        #     return double_border()
-        # elif val == "rounded_border":
-        #     return rounded_border()
-        # elif val == "normal_border":
-        #     return normal_border()
-        # elif val == "block_border":
-        #     return block_border()
-        # elif val == "inner_half_block_border":
-        #     return inner_half_block_border()
-        # elif val == "outer_half_block_border":
-        #     return outer_half_block_border()
-        # elif val == "thick_border":
-        #     return thick_border()
-        # elif val == "ascii_border":
-        #     return ascii_border()
-        # elif val == "star_border":
-        #     return star_border()
-        # elif val == "plus_border":
-        #     return plus_border()
-        # else:
-        #     return no_border()
 
     fn is_set(self, key: PropertyKey) -> Bool:
+        """Check if a rule is set on the style.
+
+        Args:
+            key: The key to check.
+
+        Returns:
+            True if the rule is set, False otherwise.
+        """
         for i in range(len(self.rules.keys)):
             if String(self.rules.keys[i]) == key:
                 return True
 
         return False
 
-    fn set_rule(inout self, key: PropertyKey, value: Rule):
+    fn set_rule(inout self, key: PropertyKey, value: Rule) -> None:
+        """Set a rule on the style.
+
+        Args:
+            key: The key to set.
+            value: The value to set.
+        """
         self.rules.put(key, value)
 
     fn bold(self) -> Style:
+        """Set the text to be bold.
+
+        Returns:
+            A new Style object with the bold rule set.
+        """
         var new_style = self.copy()
         new_style.set_rule(BOLD_KEY, True)
         return new_style
 
     fn italic(self) -> Style:
+        """Set the text to be italic.
+
+        Returns:
+            A new Style object with the italic rule set.
+        """
         var new_style = self.copy()
         new_style.set_rule(ITALIC_KEY, True)
         return new_style
 
     fn underline(self) -> Style:
+        """Set the text to be underline.
+
+        Returns:
+            A new Style object with the underline rule set.
+        """
         var new_style = self.copy()
         new_style.set_rule(UNDERLINE_KEY, True)
         return new_style
 
     fn crossout(self) -> Style:
+        """Set the text to be crossed out.
+
+        Returns:
+            A new Style object with the crossout rule set.
+        """
         var new_style = self.copy()
-        new_style.set_rule(crossout_KEY, True)
+        new_style.set_rule(CROSSOUT_KEY, True)
         return new_style
 
     fn reverse(self) -> Style:
+        """Set the text have the foreground and background colors reversed.
+
+        Returns:
+            A new Style object with the reverse rule set.
+        """
         var new_style = self.copy()
         new_style.set_rule(REVERSE_KEY, True)
         return new_style
 
     fn blink(self) -> Style:
+        """Set the text to blink.
+
+        Returns:
+            A new Style object with the blink rule set.
+        """
         var new_style = self.copy()
         new_style.set_rule(BLINK_KEY, True)
         return new_style
 
     fn faint(self) -> Style:
+        """Set the text to be faint.
+
+        Returns:
+            A new Style object with the faint rule set.
+        """
         var new_style = self.copy()
         new_style.set_rule(FAINT_KEY, True)
         return new_style
 
     fn width(self, width: Int) -> Style:
+        """Set the width of the text.
+
+        Args:
+            width: The width to apply.
+
+        Returns:
+            A new Style object with the width rule set.
+        """
         var new_style = self.copy()
         new_style.set_rule(WIDTH_KEY, width)
         return new_style
 
     fn height(self, height: Int) -> Style:
+        """Set the height of the text.
+
+        Args:
+            height: The height to apply.
+
+        Returns:
+            A new Style object with the height rule set.
+        """
         var new_style = self.copy()
         new_style.set_rule(HEIGHT_KEY, height)
         return new_style
 
     fn max_width(self, width: Int) -> Style:
+        """Set the maximum width of the text.
+
+        Args:
+            width: The maximum height to apply.
+
+        Returns:
+            A new Style object with the maximum width rule set.
+        """
         var new_style = self.copy()
         new_style.set_rule(MAX_WIDTH_KEY, width)
         return new_style
 
     fn max_height(self, height: Int) -> Style:
+        """Set the maximum height of the text.
+
+        Args:
+            height: The maximum height to apply.
+
+        Returns:
+            A new Style object with the maximum height rule set.
+        """
         var new_style = self.copy()
         new_style.set_rule(MAX_HEIGHT_KEY, height)
         return new_style
 
     fn horizontal_alignment(self, align: Position) -> Style:
+        """Set the horizontal alignment of the text.
+
+        Args:
+            align: The alignment value to apply.
+
+        Returns:
+            A new Style object with the alignment rule set.
+        """
         var new_style = self.copy()
         new_style.set_rule(HORIZONTAL_ALIGNMENT_KEY, align)
         return new_style
 
     fn vertical_alignment(self, align: Position) -> Style:
+        """Set the vertical alignment of the text.
+
+        Args:
+            align: The alignment value to apply.
+
+        Returns:
+            A new Style object with the alignment rule set.
+        """
         var new_style = self.copy()
         new_style.set_rule(VERTICAL_ALIGNMENT_KEY, align)
+        return new_style
+
+    fn alignment(self, *align: Position) -> Style:
+        """Align is a shorthand method for setting horizontal and vertical alignment.
+
+        With one argument, the position value is applied to the horizontal alignment.
+
+        With two arguments, the value is applied to the horizontal and vertical
+        alignments, in that order.
+
+        Args:
+            align: The alignment value to apply.
+
+        Returns:
+            A new Style object with the alignment rules set.
+        """
+        var new_style = self.copy()
+
+        if len(align) > 0:
+            new_style.set_rule(HORIZONTAL_ALIGNMENT_KEY, align[0])
+        if len(align) > 1:
+            new_style.set_rule(VERTICAL_ALIGNMENT_KEY, align[1])
         return new_style
 
     # TODO: Need a color wrapper to make it simpler for user to pass colors, or just go back to saving it as a string.
     # For now just use the renderer color profile to create an anycolor from a string. But rn the profile defaults to true color, it should,
     # be querying the user's terminal for the color profile.
     fn foreground(self, color: String) -> Style:
+        """Set the foreground color of the text.
+
+        Args:
+            color: The color to apply.
+
+        Returns:
+            A new Style object with the foreground color rule set.
+        """
         var new_style = self.copy()
-        new_style.set_rule(FOREGROUND_KEY, self.renderer.color_profile.color(color))
+        new_style.set_rule(
+            FOREGROUND_KEY, self.renderer.color_profile.color(color)
+        )
         return new_style
 
     fn background(self, color: String) -> Style:
+        """Set the background color of the text.
+
+        Args:
+            color: The color to apply.
+
+        Returns:
+            A new Style object with the background color rule set.
+        """
         var new_style = self.copy()
-        new_style.set_rule(BACKGROUND_KEY, self.renderer.color_profile.color(color))
+        new_style.set_rule(
+            BACKGROUND_KEY, self.renderer.color_profile.color(color)
+        )
 
         return new_style
 
@@ -415,6 +561,18 @@ struct Style:
         bottom: Bool = True,
         left: Bool = True,
     ) -> Style:
+        """Set the border style of the text.
+
+        Args:
+            border: The border style to apply.
+            top: Whether to apply the border to the top side.
+            right: Whether to apply the border to the right side.
+            bottom: Whether to apply the border to the bottom side.
+            left: Whether to apply the border to the left side.
+
+        Returns:
+            A new Style object with the border rule set.
+        """
         var new_style = self.copy()
         new_style.set_rule(BORDER_STYLE_KEY, border)
 
@@ -430,19 +588,55 @@ struct Style:
         return new_style
 
     fn border_foreground(self, color: String) -> Style:
+        """Set the border foreground color.
+
+        Args:
+            color: The color to apply.
+
+        Returns:
+            A new Style object with the border foreground color rule set.
+        """
         var new_style = self.copy()
-        new_style.set_rule(BORDER_TOP_FOREGROUND_KEY, self.renderer.color_profile.color(color))
-        new_style.set_rule(BORDER_RIGHT_FOREGROUND_KEY, self.renderer.color_profile.color(color))
-        new_style.set_rule(BORDER_BOTTOM_FOREGROUND_KEY, self.renderer.color_profile.color(color))
-        new_style.set_rule(BORDER_LEFT_FOREGROUND_KEY, self.renderer.color_profile.color(color))
+        new_style.set_rule(
+            BORDER_TOP_FOREGROUND_KEY, self.renderer.color_profile.color(color)
+        )
+        new_style.set_rule(
+            BORDER_RIGHT_FOREGROUND_KEY,
+            self.renderer.color_profile.color(color),
+        )
+        new_style.set_rule(
+            BORDER_BOTTOM_FOREGROUND_KEY,
+            self.renderer.color_profile.color(color),
+        )
+        new_style.set_rule(
+            BORDER_LEFT_FOREGROUND_KEY, self.renderer.color_profile.color(color)
+        )
         return new_style
 
     fn border_background(self, color: String) -> Style:
+        """Set the border background color.
+
+        Args:
+            color: The color to apply.
+
+        Returns:
+            A new Style object with the border background color rule set.
+        """
         var new_style = self.copy()
-        new_style.set_rule(BORDER_TOP_BACKGROUND_KEY, self.renderer.color_profile.color(color))
-        new_style.set_rule(BORDER_RIGHT_BACKGROUND_KEY, self.renderer.color_profile.color(color))
-        new_style.set_rule(BORDER_BOTTOM_BACKGROUND_KEY, self.renderer.color_profile.color(color))
-        new_style.set_rule(BORDER_LEFT_BACKGROUND_KEY, self.renderer.color_profile.color(color))
+        new_style.set_rule(
+            BORDER_TOP_BACKGROUND_KEY, self.renderer.color_profile.color(color)
+        )
+        new_style.set_rule(
+            BORDER_RIGHT_BACKGROUND_KEY,
+            self.renderer.color_profile.color(color),
+        )
+        new_style.set_rule(
+            BORDER_BOTTOM_BACKGROUND_KEY,
+            self.renderer.color_profile.color(color),
+        )
+        new_style.set_rule(
+            BORDER_LEFT_BACKGROUND_KEY, self.renderer.color_profile.color(color)
+        )
         return new_style
 
     fn padding(self, *widths: Int) -> Style:
@@ -493,28 +687,62 @@ struct Style:
         else:
             return new_style
 
-        new_style = new_style.padding_top(top) \
-        .padding_right(right) \
-        .padding_bottom(bottom) \
-        .padding_left(left)
+        new_style = (
+            new_style.padding_top(top)
+            .padding_right(right)
+            .padding_bottom(bottom)
+            .padding_left(left)
+        )
         return new_style
 
     fn padding_top(self, width: Int) -> Style:
+        """Set the padding on the top side.
+
+        Args:
+            width: The padding width to apply.
+
+        Returns:
+            A new Style object with the padding top rule set.
+        """
         var new_style = self.copy()
         new_style.set_rule(PADDING_TOP_KEY, width)
         return new_style
 
     fn padding_right(self, width: Int) -> Style:
+        """Set the padding on the right side.
+
+        Args:
+            width: The padding width to apply.
+
+        Returns:
+            A new Style object with the padding right rule set.
+        """
         var new_style = self.copy()
         new_style.set_rule(PADDING_RIGHT_KEY, width)
         return new_style
 
     fn padding_bottom(self, width: Int) -> Style:
+        """Set the padding on the bottom side.
+
+        Args:
+            width: The padding width to apply.
+
+        Returns:
+            A new Style object with the padding bottom rule set.
+        """
         var new_style = self.copy()
         new_style.set_rule(PADDING_BOTTOM_KEY, width)
         return new_style
 
     fn padding_left(self, width: Int) -> Style:
+        """Set the padding on the left side.
+
+        Args:
+            width: The padding width to apply.
+
+        Returns:
+            A new Style object with the padding left rule set.
+        """
         var new_style = self.copy()
         new_style.set_rule(PADDING_LEFT_KEY, width)
         return new_style
@@ -537,6 +765,9 @@ struct Style:
 
         Args:
             widths: The padding widths to apply.
+
+        Returns:
+            A new Style object with the margin rule set.
         """
         var top = 0
         var bottom = 0
@@ -567,36 +798,80 @@ struct Style:
         else:
             return new_style
 
-        new_style = new_style.margin_top(top) \
-        .padding_right(right) \
-        .margin_bottom(bottom) \
-        .margin_left(left)
+        new_style = (
+            new_style.margin_top(top)
+            .padding_right(right)
+            .margin_bottom(bottom)
+            .margin_left(left)
+        )
         return new_style
 
     fn margin_top(self, width: Int) -> Style:
+        """Set the margin on the top side.
+
+        Args:
+            width: The margin width to apply.
+
+        Returns:
+            A new Style object with the margin top rule set.
+        """
         var new_style = self.copy()
         new_style.set_rule(MARGIN_TOP_KEY, width)
         return new_style
 
     fn margin_right(self, width: Int) -> Style:
+        """Set the margin on the right side.
+
+        Args:
+            width: The margin width to apply.
+
+        Returns:
+            A new Style object with the margin right rule set.
+        """
         var new_style = self.copy()
         new_style.set_rule(MARGIN_RIGHT_KEY, width)
         return new_style
 
     fn margin_bottom(self, width: Int) -> Style:
+        """Set the margin on the bottom side.
+
+        Args:
+            width: The margin width to apply.
+
+        Returns:
+            A new Style object with the margin bottom rule set.
+        """
         var new_style = self.copy()
         new_style.set_rule(MARGIN_BOTTOM_KEY, width)
         return new_style
 
     fn margin_left(self, width: Int) -> Style:
+        """Set the margin on the left side.
+
+        Args:
+            width: The margin width to apply.
+
+        Returns:
+            A new Style object with the margin left rule set.
+        """
         var new_style = self.copy()
         new_style.set_rule(MARGIN_LEFT_KEY, width)
         return new_style
 
-    fn maybe_convert_tabs(self, text: String) raises -> String:
+    fn maybe_convert_tabs(self, text: String) -> String:
+        """Convert tabs to spaces if the tab width is set.
+
+        Args:
+            text: The text to convert tabs in.
+
+        Returns:
+            The text with tabs converted to spaces.
+        """
         var DEFAULT_TAB_WIDTH: Int = tab_width
         if self.is_set(TAB_WIDTH_KEY):
-            DEFAULT_TAB_WIDTH = self.get_as_int(TAB_WIDTH_KEY, DEFAULT_TAB_WIDTH)
+            DEFAULT_TAB_WIDTH = self.get_as_int(
+                TAB_WIDTH_KEY, DEFAULT_TAB_WIDTH
+            )
 
         if DEFAULT_TAB_WIDTH == -1:
             return text
@@ -606,6 +881,16 @@ struct Style:
             return text.replace("\t", repeat(" ", DEFAULT_TAB_WIDTH))
 
     fn style_border(self, border: String, fg: AnyColor, bg: AnyColor) -> String:
+        """Style a border with foreground and background colors.
+
+        Args:
+            border: The border to style.
+            fg: The foreground color.
+            bg: The background color.
+
+        Returns:
+            The styled border.
+        """
         var fg_code: String = ""
         if fg.isa[NoColor]():
             pass
@@ -633,6 +918,14 @@ struct Style:
         return styler.render(border)
 
     fn apply_border(self, text: String) raises -> String:
+        """Apply a border to the text.
+
+        Args:
+            text: The text to apply the border to.
+
+        Returns:
+            The text with the border applied.
+        """
         var top_set = self.is_set(BORDER_TOP_KEY)
         var right_set = self.is_set(BORDER_RIGHT_KEY)
         var bottom_set = self.is_set(BORDER_BOTTOM_KEY)
@@ -647,13 +940,17 @@ struct Style:
         # FG Colors
         var top_fg = self.get_as_color(BORDER_TOP_FOREGROUND_KEY, NoColor())
         var right_fg = self.get_as_color(BORDER_RIGHT_FOREGROUND_KEY, NoColor())
-        var bottom_fg = self.get_as_color(BORDER_BOTTOM_FOREGROUND_KEY, NoColor())
+        var bottom_fg = self.get_as_color(
+            BORDER_BOTTOM_FOREGROUND_KEY, NoColor()
+        )
         var left_fg = self.get_as_color(BORDER_LEFT_FOREGROUND_KEY, NoColor())
 
         # BG Colors
         var top_bg = self.get_as_color(BORDER_TOP_BACKGROUND_KEY, NoColor())
         var right_bg = self.get_as_color(BORDER_RIGHT_BACKGROUND_KEY, NoColor())
-        var bottom_bg = self.get_as_color(BORDER_BOTTOM_BACKGROUND_KEY, NoColor())
+        var bottom_bg = self.get_as_color(
+            BORDER_BOTTOM_BACKGROUND_KEY, NoColor()
+        )
         var left_bg = self.get_as_color(BORDER_LEFT_BACKGROUND_KEY, NoColor())
 
         # If a border is set and no sides have been specifically turned on or off
@@ -823,6 +1120,14 @@ struct Style:
         return padded_text
 
     fn render(self, text: String) raises -> String:
+        """Render the text with the style.
+
+        Args:
+            text: The text to render.
+
+        Returns:
+            The rendered text.
+        """
         var input_text: String = text
 
         var p = self.renderer.color_profile
@@ -833,7 +1138,7 @@ struct Style:
         var bold: Bool = self.get_as_bool(BOLD_KEY, False)
         var italic: Bool = self.get_as_bool(ITALIC_KEY, False)
         var underline: Bool = self.get_as_bool(UNDERLINE_KEY, False)
-        var crossout: Bool = self.get_as_bool(crossout_KEY, False)
+        var crossout: Bool = self.get_as_bool(CROSSOUT_KEY, False)
         var reverse: Bool = self.get_as_bool(REVERSE_KEY, False)
         var blink: Bool = self.get_as_bool(BLINK_KEY, False)
         var faint: Bool = self.get_as_bool(FAINT_KEY, False)
@@ -855,7 +1160,9 @@ struct Style:
             VERTICAL_ALIGNMENT_KEY
         )
 
-        var color_whitespace: Bool = self.get_as_bool(COLOR_WHITESPACE_KEY, True)
+        var color_whitespace: Bool = self.get_as_bool(
+            COLOR_WHITESPACE_KEY, True
+        )
         var inline: Bool = self.get_as_bool(INLINE_KEY, False)
         var max_width: Int = self.get_as_int(MAX_WIDTH_KEY)
         var max_height: Int = self.get_as_int(MAX_HEIGHT_KEY)
@@ -899,14 +1206,18 @@ struct Style:
             if use_space_styler:
                 term_style_space = term_style_space.foreground(fg_code)
             if use_whitespace_styler:
-                term_style_whitespace = term_style_whitespace.foreground(fg_code)
+                term_style_whitespace = term_style_whitespace.foreground(
+                    fg_code
+                )
         if not bg.isa[NoColor]():
             var bg_code = get_value_from_anycolor(bg, True)
             term_style = term_style.background(bg_code)
             if use_space_styler:
                 term_style_space = term_style_space.background(bg_code)
             if color_whitespace:
-                term_style_whitespace = term_style_whitespace.background(bg_code)
+                term_style_whitespace = term_style_whitespace.background(
+                    bg_code
+                )
 
         if underline_spaces:
             term_style = term_style_space.underline()

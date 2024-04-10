@@ -1,5 +1,6 @@
 from collections.vector import InlinedFixedVector
 
+
 struct KeysContainer[KeyEndType: DType = DType.uint32](Sized):
     var keys: DTypePointer[DType.int8]
     var allocated_bytes: Int
@@ -9,11 +10,11 @@ struct KeysContainer[KeyEndType: DType = DType.uint32](Sized):
 
     fn __init__(inout self, capacity: Int):
         constrained[
-            KeyEndType == DType.uint8 or
-            KeyEndType == DType.uint16 or
-            KeyEndType == DType.uint32 or
-            KeyEndType == DType.uint64,
-            "KeyEndType needs to be an unsigned integer"
+            KeyEndType == DType.uint8
+            or KeyEndType == DType.uint16
+            or KeyEndType == DType.uint32
+            or KeyEndType == DType.uint64,
+            "KeyEndType needs to be an unsigned integer",
         ]()
         self.allocated_bytes = capacity << 3
         self.keys = DTypePointer[DType.int8].alloc(self.allocated_bytes)
@@ -70,7 +71,6 @@ struct KeysContainer[KeyEndType: DType = DType.uint32](Sized):
 
         self.keys_end.store(self.count, new_end)
         self.count = count
-
 
     @always_inline
     fn get(self, index: Int) -> StringRef:

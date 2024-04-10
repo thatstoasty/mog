@@ -22,9 +22,7 @@ fn read_small(data: DTypePointer[DType.uint8], length: Int) -> U128:
         if length >= 4:
             # len 4-8
             var a = data.bitcast[DType.uint32]().load().cast[DType.uint64]()
-            var b = data.offset(length - 4).bitcast[DType.uint32]().load().cast[
-                DType.uint64
-            ]()
+            var b = data.offset(length - 4).bitcast[DType.uint32]().load().cast[DType.uint64]()
             return U128(a, b)
         else:
             var a = data.bitcast[DType.uint16]().load().cast[DType.uint64]()
@@ -37,19 +35,13 @@ fn read_small(data: DTypePointer[DType.uint8], length: Int) -> U128:
         else:
             return U128(0, 0)
 
-
 struct AHasher:
     var buffer: UInt64
     var pad: UInt64
     var extra_keys: U128
 
     fn __init__(inout self, key: U256):
-        var pi_key = key ^ U256(
-            0x243F_6A88_85A3_08D3,
-            0x1319_8A2E_0370_7344,
-            0xA409_3822_299F_31D0,
-            0x082E_FA98_EC4E_6C89,
-        )
+        var pi_key = key ^ U256(0x243f_6a88_85a3_08d3, 0x1319_8a2e_0370_7344, 0xa409_3822_299f_31d0, 0x082e_fa98_ec4e_6c89,)
         self.buffer = pi_key[0]
         self.pad = pi_key[1]
         self.extra_keys = U128(pi_key[2], pi_key[3])
@@ -80,15 +72,11 @@ struct AHasher:
         self.buffer = (self.buffer + length) * MULTIPLE
         if length > 8:
             if length > 16:
-                var tail = data.offset(length - 16).bitcast[
-                    DType.uint64
-                ]().load[width=2]()
+                var tail = data.offset(length - 16).bitcast[DType.uint64]().load[width=2]()
                 self.large_update(tail)
                 var offset = 0
                 while length - offset > 16:
-                    var block = data.offset(offset).bitcast[
-                        DType.uint64
-                    ]().load[width=2]()
+                    var block = data.offset(offset).bitcast[DType.uint64]().load[width=2]()
                     self.large_update(block)
                     offset += 16
             else:
@@ -98,7 +86,6 @@ struct AHasher:
         else:
             var value = read_small(data, length)
             self.large_update(value)
-
 
 @always_inline
 fn ahash(s: String) -> UInt64:
@@ -110,9 +97,7 @@ fn ahash(s: String) -> UInt64:
         hasher.write(b, length)
     else:
         var value = read_small(b, length)
-        hasher.buffer = folded_multiply(
-            value[0] ^ hasher.buffer, value[1] ^ hasher.extra_keys[1]
-        )
+        hasher.buffer = folded_multiply(value[0] ^ hasher.buffer, value[1] ^ hasher.extra_keys[1])
         hasher.pad = hasher.pad + length
 
     return hasher.finish()

@@ -9,15 +9,15 @@ from time import now
 
 
 fn dummy_style_func(row: Int, col: Int) raises -> Style:
-    var style = Style()
-    style.horizontal_alignment(position.center)
-    style.vertical_alignment(position.center)
-    # style.padding(0, 1)
+    var style = Style(). \
+    horizontal_alignment(position.center). \
+    vertical_alignment(position.center). \
+    padding(0, 1)
     if row == 0:
-        style.foreground("#c9a0dc")
+        style = style.foreground("#c9a0dc")
         return style
     elif row % 2 == 0:
-        style.foreground("#e58006")
+        style = style.foreground("#e58006")
         return style
     else:
         return style
@@ -25,8 +25,8 @@ fn dummy_style_func(row: Int, col: Int) raises -> Style:
 
 fn test_table() raises:
     var test = MojoTest("Testing table creation with and without headers")
-    var border_style = Style()
-    border_style.foreground("#39E506")
+    var border_style = Style(). \
+    foreground("#39E506")
 
     var table = Table(
         style_function=default_styles,
@@ -68,18 +68,14 @@ fn test_table() raises:
 
 fn test_horizontal_joined_paragraphs() raises:
     var test = MojoTest("Testing Style rendering")
-    var style = Style()
-    style.bold()
-    style.width(50)
-    style.padding_top(1)
-    style.padding_right(1)
-    style.padding_bottom(1)
-    style.padding_left(1)
-
-    style.horizontal_alignment(position.center)
-    style.border("rounded_border")
-    style.foreground("#c9a0dc")
-    style.border_foreground("#39E506")
+    var style = Style.new() \
+    .bold() \
+    .width(50) \
+    .padding(1, 1, 1, 1) \
+    .horizontal_alignment(position.center) \
+    .border("rounded_border") \
+    .foreground("#c9a0dc") \
+    .border_foreground("#39E506") \
 
     var start_time = now()
 
@@ -142,16 +138,15 @@ fn test_horizontal_joined_paragraphs() raises:
 
 
 fn test_borderless_paragraph() raises:
-    var borderless_style = Style()
-    borderless_style.width(50)
-    borderless_style.padding_top(1)
-    borderless_style.padding_right(1)
-    borderless_style.padding_bottom(1)
-    borderless_style.padding_left(1)
-
-    borderless_style.horizontal_alignment(position.center)
-    borderless_style.border("hidden_border")
-    borderless_style.background("#FAFAFA")
+    var borderless_style = Style.new(). \
+    width(50). \
+    padding_top(1). \
+    padding_right(1). \
+    padding_bottom(1). \
+    padding_left(1). \
+    horizontal_alignment(position.center). \
+    border("hidden_border"). \
+    background("#c9a0dc")
 
     print(
         join_horizontal(

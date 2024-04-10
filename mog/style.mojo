@@ -138,20 +138,25 @@ fn pad_right(text: String, n: Int, style: TerminalStyle) raises -> String:
 
 @value
 struct Style:
-    var r: Renderer
+    var renderer: Renderer
     var rules: Dict[String]
-    var value: String
 
-    fn __init__(inout self):
-        self.r = Renderer()
+    fn __init__(
+        inout self,
+        renderer: Renderer = Renderer(),
+        rules: Dict[String] = Dict[String](),
+    ):
+        self.renderer = Renderer()
         self.rules = Dict[String]()
-        self.value = ""
 
-    fn new(self) -> Self:
-        return Self()
+    @staticmethod
+    fn new(
+        renderer: Renderer = Renderer(),
+        rules: Dict[String] = Dict[String](),
+    ) -> Self:
+        return Self(renderer, rules)
 
     fn get_as_bool(self, key: String, default: Bool) -> Bool:
-        # TODO: This is failing with an out of bounds error. Must be a bug with Dict?
         var result = self.rules.get(key, String(default))
         if result == String(default):
             return default
@@ -233,93 +238,192 @@ struct Style:
     fn set_rule(inout self, key: String, value: String):
         self.rules.put(key, value)
 
-    fn bold(inout self):
-        self.set_rule("bold", "True")
+    fn bold(self) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule("bold", "True")
+        return new_style
 
-    fn italic(inout self):
-        self.set_rule("italic", "True")
+    fn italic(self) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule("italic", "True")
+        return new_style
 
-    fn underline(inout self):
-        self.set_rule("underline", "True")
+    fn underline(self) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule("underline", "True")
+        return new_style
 
-    fn crossout(inout self):
-        self.set_rule("crossout", "True")
+    fn crossout(self) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule("crossout", "True")
+        return new_style
 
-    fn reverse(inout self):
-        self.set_rule("reverse", "True")
+    fn reverse(self) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule("reverse", "True")
+        return new_style
 
-    fn blink(inout self):
-        self.set_rule("blink", "True")
+    fn blink(self) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule("blink", "True")
+        return new_style
 
-    fn faint(inout self):
-        self.set_rule("faint", "True")
+    fn faint(self) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule("faint", "True")
+        return new_style
 
-    fn width(inout self, width: Int):
-        self.set_rule("width", width)
+    fn width(self, width: Int) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule("width", width)
+        return new_style
 
-    fn height(inout self, height: Int):
-        self.set_rule("height", height)
+    fn height(self, height: Int) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule("height", height)
+        return new_style
 
-    fn max_width(inout self, width: Int):
-        self.set_rule("max_width", width)
+    fn max_width(self, width: Int) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule("max_width", width)
+        return new_style
 
-    fn max_height(inout self, height: Int):
-        self.set_rule("max_height", height)
+    fn max_height(self, height: Int) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule("max_height", height)
+        return new_style
 
-    fn horizontal_alignment(inout self, align: Position):
-        self.set_rule("horizontal_alignment", String(align))
+    fn horizontal_alignment(self, align: Position) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule("horizontal_alignment", String(align))
+        return new_style
 
-    fn vertical_alignment(inout self, align: Position):
-        self.set_rule("vertical_alignment", String(align))
+    fn vertical_alignment(self, align: Position) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule("vertical_alignment", String(align))
+        return new_style
 
-    fn foreground(inout self, color: String):
-        self.set_rule("foreground", color)
+    fn foreground(self, color: String) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule("foreground", color)
+        return new_style
 
-    fn background(inout self, color: String):
-        self.set_rule("background", color)
+    fn background(self, color: String) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule("background", color)
+        return new_style
 
     fn border(
-        inout self,
+        self,
         border: String,
         top: Bool = True,
         right: Bool = True,
         bottom: Bool = True,
         left: Bool = True,
-    ):
-        self.set_rule("border_style", border)
+    ) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule("border_style", border)
 
         if top:
-            self.set_rule("border_top_key", "True")
+            new_style.set_rule("border_top_key", "True")
         if right:
-            self.set_rule("border_right_key", "True")
+            new_style.set_rule("border_right_key", "True")
         if bottom:
-            self.set_rule("border_bottom_key", "True")
+            new_style.set_rule("border_bottom_key", "True")
         if left:
-            self.set_rule("border_left_key", "True")
+            new_style.set_rule("border_left_key", "True")
 
-    fn border_foreground(inout self, color: String):
-        self.set_rule("border_top_foreground_key", color)
-        self.set_rule("border_right_foreground_key", color)
-        self.set_rule("border_bottom_foreground_key", color)
-        self.set_rule("border_left_foreground_key", color)
+        return new_style
 
-    fn border_background(inout self, color: String):
-        self.set_rule("border_top_background_key", color)
-        self.set_rule("border_right_background_key", color)
-        self.set_rule("border_bottom_background_key", color)
-        self.set_rule("border_left_background_key", color)
+    fn border_foreground(self, color: String) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule("border_top_foreground_key", color)
+        new_style.set_rule("border_right_foreground_key", color)
+        new_style.set_rule("border_bottom_foreground_key", color)
+        new_style.set_rule("border_left_foreground_key", color)
+        return new_style
 
-    fn padding_top(inout self, width: UInt8):
-        self.set_rule("padding_top", String(width))
+    fn border_background(self, color: String) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule("border_top_background_key", color)
+        new_style.set_rule("border_right_background_key", color)
+        new_style.set_rule("border_bottom_background_key", color)
+        new_style.set_rule("border_left_background_key", color)
+        return new_style
 
-    fn padding_right(inout self, width: UInt8):
-        self.set_rule("padding_right", String(width))
+    fn padding(self, *widths: Int) -> Style:
+        """Shorthand method for setting padding on all sides at once.
 
-    fn padding_bottom(inout self, width: UInt8):
-        self.set_rule("padding_bottom", String(width))
+        With one argument, the value is applied to all sides.
 
-    fn padding_left(inout self, width: UInt8):
-        self.set_rule("padding_left", String(width))
+        With two arguments, the value is applied to the vertical and horizontal
+        sides, in that order.
+
+        With three arguments, the value is applied to the top side, the horizontal
+        sides, and the bottom side, in that order.
+
+        With four arguments, the value is applied clockwise starting from the top
+        side, followed by the right side, then the bottom, and finally the left.
+
+        With more than four arguments no padding will be added.
+
+        Args:
+            widths: The padding widths to apply.
+        """
+        var top = 0
+        var bottom = 0
+        var left = 0
+        var right = 0
+        var new_style = self.copy()
+        var widths_specified = len(widths)
+        if widths_specified == 1:
+            top = widths[0]
+            bottom = widths[0]
+            left = widths[0]
+            right = widths[0]
+        elif widths_specified == 2:
+            top = widths[0]
+            bottom = widths[0]
+            left = widths[1]
+            right = widths[1]
+        elif widths_specified == 3:
+            top = widths[0]
+            left = widths[1]
+            right = widths[1]
+            bottom = widths[2]
+        elif widths_specified == 4:
+            top = widths[0]
+            right = widths[1]
+            bottom = widths[2]
+            left = widths[3]
+        else:
+            return new_style
+
+        new_style = new_style.padding_top(top) \
+        .padding_right(right) \
+        .padding_bottom(bottom) \
+        .padding_left(left)
+        return new_style
+
+    fn padding_top(self, width: UInt8) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule("padding_top", String(width))
+        return new_style
+
+    fn padding_right(self, width: UInt8) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule("padding_right", String(width))
+        return new_style
+
+    fn padding_bottom(self, width: UInt8) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule("padding_bottom", String(width))
+        return new_style
+
+    fn padding_left(self, width: UInt8) -> Style:
+        var new_style = self.copy()
+        new_style.set_rule("padding_left", String(width))
+        return new_style
 
     fn maybe_convert_tabs(self, text: String) raises -> String:
         var default_tab_width: Int = tab_width
@@ -334,7 +438,7 @@ struct Style:
             return text.replace("\t", repeat(" ", default_tab_width))
 
     fn style_border(self, border: String, fg: String, bg: String) -> String:
-        var styler = TerminalStyle.new(self.r.color_profile).foreground(
+        var styler = TerminalStyle.new(self.renderer.color_profile).foreground(
             fg
         ).background(bg)
 
@@ -383,10 +487,8 @@ struct Style:
 
         var lines = text.split("\n")
 
-        # TODO: Using len_without_ansi for now until I switch over to bytes buffer and Writers
         var width: Int = 0
         for i in range(len(lines)):
-            # TODO: Should be rune length instead of str length. Some runes are longer than 1 char.
             var rune_count = len_without_ansi(lines[i])
             if rune_count > width:
                 width = rune_count
@@ -503,7 +605,7 @@ struct Style:
         var bottom_margin = self.get_as_int("margin_bottom_key")
         var left_margin = self.get_as_int("margin_left_key")
 
-        var styler: TerminalStyle = TerminalStyle(self.r.color_profile)
+        var styler: TerminalStyle = TerminalStyle(self.renderer.color_profile)
 
         var bgc = self.get_as_color("margin_background_key")
 
@@ -536,7 +638,7 @@ struct Style:
     fn render(self, text: String) raises -> String:
         var input_text: String = text
 
-        var p = self.r.color_profile
+        var p = self.renderer.color_profile
         var term_style = TerminalStyle(p)
         var term_style_space = TerminalStyle(p)
         var term_style_whitespace = TerminalStyle(p)
@@ -661,13 +763,13 @@ struct Style:
         # Padding
         if not inline:
             if left_padding > 0:
-                var style = TerminalStyle(self.r.color_profile)
+                var style = TerminalStyle(self.renderer.color_profile)
                 if color_whitespace or use_whitespace_styler:
                     style = term_style_whitespace
                 styled_text = pad_left(styled_text, left_padding, style)
 
             if right_padding > 0:
-                var style = TerminalStyle(self.r.color_profile)
+                var style = TerminalStyle(self.renderer.color_profile)
                 if color_whitespace or use_whitespace_styler:
                     style = term_style_whitespace
                 styled_text = pad_right(styled_text, right_padding, style)
@@ -705,7 +807,7 @@ struct Style:
         # Apply border at the end
         var number_of_lines = len(styled_text.split("\n"))
         if not (number_of_lines == 0 and width == 0):
-            var style = TerminalStyle(self.r.color_profile)
+            var style = TerminalStyle(self.renderer.color_profile)
             if color_whitespace or use_whitespace_styler:
                 style = term_style_whitespace
             styled_text = align_text_horizontal(
@@ -719,4 +821,7 @@ struct Style:
         return styled_text
 
     fn copy(self) -> Self:
-        return self
+        return Self(
+            renderer=self.renderer,
+            rules=self.rules,
+        )

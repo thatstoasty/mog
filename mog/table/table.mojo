@@ -50,7 +50,7 @@ alias StyleFunction = fn (row: Int, col: Int) raises -> Style
 
 # default_styles is a TableStyleFunction that returns a new Style with no attributes.
 fn default_styles(row: Int, col: Int) raises -> Style:
-    return Style()
+    return Style.new()
 
 
 # Table is a type for rendering tables.
@@ -337,9 +337,9 @@ struct Table:
         if self.border_bottom:
             _ = string_builder.write_string(self.construct_bottom_border())
 
-        var style = Style()
-        style.max_height(self.compute_height())
-        # style.max_width(self.width) # TODO: Max width truncation causes issues due to unicode chars being multiple bytes
+        var style = Style.new() \
+        .max_height(self.compute_height()) \
+        .max_width(self.width) # TODO: Max width truncation causes issues due to unicode chars being multiple bytes
         return style.render(str(string_builder))
 
     # compute_width computes the width of the table in it's current configuration.
@@ -441,10 +441,10 @@ struct Table:
 
         for i in range(len(self.headers)):
             var header = self.headers[i]
-            var style = self.style(0, i)
-            style.max_height(1)
-            style.width(self.widths[i])
-            style.max_width(self.widths[i])
+            var style = self.style(0, i) \
+            .max_height(1) \
+            .width(self.widths[i]) \
+            .max_width(self.widths[i])
 
             _ = string_builder.write_string(
                 style.render(
@@ -515,11 +515,11 @@ struct Table:
         var c: Int = 0
         while c < self.data.columns():
             var cell = self.data.at(index, c)
-            var style = self.style(index + 1, c)
-            style.height(height)
-            style.max_height(height)
-            style.width(self.widths[c])
-            style.max_width(self.widths[c])
+            var style = self.style(index + 1, c) \
+            .height(height) \
+            .max_height(height) \
+            .width(self.widths[c]) \
+            .max_width(self.widths[c])
 
             cells.append(
                 style.render(
@@ -580,7 +580,7 @@ fn new_table() raises -> Table:
     return Table(
         style_function=default_styles,
         border=ascii_border(),
-        border_style=Style(),
+        border_style=Style.new(),
         border_bottom=True,
         border_column=True,
         border_header=True,

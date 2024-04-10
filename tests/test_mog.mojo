@@ -151,7 +151,7 @@ fn test_borderless_paragraph() raises:
 
     borderless_style.horizontal_alignment(position.center)
     borderless_style.border("hidden_border")
-    borderless_style.background("#c9a0dc")
+    borderless_style.background("#FAFAFA")
 
     print(
         join_horizontal(

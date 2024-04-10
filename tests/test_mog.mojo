@@ -2,7 +2,7 @@ from tests.wrapper import MojoTest
 from mog.join import join_vertical, join_horizontal
 from mog.table import new_table, new_string_data, Table
 from mog.table.table import default_styles
-from mog.border import star_border, ascii_border, Border, rounded_border
+from mog.border import star_border, ascii_border, Border, rounded_border, hidden_border
 from mog.style import Style
 from mog import position
 from time import now
@@ -73,7 +73,7 @@ fn test_horizontal_joined_paragraphs() raises:
     .width(50) \
     .padding(1, 1, 1, 1) \
     .horizontal_alignment(position.center) \
-    .border("rounded_border") \
+    .border(rounded_border()) \
     .foreground("#c9a0dc") \
     .border_foreground("#39E506") \
 
@@ -145,7 +145,7 @@ fn test_borderless_paragraph() raises:
     padding_bottom(1). \
     padding_left(1). \
     horizontal_alignment(position.center). \
-    border("hidden_border"). \
+    border(hidden_border()). \
     background("#c9a0dc")
 
     print(

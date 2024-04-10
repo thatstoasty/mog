@@ -1,3 +1,4 @@
+from math.bit import ctlz
 from external.gojo.bytes import buffer
 from external.gojo.builtins import Result
 from external.gojo.builtins.bytes import Byte, has_suffix
@@ -24,20 +25,27 @@ struct Writer(io.Writer):
 
     # write is used to write content to the ANSI buffer.
     fn write(inout self, src: List[Byte]) -> Result[Int]:
-        """TODO: Writing List[Byte] instead of encoded runes rn."""
-        for i in range(len(src)):
-            var char = chr(int(src[i]))
-            # TODO: Skipping null terminator List[Byte] for now until I figure out how to deal with them. They come from the empty spaces in a List
-            if src[i] == 0:
-                pass
-            elif char == Marker:
+        # Rune iterator
+        var bytes = len(src)
+        var p = DTypePointer[DType.int8](src.data.value).bitcast[DType.uint8]()
+        while bytes > 0:
+            var char_length = (
+                (p.load() >> 7 == 0).cast[DType.uint8]() * 1 + ctlz(~p.load())
+            ).to_int()
+            var sp = DTypePointer[DType.int8].alloc(char_length + 1)
+            memcpy(sp, p.bitcast[DType.int8](), char_length)
+            sp[char_length] = 0
+
+            # Functional logic
+            var char = String(sp, char_length + 1)
+            if char == Marker:
                 # ANSI escape sequence
                 self.ansi = True
                 self.seq_changed = True
-                _ = self.ansi_seq.write_byte(src[i])
+                _ = self.ansi_seq.write_string(char)
             elif self.ansi:
-                _ = self.ansi_seq.write_byte(src[i])
-                if is_terminator(src[i]):
+                _ = self.ansi_seq.write_string(char)
+                if is_terminator(ord(char)):
                     self.ansi = False
 
                     if has_suffix(
@@ -52,21 +60,21 @@ struct Writer(io.Writer):
 
                     _ = self.ansi_seq.write_to(self.forward)
             else:
-                _ = self.write_byte(src[i])
+                var result = self.forward.write_string(char)
 
+            # move forward iterator
+            bytes -= char_length
+            p += char_length
+
+        # TODO: Should this be returning just len(src)?
         return len(src)
 
     fn write_byte(inout self, byte: Byte) -> Int:
         _ = self.forward.write_byte(byte)
         return 1
 
-    # fn writeRune(r rune) (Int, error)
-    #     if self.runeBuf == nil
-    #         self.runeBuf = make(List[Byte], utf8.UTFMax)
-    #
-    #     n := utf8.EncodeRune(self.runeBuf, r)
-    #     return self.Forward.write(self.runeBuf[:n])
-    #
+    # fn write_rune(inout self, rune: String) -> Result[Int]:
+    #     return self.forward.write(self.runeBuf[:n])
 
     fn last_sequence(self) -> String:
         return str(self.last_seq)

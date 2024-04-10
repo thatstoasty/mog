@@ -1,10 +1,9 @@
+from math.bit import ctlz
 from external.gojo.bytes import buffer
-from external.gojo.builtins import Result
-from external.gojo.builtins.bytes import Byte
+from external.gojo.builtins import Result, Byte
 import external.gojo.io
-from .ansi import writer
-from .ansi.ansi import is_terminator, Marker
-from .utils import __string__mul__, strip
+from .ansi import writer, is_terminator, Marker, printable_rune_width
+from .strings import repeat, strip
 
 
 @value
@@ -29,51 +28,72 @@ struct Writer(Stringable, io.Writer):
         self.cache = buffer.new_buffer()
         self.ansi_writer = writer.new_default_writer()
 
-    # write is used to write content to the padding buffer.
     fn write(inout self, src: List[Byte]) -> Result[Int]:
-        for i in range(len(src)):
-            var c = chr(int(src[i]))
+        """Pads content to the given printable cell width.
 
-            if c == Marker:
+        Args:
+            src: The content to write.
+
+        Returns:
+            The number of bytes written and optional error.
+        """
+        # Rune iterator
+        var bytes = len(src)
+        var p = DTypePointer[DType.int8](src.data.value).bitcast[DType.uint8]()
+        while bytes > 0:
+            var char_length = (
+                (p.load() >> 7 == 0).cast[DType.uint8]() * 1 + ctlz(~p.load())
+            ).to_int()
+            var sp = DTypePointer[DType.int8].alloc(char_length + 1)
+            memcpy(sp, p.bitcast[DType.int8](), char_length)
+            sp[char_length] = 0
+
+            # Functional logic
+            var char = String(sp, char_length + 1)
+            if char == Marker:
                 self.ansi = True
             elif self.ansi:
-                if is_terminator(src[i]):
+                if is_terminator(ord(char)):
                     self.ansi = False
             else:
-                if c == "\n":
+                if char == "\n":
                     # end of current line, if pad right then add padding before newline
                     self.pad()
                     self.ansi_writer.reset_ansi()
                     self.line_len = 0
                 else:
-                    self.line_len += len(c)
+                    self.line_len += printable_rune_width(char)
 
-            _ = self.ansi_writer.write(c.as_bytes())
+            var result = self.ansi_writer.write(char.as_bytes())
+            if result.error:
+                return result
+
+            # Move iterator forward
+            bytes -= char_length
+            p += char_length
 
         return len(src)
 
     fn pad(inout self):
+        """Pads the current line with spaces to the given width."""
         if self.padding > 0 and UInt8(self.line_len) < self.padding:
-            var padding = __string__mul__(
-                " ", int(self.padding) - self.line_len
-            )
+            var padding = repeat(" ", int(self.padding) - self.line_len)
             _ = self.ansi_writer.write(padding.as_bytes())
 
-    # close will finish the padding operation.
     fn close(inout self):
+        """Finishes the padding operation."""
         return self.flush()
 
-    # List[Byte] returns the padded result as a byte slice.
     fn bytes(self) -> List[Byte]:
+        """Returns the padded result as a byte slice."""
         return self.cache.bytes()
 
-    # String returns the padded result as a string.
     fn __str__(self) -> String:
         return str(self.cache)
 
-    # flush will finish the padding operation. Always call it before trying to
-    # retrieve the final result.
     fn flush(inout self):
+        """Finishes the padding operation. Always call it before trying to retrieve the final result.
+        """
         if self.line_len != 0:
             self.pad()
 
@@ -84,6 +104,14 @@ struct Writer(Stringable, io.Writer):
 
 
 fn new_writer(width: UInt8) -> Writer:
+    """Creates a new padding writer instance.
+
+    Args:
+        width: The padding width.
+
+    Returns:
+        A new padding writer instance.
+    """
     return Writer(padding=width)
 
 
@@ -96,9 +124,16 @@ fn new_writer(width: UInt8) -> Writer:
 # 		,
 
 
-# List[Byte] is shorthand for declaring a new default padding-writer instance,
-# used to immediately pad a byte slice.
-fn apply_padding_to_bytes(owned b: List[Byte], width: UInt8) -> List[Byte]:
+fn apply_padding_to_bytes(b: List[Byte], width: UInt8) -> List[Byte]:
+    """Pads a byte slice to the given printable cell width.
+
+    Args:
+        b: The byte slice to pad.
+        width: The padding width.
+
+    Returns:
+        The padded byte slice.
+    """
     var f = new_writer(width)
     _ = f.write(b)
     _ = f.flush()
@@ -106,9 +141,16 @@ fn apply_padding_to_bytes(owned b: List[Byte], width: UInt8) -> List[Byte]:
     return f.bytes()
 
 
-# String is shorthand for declaring a new default padding-writer instance,
-# used to immediately pad a string.
-fn apply_padding(owned s: String, width: UInt8) -> String:
+fn apply_padding(s: String, width: UInt8) -> String:
+    """Shorthand for declaring a new default padding-writer instance, used to immediately pad a string.
+
+    Args:
+        s: The string to pad.
+        width: The padding width.
+
+    Returns:
+        The padded string.
+    """
     var buf = s.as_bytes()
     var b = apply_padding_to_bytes(buf^, width)
     b.append(0)

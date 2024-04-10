@@ -1,10 +1,9 @@
+from math.bit import ctlz
 from external.gojo.bytes import buffer
-from external.gojo.builtins.bytes import Byte
-from external.gojo.builtins import Result
+from external.gojo.builtins import Result, Byte
 import external.gojo.io
-from weave.ansi import writer
-from weave.ansi.ansi import is_terminator
-from weave.utils import __string__mul__
+from .ansi import writer, is_terminator, Marker
+from .strings import repeat
 
 
 @value
@@ -22,49 +21,75 @@ struct Writer(Stringable, io.Writer):
         self.skip_indent = False
         self.ansi = False
 
-    # List[Byte] returns the indented result as a byte slice.
     fn bytes(self) -> List[Byte]:
+        """Returns the indented result as a byte slice."""
         return self.ansi_writer.forward.bytes()
 
-    # String returns the indented result as a string.
     fn __str__(self) -> String:
         return str(self.ansi_writer.forward)
 
-    # write is used to write content to the indent buffer.
     fn write(inout self, src: List[Byte]) -> Result[Int]:
-        for i in range(len(src)):
-            var c = chr(int(src[i]))
-            if c == "\x1B":
+        """Writes the given byte slice to the writer.
+
+        Args:
+            src: The byte slice to write.
+
+        Returns:
+            The number of bytes written and optional error.
+        """
+        # Rune iterator
+        var bytes = len(src)
+        var p = DTypePointer[DType.int8](src.data.value).bitcast[DType.uint8]()
+        while bytes > 0:
+            var char_length = (
+                (p.load() >> 7 == 0).cast[DType.uint8]() * 1 + ctlz(~p.load())
+            ).to_int()
+            var sp = DTypePointer[DType.int8].alloc(char_length + 1)
+            memcpy(sp, p.bitcast[DType.int8](), char_length)
+            sp[char_length] = 0
+
+            # Functional logic
+            var char = String(sp, char_length + 1)
+            if char == Marker:
                 # ANSI escape sequence
                 self.ansi = True
             elif self.ansi:
-                if is_terminator(src[i]):
+                if is_terminator(ord(char)):
                     # ANSI sequence terminated
                     self.ansi = False
             else:
                 if not self.skip_indent:
                     self.ansi_writer.reset_ansi()
-                    var indent = __string__mul__(
-                        String(" "), int(self.indent)
-                    ).as_bytes()
-                    _ = self.ansi_writer.write(indent)
+                    var indent = repeat(" ", int(self.indent)).as_bytes()
+                    var result = self.ansi_writer.write(indent)
+                    if result.error:
+                        return result
 
                     self.skip_indent = True
                     self.ansi_writer.restore_ansi()
 
-                if c == "\n":
+                if char == "\n":
                     # end of current line
                     self.skip_indent = False
 
-            _ = self.ansi_writer.write(c.as_bytes())
+            var result = self.ansi_writer.write(char.as_bytes())
+            if result.error:
+                return result
+
+            # Move iterator forward
+            bytes -= char_length
+            p += char_length
 
         return len(src)
 
 
 fn new_writer(indent: UInt8) -> Writer:
-    return Writer(
-        indent=indent,
-    )
+    """Creates a new indent-writer instance with the given indent level.
+
+    Args:
+        indent: The number of spaces to indent.
+    """
+    return Writer(indent=indent)
 
 
 # fn NewWriterPipe(forward io.Writer, indent UInt8, indent_fn Indentfn)-> Writer:
@@ -78,20 +103,33 @@ fn new_writer(indent: UInt8) -> Writer:
 #
 
 
-# List[Byte] is shorthand for declaring a new default indent-writer instance,
-# used to immediately indent a byte slice.
-fn apply_indent_to_bytes(
-    owned b: List[Byte], indent: UInt8
-) raises -> List[Byte]:
+fn apply_indent_to_bytes(b: List[Byte], indent: UInt8) -> List[Byte]:
+    """Shorthand for declaring a new default indent-writer instance, used to immediately indent a byte slice.
+
+    Args:
+        b: The byte slice to indent.
+        indent: The number of spaces to indent.
+
+    Returns:
+        The indented byte slice.
+    """
     var f = new_writer(indent)
     _ = f.write(b)
 
     return f.bytes()
 
 
-# String is shorthand for declaring a new default indent-writer instance,
-# used to immediately indent a string.
-fn apply_indent(owned s: String, indent: UInt8) raises -> String:
+fn apply_indent(s: String, indent: UInt8) -> String:
+    """Shorthand for declaring a new default indent-writer instance,
+    used to immediately indent a string.
+
+    Args:
+        s: The string to indent.
+        indent: The number of spaces to indent.
+
+    Returns:
+        The indented string.
+    """
     var buf = s.as_bytes()
     var b = apply_indent_to_bytes(buf^, indent)
     b.append(0)

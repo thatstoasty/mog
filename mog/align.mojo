@@ -1,5 +1,5 @@
 from math import max, min
-from external.weave.ansi.ansi import len_without_ansi
+from external.weave.ansi.ansi import printable_rune_width
 from external.mist import TerminalStyle
 from external.gojo.strings import StringBuilder
 import .position
@@ -16,13 +16,13 @@ fn align_text_horizontal(
     var lines = text.split("\n")
     var widest_line: Int = 0
     for i in range(len(lines)):
-        if len_without_ansi(lines[i]) > widest_line:
-            widest_line = len_without_ansi(lines[i])
+        if printable_rune_width(lines[i]) > widest_line:
+            widest_line = printable_rune_width(lines[i])
 
     var aligned_text = StringBuilder()
     for i in range(len(lines)):
         var line = lines[i]
-        var line_width = len_without_ansi(line)
+        var line_width = printable_rune_width(line)
 
         var short_amount = widest_line - line_width  # difference from the widest line
         short_amount += max(

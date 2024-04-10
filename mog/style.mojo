@@ -23,7 +23,7 @@ from .size import rune_count_in_string
 from .extensions import repeat, join, contains
 from .align import align_text_horizontal, align_text_vertical
 from external.weave import wrap, wordwrap, truncate
-from external.weave.ansi.ansi import len_without_ansi
+from external.weave.ansi.ansi import printable_rune_width
 from external.mist.color import (
     Color,
     NoColor,
@@ -616,7 +616,7 @@ struct Style:
 
         var width: Int = 0
         for i in range(len(lines)):
-            var rune_count = len_without_ansi(lines[i])
+            var rune_count = printable_rune_width(lines[i])
             if rune_count > width:
                 width = rune_count
 
@@ -871,7 +871,7 @@ struct Style:
             var line = lines[i]
             if use_space_styler:
                 # Look for spaces and apply a different styler
-                for i in range(len_without_ansi(line)):
+                for i in range(printable_rune_width(line)):
                     var character = line[i]
                     if character == " ":
                         _ = builder.write_string(
@@ -919,6 +919,7 @@ struct Style:
             var lines = styled_text.split("\n")
 
             for i in range(len(lines)):
+                # TODO: Truncation causes issues with border due to incorrect width calculation.
                 lines[i] = truncate.apply_truncate(lines[i], max_width)
 
             styled_text = join("\n", lines)

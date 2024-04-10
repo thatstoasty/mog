@@ -1,4 +1,4 @@
-from external.weave.ansi.ansi import len_without_ansi
+from external.weave.ansi.ansi import printable_rune_width
 from .size import rune_count_in_string
 
 

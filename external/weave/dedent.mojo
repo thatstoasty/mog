@@ -4,7 +4,7 @@ from external.gojo.builtins import Byte
 
 # String automatically detects the maximum indentation shared by all lines and
 # trims them accordingly.
-fn apply_dedent(owned s: String) raises -> String:
+fn apply_dedent(owned s: String) -> String:
     var indent = min_indent(s)
     if indent == 0:
         return s
@@ -36,7 +36,7 @@ fn min_indent(s: String) -> Int:
     return min_indent
 
 
-fn dedent(s: String, indent: Int) raises -> String:
+fn dedent(s: String, indent: Int) -> String:
     var omitted: Int = 0
     var buf = buffer.new_buffer()
     var i: Int = 0

@@ -1,10 +1,9 @@
+from math.bit import ctlz
 from external.gojo.bytes import buffer
-from external.gojo.builtins import Result
-from external.gojo.builtins.bytes import Byte
+from external.gojo.builtins import Result, Byte
 import external.gojo.io
-from .ansi import writer
-from .ansi.ansi import is_terminator, Marker, printable_rune_width
-from .utils import __string__mul__, strip
+from .ansi import writer, is_terminator, Marker, printable_rune_width
+from .strings import repeat, strip
 
 
 alias default_newline = "\n"
@@ -70,30 +69,51 @@ struct WordWrap(Stringable, io.Writer):
         self.line_len = 0
         self.space.reset()
 
-    # write is used to write more content to the word-wrap buffer.
     fn write(inout self, src: List[Byte]) -> Result[Int]:
+        """Write more content to the word-wrap buffer.
+
+        Args:
+            src: The content to write.
+
+        Returns:
+            The number of bytes written. and optional error.
+        """
         if self.limit == 0:
             return self.buf.write(src)
 
-        var copy = List[Byte](src)
+        var copy = src
         copy.append(0)
         var s = String(copy)
         if not self.keep_newlines:
             s = strip(s)
             s = s.replace("\n", " ")
 
-        for i in range(len(s)):
-            var c = ord(s[i])
-            if c == ord(Marker):
+        # Rune iterator
+        var bytes = len(s)
+        var s_bytes = s.as_bytes()  # needs to be mutable, so we steal the data of the copy
+        var p = DTypePointer[DType.int8](s_bytes.steal_data().value).bitcast[
+            DType.uint8
+        ]()
+        while bytes > 0:
+            var char_length = (
+                (p.load() >> 7 == 0).cast[DType.uint8]() * 1 + ctlz(~p.load())
+            ).to_int()
+            var sp = DTypePointer[DType.int8].alloc(char_length + 1)
+            memcpy(sp, p.bitcast[DType.int8](), char_length)
+            sp[char_length] = 0
+
+            # Functional logic
+            var char = String(sp, char_length + 1)
+            if char == ord(Marker):
                 # ANSI escape sequence
-                _ = self.word.write_byte(c)
+                _ = self.word.write(char.as_bytes())
                 self.ansi = True
             elif self.ansi:
-                _ = self.word.write_byte(c)
-                if is_terminator(c):
+                _ = self.word.write(char.as_bytes())
+                if is_terminator(ord(char)):
                     # ANSI sequence terminated
                     self.ansi = False
-            elif c == ord(self.newline):
+            elif char == self.newline:
                 # end of current line
                 # see if we can add the content of the space buffer to the current line
                 if len(self.word) == 0:
@@ -107,18 +127,18 @@ struct WordWrap(Stringable, io.Writer):
 
                 self.add_word()
                 self.add_newline()
-            elif s[i] == " ":
+            elif char == " ":
                 # end of current word
                 self.add_word()
-                _ = self.space.write_byte(c)
-            elif s[i] == self.breakpoint:
+                _ = self.space.write(char.as_bytes())
+            elif char == self.breakpoint:
                 # valid breakpoint
                 self.add_space()
                 self.add_word()
-                _ = self.buf.write_byte(c)
+                _ = self.buf.write(char.as_bytes())
             else:
                 # any other character
-                _ = self.word.write_byte(c)
+                _ = self.word.write(char.as_bytes())
 
                 # add a line break if the current word would exceed the line's
                 # character limit
@@ -131,31 +151,53 @@ struct WordWrap(Stringable, io.Writer):
                 ):
                     self.add_newline()
 
+            # Move iterator forward
+            bytes -= char_length
+            p += char_length
+
         return len(src)
 
-    # close will finish the word-wrap operation. Always call it before trying to
-    # retrieve the final result.
     fn close(inout self):
+        """Finishes the word-wrap operation. Always call it before trying to retrieve the final result.
+        """
         self.add_word()
 
-    # List[Byte] returns the word-wrapped result as a byte slice.
     fn bytes(self) -> List[Byte]:
+        """Returns the word-wrapped result as a byte slice.
+
+        Returns:
+            The word-wrapped result as a byte slice.
+        """
         return self.buf.bytes()
 
-    # String returns the word-wrapped result as a string.
     fn __str__(self) -> String:
         return str(self.buf)
 
 
-# new_writer returns a new instance of a word-wrapping writer, initialized with
-# default settings.
 fn new_writer(limit: Int) -> WordWrap:
+    """Returns a new instance of a word-wrapping writer, initialized with
+    default settings.
+
+    Args:
+        limit: The maximum number of characters per line.
+
+    Returns:
+        A new instance of a word-wrapping writer.
+    """
     return WordWrap(limit=limit)
 
 
-# List[Byte] is shorthand for declaring a new default WordWrap instance,
-# used to immediately word-wrap a byte slice.
-fn apply_wordwrap_to_bytes(owned b: List[Byte], limit: Int) -> List[Byte]:
+fn apply_wordwrap_to_bytes(b: List[Byte], limit: Int) -> List[Byte]:
+    """Shorthand for declaring a new default WordWrap instance,
+    used to immediately word-wrap a byte slice.
+
+    Args:
+        b: The byte slice to word-wrap.
+        limit: The maximum number of characters per line.
+
+    Returns:
+        The word-wrapped byte slice.
+    """
     var f = new_writer(limit)
     _ = f.write(b)
     _ = f.close()
@@ -163,9 +205,17 @@ fn apply_wordwrap_to_bytes(owned b: List[Byte], limit: Int) -> List[Byte]:
     return f.bytes()
 
 
-# String is shorthand for declaring a new default WordWrap instance,
-# used to immediately wrap a string.
 fn apply_wordwrap(s: String, limit: Int) -> String:
+    """Shorthand for declaring a new default WordWrap instance,
+    used to immediately wrap a string.
+
+    Args:
+        s: The string to wrap.
+        limit: The maximum number of characters per line.
+
+    Returns:
+        The wrapped string.
+    """
     var buf = s.as_bytes()
     var b = apply_wordwrap_to_bytes(buf^, limit)
     b.append(0)

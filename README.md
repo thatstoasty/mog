@@ -5,7 +5,7 @@ Ported from/Inspired by: <https://github.com/charmbracelet/lipgloss/tree/master>
 
 If you're a Go developer, please check out their CLI tooling and libraries. They're unmatched!
 
-![Lip Gloss example](https://github.com/thatstoasty/mog/layout.png)
+![Lip Gloss example](https://github.com/thatstoasty/mog/blob/main/layout.png)
 
 Lip Gloss takes an expressive, declarative approach to terminal rendering.
 Users familiar with CSS will feel at home with Lip Gloss.

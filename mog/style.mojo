@@ -587,6 +587,58 @@ struct Style:
 
         return new_style
 
+    fn border_top(self, top: Bool) -> Style:
+        """Sets the top border to be rendered or not.
+
+        Args:
+            top: Whether to apply the border to the top side.
+
+        Returns:
+            A new Style object with the border rule set.
+        """
+        var new_style = self.copy()
+        new_style.set_rule(BORDER_TOP_KEY, top)
+        return new_style
+
+    fn border_bottom(self, bottom: Bool) -> Style:
+        """Sets the bottom border to be rendered or not.
+
+        Args:
+            bottom: Whether to apply the border to the bottom side.
+
+        Returns:
+            A new Style object with the border rule set.
+        """
+        var new_style = self.copy()
+        new_style.set_rule(BORDER_BOTTOM_KEY, bottom)
+        return new_style
+
+    fn border_left(self, left: Bool) -> Style:
+        """Sets the left border to be rendered or not.
+
+        Args:
+            left: Whether to apply the border to the left side.
+
+        Returns:
+            A new Style object with the border rule set.
+        """
+        var new_style = self.copy()
+        new_style.set_rule(BORDER_LEFT_KEY, left)
+        return new_style
+
+    fn border_right(self, right: Bool) -> Style:
+        """Sets the right border to be rendered or not.
+
+        Args:
+            right: Whether to apply the border to the right side.
+
+        Returns:
+            A new Style object with the border rule set.
+        """
+        var new_style = self.copy()
+        new_style.set_rule(BORDER_RIGHT_KEY, right)
+        return new_style
+
     fn border_foreground(self, color: String) -> Style:
         """Set the border foreground color.
 
@@ -800,7 +852,7 @@ struct Style:
 
         new_style = (
             new_style.margin_top(top)
-            .padding_right(right)
+            .margin_right(right)
             .margin_bottom(bottom)
             .margin_left(left)
         )
@@ -1044,7 +1096,6 @@ struct Style:
         right_runes.append(border.right)
         var right_index = 0
 
-        # TODO: Do the ansi characters here impact the len of left and right runes? Need to check
         for i in range(len(lines)):
             var line = lines[i]
             if has_left:
@@ -1106,7 +1157,6 @@ struct Style:
             var lines = text.split("\n")
             var width: Int = 0
             for i in range(len(lines)):
-                # TODO: Should be rune length instead of str length. Some runes are longer than 1 char.
                 if printable_rune_width(lines[i]) > width:
                     width = printable_rune_width(lines[i])
 

@@ -225,15 +225,18 @@ struct Style:
 
     var renderer: Renderer
     var rules: Dict[Rule]
+    var value: String
 
-    fn __init__(inout self, renderer: Renderer = Renderer()):
+    fn __init__(inout self, renderer: Renderer = Renderer(), value: String = ""):
         """Initialize a new Style object.
 
         Args:
             renderer: The renderer to use for rendering the style. Will query terminal for profile by default.
+            value: Internal string value to apply the style to. Not required, but useful for reusing some string you want to format multiple times.
         """
         self.renderer = Renderer()
         self.rules = Dict[Rule]()
+        self.value = value
 
     @staticmethod
     fn new(renderer: Renderer = Renderer()) -> Self:
@@ -391,6 +394,32 @@ struct Style:
                 return True
 
         return False
+
+    fn set_renderer(self, renderer: Renderer) -> Style:
+        """Set the renderer for the style.
+
+        Args:
+            renderer: The renderer to set.
+
+        Returns:
+            A new Style object with the renderer set.
+        """
+        var new_style = self.copy()
+        new_style.renderer = renderer
+        return new_style
+
+    fn set_string(self, value: String) -> Style:
+        """Set the string value for the style.
+
+        Args:
+            value: The string value to set.
+
+        Returns:
+            A new Style object with the string value set.
+        """
+        var new_style = self.copy()
+        new_style.value = value
+        return new_style
 
     fn tab_width(self, width: Int) -> Style:
         """Aets the number of spaces that a tab (/t) should be rendered as.
@@ -1858,16 +1887,25 @@ struct Style:
 
         return padded_text
 
-    fn render(self, text: String) raises -> String:
+    fn render(self, *texts: String) raises -> String:
         """Render the text with the style.
 
         Args:
-            text: The text to render.
+            texts: The strings to render.
 
         Returns:
             The rendered text.
         """
-        var input_text: String = text
+        # If style has internal string, add it first. Join arbitrary list of texts into a single string.
+        var input_text: String = ""
+        if self.value != "":
+            input_text += self.value
+
+        var text_count = len(texts)
+        for i in range(len(texts)):
+            input_text += texts[i]
+            if i != len(texts) - 1:
+                input_text += " "
 
         var p = self.renderer.color_profile
         var term_style = TerminalStyle(p)
@@ -2064,4 +2102,5 @@ struct Style:
         return Self(
             renderer=self.renderer,
             rules=self.rules,
+            value=self.value,
         )

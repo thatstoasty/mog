@@ -13,14 +13,14 @@ Users familiar with CSS will feel at home with Lip Gloss.
 import "github.com/charmbracelet/lipgloss"
 
 var style = Style.new().
-    Bold(True).
+    bold(True).
     foreground("#FAFAFA")).
     background("#7D56F4")).
-    PaddingTop(2).
-    PaddingLeft(4).
-    Width(22)
+    padding_top(2).
+    padding_left(4).
+    width(22)
 
-fmt.Println(style.Render("Hello, kitty"))
+print(style.render("Hello, kitty"))
 ```
 
 ## Colors
@@ -270,13 +270,13 @@ and `MaxWidth`, and `MaxHeight` come in:
 
 ```mojo
 # Force rendering onto a single line, ignoring margins, padding, and borders.
-someStyle.Inline(True).Render("yadda yadda")
+someStyle.Inline(True).render("yadda yadda")
 
 # Also limit rendering to five cells
-someStyle.Inline(True).MaxWidth(5).Render("yadda yadda")
+someStyle.Inline(True).MaxWidth(5).render("yadda yadda")
 
 # Limit rendering to a 5x5 cell block
-someStyle.MaxWidth(5).MaxHeight(5).Render("yadda yadda")
+someStyle.MaxWidth(5).MaxHeight(5).render("yadda yadda")
 ```
 
 ## Tabs
@@ -295,19 +295,19 @@ style = style.TabWidth(lipgloss.NoTabConversion) # leave tabs intact
 
 ## Rendering
 
-Generally, you just call the `Render(string...)` method on a `lipgloss.Style`:
+Generally, you just call the `render(string...)` method on a `lipgloss.Style`:
 
 ```mojo
 style := Style.new().Bold(True).SetString("Hello,")
-fmt.Println(style.Render("kitty.")) # Hello, kitty.
-fmt.Println(style.Render("puppy.")) # Hello, puppy.
+print(style.render("kitty.")) # Hello, kitty.
+print(style.render("puppy.")) # Hello, puppy.
 ```
 
 But you could also use the Stringer interface:
 
 ```mojo
 var style = Style.new().SetString("你好，猫咪。").Bold(True)
-fmt.Println(style) # 你好，猫咪。
+print(style) # 你好，猫咪。
 ```
 
 ### Custom Renderers
@@ -325,8 +325,8 @@ func myLittleHandler(sess ssh.Session) {
     # Create a new style on the renderer.
     style := renderer.NewStyle().background(lipgloss.AdaptiveColor{Light: "63", Dark: "228"})
 
-    # Render. The color profile and dark background state will be correctly detected.
-    io.WriteString(sess, style.Render("Heyyyyyyy"))
+    # render. The color profile and dark background state will be correctly detected.
+    io.WriteString(sess, style.render("Heyyyyyyy"))
 }
 ```
 
@@ -360,11 +360,11 @@ Sometimes you’ll want to know the width and height of text blocks when buildin
 your layouts.
 
 ```mojo
-# Render a block of text.
+# render a block of text.
 var style = Style.new().
     Width(40).
     Padding(2)
-var block string = style.Render(someLongString)
+var block string = style.render(someLongString)
 
 # Get the actual, physical dimensions of the text block.
 width := lipgloss.Width(block)
@@ -439,7 +439,7 @@ t.Row("English", "You look absolutely fabulous.", "How's it going?")
 Print the table.
 
 ```mojo
-fmt.Println(t)
+print(t)
 ```
 
 ![Table Example](https:#github.com/charmbracelet/lipgloss/assets/42545625/6e4b70c4-f494-45da-a467-bdd27df30d5d)

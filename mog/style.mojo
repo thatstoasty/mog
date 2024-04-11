@@ -227,7 +227,9 @@ struct Style:
     var rules: Dict[Rule]
     var value: String
 
-    fn __init__(inout self, renderer: Renderer = Renderer(), value: String = ""):
+    fn __init__(
+        inout self, renderer: Renderer = Renderer(), value: String = ""
+    ):
         """Initialize a new Style object.
 
         Args:
@@ -1111,10 +1113,12 @@ struct Style:
         else:
             return new_style
 
-        return new_style.border_top_foreground(top) \
-            .border_right_foreground(right) \
-            .border_bottom_foreground(bottom) \
+        return (
+            new_style.border_top_foreground(top)
+            .border_right_foreground(right)
+            .border_bottom_foreground(bottom)
             .border_left_foreground(left)
+        )
 
     fn border_top_foreground(self, color: String) -> Style:
         """Set the top border foreground color.
@@ -1615,7 +1619,9 @@ struct Style:
             A new Style object with the margin background rule set.
         """
         var new_style = self.copy()
-        new_style.rules.put(MARGIN_BACKGROUND_KEY, self.renderer.color_profile.color(color))
+        new_style.rules.put(
+            MARGIN_BACKGROUND_KEY, self.renderer.color_profile.color(color)
+        )
         return new_style
 
     fn unset_margin_background(self) -> Style:

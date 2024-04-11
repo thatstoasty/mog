@@ -1,23 +1,25 @@
-Mog
-=========
+# Mog
 
 Style definitions for nice terminal layouts. Built with TUIs in mind.
+Ported from/Inspired by: <https://github.com/charmbracelet/lipgloss/tree/master>
 
-![Lip Gloss example](https:#stuff.charm.sh/lipgloss/lipgloss-example.png)
+If you're a Go developer, please check out their CLI tooling and libraries. They're unmatched!
+
+![Lip Gloss example](https://github.com/thatstoasty/mog/layout.png)
 
 Lip Gloss takes an expressive, declarative approach to terminal rendering.
 Users familiar with CSS will feel at home with Lip Gloss.
 
 ```mojo
 
-import "github.com/charmbracelet/lipgloss"
+from mog import Style
 
-var style = Style.new().
-    bold(True).
-    foreground("#FAFAFA")).
-    background("#7D56F4")).
-    padding_top(2).
-    padding_left(4).
+var style = Style.new(). \
+    bold(True). \
+    foreground("#FAFAFA"). \
+    background("#7D56F4"). \
+    padding_top(2). \
+    padding_left(4). \
     width(22)
 
 print(style.render("Hello, kitty"))
@@ -98,13 +100,13 @@ Lip Gloss supports the usual ANSI text formatting options:
 
 ```mojo
 var style = Style.new().
-    Bold(True).
-    Italic(True).
-    Faint(True).
-    Blink(True).
-    Strikethrough(True).
-    Underline(True).
-    Reverse(True)
+    bold(True).
+    italic(True).
+    faint(True).
+    blink(True).
+    strikethrough(True).
+    underline(True).
+    reverse(True)
 ```
 
 ## Block-Level Formatting
@@ -114,17 +116,17 @@ Lip Gloss also supports rules for block-level formatting:
 ```mojo
 # Padding
 var style = Style.new().
-    PaddingTop(2).
-    PaddingRight(4).
-    PaddingBottom(2).
-    PaddingLeft(4)
+    padding_top(2).
+    padding_right(4).
+    padding_bottom(2).
+    padding_left(4)
 
 # Margins
 var style = Style.new().
-    MarginTop(2).
-    MarginRight(4).
-    MarginBottom(2).
-    MarginLeft(4)
+    margin_top(2).
+    margin_right(4).
+    margin_bottom(2).
+    margin_left(4)
 ```
 
 There is also shorthand syntax for margins and padding, which follows the same
@@ -132,17 +134,17 @@ format as CSS:
 
 ```mojo
 # 2 cells on all sides
-Style.new().Padding(2)
+Style.new().padding(2)
 
 # 2 cells on the top and bottom, 4 cells on the left and right
-Style.new().Margin(2, 4)
+Style.new().margin(2, 4)
 
 # 1 cell on the top, 4 cells on the sides, 2 cells on the bottom
-Style.new().Padding(1, 4, 2)
+Style.new().padding(1, 4, 2)
 
 # Clockwise, starting from the top: 2 cells on the top, 4 on the right, 3 on
 # the bottom, and 1 on the left
-Style.new().Margin(2, 4, 3, 1)
+Style.new().margin(2, 4, 3, 1)
 ```
 
 ## Aligning Text
@@ -150,11 +152,11 @@ Style.new().Margin(2, 4, 3, 1)
 You can align paragraphs of text to the left, right, or center.
 
 ```mojo
-var style = Style.new().
-    Width(24).
-    Align(lipgloss.Left).  # align it left
-    Align(lipgloss.Right). # no wait, align it right
-    Align(lipgloss.Center) # just kidding, align it in the center
+var style = Style.new() \
+    width(24) \
+    align(position.left)  # align it left
+    align(position.right) # no wait, align it right
+    align(position.center) # just kidding, align it in the center
 ```
 
 ## Width and Height
@@ -162,11 +164,11 @@ var style = Style.new().
 Setting a minimum width and height is simple and straightforward.
 
 ```mojo
-var style = Style.new().
-    SetString("What’s for lunch?").
-    Width(24).
-    Height(32).
-    foreground("63"))
+var style = Style.new() \
+    .set_string("What’s for lunch?") \
+    .width(24) \
+    .height(32) \
+    .foreground("63")
 ```
 
 ## Borders
@@ -176,29 +178,28 @@ Adding borders is easy:
 ```mojo
 # Add a purple, rectangular border
 var style = Style.new().
-    border(lipgloss.NormalBorder()).
-    border_foreground("63"))
+    border(normal_border()).
+    border_foreground("63")
 
 # Set a rounded, yellow-on-purple border to the top and left
-var another_style = Style.new().
-    border(lipgloss.RoundedBorder()).
-    border_foreground("228")).
-    border_background("63")).
-    border_top(True).
+var another_style = Style.new() \
+    border(rounded_border()) \
+    border_foreground("228") \
+    border_background("63") \
+    border_top(True) \
     border_left(True)
 
 # Make your own border
 var my_cute_border = Border(
-    Top:         "._.:*:",
-    Bottom:      "._.:*:",
-    Left:        "|*",
-    Right:       "|*",
-    TopLeft:     "*",
-    TopRight:    "*",
-    BottomLeft:  "*",
-    BottomRight: "*",
+    top             = "._.:*:",
+    bottom          = "._.:*:",
+    left            = "|*",
+    right           = "|*",
+    top_left        = "*",
+    top_right       = "*",
+    bottom_left     = "*",
+    bottom_right    = "*",
 )
-}
 ```
 
 There are also shorthand functions for defining borders, which follow a similar
@@ -207,7 +208,7 @@ pattern to the margin and padding shorthand functions.
 ```mojo
 # Add a thick border to the top and bottom
 Style.new().
-    border(thick_border(), True, False)
+rder(thick_border(), True, False)
 
 # Add a double border to the top and left sides. Rules are set clockwise
 # from top.
@@ -224,10 +225,10 @@ Just use `copy()`:
 ```mojo
 var style = Style.new().foreground("219")
 
-var wildStyle = style.Copy().Blink(True)
+var wild_style = style.copy().blink(True)
 ```
 
-`Copy()` performs a copy on the underlying data structure ensuring that you get
+`copy()` performs a copy on the underlying data structure ensuring that you get
 a True, dereferenced copy of a style. Without copying, it's possible to mutate
 styles.
 
@@ -237,15 +238,15 @@ Styles can inherit rules from other styles. When inheriting, only unset rules
 on the receiver are inherited.
 
 ```mojo
-var styleA = Style.new().
+var style_a = Style.new().
     foreground("229").
     background("63")
 
 # Only the background color will be inherited here, because the foreground
 # color will have been already set:
-var styleB = Style.new().
+var style_b = Style.new().
     foreground("201").
-    Inherit(styleA)
+    inherit(style_a)
 ```
 
 ## Unsetting Rules
@@ -270,13 +271,13 @@ and `MaxWidth`, and `MaxHeight` come in:
 
 ```mojo
 # Force rendering onto a single line, ignoring margins, padding, and borders.
-someStyle.Inline(True).render("yadda yadda")
+some_style.inline(True).render("yadda yadda")
 
 # Also limit rendering to five cells
-someStyle.Inline(True).MaxWidth(5).render("yadda yadda")
+some_style.inline(True).max_width(5).render("yadda yadda")
 
 # Limit rendering to a 5x5 cell block
-someStyle.MaxWidth(5).MaxHeight(5).render("yadda yadda")
+some_style.max_width(5).max_height(5).render("yadda yadda")
 ```
 
 ## Tabs
@@ -287,18 +288,18 @@ tabs to 4 spaces at render time. This behavior can be changed on a per-style
 basis, however:
 
 ```mojo
-style := Style.new() # tabs will render as 4 spaces, the default
-style = style.TabWidth(2)    # render tabs as 2 spaces
-style = style.TabWidth(0)    # remove tabs entirely
-style = style.TabWidth(lipgloss.NoTabConversion) # leave tabs intact
+style = Style.new() # tabs will render as 4 spaces, the default
+style = style.tab_width(2)    # render tabs as 2 spaces
+style = style.tab_width(0)    # remove tabs entirely
+style = style.tab_width(mog.NoTabConversion) # leave tabs intact
 ```
 
 ## Rendering
 
-Generally, you just call the `render(string...)` method on a `lipgloss.Style`:
+Generally, you just call the `render(string...)` method on a `mog.Style`:
 
 ```mojo
-style := Style.new().Bold(True).SetString("Hello,")
+style = Style.new().bold(True).set_string("Hello,")
 print(style.render("kitty.")) # Hello, kitty.
 print(style.render("puppy.")) # Hello, puppy.
 ```
@@ -306,7 +307,7 @@ print(style.render("puppy.")) # Hello, puppy.
 But you could also use the Stringer interface:
 
 ```mojo
-var style = Style.new().SetString("你好，猫咪。").Bold(True)
+var style = Style.new().set_string("你好，猫咪。").bold(True)
 print(style) # 你好，猫咪。
 ```
 
@@ -318,20 +319,17 @@ correctly detect the color profile and dark background status for each, such as
 in a server-client situation.
 
 ```mojo
-func myLittleHandler(sess ssh.Session) {
+fn my_little_handler():
     # Create a renderer for the client.
-    renderer := lipgloss.NewRenderer(sess)
+    renderer = lipgloss.new_renderer()
 
     # Create a new style on the renderer.
-    style := renderer.NewStyle().background(lipgloss.AdaptiveColor{Light: "63", Dark: "228"})
+    style = renderer.new_style().background(lipgloss.AdaptiveColor{Light: "63", Dark: "228"})
 
     # render. The color profile and dark background state will be correctly detected.
-    io.WriteString(sess, style.render("Heyyyyyyy"))
-}
-```
+    style.render("Heyyyyyyy")
 
-For an example on using a custom renderer over SSH with [Wish][wish] see the
-[SSH example][ssh-example].
+```
 
 ## Utilities
 
@@ -344,14 +342,14 @@ Horizontally and vertically joining paragraphs is a cinch.
 
 ```mojo
 # Horizontally join three paragraphs along their bottom edges
-lipgloss.JoinHorizontal(lipgloss.Bottom, paragraphA, paragraphB, paragraphC)
+join_horizontal(bottom, paragraph_a, paragraph_b, paragraph_c)
 
 # Vertically join two paragraphs along their center axes
-lipgloss.JoinVertical(lipgloss.Center, paragraphA, paragraphB)
+join_vertical(center, paragraph_a, paragraph_b)
 
 # Horizontally join three paragraphs, with the shorter ones aligning 20%
 # from the top of the tallest
-lipgloss.JoinHorizontal(0.2, paragraphA, paragraphB, paragraphC)
+join_horizontal(0.2, paragraph_a, paragraph_b, paragraph_c)
 ```
 
 ### Measuring Width and Height
@@ -362,16 +360,16 @@ your layouts.
 ```mojo
 # render a block of text.
 var style = Style.new().
-    Width(40).
-    Padding(2)
-var block string = style.render(someLongString)
+    width(40).
+    padding(2)
+var block string = style.render(some_long_string)
 
 # Get the actual, physical dimensions of the text block.
-width := lipgloss.Width(block)
-height := lipgloss.Height(block)
+width = mog.get_width(block)
+height = mog.get_height(block)
 
 # Here's a shorthand function.
-w, h := lipgloss.Size(block)
+w, h = mog.get_size(block)
 ```
 
 ### Placing Text in Whitespace
@@ -381,14 +379,14 @@ Sometimes you’ll simply want to place a block of text in whitespace.
 ```mojo
 # Center a paragraph horizontally in a space 80 cells wide. The height of
 # the block returned will be as tall as the input paragraph.
-block := lipgloss.PlaceHorizontal(80, lipgloss.Center, fancyStyledParagraph)
+block = place_horizontal(80, mog.center, fancy_styled_paragraph)
 
 # Place a paragraph at the bottom of a space 30 cells tall. The width of
 # the text block returned will be as wide as the input paragraph.
-block := lipgloss.PlaceVertical(30, lipgloss.Bottom, fancyStyledParagraph)
+block = place_vertical(30, mog.bottom, fancy_styled_paragraph)
 
 # Place a paragraph in the bottom right corner of a 30x80 cell space.
-block := lipgloss.Place(30, 80, lipgloss.Right, lipgloss.Bottom, fancyStyledParagraph)
+block = place(30, 80, mog.right, mog.bottom, fancy_styled_paragraph)
 ```
 
 You can also style the whitespace. For details, see [the docs][docs].
@@ -398,39 +396,39 @@ You can also style the whitespace. For details, see [the docs][docs].
 Lip Gloss ships with a table rendering sub-package.
 
 ```mojo
-import "github.com/charmbracelet/lipgloss/table"
+import mog.table
 ```
 
 Define some rows of data.
 
 ```mojo
-rows := [][]string{
-    {"Chinese", "您好", "你好"},
-    {"Japanese", "こんにちは", "やあ"},
-    {"Arabic", "أهلين", "أهلا"},
-    {"Russian", "Здравствуйте", "Привет"},
-    {"Spanish", "Hola", "¿Qué tal?"},
-}
+rows = List[List[String]](
+    List[String]("Chinese", "您好", "你好"),
+    List[String]("Japanese", "こんにちは", "やあ"),
+    List[String]("Arabic", "أهلين", "أهلا"),
+    List[String]("Russian", "Здравствуйте", "Привет"),
+    List[String]("Spanish", "Hola", "¿Qué tal?"),
+)
 ```
 
 Use the table package to style and render the table.
 
 ```mojo
-t := table.New().
-    Border(lipgloss.NormalBorder()).
-    border(Style.new().foreground("99"))).
-    StyleFunc(func(row, col int) lipgloss.Style {
+t = table.new_table().
+    border(normal_border()) \
+    border_style(Style.new().foreground("99")) \
+    style_func(func(row, col int) lipgloss.Style {
         switch {
         case row == 0:
-            return HeaderStyle
+            return header_style
         case row%2 == 0:
-            return EvenRowStyle
+            return even_row_style
         default:
-            return OddRowStyle
+            return odd_row_style
         }
     }).
-    Headers("LANGUAGE", "FORMAL", "INFORMAL").
-    Rows(rows...)
+    headers("LANGUAGE", "FORMAL", "INFORMAL").
+    rows(rows)
 
 # You can also add tables row-by-row
 t.Row("English", "You look absolutely fabulous.", "How's it going?")
@@ -446,32 +444,9 @@ print(t)
 
 For more on tables see [the docs](https:#pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc) and [examples](https:#github.com/charmbracelet/lipgloss/tree/master/examples/table).
 
-***
+---
 
 ## FAQ
-
-<details>
-<summary>
-Why are things misaligning? Why are borders at the wrong widths?
-</summary>
-<p>This is most likely due to your locale and encoding, particularly with
-regard to Chinese, Japanese, and Korean (for example, <code>zh_CN.UTF-8</code>
-or <code>ja_JP.UTF-8</code>). The most direct way to fix this is to set
-<code>RUNEWIDTH_EASTASIAN=0</code> in your environment.</p>
-
-<p>For details see <a href="https:#github.com/charmbracelet/lipgloss/issues/40">https:#github.com/charmbracelet/lipgloss/issues/40.</a></p>
-</details>
-
-<details>
-<summary>
-Why isn't Lip Gloss displaying colors?
-</summary>
-<p>Lip Gloss automatically degrades colors to the best available option in the
-given terminal, and if output's not a TTY it will remove color output entirely.
-This is common when running tests, CI, or when piping output elsewhere.</p>
-
-<p>If necessary, you can force a color profile in your tests with
-<a href="https:#pkg.go.dev/github.com/charmbracelet/lipgloss#SetColorProfile"><code>SetColorProfile</code></a>.</p>
 
 ```mojo
 import (
@@ -479,68 +454,11 @@ import (
     "github.com/muesli/termenv"
 )
 
-lipgloss.SetColorProfile(termenv.TrueColor)
 ```
 
-*Note:* this option limits the flexibility of your application and can cause
-ANSI escape codes to be output in cases where that might not be desired. Take
-careful note of your use case and environment before choosing to force a color
-profile.
-</details>
-
-## What about [Bubble Tea][tea]?
-
-Lip Gloss doesn’t replace Bubble Tea. Rather, it is an excellent Bubble Tea
-companion. It was designed to make assembling terminal user interface views as
-simple and fun as possible so that you can focus on building your application
-instead of concerning yourself with low-level layout details.
-
-In simple terms, you can use Lip Gloss to help build your Bubble Tea views.
-
-[tea]: https:#github.com/charmbracelet/tea
-
-## Under the Hood
-
-Lip Gloss is built on the excellent [Termenv][termenv] and [Reflow][reflow]
-libraries which deal with color and ANSI-aware text operations, respectively.
-For many use cases Termenv and Reflow will be sufficient for your needs.
-
-[termenv]: https:#github.com/muesli/termenv
-[reflow]: https:#github.com/muesli/reflow
-
-## Rendering Markdown
-
-For a more document-centric rendering solution with support for things like
-lists, tables, and syntax-highlighted code have a look at [Glamour][glamour],
-the stylesheet-based Markdown renderer.
-
-[glamour]: https:#github.com/charmbracelet/glamour
-
-## Feedback
-
-We’d love to hear your thoughts on this project. Feel free to drop us a note!
-
-* [Twitter](https:#twitter.com/charmcli)
-* [The Fediverse](https:#mastodon.social/@charmcli)
-* [Discord](https:#charm.sh/chat)
-
-## License
-
-[MIT](https:#github.com/charmbracelet/lipgloss/raw/master/LICENSE)
-
-***
-
-Part of [Charm](https:#charm.sh).
-
-<a href="https:#charm.sh/"><img alt="The Charm logo" src="https:#stuff.charm.sh/charm-badge.jpg" width="400"></a>
-
-Charm热爱开源 • Charm loves open source
-
-[docs]: https:#pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc
-[wish]: https:#github.com/charmbracelet/wish
-[ssh-example]: examples/ssh
 
 TODO:
-* Proper rune and unicode character handling.
-* Add other padding and margin functions instead of assigning each edge separately.
-* Add examples.
+
+- Proper rune and unicode character handling.
+- Add other padding and margin functions instead of assigning each edge separately.
+- Add examples.

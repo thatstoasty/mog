@@ -107,7 +107,7 @@ fn main() raises:
         return data
 
     var border_style = mog.Style()
-    border_style.foreground("238")
+    border_style = border_style.foreground("238")
     # var table = mog.new_table()
     var table = mog.Table(
         style_function=make_style_func[

@@ -417,7 +417,7 @@ Use the table package to style and render the table.
 ```mojo
 t = table.new_table().
     border(normal_border()) \
-    border_style(Style.new().foreground("99")) \
+    border_style(Style.new().foreground(mog.Color("99"))) \
     style_func(func(row, col int) lipgloss.Style {
         switch {
         case row == 0:

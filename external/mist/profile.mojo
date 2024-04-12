@@ -73,7 +73,7 @@ fn get_color_profile() -> Profile:
 struct Profile:
     var value: Int
 
-    fn __init__(inout self, value: Int = TRUE_COLOR) -> None:
+    fn __init__(inout self, value: Int) -> None:
         """
         Initialize a new profile with the given profile type.
 
@@ -86,6 +86,12 @@ struct Profile:
             return
 
         self.value = value
+
+    fn __init__(inout self) -> None:
+        """
+        Initialize a new profile with the given profile type.
+        """
+        self = get_color_profile()
 
     fn convert(self, color: AnyColor) -> AnyColor:
         """Degrades a color based on the terminal profile.

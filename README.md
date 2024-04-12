@@ -325,7 +325,7 @@ fn my_little_handler():
     renderer = lipgloss.new_renderer()
 
     # Create a new style on the renderer.
-    style = renderer.new_style().background(lipgloss.AdaptiveColor{Light: "63", Dark: "228"})
+    style = renderer.new_style().background(mog.AdaptiveColor(light="63", dark="228"))
 
     # render. The color profile and dark background state will be correctly detected.
     style.render("Heyyyyyyy")

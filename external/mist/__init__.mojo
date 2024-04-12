@@ -1,4 +1,4 @@
-from .color import Color
+from .color import Color, AnyColor, NoColor, ANSIColor, ANSI256Color, RGBColor
 from .style import TerminalStyle
 from .profile import Profile, ASCII, ANSI, ANSI256, TRUE_COLOR
 from .renderers import (

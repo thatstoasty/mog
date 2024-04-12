@@ -22,17 +22,10 @@ from .border import (
 from .size import rune_count_in_string
 from .extensions import repeat, join, contains
 from .align import align_text_horizontal, align_text_vertical
+from .color import AnyTerminalColor, TerminalColor, NoColor, Color, ANSIColor, AdaptiveColor, CompleteColor, CompleteAdaptiveColor
 from external.weave import wrap, wordwrap, truncate
 from external.weave.ansi.ansi import printable_rune_width
-from external.mist.color import (
-    Color,
-    NoColor,
-    ANSIColor,
-    ANSI256Color,
-    RGBColor,
-    AnyColor,
-)
-from external.mist import TerminalStyle
+import external.mist
 from external.gojo.strings import StringBuilder
 
 
@@ -110,7 +103,6 @@ fn get_lines(s: String) raises -> (List[String], Int):
     var lines = s.split("\n")
     var widest: Int = 0
     for i in range(len(lines)):
-        # TODO: Should be rune length instead of str length. Some runes are longer than 1 char.
         if rune_count_in_string(lines[i]) > widest:
             widest = rune_count_in_string(lines[i])
 
@@ -159,7 +151,7 @@ alias TransformFunction = fn (s: String) -> String
 
 
 # Apply left padding.
-fn pad_left(text: String, n: Int, style: TerminalStyle) raises -> String:
+fn pad_left(text: String, n: Int, style: mist.TerminalStyle) raises -> String:
     if n == 0:
         return text
     var sp = repeat(" ", n)
@@ -179,7 +171,7 @@ fn pad_left(text: String, n: Int, style: TerminalStyle) raises -> String:
 
 
 # Apply right padding.
-fn pad_right(text: String, n: Int, style: TerminalStyle) raises -> String:
+fn pad_right(text: String, n: Int, style: mist.TerminalStyle) raises -> String:
     if n == 0 or text == "":
         return text
 
@@ -199,22 +191,7 @@ fn pad_right(text: String, n: Int, style: TerminalStyle) raises -> String:
     return padded_text
 
 
-fn get_value_from_anycolor(color: AnyColor, is_background: Bool) -> String:
-    var code: String = ""
-    if color.isa[NoColor]():
-        return code
-
-    if color.isa[ANSIColor]():
-        return color.get[ANSIColor]()[].value
-    elif color.isa[ANSI256Color]():
-        return color.get[ANSI256Color]()[].value
-    elif color.isa[RGBColor]():
-        return color.get[RGBColor]()[].value
-
-    return code
-
-
-alias Rule = Variant[Bool, Border, Int, Position, AnyColor]
+alias Rule = Variant[Bool, Border, Int, Position, AnyTerminalColor]
 
 
 @value
@@ -316,7 +293,7 @@ struct Style:
 
         return default
 
-    fn get_as_color(self, key: String, default: AnyColor) -> AnyColor:
+    fn get_as_color(self, key: String, default: AnyTerminalColor) -> AnyTerminalColor:
         """Get a rule as an AnyColor value.
 
         Args:
@@ -327,8 +304,8 @@ struct Style:
             The color value.
         """
         var result = self.rules.get(key, default)
-        if result.isa[AnyColor]():
-            return result.take[AnyColor]()
+        if result.isa[AnyTerminalColor]():
+            return result.take[AnyTerminalColor]()
 
         return default
 
@@ -892,7 +869,7 @@ struct Style:
     # TODO: Need a color wrapper to make it simpler for user to pass colors, or just go back to saving it as a string.
     # For now just use the renderer color profile to create an anycolor from a string. But rn the profile defaults to true color, it should,
     # be querying the user's terminal for the color profile.
-    fn foreground(self, color: String) -> Style:
+    fn foreground(self, color: AnyTerminalColor) -> Style:
         """Set the foreground color of the text.
 
         Args:
@@ -902,12 +879,10 @@ struct Style:
             A new Style object with the foreground color rule set.
         """
         var new_style = self.copy()
-        new_style.rules.put(
-            FOREGROUND_KEY, self.renderer.color_profile.color(color)
-        )
+        new_style.rules.put(FOREGROUND_KEY, color)
         return new_style
 
-    fn unset_foreground(self, color: String) -> Style:
+    fn unset_foreground(self, color: AnyTerminalColor) -> Style:
         """Unset the foreground color of the text.
 
         Args:
@@ -920,7 +895,7 @@ struct Style:
         new_style.rules.delete(FOREGROUND_KEY)
         return new_style
 
-    fn background(self, color: String) -> Style:
+    fn background(self, color: AnyTerminalColor) -> Style:
         """Set the background color of the text.
 
         Args:
@@ -930,17 +905,12 @@ struct Style:
             A new Style object with the background color rule set.
         """
         var new_style = self.copy()
-        new_style.rules.put(
-            BACKGROUND_KEY, self.renderer.color_profile.color(color)
-        )
+        new_style.rules.put(BACKGROUND_KEY, color)
 
         return new_style
 
-    fn unset_background(self, color: String) -> Style:
+    fn unset_background(self) -> Style:
         """Unset the background color of the text.
-
-        Args:
-            color: The color to apply.
 
         Returns:
             A new Style object with the background color rule unset.
@@ -1075,7 +1045,7 @@ struct Style:
         new_style.rules.delete(BORDER_RIGHT_KEY)
         return new_style
 
-    fn border_foreground(self, *colors: String) -> Style:
+    fn border_foreground(self, *colors: AnyTerminalColor) -> Style:
         """Set the border foreground color.
 
         Args:
@@ -1084,10 +1054,10 @@ struct Style:
         Returns:
             A new Style object with the border foreground color rule set.
         """
-        var top: String = ""
-        var bottom: String = ""
-        var left: String = ""
-        var right: String = ""
+        var top: AnyTerminalColor = NoColor()
+        var bottom: AnyTerminalColor = NoColor()
+        var left: AnyTerminalColor = NoColor()
+        var right: AnyTerminalColor = NoColor()
         var new_style = self.copy()
         var widths_specified = len(colors)
         if widths_specified == 1:
@@ -1120,7 +1090,7 @@ struct Style:
             .border_left_foreground(left)
         )
 
-    fn border_top_foreground(self, color: String) -> Style:
+    fn border_top_foreground(self, color: AnyTerminalColor) -> Style:
         """Set the top border foreground color.
 
         Args:
@@ -1130,9 +1100,7 @@ struct Style:
             A new Style object with the border foreground color rule set.
         """
         var new_style = self.copy()
-        new_style.rules.put(
-            BORDER_TOP_FOREGROUND_KEY, self.renderer.color_profile.color(color)
-        )
+        new_style.rules.put(BORDER_TOP_FOREGROUND_KEY, color)
         return new_style
 
     fn unset_border_top_foreground(self) -> Style:
@@ -1145,7 +1113,7 @@ struct Style:
         new_style.rules.delete(BORDER_TOP_FOREGROUND_KEY)
         return new_style
 
-    fn border_right_foreground(self, color: String) -> Style:
+    fn border_right_foreground(self, color: AnyTerminalColor) -> Style:
         """Set the right border foreground color.
 
         Args:
@@ -1155,10 +1123,7 @@ struct Style:
             A new Style object with the border foreground color rule set.
         """
         var new_style = self.copy()
-        new_style.rules.put(
-            BORDER_RIGHT_FOREGROUND_KEY,
-            self.renderer.color_profile.color(color),
-        )
+        new_style.rules.put(BORDER_RIGHT_FOREGROUND_KEY, color)
         return new_style
 
     fn unset_border_right_foreground(self) -> Style:
@@ -1171,7 +1136,7 @@ struct Style:
         new_style.rules.delete(BORDER_RIGHT_FOREGROUND_KEY)
         return new_style
 
-    fn border_left_foreground(self, color: String) -> Style:
+    fn border_left_foreground(self, color: AnyTerminalColor) -> Style:
         """Set the left border foreground color.
 
         Args:
@@ -1181,9 +1146,7 @@ struct Style:
             A new Style object with the border foreground color rule set.
         """
         var new_style = self.copy()
-        new_style.rules.put(
-            BORDER_LEFT_FOREGROUND_KEY, self.renderer.color_profile.color(color)
-        )
+        new_style.rules.put(BORDER_LEFT_FOREGROUND_KEY, color)
         return new_style
 
     fn unset_border_left_foreground(self) -> Style:
@@ -1196,7 +1159,7 @@ struct Style:
         new_style.rules.delete(BORDER_LEFT_FOREGROUND_KEY)
         return new_style
 
-    fn border_bottom_foreground(self, color: String) -> Style:
+    fn border_bottom_foreground(self, color: AnyTerminalColor) -> Style:
         """Set the bottom border foreground color.
 
         Args:
@@ -1206,10 +1169,7 @@ struct Style:
             A new Style object with the border foreground color rule set.
         """
         var new_style = self.copy()
-        new_style.rules.put(
-            BORDER_BOTTOM_FOREGROUND_KEY,
-            self.renderer.color_profile.color(color),
-        )
+        new_style.rules.put(BORDER_BOTTOM_FOREGROUND_KEY, color)
         return new_style
 
     fn unset_border_bottom_foreground(self) -> Style:
@@ -1222,7 +1182,7 @@ struct Style:
         new_style.rules.delete(BORDER_BOTTOM_FOREGROUND_KEY)
         return new_style
 
-    fn border_background(self, color: String) -> Style:
+    fn border_background(self, color: AnyTerminalColor) -> Style:
         """Set the border background color.
 
         Args:
@@ -1232,23 +1192,13 @@ struct Style:
             A new Style object with the border background color rule set.
         """
         var new_style = self.copy()
-        new_style.rules.put(
-            BORDER_TOP_BACKGROUND_KEY, self.renderer.color_profile.color(color)
-        )
-        new_style.rules.put(
-            BORDER_RIGHT_BACKGROUND_KEY,
-            self.renderer.color_profile.color(color),
-        )
-        new_style.rules.put(
-            BORDER_BOTTOM_BACKGROUND_KEY,
-            self.renderer.color_profile.color(color),
-        )
-        new_style.rules.put(
-            BORDER_LEFT_BACKGROUND_KEY, self.renderer.color_profile.color(color)
-        )
+        new_style.rules.put(BORDER_TOP_BACKGROUND_KEY, color)
+        new_style.rules.put(BORDER_RIGHT_BACKGROUND_KEY, color)
+        new_style.rules.put(BORDER_BOTTOM_BACKGROUND_KEY, color)
+        new_style.rules.put(BORDER_LEFT_BACKGROUND_KEY, color)
         return new_style
 
-    fn border_top_background(self, color: String) -> Style:
+    fn border_top_background(self, color: AnyTerminalColor) -> Style:
         """Set the top border background color.
 
         Args:
@@ -1259,7 +1209,7 @@ struct Style:
         """
         var new_style = self.copy()
         new_style.rules.put(
-            BORDER_TOP_BACKGROUND_KEY, self.renderer.color_profile.color(color)
+            BORDER_TOP_BACKGROUND_KEY, color
         )
         return new_style
 
@@ -1273,7 +1223,7 @@ struct Style:
         new_style.rules.delete(BORDER_TOP_BACKGROUND_KEY)
         return new_style
 
-    fn border_right_background(self, color: String) -> Style:
+    fn border_right_background(self, color: AnyTerminalColor) -> Style:
         """Set the right border background color.
 
         Args:
@@ -1283,10 +1233,7 @@ struct Style:
             A new Style object with the border background color rule set.
         """
         var new_style = self.copy()
-        new_style.rules.put(
-            BORDER_RIGHT_BACKGROUND_KEY,
-            self.renderer.color_profile.color(color),
-        )
+        new_style.rules.put(BORDER_RIGHT_BACKGROUND_KEY, color)
         return new_style
 
     fn unset_border_right_background(self) -> Style:
@@ -1299,7 +1246,7 @@ struct Style:
         new_style.rules.delete(BORDER_RIGHT_BACKGROUND_KEY)
         return new_style
 
-    fn border_left_background(self, color: String) -> Style:
+    fn border_left_background(self, color: AnyTerminalColor) -> Style:
         """Set the left border background color.
 
         Args:
@@ -1309,9 +1256,7 @@ struct Style:
             A new Style object with the border background color rule set.
         """
         var new_style = self.copy()
-        new_style.rules.put(
-            BORDER_LEFT_BACKGROUND_KEY, self.renderer.color_profile.color(color)
-        )
+        new_style.rules.put(BORDER_LEFT_BACKGROUND_KEY, color)
         return new_style
 
     fn unset_border_left_background(self) -> Style:
@@ -1324,7 +1269,7 @@ struct Style:
         new_style.rules.delete(BORDER_LEFT_BACKGROUND_KEY)
         return new_style
 
-    fn border_bottom_background(self, color: String) -> Style:
+    fn border_bottom_background(self, color: AnyTerminalColor) -> Style:
         """Set the bottom border background color.
 
         Args:
@@ -1334,10 +1279,7 @@ struct Style:
             A new Style object with the border background color rule set.
         """
         var new_style = self.copy()
-        new_style.rules.put(
-            BORDER_BOTTOM_BACKGROUND_KEY,
-            self.renderer.color_profile.color(color),
-        )
+        new_style.rules.put(BORDER_BOTTOM_BACKGROUND_KEY, color)
         return new_style
 
     fn unset_border_bottom_background(self) -> Style:
@@ -1609,7 +1551,7 @@ struct Style:
         new_style.rules.delete(MARGIN_LEFT_KEY)
         return new_style
 
-    fn margin_background(self, color: String) -> Style:
+    fn margin_background(self, color: AnyTerminalColor) -> Style:
         """Set the margin on the background color.
 
         Args:
@@ -1619,9 +1561,7 @@ struct Style:
             A new Style object with the margin background rule set.
         """
         var new_style = self.copy()
-        new_style.rules.put(
-            MARGIN_BACKGROUND_KEY, self.renderer.color_profile.color(color)
-        )
+        new_style.rules.put(MARGIN_BACKGROUND_KEY, color)
         return new_style
 
     fn unset_margin_background(self) -> Style:
@@ -1656,7 +1596,7 @@ struct Style:
         else:
             return text.replace("\t", repeat(" ", DEFAULT_TAB_WIDTH))
 
-    fn style_border(self, border: String, fg: AnyColor, bg: AnyColor) -> String:
+    fn style_border(self, border: String, fg: AnyTerminalColor, bg: AnyTerminalColor) -> String:
         """Style a border with foreground and background colors.
 
         Args:
@@ -1667,29 +1607,34 @@ struct Style:
         Returns:
             The styled border.
         """
-        var fg_code: String = ""
-        if fg.isa[NoColor]():
-            pass
+        if fg.isa[NoColor]() and bg.isa[NoColor]():
+            return border
+
+        var styler = mist.TerminalStyle.new()
+
+        # Sooooo verbose compared to just passing the string value. But this is closer to the lipgloss API.
+        # It's more verbose because we can't pass around args with trait as the arg type.
+        if fg.isa[Color]():
+            styler = styler.foreground(fg.take[Color]().color(self.renderer))
         elif fg.isa[ANSIColor]():
-            fg_code = fg.take[ANSIColor]().value
-        elif fg.isa[ANSI256Color]():
-            fg_code = fg.take[ANSI256Color]().value
-        elif fg.isa[RGBColor]():
-            fg_code = fg.take[RGBColor]().value
+            styler = styler.foreground(fg.take[ANSIColor]().color(self.renderer))
+        elif fg.isa[AdaptiveColor]():
+            styler = styler.foreground(fg.take[AdaptiveColor]().color(self.renderer))
+        elif fg.isa[CompleteColor]():
+            styler = styler.foreground(fg.take[CompleteColor]().color(self.renderer))
+        elif fg.isa[CompleteAdaptiveColor]():
+            styler = styler.foreground(fg.take[CompleteAdaptiveColor]().color(self.renderer))
 
-        var bg_code: String = ""
-        if bg.isa[NoColor]():
-            pass
+        if bg.isa[Color]():
+            styler = styler.background(bg.take[Color]().color(self.renderer))
         elif bg.isa[ANSIColor]():
-            bg_code = bg.take[ANSIColor]().value
-        elif bg.isa[ANSI256Color]():
-            bg_code = bg.take[ANSI256Color]().value
-        elif bg.isa[RGBColor]():
-            bg_code = bg.take[RGBColor]().value
-
-        var styler = TerminalStyle.new(self.renderer.color_profile).foreground(
-            fg_code
-        ).background(bg_code)
+            styler = styler.background(bg.take[ANSIColor]().color(self.renderer))
+        elif bg.isa[AdaptiveColor]():
+            styler = styler.background(bg.take[AdaptiveColor]().color(self.renderer))
+        elif bg.isa[CompleteColor]():
+            styler = styler.background(bg.take[CompleteColor]().color(self.renderer))
+        elif bg.isa[CompleteAdaptiveColor]():
+            styler = styler.background(bg.take[CompleteAdaptiveColor]().color(self.renderer))
 
         return styler.render(border)
 
@@ -1865,12 +1810,12 @@ struct Style:
         var bottom_margin = self.get_as_int(MARGIN_BOTTOM_KEY)
         var left_margin = self.get_as_int(MARGIN_LEFT_KEY)
 
-        var styler: TerminalStyle = TerminalStyle(self.renderer.color_profile)
+        var styler: mist.TerminalStyle = mist.TerminalStyle(self.renderer.color_profile)
 
         var bgc = self.get_as_color(MARGIN_BACKGROUND_KEY, NoColor())
 
         if not bgc.isa[NoColor]():
-            styler = styler.background(get_value_from_anycolor(bgc, True))
+            styler = styler.background(bgc)
 
         # Add left and right margin
         padded_text = pad_left(padded_text, left_margin, styler)
@@ -1914,9 +1859,9 @@ struct Style:
                 input_text += " "
 
         var p = self.renderer.color_profile
-        var term_style = TerminalStyle(p)
-        var term_style_space = TerminalStyle(p)
-        var term_style_whitespace = TerminalStyle(p)
+        var term_style = mist.TerminalStyle(p)
+        var term_style_space = mist.TerminalStyle(p)
+        var term_style_whitespace = mist.TerminalStyle(p)
 
         var bold: Bool = self.get_as_bool(BOLD_KEY, False)
         var italic: Bool = self.get_as_bool(ITALIC_KEY, False)
@@ -1984,22 +1929,20 @@ struct Style:
             term_style = term_style.crossout()
 
         if not fg.isa[NoColor]():
-            var fg_code = get_value_from_anycolor(fg, False)
-            term_style = term_style.foreground(fg_code)
+            term_style = term_style.foreground(fg)
             if use_space_styler:
-                term_style_space = term_style_space.foreground(fg_code)
+                term_style_space = term_style_space.foreground(fg)
             if use_whitespace_styler:
                 term_style_whitespace = term_style_whitespace.foreground(
-                    fg_code
+                    fg
                 )
         if not bg.isa[NoColor]():
-            var bg_code = get_value_from_anycolor(bg, True)
-            term_style = term_style.background(bg_code)
+            term_style = term_style.background(bg)
             if use_space_styler:
-                term_style_space = term_style_space.background(bg_code)
+                term_style_space = term_style_space.background(bg)
             if color_whitespace:
                 term_style_whitespace = term_style_whitespace.background(
-                    bg_code
+                    bg
                 )
 
         if underline_spaces:
@@ -2046,13 +1989,13 @@ struct Style:
         # Padding
         if not inline:
             if left_padding > 0:
-                var style = TerminalStyle(self.renderer.color_profile)
+                var style = mist.TerminalStyle(self.renderer.color_profile)
                 if color_whitespace or use_whitespace_styler:
                     style = term_style_whitespace
                 styled_text = pad_left(styled_text, left_padding, style)
 
             if right_padding > 0:
-                var style = TerminalStyle(self.renderer.color_profile)
+                var style = mist.TerminalStyle(self.renderer.color_profile)
                 if color_whitespace or use_whitespace_styler:
                     style = term_style_whitespace
                 styled_text = pad_right(styled_text, right_padding, style)
@@ -2091,7 +2034,7 @@ struct Style:
         # Apply border at the end
         var number_of_lines = len(styled_text.split("\n"))
         if not (number_of_lines == 0 and width == 0):
-            var style = TerminalStyle(self.renderer.color_profile)
+            var style = mist.TerminalStyle(self.renderer.color_profile)
             if color_whitespace or use_whitespace_styler:
                 style = term_style_whitespace
             styled_text = align_text_horizontal(

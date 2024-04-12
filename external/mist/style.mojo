@@ -147,13 +147,15 @@ struct TerminalStyle:
         """Makes the text overlined when rendered."""
         return self._add_style(overline)
 
-    fn background(self, color_value: String) -> Self:
+    fn background(self, color: AnyColor) -> Self:
         """Set the background color of the text when it's rendered.
 
         Args:
-            color_value: The color value to set the background to. This can be a hex value, an ANSI color, or an RGB color.
+            color: The color value to set the background to. This can be a hex value, an ANSI color, or an RGB color.
+
+        Returns:
+            A new TerminalStyle with the background color set.
         """
-        var color = self.profile.color(color_value)
         if color.isa[NoColor]():
             return Self(self.profile, styles=self.styles)
 
@@ -169,13 +171,15 @@ struct TerminalStyle:
             sequence = c.sequence(True)
         return self._add_style(sequence)
 
-    fn foreground(self, color_value: String) -> Self:
+    fn foreground(self, color: AnyColor) -> Self:
         """Set the foreground color of the text.
 
         Args:
-            color_value: The color value to set the foreground to. This can be a hex value, an ANSI color, or an RGB color.
+            color: The color value to set the foreground to. This can be a hex value, an ANSI color, or an RGB color.
+
+        Returns:
+            A new TerminalStyle with the foreground color set.
         """
-        var color = self.profile.color(color_value)
         if color.isa[NoColor]():
             return Self(self.profile, styles=self.styles)
 

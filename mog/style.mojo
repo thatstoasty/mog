@@ -1810,12 +1810,21 @@ struct Style:
         var bottom_margin = self.get_as_int(MARGIN_BOTTOM_KEY)
         var left_margin = self.get_as_int(MARGIN_LEFT_KEY)
 
-        var styler: mist.TerminalStyle = mist.TerminalStyle(self.renderer.color_profile)
+        var styler = mist.TerminalStyle.new(self.renderer.color_profile)
 
         var bgc = self.get_as_color(MARGIN_BACKGROUND_KEY, NoColor())
 
-        if not bgc.isa[NoColor]():
-            styler = styler.background(bgc)
+        # TODO: Dealing with variants is verbose :(
+        if bgc.isa[Color]():
+            styler = styler.background(bgc.take[Color]().color(self.renderer))
+        elif bgc.isa[ANSIColor]():
+            styler = styler.background(bgc.take[ANSIColor]().color(self.renderer))
+        elif bgc.isa[AdaptiveColor]():
+            styler = styler.background(bgc.take[AdaptiveColor]().color(self.renderer))
+        elif bgc.isa[CompleteColor]():
+            styler = styler.background(bgc.take[CompleteColor]().color(self.renderer))
+        elif bgc.isa[CompleteAdaptiveColor]():
+            styler = styler.background(bgc.take[CompleteAdaptiveColor]().color(self.renderer))
 
         # Add left and right margin
         padded_text = pad_left(padded_text, left_margin, styler)
@@ -1928,21 +1937,87 @@ struct Style:
         if crossout:
             term_style = term_style.crossout()
 
-        if not fg.isa[NoColor]():
-            term_style = term_style.foreground(fg)
+        # TODO: Again super verbose and repetitive bc of Variant
+        if fg.isa[Color]():
+            var terminal_color = fg.take[Color]().color(self.renderer)
+            term_style = term_style.foreground(terminal_color)
             if use_space_styler:
-                term_style_space = term_style_space.foreground(fg)
+                term_style_space = term_style_space.foreground(terminal_color)
             if use_whitespace_styler:
-                term_style_whitespace = term_style_whitespace.foreground(
-                    fg
-                )
-        if not bg.isa[NoColor]():
-            term_style = term_style.background(bg)
+                term_style_whitespace = term_style_whitespace.foreground(terminal_color)
+        elif fg.isa[ANSIColor]():
+            var terminal_color = fg.take[ANSIColor]().color(self.renderer)
+            term_style = term_style.foreground(terminal_color)
             if use_space_styler:
-                term_style_space = term_style_space.background(bg)
+                term_style_space = term_style_space.foreground(terminal_color)
+            if use_whitespace_styler:
+                term_style_whitespace = term_style_whitespace.foreground(terminal_color)
+        elif fg.isa[AdaptiveColor]():
+            var terminal_color = fg.take[AdaptiveColor]().color(self.renderer)
+            term_style = term_style.foreground(terminal_color)
+            if use_space_styler:
+                term_style_space = term_style_space.foreground(terminal_color)
+            if use_whitespace_styler:
+                term_style_whitespace = term_style_whitespace.foreground(terminal_color)
+        elif fg.isa[CompleteColor]():
+            var terminal_color = fg.take[CompleteColor]().color(self.renderer)
+            term_style = term_style.foreground(terminal_color)
+            if use_space_styler:
+                term_style_space = term_style_space.foreground(terminal_color)
+            if use_whitespace_styler:
+                term_style_whitespace = term_style_whitespace.foreground(terminal_color)
+        elif fg.isa[CompleteAdaptiveColor]():
+            var terminal_color = fg.take[CompleteAdaptiveColor]().color(self.renderer)
+            term_style = term_style.foreground(terminal_color)
+            if use_space_styler:
+                term_style_space = term_style_space.foreground(terminal_color)
+            if use_whitespace_styler:
+                term_style_whitespace = term_style_whitespace.foreground(terminal_color)
+
+        if bg.isa[Color]():
+            var terminal_color = bg.take[Color]().color(self.renderer)
+            term_style = term_style.background(terminal_color)
+            if use_space_styler:
+                term_style_space = term_style_space.background(terminal_color)
             if color_whitespace:
                 term_style_whitespace = term_style_whitespace.background(
-                    bg
+                    terminal_color
+                )
+        elif bg.isa[ANSIColor]():
+            var terminal_color = bg.take[ANSIColor]().color(self.renderer)
+            term_style = term_style.background(terminal_color)
+            if use_space_styler:
+                term_style_space = term_style_space.background(terminal_color)
+            if color_whitespace:
+                term_style_whitespace = term_style_whitespace.background(
+                    terminal_color
+                )
+        elif bg.isa[AdaptiveColor]():
+            var terminal_color = bg.take[AdaptiveColor]().color(self.renderer)
+            term_style = term_style.background(terminal_color)
+            if use_space_styler:
+                term_style_space = term_style_space.background(terminal_color)
+            if color_whitespace:
+                term_style_whitespace = term_style_whitespace.background(
+                    terminal_color
+                )
+        elif bg.isa[CompleteColor]():
+            var terminal_color = bg.take[CompleteColor]().color(self.renderer)
+            term_style = term_style.background(terminal_color)
+            if use_space_styler:
+                term_style_space = term_style_space.background(terminal_color)
+            if color_whitespace:
+                term_style_whitespace = term_style_whitespace.background(
+                    terminal_color
+                )
+        elif bg.isa[CompleteAdaptiveColor]():
+            var terminal_color = bg.take[CompleteAdaptiveColor]().color(self.renderer)
+            term_style = term_style.background(terminal_color)
+            if use_space_styler:
+                term_style_space = term_style_space.background(terminal_color)
+            if color_whitespace:
+                term_style_whitespace = term_style_whitespace.background(
+                    terminal_color
                 )
 
         if underline_spaces:

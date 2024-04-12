@@ -171,6 +171,28 @@ struct TerminalStyle:
             sequence = c.sequence(True)
         return self._add_style(sequence)
 
+    fn background(self, color_value: String) -> Self:
+        """Shorthand for using the style profile to set the background color of the text.
+
+        Args:
+            color_value: The color value to set the background to. This can be a hex value, an ANSI color, or an RGB color.
+
+        Returns:
+            A new TerminalStyle with the background color set.
+        """
+        return self.background(self.profile.color(color_value))
+
+    fn background(self, color_value: StringLiteral) -> Self:
+        """Shorthand for using the style profile to set the background color of the text.
+
+        Args:
+            color_value: The color value to set the background to. This can be a hex value, an ANSI color, or an RGB color.
+
+        Returns:
+            A new TerminalStyle with the background color set.
+        """
+        return self.background(self.profile.color(color_value))
+
     fn foreground(self, color: AnyColor) -> Self:
         """Set the foreground color of the text.
 
@@ -194,6 +216,28 @@ struct TerminalStyle:
             var c = color.get[RGBColor]()[]
             sequence = c.sequence(False)
         return self._add_style(sequence)
+
+    fn foreground(self, color_value: String) -> Self:
+        """Shorthand for using the style profile to set the foreground color of the text.
+
+        Args:
+            color_value: The color value to set the foreground to. This can be a hex value, an ANSI color, or an RGB color.
+
+        Returns:
+            A new TerminalStyle with the foreground color set.
+        """
+        return self.foreground(self.profile.color(color_value))
+
+    fn foreground(self, color_value: StringLiteral) -> Self:
+        """Shorthand for using the style profile to set the foreground color of the text.
+
+        Args:
+            color_value: The color value to set the foreground to. This can be a hex value, an ANSI color, or an RGB color.
+
+        Returns:
+            A new TerminalStyle with the foreground color set.
+        """
+        return self.foreground(self.profile.color(color_value))
 
     fn render(self, text: String) -> String:
         """Renders text with the styles applied to it.

@@ -11,7 +11,6 @@ trait TerminalColor(CollectionElement):
 
 
 alias AnyTerminalColor = Variant[NoColor, Color, ANSIColor, AdaptiveColor, CompleteColor, CompleteAdaptiveColor]
-alias NO_COLOR = NoColor()
 
 
 @value
@@ -95,7 +94,7 @@ struct CompleteColor(TerminalColor):
         elif p.value == mist.ANSI:
             return Color(self.ansi).color(renderer)
         else:
-            return NO_COLOR
+            return mist.NoColor()
 
 @value
 struct CompleteAdaptiveColor(TerminalColor):

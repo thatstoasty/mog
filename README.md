@@ -32,7 +32,7 @@ Lip Gloss supports the following color profiles:
 ### ANSI 16 colors (4-bit)
 
 ```mojo
-"5")  # magenta
+5")  # magenta
 "9")  # red
 "12") # light blue
 ```
@@ -64,7 +64,7 @@ available value.
 You can also specify color options for light and dark backgrounds:
 
 ```mojo
-lipgloss.AdaptiveColor{Light: "236", Dark: "248"}
+mog.AdaptiveColor(light="236", dark="248")
 ```
 
 The terminal's background color will automatically be detected and the
@@ -76,7 +76,7 @@ CompleteColor specifies exact values for truecolor, ANSI256, and ANSI color
 profiles.
 
 ```mojo
-lipgloss.CompleteColor{True: "#0000FF", ANSI256: "86", ANSI: "5"}
+mog.CompleteColor(true_color="#0000FF", ansi256="86", ansi="5")
 ```
 
 Automatic color degradation will not be performed in this case and it will be
@@ -88,10 +88,11 @@ You can use CompleteColor with AdaptiveColor to specify the exact values for
 light and dark backgrounds without automatic color degradation.
 
 ```mojo
-lipgloss.CompleteAdaptiveColor{
-    Light: CompleteColor{TrueColor: "#d7ffae", ANSI256: "193", ANSI: "11"},
-    Dark:  CompleteColor{TrueColor: "#d75fee", ANSI256: "163", ANSI: "5"},
-}
+mog.CompleteAdaptiveColor(
+    light = mog.CompleteColor(true_color: "#d7ffae", ansi256: "193", ansi: "11"),
+    dark = mog.CompleteColor(true_color: "#d75fee", ansi256: "163", ansi: "5"),
+)
+
 ```
 
 ## Inline Formatting
@@ -168,7 +169,7 @@ var style = Style.new() \
     .set_string("What’s for lunch?") \
     .width(24) \
     .height(32) \
-    .foreground("63")
+    .foreground(mog.Color("63"))
 ```
 
 ## Borders
@@ -179,13 +180,13 @@ Adding borders is easy:
 # Add a purple, rectangular border
 var style = Style.new().
     border(normal_border()).
-    border_foreground("63")
+    border_foreground(mog.Color("63"))
 
 # Set a rounded, yellow-on-purple border to the top and left
 var another_style = Style.new() \
     border(rounded_border()) \
-    border_foreground("228") \
-    border_background("63") \
+    border_foreground(mog.Color("228")) \
+    border_background(mog.Color("63")) \
     border_top(True) \
     border_left(True)
 
@@ -216,14 +217,12 @@ Style.new().
     border(double_border(), True, False, False, True)
 ```
 
-For more on borders see [the docs][docs].
-
 ## Copying Styles
 
 Just use `copy()`:
 
 ```mojo
-var style = Style.new().foreground("219")
+var style = Style.new().foreground(mog.Color("219")) \
 
 var wild_style = style.copy().blink(True)
 ```
@@ -238,14 +237,14 @@ Styles can inherit rules from other styles. When inheriting, only unset rules
 on the receiver are inherited.
 
 ```mojo
-var style_a = Style.new().
-    foreground("229").
-    background("63")
+var style_a = Style.new(). \
+    foreground(mog.Color("229")). \
+    background(mog.Color("63"))
 
 # Only the background color will be inherited here, because the foreground
 # color will have been already set:
-var style_b = Style.new().
-    foreground("201").
+var style_b = Style.new(). \
+    foreground(mog.Color("201")). \
     inherit(style_a)
 ```
 
@@ -257,7 +256,7 @@ All rules can be unset:
 var style = Style.new().
     bold(True).                        # make it bold
     unset_bold().                       # jk don't make it bold
-    background("227"). # yellow background
+    background(mog.Color("227")). # yellow background
     unset_background()                  # never mind
 ```
 
@@ -266,8 +265,8 @@ When a rule is unset, it won't be inherited or copied.
 ## Enforcing Rules
 
 Sometimes, such as when developing a component, you want to make sure style
-definitions respect their intended purpose in the UI. This is where `Inline`
-and `MaxWidth`, and `MaxHeight` come in:
+definitions respect their intended purpose in the UI. This is where `inline`
+and `max_width`, and `max_height` come in:
 
 ```mojo
 # Force rendering onto a single line, ignoring margins, padding, and borders.
@@ -291,7 +290,7 @@ basis, however:
 style = Style.new() # tabs will render as 4 spaces, the default
 style = style.tab_width(2)    # render tabs as 2 spaces
 style = style.tab_width(0)    # remove tabs entirely
-style = style.tab_width(mog.NoTabConversion) # leave tabs intact
+style = style.tab_width(mog.NO_TAB_CONVERSION) # leave tabs intact
 ```
 
 ## Rendering
@@ -324,7 +323,7 @@ fn my_little_handler():
     renderer = lipgloss.new_renderer()
 
     # Create a new style on the renderer.
-    style = renderer.new_style().background(lipgloss.AdaptiveColor{Light: "63", Dark: "228"})
+    style = renderer.new_style().background(mog.AdaptiveColor(light="63", dark="228"))
 
     # render. The color profile and dark background state will be correctly detected.
     style.render("Heyyyyyyy")
@@ -359,8 +358,8 @@ your layouts.
 
 ```mojo
 # render a block of text.
-var style = Style.new().
-    width(40).
+var style = Style.new(). \
+    width(40). \
     padding(2)
 var block string = style.render(some_long_string)
 
@@ -389,8 +388,6 @@ block = place_vertical(30, mog.bottom, fancy_styled_paragraph)
 block = place(30, 80, mog.right, mog.bottom, fancy_styled_paragraph)
 ```
 
-You can also style the whitespace. For details, see [the docs][docs].
-
 ### Rendering Tables
 
 Lip Gloss ships with a table rendering sub-package.
@@ -416,7 +413,7 @@ Use the table package to style and render the table.
 ```mojo
 t = table.new_table().
     border(normal_border()) \
-    border_style(Style.new().foreground("99")) \
+    border_style(Style.new().foreground(mog.Color("99"))) \
     style_func(func(row, col int) lipgloss.Style {
         switch {
         case row == 0:
@@ -456,9 +453,8 @@ import (
 
 ```
 
-
 TODO:
 
-- Proper rune and unicode character handling.
-- Add other padding and margin functions instead of assigning each edge separately.
-- Add examples.
+- Decompose style render mega function and mega class into smaller ones.
+- Figure out capturing variables in table style functions. Using escaping and capturing crashes, and creating the style each time the function is called is slow.
+- Fix table top and bottom rendering. Fire emoji border example renders those lengths incorrectly.

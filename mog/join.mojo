@@ -3,7 +3,6 @@ from external.weave.ansi.ansi import printable_rune_width
 from external.gojo.strings import StringBuilder
 from .position import Position, top, bottom, left, right, center
 from .extensions import repeat
-from .size import rune_count_in_string
 
 
 # join_horizontal is a utility function for horizontally joining two
@@ -86,9 +85,7 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
             _ = builder.write_string(block[i])
 
             # Also make lines the same length
-            var spaces = repeat(
-                " ", max_widths[j] - printable_rune_width(block[i])
-            )
+            var spaces = repeat(" ", max_widths[j] - printable_rune_width(block[i]))
             _ = builder.write_string(spaces)
 
         if i < len(blocks[0]) - 1:
@@ -178,9 +175,7 @@ fn join_horizontal(pos: Position, strs: List[String]) raises -> String:
             _ = builder.write_string(block[i])
 
             # Also make lines the same length
-            var spaces = repeat(
-                "", max_widths[j] - printable_rune_width(block[i])
-            )
+            var spaces = repeat("", max_widths[j] - printable_rune_width(block[i]))
             _ = builder.write_string(spaces)
 
         if i < len(blocks[0]) - 1:
@@ -252,7 +247,7 @@ fn join_vertical(pos: Position, *strs: String) raises -> String:
                 if w < 1:
                     _ = builder.write_string(line)
                 else:
-                    var split = int(w * pos / 2)
+                    var split = int(w * pos)
                     var right = w - split
                     var left = w - right
 
@@ -311,7 +306,7 @@ fn join_vertical(pos: Position, strs: List[String]) raises -> String:
                 if w < 1:
                     _ = builder.write_string(line)
                 else:
-                    var split = int(w * pos / 2)
+                    var split = int(w * pos)
                     var right = w - split
                     var left = w - right
 

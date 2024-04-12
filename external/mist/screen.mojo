@@ -72,9 +72,7 @@ fn __string__mul__(input_string: String, n: UInt16) -> String:
     return result
 
 
-fn replace(
-    input_string: String, old: String, new: String, count: Int = -1
-) -> String:
+fn replace(input_string: String, old: String, new: String, count: Int = -1) -> String:
     if count == 0:
         return input_string
 
@@ -197,8 +195,7 @@ fn alt_screen():
 
 
 fn exit_alt_screen():
-    """Exits the alternate screen buffer and returns to the former terminal view.
-    """
+    """Exits the alternate screen buffer and returns to the former terminal view."""
     print(csi + exit_alt_screen_seq, end="")
 
 

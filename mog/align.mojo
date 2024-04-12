@@ -76,11 +76,7 @@ fn align_text_vertical(
         elif text_height + top_padding + bottom_padding < height:
             bottom_padding += 1
 
-        return (
-            repeat("\n", int(top_padding))
-            + text
-            + repeat("\n", int(bottom_padding))
-        )
+        return repeat("\n", int(top_padding)) + text + repeat("\n", int(bottom_padding))
 
     if pos == position.bottom:
         return repeat("\n", height - text_height) + text

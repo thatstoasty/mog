@@ -1,5 +1,4 @@
 from external.weave.ansi.ansi import printable_rune_width
-from .size import rune_count_in_string
 
 
 @value
@@ -278,8 +277,8 @@ fn render_horizontal_edge(
     if middle == "":
         middle_copy = " "
 
-    var left_width = rune_count_in_string(left)
-    var right_width = rune_count_in_string(right)
+    var left_width = printable_rune_width(left)
+    var right_width = printable_rune_width(right)
 
     var runes = List[String](middle_copy)
     var output: String = left
@@ -293,7 +292,7 @@ fn render_horizontal_edge(
         if j >= len(runes):
             j = 0
 
-        i += rune_count_in_string(runes[j])
+        i += printable_rune_width(runes[j])
 
     output += right
 

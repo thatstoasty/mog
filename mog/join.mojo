@@ -86,9 +86,7 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
             _ = builder.write_string(block[i])
 
             # Also make lines the same length
-            var spaces = repeat(
-                " ", max_widths[j] - printable_rune_width(block[i])
-            )
+            var spaces = repeat(" ", max_widths[j] - printable_rune_width(block[i]))
             _ = builder.write_string(spaces)
 
         if i < len(blocks[0]) - 1:
@@ -178,9 +176,7 @@ fn join_horizontal(pos: Position, strs: List[String]) raises -> String:
             _ = builder.write_string(block[i])
 
             # Also make lines the same length
-            var spaces = repeat(
-                "", max_widths[j] - printable_rune_width(block[i])
-            )
+            var spaces = repeat("", max_widths[j] - printable_rune_width(block[i]))
             _ = builder.write_string(spaces)
 
         if i < len(blocks[0]) - 1:

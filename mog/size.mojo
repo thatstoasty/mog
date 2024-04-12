@@ -1,37 +1,20 @@
-from algorithm.functional import vectorize
-from memory.unsafe import DTypePointer
-from sys.info import simdwidthof
 from external.weave.ansi import ansi
 from .extensions import split
 
-alias simd_width_u8 = simdwidthof[DType.uint8]()
 
-
-fn rune_count_in_string(s: String) -> Int:
-    var p = s._as_ptr().bitcast[DType.uint8]()
-    var string_byte_length = len(s)
-    var result = 0
-
-    @parameter
-    fn count[simd_width: Int](offset: Int):
-        result += (
-            ((p.load[width=simd_width](offset) >> 6) != 0b10)
-            .cast[DType.uint8]()
-            .reduce_add()
-            .to_int()
-        )
-
-    vectorize[count, simd_width_u8](string_byte_length)
-    return result
-
-
-# Width returns the cell width of characters in the string. ANSI sequences are
-# ignored and characters wider than one cell (such as Chinese characters and
-# emojis) are appropriately measured.
-#
-# You should use this instead of len(string) len([]rune(string) as neither
-# will give you accurate results.
 fn get_width(text: String) raises -> Int:
+    """Returns the cell width of characters in the string. ANSI sequences are
+    ignored and characters wider than one cell (such as Chinese characters and
+    emojis) are appropriately measured.
+
+    You should use this instead of len(string) as it will give you accurate results.
+
+    Args:
+        text: The string to measure.
+
+    Returns:
+        The width of the string in cells.
+    """
     var strings = split(text, "\n")
     var width: Int = 0
     for i in range(len(strings)):
@@ -43,11 +26,18 @@ fn get_width(text: String) raises -> Int:
     return width
 
 
-# Height returns height of a string in cells. This is done simply by
-# counting \n characters. If your strings use \r\n for newlines you should
-# convert them to \n first, or simply write a separate fntion for measuring
-# height.
 fn get_height(text: String) -> Int:
+    """Returns height of a string in cells. This is done simply by
+    counting \\n characters. If your strings use \\r\\n for newlines you should
+    convert them to \\n first, or simply write a separate fntion for measuring
+    height.
+
+    Args:
+        text: The string to measure.
+
+    Returns:
+        The height of the string in cells.
+    """
     var height = 1
     for i in range(len(text)):
         if text[i] == "\n":
@@ -56,8 +46,15 @@ fn get_height(text: String) -> Int:
     return height
 
 
-# Size returns the width and height of the string in cells. ANSI sequences are
-# ignored and characters wider than one cell (such as Chinese characters and
-# emojis) are appropriately measured.
 fn get_size(text: String) raises -> (Int, Int):
+    """Returns the width and height of the string in cells. ANSI sequences are
+    ignored and characters wider than one cell (such as Chinese characters and
+    emojis) are appropriately measured.
+
+    Args:
+        text: The string to measure.
+
+    Returns:
+        A tuple containing the width and height of the string in cells.
+    """
     return get_width(text), get_height(text)

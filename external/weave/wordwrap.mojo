@@ -217,7 +217,7 @@ fn apply_wordwrap(s: String, limit: Int) -> String:
         The wrapped string.
     """
     var buf = s.as_bytes()
-    var b = apply_wordwrap_to_bytes(buf^, limit)
+    var b = apply_wordwrap_to_bytes(buf ^, limit)
     b.append(0)
 
     return String(b)

@@ -131,7 +131,7 @@ fn apply_indent(s: String, indent: UInt8) -> String:
         The indented string.
     """
     var buf = s.as_bytes()
-    var b = apply_indent_to_bytes(buf^, indent)
+    var b = apply_indent_to_bytes(buf ^, indent)
     b.append(0)
 
     return String(b)

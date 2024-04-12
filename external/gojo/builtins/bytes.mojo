@@ -30,9 +30,7 @@ fn has_suffix(bytes: List[Byte], suffix: List[Byte]) -> Bool:
         True if the List[Byte] struct ends with suffix; otherwise, False.
     """
     var len_comparison = len(bytes) >= len(suffix)
-    var suffix_comparison = equals(
-        bytes[len(bytes) - len(suffix) : len(bytes)], suffix
-    )
+    var suffix_comparison = equals(bytes[len(bytes) - len(suffix) : len(bytes)], suffix)
     return len_comparison and suffix_comparison
 
 

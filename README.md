@@ -217,8 +217,6 @@ Style.new().
     border(double_border(), True, False, False, True)
 ```
 
-For more on borders see [the docs][docs].
-
 ## Copying Styles
 
 Just use `copy()`:
@@ -267,8 +265,8 @@ When a rule is unset, it won't be inherited or copied.
 ## Enforcing Rules
 
 Sometimes, such as when developing a component, you want to make sure style
-definitions respect their intended purpose in the UI. This is where `Inline`
-and `MaxWidth`, and `MaxHeight` come in:
+definitions respect their intended purpose in the UI. This is where `inline`
+and `max_width`, and `max_height` come in:
 
 ```mojo
 # Force rendering onto a single line, ignoring margins, padding, and borders.
@@ -292,7 +290,7 @@ basis, however:
 style = Style.new() # tabs will render as 4 spaces, the default
 style = style.tab_width(2)    # render tabs as 2 spaces
 style = style.tab_width(0)    # remove tabs entirely
-style = style.tab_width(mog.NoTabConversion) # leave tabs intact
+style = style.tab_width(mog.NO_TAB_CONVERSION) # leave tabs intact
 ```
 
 ## Rendering
@@ -360,8 +358,8 @@ your layouts.
 
 ```mojo
 # render a block of text.
-var style = Style.new().
-    width(40).
+var style = Style.new(). \
+    width(40). \
     padding(2)
 var block string = style.render(some_long_string)
 
@@ -389,8 +387,6 @@ block = place_vertical(30, mog.bottom, fancy_styled_paragraph)
 # Place a paragraph in the bottom right corner of a 30x80 cell space.
 block = place(30, 80, mog.right, mog.bottom, fancy_styled_paragraph)
 ```
-
-You can also style the whitespace. For details, see [the docs][docs].
 
 ### Rendering Tables
 
@@ -460,3 +456,5 @@ import (
 TODO:
 
 - Decompose style render mega function and mega class into smaller ones.
+- Figure out capturing variables in table style functions. Using escaping and capturing crashes, and creating the style each time the function is called is slow.
+- Fix table top and bottom rendering. Fire emoji border example renders those lengths incorrectly.

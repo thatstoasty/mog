@@ -10,7 +10,9 @@ trait TerminalColor(CollectionElement):
         ...
 
 
-alias AnyTerminalColor = Variant[NoColor, Color, ANSIColor, AdaptiveColor, CompleteColor, CompleteAdaptiveColor]
+alias AnyTerminalColor = Variant[
+    NoColor, Color, ANSIColor, AdaptiveColor, CompleteColor, CompleteAdaptiveColor
+]
 
 
 @value
@@ -21,19 +23,21 @@ struct NoColor(TerminalColor):
 
     Example usage:
 
-	var style = some_style.copy().background(NoColor())
+        var style = some_style.copy().background(NoColor())
     """
+
     fn color(self, renderer: Renderer) -> mist.AnyColor:
-    	return mist.NoColor()
+        return mist.NoColor()
 
 
 @value
 struct Color(TerminalColor):
     """Specifies a color by hex or ANSI value. For example.
 
-	ansiColor = lipgloss.Color("21")
-	hexColor = lipgloss.Color("#0000ff").
+    ansiColor = lipgloss.Color("21")
+    hexColor = lipgloss.Color("#0000ff").
     """
+
     var value: String
 
     fn color(self, renderer: Renderer) -> mist.AnyColor:
@@ -51,6 +55,7 @@ struct ANSIColor(TerminalColor):
         # These two statements are equivalent.
         colorA = lipgloss.ANSIColor(21)
         colorB = lipgloss.Color("21")"""
+
     var value: UInt64
 
     fn color(self, renderer: Renderer) -> mist.AnyColor:
@@ -65,8 +70,9 @@ struct AdaptiveColor(TerminalColor):
 
     Example usage:
 
-	color = AdaptiveColor(Light="#0000ff", Dark="#000099")
+        color = AdaptiveColor(Light="#0000ff", Dark="#000099")
     """
+
     var light: String
     var dark: String
 
@@ -81,6 +87,7 @@ struct AdaptiveColor(TerminalColor):
 struct CompleteColor(TerminalColor):
     """Specifies exact values for truecolor, ANSI256, and ANSI color
     profiles. Automatic color degradation will not be performed."""
+
     var true_color: String
     var ansi256: String
     var ansi: String
@@ -96,11 +103,13 @@ struct CompleteColor(TerminalColor):
         else:
             return mist.NoColor()
 
+
 @value
 struct CompleteAdaptiveColor(TerminalColor):
     """Specifies exact values for truecolor, ANSI256, and ANSI color
     profiles, with separate options for light and dark backgrounds. Automatic
     color degradation will not be performed."""
+
     var light: CompleteColor
     var dark: CompleteColor
 

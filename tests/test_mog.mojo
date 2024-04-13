@@ -31,7 +31,7 @@ fn dummy_style_func(row: Int, col: Int) raises -> Style:
 
 fn test_table() raises:
     var test = MojoTest("Testing table creation with and without headers")
-    var border_style = Style().foreground(mog.Color("#39E506"))
+    var border_style = Style.new().foreground(mog.Color("#39E506"))
 
     var table = Table(
         style_function=default_styles,
@@ -158,4 +158,3 @@ fn main() raises:
     test_horizontal_joined_paragraphs()
     test_borderless_paragraph()
     test_table()
-    pass

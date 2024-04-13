@@ -7,6 +7,7 @@ from mog.style import Style
 from mog.extensions import repeat
 from mog.size import get_width
 from mog import position
+from mog.whitespace import place, with_whitespace_chars, with_whitespace_foreground
 import mog
 
 
@@ -90,7 +91,7 @@ fn main() raises:
 
     # Dialog box
     # TODO: Temporarily the full length of the doc until the renderer funcs are added
-    var dialog_box_style = Style.new().width(width).alignment(position.center).border(
+    var dialog_box_style = Style.new().alignment(position.center).border(
         rounded_border()
     ).border_foreground(mog.Color("#874BFD")).padding(1, 0)
 
@@ -111,7 +112,16 @@ fn main() raises:
     var buttons = join_horizontal(position.top, ok_button, cancel_button)
     var ui = join_vertical(position.center, question, buttons)
 
-    _ = builder.write_string(dialog_box_style.render(ui) + "\n\n")
+    var dialog = place(width,
+        9,
+        position.center,
+        position.center,
+        dialog_box_style.render(ui),
+        with_whitespace_chars["猫咪"](),
+        with_whitespace_foreground[subtle](),
+    )
+
+    _ = builder.write_string(dialog + "\n\n")
 
     # List
     var list_style = Style.new().border(

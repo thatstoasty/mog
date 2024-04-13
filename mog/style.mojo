@@ -200,11 +200,10 @@ struct Style:
     var rules: Dict[Rule]
     var value: String
 
-    fn __init__(inout self, renderer: Renderer = Renderer(), value: String = ""):
+    fn __init__(inout self, value: String = ""):
         """Initialize a new Style object.
 
         Args:
-            renderer: The renderer to use for rendering the style. Will query terminal for profile by default.
             value: Internal string value to apply the style to. Not required, but useful for reusing some string you want to format multiple times.
         """
         self.renderer = Renderer()
@@ -212,15 +211,9 @@ struct Style:
         self.value = value
 
     @staticmethod
-    fn new(renderer: Renderer = Renderer()) -> Self:
-        """Create a new Style object. Use this instead of init.
-
-        Args:
-            renderer: The renderer to use for rendering the style. Will query terminal for profile by default.
-        """
-        return Self(
-            renderer,
-        )
+    fn new() -> Self:
+        """Create a new Style object. Use this instead of init."""
+        return Self()
 
     fn get_as_bool(self, key: String, default: Bool = False) -> Bool:
         """Get a rule as a boolean value.

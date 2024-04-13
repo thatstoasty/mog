@@ -72,7 +72,7 @@ struct TerminalStyle:
             styles: A list of ANSI styles to apply to the text.
         """
         self.styles = styles
-        self.profile = get_color_profile()
+        self.profile = Profile()
 
     @staticmethod
     fn new(profile: Profile, *, styles: List[String] = List[String]()) -> Self:
@@ -91,7 +91,7 @@ struct TerminalStyle:
         Args:
             styles: A list of ANSI styles to apply to the text.
         """
-        return Self(get_color_profile(), styles=styles)
+        return Self(styles=styles)
 
     fn copy(self) -> Self:
         """Creates a deepcopy of Self and returns that. Immutability instead of mutating the object.

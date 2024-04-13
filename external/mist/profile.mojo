@@ -31,7 +31,7 @@ fn get_color_profile() -> Profile:
     """
     # if not o.isTTY():
     # 	return Ascii
-    if os.getenv("GOOGLE_CLOUD_SHELL") == "true":
+    if os.getenv("GOOGLE_CLOUD_SHELL", "false") == "true":
         return Profile(TRUE_COLOR)
 
     var term = os.getenv("TERM").lower()

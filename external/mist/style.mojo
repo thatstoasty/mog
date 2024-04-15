@@ -10,7 +10,7 @@ from .color import (
     ansi256_to_ansi,
 )
 from .profile import get_color_profile, ASCII
-import time
+
 
 # Text formatting sequences
 alias reset = "0"
@@ -36,6 +36,15 @@ alias st = escape + chr(
 alias clear = escape + "[2J" + escape + "[H"
 
 
+fn join(separator: String, iterable: List[String]) -> String:
+    var result: String = ""
+    for i in range(iterable.__len__()):
+        result += iterable[i]
+        if i != iterable.__len__() - 1:
+            result += separator
+    return result
+
+
 @value
 struct TerminalStyle:
     """TerminalStyle stores a list of styles to format text with. These styles are ANSI sequences which modify text (and control the terminal).
@@ -55,7 +64,9 @@ struct TerminalStyle:
     var styles: List[String]
     var profile: Profile
 
-    fn __init__(inout self, profile: Profile, *, styles: List[String] = List[String]()):
+    fn __init__(
+        inout self, profile: Profile, *, styles: List[String] = List[String]()
+    ):
         """Constructs a TerminalStyle. Use new instead of __init__ to chain function calls.
 
         Args:
@@ -72,7 +83,7 @@ struct TerminalStyle:
             styles: A list of ANSI styles to apply to the text.
         """
         self.styles = styles
-        self.profile = get_color_profile()
+        self.profile = Profile()
 
     @staticmethod
     fn new(profile: Profile, *, styles: List[String] = List[String]()) -> Self:
@@ -91,7 +102,7 @@ struct TerminalStyle:
         Args:
             styles: A list of ANSI styles to apply to the text.
         """
-        return Self(get_color_profile(), styles=styles)
+        return Self(styles=styles)
 
     fn copy(self) -> Self:
         """Creates a deepcopy of Self and returns that. Immutability instead of mutating the object.
@@ -246,14 +257,14 @@ struct TerminalStyle:
         Returns:
             The text with the styles applied.
         """
-        var start = time.now()
         if self.profile.value == ASCII:
             return text
 
         if len(self.styles) == 0:
             return text
 
-        var seq: String = ""
-        for i in range(len(self.styles)):
-            seq = seq + ";" + self.styles[i]
+        var seq = join(";", self.styles)
+        if seq == "":
+            return text
+
         return csi + seq + "m" + text + csi + reset + "m"

@@ -48,7 +48,9 @@ struct Writer(io.Writer):
                 if is_terminator(ord(char)):
                     self.ansi = False
 
-                    if has_suffix(self.ansi_seq.bytes(), String("[0m").as_bytes()):
+                    if has_suffix(
+                        self.ansi_seq.bytes(), String("[0m").as_bytes()
+                    ):
                         # reset sequence
                         self.last_seq.reset()
                         self.seq_changed = False
@@ -92,4 +94,4 @@ struct Writer(io.Writer):
 
 fn new_default_writer() -> Writer:
     var buf = buffer.new_buffer()
-    return Writer(buf ^)
+    return Writer(buf^)

@@ -5,6 +5,8 @@ Ported from/Inspired by: <https://github.com/charmbracelet/lipgloss/tree/master>
 
 If you're a Go developer, please check out their CLI tooling and libraries. They're unmatched!
 
+For bugs and todos, see the bottom of the readme. At the moment, characters with a printable length greater than 1 ARE NOT supported.
+
 ![Lip Gloss example](https://github.com/thatstoasty/mog/blob/main/layout.png)
 
 Lip Gloss takes an expressive, declarative approach to terminal rendering.
@@ -458,3 +460,8 @@ TODO:
 - Decompose style render mega function and mega class into smaller ones.
 - Figure out capturing variables in table style functions. Using escaping and capturing crashes, and creating the style each time the function is called is slow.
 - Fix table top and bottom rendering. Fire emoji border example renders those lengths incorrectly.
+- Code cannot handle characters with a printable length greater than 1.
+
+Notes:
+
+- ANSI256's support of setting both foreground and background colors is limited. It's possible to set both, but often the foreground color will be ignored.

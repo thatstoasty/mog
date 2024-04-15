@@ -31,7 +31,7 @@ fn get_color_profile() -> Profile:
     """
     # if not o.isTTY():
     # 	return Ascii
-    if os.getenv("GOOGLE_CLOUD_SHELL") == "true":
+    if os.getenv("GOOGLE_CLOUD_SHELL", "false") == "true":
         return Profile(TRUE_COLOR)
 
     var term = os.getenv("TERM").lower()
@@ -40,12 +40,12 @@ fn get_color_profile() -> Profile:
     # COLORTERM is used by some terminals to indicate TRUE_COLOR support.
     if color_term == "24bit":
         pass
-    elif color_term == TRUE_COLOR:
+    elif color_term == "truecolor":
         if term.startswith("screen"):
             # tmux supports TRUE_COLOR, screen only ANSI256
             if os.getenv("TERM_PROGRAM") != "tmux":
                 return Profile(ANSI256)
-            return Profile(TRUE_COLOR)
+        return Profile(TRUE_COLOR)
     elif color_term == "yes":
         pass
     elif color_term == "true":
@@ -63,7 +63,7 @@ fn get_color_profile() -> Profile:
     if "color" in term:
         return Profile(ANSI)
 
-    if ANSI in term:
+    if "ansi" in term:
         return Profile(ANSI)
 
     return Profile(ASCII)
@@ -73,7 +73,7 @@ fn get_color_profile() -> Profile:
 struct Profile:
     var value: Int
 
-    fn __init__(inout self, value: Int = TRUE_COLOR) -> None:
+    fn __init__(inout self, value: Int) -> None:
         """
         Initialize a new profile with the given profile type.
 
@@ -86,6 +86,12 @@ struct Profile:
             return
 
         self.value = value
+
+    fn __init__(inout self) -> None:
+        """
+        Initialize a new profile with the given profile type.
+        """
+        self = get_color_profile()
 
     fn convert(self, color: AnyColor) -> AnyColor:
         """Degrades a color based on the terminal profile.

@@ -165,6 +165,6 @@ fn apply_truncate_with_tail(s: String, width: UInt8, tail: String) -> String:
         The truncated string.
     """
     var buf = s.as_bytes()
-    var b = apply_truncate_to_bytes_with_tail(buf ^, width, tail)
+    var b = apply_truncate_to_bytes_with_tail(buf^, width, tail)
     b.append(0)
     return String(b)

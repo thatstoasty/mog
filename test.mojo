@@ -439,7 +439,9 @@ fn new_ord(s: String) -> Int:
         debug_assert(len(s) == 1, "input string length must be 1")
         return b1.to_int()
     var num_bytes = _ctlz(~b1)
-    debug_assert(len(s) == num_bytes.to_int(), "input string must be one character")
+    debug_assert(
+        len(s) == num_bytes.to_int(), "input string must be one character"
+    )
     var shift = (6 * (num_bytes - 1)).to_int()
     var b1_mask = 0b11111111 >> (num_bytes + 1)
     var result = (b1 & b1_mask).to_int() << shift
@@ -517,7 +519,9 @@ fn shift(s: String) -> Int:
 
     var num_bytes = _ctlz(~b1)
 
-    debug_assert(len(s) == num_bytes.to_int(), "input string must be one character")
+    debug_assert(
+        len(s) == num_bytes.to_int(), "input string must be one character"
+    )
     var shift = (6 * (num_bytes - 1)).to_int()
     var b1_mask = 0b11111111 >> (num_bytes + 1)
     var result = (b1 & b1_mask).to_int() << shift

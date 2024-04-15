@@ -15,7 +15,8 @@ fn test_horizontal_join() raises:
     test.assert_equal(
         bottom_aligned,
         (
-            "Hello World!       I could be more creative.\nThis is an example.But, I'm out of ideas.   "
+            "Hello World!       I could be more creative.\nThis is an"
+            " example.But, I'm out of ideas.   "
         ),
     )
 
@@ -25,8 +26,8 @@ fn test_horizontal_join() raises:
     test.assert_equal(
         top_aligned,
         (
-            "Hello World!       I could be more creative.\nThis is an example.But, I'm"
-            " out of ideas.   "
+            "Hello World!       I could be more creative.\nThis is an"
+            " example.But, I'm out of ideas.   "
         ),
     )
 
@@ -36,8 +37,8 @@ fn test_horizontal_join() raises:
     test.assert_equal(
         center_aligned,
         (
-            "Hello World!       I could be more creative.\nThis is an example.But, I'm"
-            " out of ideas.   "
+            "Hello World!       I could be more creative.\nThis is an"
+            " example.But, I'm out of ideas.   "
         ),
     )
 

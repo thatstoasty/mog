@@ -152,7 +152,7 @@ fn apply_padding(s: String, width: UInt8) -> String:
         The padded string.
     """
     var buf = s.as_bytes()
-    var b = apply_padding_to_bytes(buf ^, width)
+    var b = apply_padding_to_bytes(buf^, width)
     b.append(0)
 
     return String(b)

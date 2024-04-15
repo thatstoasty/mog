@@ -11,7 +11,12 @@ trait TerminalColor(CollectionElement):
 
 
 alias AnyTerminalColor = Variant[
-    NoColor, Color, ANSIColor, AdaptiveColor, CompleteColor, CompleteAdaptiveColor
+    NoColor,
+    Color,
+    ANSIColor,
+    AdaptiveColor,
+    CompleteColor,
+    CompleteAdaptiveColor,
 ]
 
 

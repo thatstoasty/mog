@@ -40,12 +40,12 @@ fn get_color_profile() -> Profile:
     # COLORTERM is used by some terminals to indicate TRUE_COLOR support.
     if color_term == "24bit":
         pass
-    elif color_term == TRUE_COLOR:
+    elif color_term == "truecolor":
         if term.startswith("screen"):
             # tmux supports TRUE_COLOR, screen only ANSI256
             if os.getenv("TERM_PROGRAM") != "tmux":
                 return Profile(ANSI256)
-            return Profile(TRUE_COLOR)
+        return Profile(TRUE_COLOR)
     elif color_term == "yes":
         pass
     elif color_term == "true":
@@ -63,7 +63,7 @@ fn get_color_profile() -> Profile:
     if "color" in term:
         return Profile(ANSI)
 
-    if ANSI in term:
+    if "ansi" in term:
         return Profile(ANSI)
 
     return Profile(ASCII)

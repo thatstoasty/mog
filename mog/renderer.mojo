@@ -6,6 +6,10 @@ from .whitespace import WhitespaceOption, new_whitespace
 import .position
 from .extensions import repeat
 
+
+# TODO: Cannot handle characters with a printable width of 2 or more. Like east asian characters (Kanji, etc.).
+# Working on terminal background querying, for now it defaults to dark background terminal.
+# If you need to set it to light, you can do so manually via the `set_dark_background` method.
 @value
 struct Renderer:
     var color_profile: Profile
@@ -16,7 +20,7 @@ struct Renderer:
     fn __init__(
         inout self,
         color_profile: Profile,
-        dark_background: Bool = False,
+        dark_background: Bool = True,
         explicit_color_profile: Bool = False,
         explicit_background_color: Bool = False,
     ):
@@ -28,7 +32,7 @@ struct Renderer:
     # TODO: Having a default Profile arg value causes a compiler error `unable to interpret call to unknown external function: getenv`
     fn __init__(
         inout self,
-        dark_background: Bool = False,
+        dark_background: Bool = True,
         explicit_color_profile: Bool = False,
         explicit_background_color: Bool = False,
     ):
@@ -38,7 +42,7 @@ struct Renderer:
         self.explicit_background_color = explicit_background_color
 
     fn set_color_profile(inout self, value: Int):
-        """Sets the color profile on the rendereself. This function exists
+        """Sets the color profile on the renderer. This function exists
         mostly for testing purposes so that you can assure you're testing against
         a specific profile.
 
@@ -59,13 +63,13 @@ struct Renderer:
     fn has_dark_background(self) -> Bool:
         """Returns whether or not the renderer will render to a dark
         background. A dark background can either be auto-detected, or set explicitly
-        on the rendereself.
+        on the renderer.
         """
         return self.dark_background
 
     fn set_dark_background(inout self, value: Bool):
         """Sets the background color detection value for the
-        default rendereself. This function exists mostly for testing purposes so that
+        default renderer. This function exists mostly for testing purposes so that
         you can assure you're testing against a specific background color setting.
 
         Outside of testing you likely won't want to use this function as the
@@ -75,7 +79,16 @@ struct Renderer:
         self.dark_background = value
         self.explicit_background_color = True
 
-    fn place(self, width: Int, height: Int, hPos: Float64, vPos: Float64, text: String, /, *opts: WhitespaceOption) raises -> String:
+    fn place(
+        self,
+        width: Int,
+        height: Int,
+        hPos: Float64,
+        vPos: Float64,
+        text: String,
+        /,
+        *opts: WhitespaceOption,
+    ) raises -> String:
         """Places a string or text block vertically in an unstyled box of a given
         width or height.
 
@@ -97,10 +110,23 @@ struct Renderer:
         var options = List[WhitespaceOption]()
         for opt in opts:
             options.append(opt)
-        return self.place_vertical(height, vPos, self.place_horizontal(width, hPos, text, options), options)
+        return self.place_vertical(
+            height,
+            vPos,
+            self.place_horizontal(width, hPos, text, options),
+            options,
+        )
 
     # TODO: temp until arg unpacking
-    fn place(self, width: Int, height: Int, hPos: Float64, vPos: Float64, text: String, opts: List[WhitespaceOption]) raises -> String:
+    fn place(
+        self,
+        width: Int,
+        height: Int,
+        hPos: Float64,
+        vPos: Float64,
+        text: String,
+        opts: List[WhitespaceOption],
+    ) raises -> String:
         """Places a string or text block vertically in an unstyled box of a given
         width or height.
 
@@ -119,9 +145,13 @@ struct Renderer:
         Returns:
             The string with the text placed in the block.
         """
-        return self.place_vertical(height, vPos, self.place_horizontal(width, hPos, text, opts), opts)
+        return self.place_vertical(
+            height, vPos, self.place_horizontal(width, hPos, text, opts), opts
+        )
 
-    fn place_horizontal(self, width: Int, pos: Float64, text: String, /, *opts: WhitespaceOption) raises -> String:
+    fn place_horizontal(
+        self, width: Int, pos: Float64, text: String, /, *opts: WhitespaceOption
+    ) raises -> String:
         """Places a string or text block horizontally in an unstyled
         block of a given width. If the given width is shorter than the max width of
         the string (measured by its longest line) this will be a noöp.
@@ -155,7 +185,9 @@ struct Renderer:
         var builder = StringBuilder()
         for i in range(len(lines)):
             # Is this line shorter than the longest line?
-            var short = max(0, content_width - ansi.printable_rune_width(lines[i]))
+            var short = max(
+                0, content_width - ansi.printable_rune_width(lines[i])
+            )
             if pos == position.left:
                 _ = builder.write_string(lines[i])
                 _ = builder.write_string(white_space.render(gap + short))
@@ -173,12 +205,18 @@ struct Renderer:
                 _ = builder.write_string(white_space.render(right))
 
             if i < len(lines) - 1:
-                _ = builder.write_byte(ord('\n'))
+                _ = builder.write_byte(ord("\n"))
 
         return str(builder)
 
     # TODO: Temporary until arg unpacking is supported.
-    fn place_horizontal(self, width: Int, pos: Float64, text: String, opts: List[WhitespaceOption]) raises -> String:
+    fn place_horizontal(
+        self,
+        width: Int,
+        pos: Float64,
+        text: String,
+        opts: List[WhitespaceOption],
+    ) raises -> String:
         """Places a string or text block horizontally in an unstyled
         block of a given width. If the given width is shorter than the max width of
         the string (measured by its longest line) this will be a noöp.
@@ -208,7 +246,9 @@ struct Renderer:
         var builder = StringBuilder()
         for i in range(len(lines)):
             # Is this line shorter than the longest line?
-            var short = max(0, content_width - ansi.printable_rune_width(lines[i]))
+            var short = max(
+                0, content_width - ansi.printable_rune_width(lines[i])
+            )
             if pos == position.left:
                 _ = builder.write_string(lines[i])
                 _ = builder.write_string(white_space.render(gap + short))
@@ -226,11 +266,18 @@ struct Renderer:
                 _ = builder.write_string(white_space.render(right))
 
             if i < len(lines) - 1:
-                _ = builder.write_byte(ord('\n'))
+                _ = builder.write_byte(ord("\n"))
 
         return str(builder)
 
-    fn place_vertical(self, height: Int, pos: Float64, text: String, /, *opts: WhitespaceOption) raises -> String:
+    fn place_vertical(
+        self,
+        height: Int,
+        pos: Float64,
+        text: String,
+        /,
+        *opts: WhitespaceOption,
+    ) raises -> String:
         """Places a string or text block vertically in an unstyled block
         of a given height. If the given height is shorter than the height of the
         string (measured by its newlines) then this will be a noöp.
@@ -268,13 +315,13 @@ struct Renderer:
 
         if pos == position.top:
             _ = builder.write_string(text)
-            _ = builder.write_byte(ord('\n'))
+            _ = builder.write_byte(ord("\n"))
 
             var i = 0
             while i < gap:
                 _ = builder.write_string(empty_line)
                 if i < gap - 1:
-                    _ = builder.write_byte(ord('\n'))
+                    _ = builder.write_byte(ord("\n"))
                 i += 1
 
         elif pos == position.bottom:
@@ -290,13 +337,19 @@ struct Renderer:
 
             var i = 0
             while i < bottom:
-                _ = builder.write_byte(ord('\n'))
+                _ = builder.write_byte(ord("\n"))
                 _ = builder.write_string(empty_line)
                 i += 1
 
         return str(builder)
 
-    fn place_vertical(self, height: Int, pos: Float64, text: String, opts: List[WhitespaceOption]) raises -> String:
+    fn place_vertical(
+        self,
+        height: Int,
+        pos: Float64,
+        text: String,
+        opts: List[WhitespaceOption],
+    ) raises -> String:
         """Places a string or text block vertically in an unstyled block
         of a given height. If the given height is shorter than the height of the
         string (measured by its newlines) then this will be a noöp.
@@ -331,15 +384,14 @@ struct Renderer:
 
         if pos == position.top:
             _ = builder.write_string(text)
-            _ = builder.write_byte(ord('\n'))
+            _ = builder.write_byte(ord("\n"))
 
             var i = 0
             while i < gap:
                 _ = builder.write_string(empty_line)
                 if i < gap - 1:
-                    _ = builder.write_byte(ord('\n'))
+                    _ = builder.write_byte(ord("\n"))
                 i += 1
-
         elif pos == position.bottom:
             _ = builder.write_string(repeat(empty_line + "\n", gap))
             _ = builder.write_string(text)
@@ -348,12 +400,13 @@ struct Renderer:
             var split = int(math.round(Float64(gap) * pos))
             var top = gap - split
             var bottom = gap - top
+
             _ = builder.write_string(repeat(empty_line + "\n", top))
             _ = builder.write_string(text)
 
             var i = 0
             while i < bottom:
-                _ = builder.write_byte(ord('\n'))
+                _ = builder.write_byte(ord("\n"))
                 _ = builder.write_string(empty_line)
                 i += 1
 

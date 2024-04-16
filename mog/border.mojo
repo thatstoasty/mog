@@ -96,6 +96,7 @@ fn ascii_border() -> Border:
         middle_right="*",
         middle="*",
         middle_top="*",
+        middle_bottom="*",
     )
 
 
@@ -113,6 +114,7 @@ fn star_border() -> Border:
         middle_right="*",
         middle="*",
         middle_top="*",
+        middle_bottom="*",
     )
 
 
@@ -130,6 +132,7 @@ fn plus_border() -> Border:
         middle_right="+",
         middle="+",
         middle_top="+",
+        middle_bottom="+",
     )
 
 
@@ -147,6 +150,7 @@ fn normal_border() -> Border:
         middle_right="┤",
         middle="┼",
         middle_top="┬",
+        middle_bottom="┴",
     )
 
 
@@ -164,6 +168,7 @@ fn rounded_border() -> Border:
         middle_right="┤",
         middle="┼",
         middle_top="┬",
+        middle_bottom="┴",
     )
 
 
@@ -224,6 +229,7 @@ fn thick_border() -> Border:
         middle_right="┫",
         middle="╋",
         middle_top="┳",
+        middle_bottom="┻",
     )
 
 
@@ -241,6 +247,7 @@ fn double_border() -> Border:
         middle_right="╣",
         middle="╬",
         middle_top="╦",
+        middle_bottom="╩",
     )
 
 
@@ -258,6 +265,7 @@ fn hidden_border() -> Border:
         middle_right=" ",
         middle=" ",
         middle_top=" ",
+        middle_bottom=" ",
     )
 
 
@@ -265,10 +273,18 @@ fn no_border() -> Border:
     return Border()
 
 
-fn render_horizontal_edge(
-    left: String, middle: String, right: String, width: Int
-) -> String:
-    """Render the horizontal (top or bottom) portion of a border."""
+fn render_horizontal_edge(left: String, middle: String, right: String, width: Int) -> String:
+    """Render the horizontal (top or bottom) portion of a border.
+
+    Args:
+        left: The left edge of the border.
+        middle: The middle of the border.
+        right: The right edge of the border.
+        width: The width of the border.
+
+    Returns:
+        The rendered horizontal edge.
+    """
     var middle_copy = middle
 
     if width < 1:

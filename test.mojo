@@ -45,12 +45,7 @@ fn rune_count_in_string(s: String) -> Int:
 
     @parameter
     fn count[simd_width: Int](offset: Int):
-        result += (
-            ((p.load[width=simd_width](offset) >> 6) != 0b10)
-            .cast[DType.uint8]()
-            .reduce_add()
-            .to_int()
-        )
+        result += ((p.load[width=simd_width](offset) >> 6) != 0b10).cast[DType.uint8]().reduce_add().to_int()
 
     vectorize[count, simd_width_u8](string_byte_length)
     return result
@@ -439,9 +434,7 @@ fn new_ord(s: String) -> Int:
         debug_assert(len(s) == 1, "input string length must be 1")
         return b1.to_int()
     var num_bytes = _ctlz(~b1)
-    debug_assert(
-        len(s) == num_bytes.to_int(), "input string must be one character"
-    )
+    debug_assert(len(s) == num_bytes.to_int(), "input string must be one character")
     var shift = (6 * (num_bytes - 1)).to_int()
     var b1_mask = 0b11111111 >> (num_bytes + 1)
     var result = (b1 & b1_mask).to_int() << shift
@@ -480,9 +473,7 @@ fn new_chr(c: Int) -> String:
     @always_inline
     fn _utf8_len(val: Int) -> Int:
         debug_assert(val > 0x10FFFF, "Value is not a valid Unicode code point")
-        alias sizes = SIMD[DType.int32, 4](
-            0, 0b1111_111, 0b1111_1111_111, 0b1111_1111_1111_1111
-        )
+        alias sizes = SIMD[DType.int32, 4](0, 0b1111_111, 0b1111_1111_111, 0b1111_1111_1111_1111)
         var values = SIMD[DType.int32, 4](val)
         var mask = values > sizes
         return mask.cast[DType.uint8]().reduce_add().to_int()
@@ -502,9 +493,7 @@ fn new_chr(c: Int) -> String:
 
 fn _utf8_len(val: Int) -> Int:
     debug_assert(val > 0x10FFFF, "Value is not a valid Unicode code point")
-    alias sizes = SIMD[DType.int32, 4](
-        0, 0b1111_111, 0b1111_1111_111, 0b1111_1111_1111_1111
-    )
+    alias sizes = SIMD[DType.int32, 4](0, 0b1111_111, 0b1111_1111_111, 0b1111_1111_1111_1111)
     var values = SIMD[DType.int32, 4](val)
     var mask = values > sizes
     return mask.cast[DType.uint8]().reduce_add().to_int()
@@ -519,9 +508,7 @@ fn shift(s: String) -> Int:
 
     var num_bytes = _ctlz(~b1)
 
-    debug_assert(
-        len(s) == num_bytes.to_int(), "input string must be one character"
-    )
+    debug_assert(len(s) == num_bytes.to_int(), "input string must be one character")
     var shift = (6 * (num_bytes - 1)).to_int()
     var b1_mask = 0b11111111 >> (num_bytes + 1)
     var result = (b1 & b1_mask).to_int() << shift
@@ -539,9 +526,7 @@ fn string_iterator(s: String, it: fn (String) -> None):
     var bytes = len(s)
     var p = s._as_ptr().bitcast[DType.uint8]()
     while bytes > 0:
-        var char_length = (
-            (p.load() >> 7 == 0).cast[DType.uint8]() * 1 + ctlz(~p.load())
-        ).to_int()
+        var char_length = ((p.load() >> 7 == 0).cast[DType.uint8]() * 1 + ctlz(~p.load())).to_int()
         var sp = DTypePointer[DType.int8].alloc(char_length + 1)
         memcpy(sp, p.bitcast[DType.int8](), char_length)
         sp[char_length] = 0

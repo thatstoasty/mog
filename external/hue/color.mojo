@@ -15,9 +15,7 @@ fn linearize(v: Float64) -> Float64:
     return lhs**rhs
 
 
-fn linear_rgb_to_xyz(
-    r: Float64, g: Float64, b: Float64
-) -> (Float64, Float64, Float64):
+fn linear_rgb_to_xyz(r: Float64, g: Float64, b: Float64) -> (Float64, Float64, Float64):
     var x: Float64 = 0.41239079926595948 * r + 0.35758433938387796 * g + 0.18048078840183429 * b
     var y: Float64 = 0.21263900587151036 * r + 0.71516867876775593 * g + 0.072192315360733715 * b
     var z: Float64 = 0.019330818715591851 * r + 0.11919477979462599 * g + 0.95053215224966058 * b
@@ -25,9 +23,7 @@ fn linear_rgb_to_xyz(
     return x, y, z
 
 
-fn luv_to_xyz_white_ref(
-    l: Float64, u: Float64, v: Float64, wref: List[Float64]
-) -> (Float64, Float64, Float64):
+fn luv_to_xyz_white_ref(l: Float64, u: Float64, v: Float64, wref: List[Float64]) -> (Float64, Float64, Float64):
     var y: Float64
     if l <= 0.08:
         y = wref[1] * l * 100.0 * 3.0 / 29.0 * 3.0 / 29.0 * 3.0 / 29.0
@@ -71,9 +67,7 @@ fn xyz_to_uv(x: Float64, y: Float64, z: Float64) -> (Float64, Float64):
     return u, v
 
 
-fn xyz_to_Luv_white_ref(
-    x: Float64, y: Float64, z: Float64, wref: List[Float64]
-) -> (Float64, Float64, Float64):
+fn xyz_to_Luv_white_ref(x: Float64, y: Float64, z: Float64, wref: List[Float64]) -> (Float64, Float64, Float64):
     var l: Float64
     if y / wref[1] <= 6.0 / 29.0 * 6.0 / 29.0 * 6.0 / 29.0:
         l = y / wref[1] * (29.0 / 3.0 * 29.0 / 3.0 * 29.0 / 3.0) / 100.0
@@ -96,15 +90,11 @@ fn xyz_to_Luv_white_ref(
     return l, u, v
 
 
-fn LuvToLuvLCh(
-    L: Float64, u: Float64, v: Float64
-) -> (Float64, Float64, Float64):
+fn LuvToLuvLCh(L: Float64, u: Float64, v: Float64) -> (Float64, Float64, Float64):
     # Oops, floating point workaround necessary if u ~= v and both are very small (i.e. almost zero).
     var h: Float64
     if math.abs(v - u) > 1e-4 and math.abs(u) > 1e-4:
-        h = math.mod(
-            57.29577951308232087721 * math.atan2(v, u) + 360.0, 360.0
-        )  # Rad2Deg
+        h = math.mod(57.29577951308232087721 * math.atan2(v, u) + 360.0, 360.0)  # Rad2Deg
     else:
         h = 0.0
 
@@ -114,9 +104,7 @@ fn LuvToLuvLCh(
     return l, c, h
 
 
-alias hSLuvD65: List[Float64] = List[Float64](
-    0.95045592705167, 1.0, 1.089057750759878
-)
+alias hSLuvD65: List[Float64] = List[Float64](0.95045592705167, 1.0, 1.089057750759878)
 
 
 fn getBounds(l: Float64) -> List[List[Float64]]:
@@ -135,15 +123,9 @@ fn getBounds(l: Float64) -> List[List[Float64]]:
     )
 
     var m = List[List[Float64]](
-        List[Float64](
-            3.2409699419045214, -1.5373831775700935, -0.49861076029300328
-        ),
-        List[Float64](
-            -0.96924363628087983, 1.8759675015077207, 0.041555057407175613
-        ),
-        List[Float64](
-            0.055630079696993609, -0.20397695888897657, 1.0569715142428786
-        ),
+        List[Float64](3.2409699419045214, -1.5373831775700935, -0.49861076029300328),
+        List[Float64](-0.96924363628087983, 1.8759675015077207, 0.041555057407175613),
+        List[Float64](0.055630079696993609, -0.20397695888897657, 1.0569715142428786),
     )
 
     if sub1 > epsilon:
@@ -155,12 +137,10 @@ fn getBounds(l: Float64) -> List[List[Float64]]:
         var k = 0
         while k < 2:
             var top1 = (284517.0 * m[i][0] - 94839.0 * m[i][2]) * sub2
-            var top2 = (
-                838422.0 * m[i][2] + 769860.0 * m[i][1] + 731718.0 * m[i][0]
-            ) * l * sub2 - 769860.0 * Float64(k) * l
-            var bottom = (
-                632260.0 * m[i][2] - 126452.0 * m[i][1]
-            ) * sub2 + 126452.0 * Float64(k)
+            var top2 = (838422.0 * m[i][2] + 769860.0 * m[i][1] + 731718.0 * m[i][0]) * l * sub2 - 769860.0 * Float64(
+                k
+            ) * l
+            var bottom = (632260.0 * m[i][2] - 126452.0 * m[i][1]) * sub2 + 126452.0 * Float64(k)
             ret[i * 2 + k][0] = top1 / bottom
             ret[i * 2 + k][1] = top2 / bottom
             k += 1
@@ -186,9 +166,7 @@ fn maxChromaForLH(l: Float64, h: Float64) -> Float64:
     return minLength
 
 
-fn LuvLch_to_HSLuv(
-    l: Float64, c: Float64, h: Float64
-) -> (Float64, Float64, Float64):
+fn LuvLch_to_HSLuv(l: Float64, c: Float64, h: Float64) -> (Float64, Float64, Float64):
     # [-1..1] but the code expects it to be [-100..100]
     var tmp_l: Float64 = l * 100.0
     var tmp_c: Float64 = c * 100.0
@@ -204,19 +182,11 @@ fn LuvLch_to_HSLuv(
     return h, clamp01(s / 100.0), clamp01(l / 100.0)
 
 
-fn xyz_to_linear_rgb(
-    x: Float64, y: Float64, z: Float64
-) -> (Float64, Float64, Float64):
+fn xyz_to_linear_rgb(x: Float64, y: Float64, z: Float64) -> (Float64, Float64, Float64):
     """Converts from CIE XYZ-space to Linear RGB space."""
-    var r = (3.2409699419045214 * x) - (1.5373831775700935 * y) - (
-        0.49861076029300328 * z
-    )
-    var g = (-0.96924363628087983 * x) + (1.8759675015077207 * y) + (
-        0.041555057407175613 * z
-    )
-    var b = (0.055630079696993609 * x) - (0.20397695888897657 * y) + (
-        1.0569715142428786 * z
-    )
+    var r = (3.2409699419045214 * x) - (1.5373831775700935 * y) - (0.49861076029300328 * z)
+    var g = (-0.96924363628087983 * x) + (1.8759675015077207 * y) + (0.041555057407175613 * z)
+    var b = (0.055630079696993609 * x) - (0.20397695888897657 * y) + (1.0569715142428786 * z)
 
     return r, g, b
 
@@ -260,15 +230,7 @@ struct RGB:
     var B: Float64
 
     fn __str__(self) -> String:
-        return (
-            "RGB("
-            + String(self.R)
-            + ", "
-            + String(self.G)
-            + ", "
-            + String(self.B)
-            + ")"
-        )
+        return "RGB(" + String(self.R) + ", " + String(self.G) + ", " + String(self.B) + ")"
 
     fn linear_rgb(self) -> (Float64, Float64, Float64):
         """Converts the color into the linear RGB space (see http://www.sjbrown.co.uk/2004/05/14/gamma-correct-rendering/).
@@ -304,9 +266,7 @@ struct RGB:
         l, u, v = xyz_to_Luv_white_ref(x, y, z, wref)
         return l, u, v
 
-    fn LuvLCh_white_ref(
-        self, wref: List[Float64]
-    ) -> (Float64, Float64, Float64):
+    fn LuvLCh_white_ref(self, wref: List[Float64]) -> (Float64, Float64, Float64):
         var l: Float64
         var u: Float64
         var v: Float64

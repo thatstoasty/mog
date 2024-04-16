@@ -19,9 +19,7 @@ fn from_string(input_value: String) -> List[String]:
     return result
 
 
-fn split(
-    input_string: String, sep: String = " ", owned max_split: Int = -1
-) raises -> List[String]:
+fn split(input_string: String, sep: String = " ", owned max_split: Int = -1) raises -> List[String]:
     """The separator can be multiple characters long."""
     var result = List[String]()
     if max_split == 0:

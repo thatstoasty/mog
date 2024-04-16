@@ -62,9 +62,7 @@ struct Reader(
             return Result(0, WrappedError(io.EOF))
 
         self.prev_rune = -1
-        var bytes_written = copy(
-            dest, self.string[int(self.read_pos) :].as_bytes()
-        )
+        var bytes_written = copy(dest, self.string[int(self.read_pos) :].as_bytes())
         self.read_pos += Int64(bytes_written)
         return bytes_written
 
@@ -82,17 +80,13 @@ struct Reader(
         """
         # cannot modify state - see io.ReaderAt
         if off < 0:
-            return Result(
-                0, WrappedError("strings.Reader.read_at: negative offset")
-            )
+            return Result(0, WrappedError("strings.Reader.read_at: negative offset"))
 
         if off >= Int64(len(self.string)):
             return Result(0, WrappedError(io.EOF))
 
         var error: Optional[WrappedError] = None
-        var copied_elements_count = copy(
-            dest, self.string[int(off) :].as_bytes()
-        )
+        var copied_elements_count = copy(dest, self.string[int(off) :].as_bytes())
         if copied_elements_count < len(dest):
             error = WrappedError(io.EOF)
 
@@ -118,9 +112,7 @@ struct Reader(
         Implements the [io.ByteScanner] trait.
         """
         if self.read_pos <= 0:
-            return WrappedError(
-                "strings.Reader.unread_byte: at beginning of string"
-            )
+            return WrappedError("strings.Reader.unread_byte: at beginning of string")
 
         self.prev_rune = -1
         self.read_pos -= 1
@@ -175,14 +167,10 @@ struct Reader(
         elif whence == io.SEEK_END:
             position = Int64(len(self.string)) + offset
         else:
-            return Result(
-                Int64(0), WrappedError("strings.Reader.seek: invalid whence")
-            )
+            return Result(Int64(0), WrappedError("strings.Reader.seek: invalid whence"))
 
         if position < 0:
-            return Result(
-                Int64(0), WrappedError("strings.Reader.seek: negative position")
-            )
+            return Result(Int64(0), WrappedError("strings.Reader.seek: negative position"))
 
         self.read_pos = position
         return position

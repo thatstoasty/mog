@@ -76,13 +76,9 @@ struct Wrap(Stringable, io.Writer):
         # Rune iterator
         var bytes = len(s)
         var s_bytes = s.as_bytes()  # needs to be mutable, so we steal the data of the copy
-        var p = DTypePointer[DType.int8](s_bytes.steal_data().value).bitcast[
-            DType.uint8
-        ]()
+        var p = DTypePointer[DType.int8](s_bytes.steal_data().value).bitcast[DType.uint8]()
         while bytes > 0:
-            var char_length = (
-                (p.load() >> 7 == 0).cast[DType.uint8]() * 1 + ctlz(~p.load())
-            ).to_int()
+            var char_length = ((p.load() >> 7 == 0).cast[DType.uint8]() * 1 + ctlz(~p.load())).to_int()
             var sp = DTypePointer[DType.int8].alloc(char_length + 1)
             memcpy(sp, p.bitcast[DType.int8](), char_length)
             sp[char_length] = 0
@@ -108,11 +104,7 @@ struct Wrap(Stringable, io.Writer):
                     self.forceful_newline = True
 
                 if self.line_len == 0:
-                    if (
-                        self.forceful_newline
-                        and not self.preserve_space
-                        and char == " "
-                    ):
+                    if self.forceful_newline and not self.preserve_space and char == " ":
                         bytes -= char_length
                         p += char_length
                         continue

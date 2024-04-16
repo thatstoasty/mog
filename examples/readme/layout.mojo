@@ -45,15 +45,11 @@ fn build_tabs() raises -> String:
         bottom_right="┴",
     )
 
-    var tab_style = Style.new().border(tab_border).border_foreground(
-        highlight
-    ).padding(0, 1)
+    var tab_style = Style.new().border(tab_border).border_foreground(highlight).padding(0, 1)
 
     var active_tab = tab_style.copy().border(active_tab_border, True)
 
-    var tab_gap = tab_style.copy().border_top(False).border_left(
-        False
-    ).border_right(False)
+    var tab_gap = tab_style.copy().border_top(False).border_left(False).border_right(False)
 
     var row = join_horizontal(
         position.top,
@@ -72,43 +68,32 @@ fn build_description() raises -> String:
 
     var url = Style.new().foreground(special)
     var desc_style = Style.new().margin_top(1)
-    var info_style = Style.new().border(
-        normal_border(), True, False, False, False
-    ).border_foreground(subtle)
+    var info_style = Style.new().border(normal_border(), True, False, False, False).border_foreground(subtle)
 
     return join_vertical(
         position.left,
-        desc_style.render(
-            "Style Definitions for Nice Terminal Layouts.\nInspired by"
-            " charmbracelet/lipgloss"
-        ),
-        info_style.render(
-            "From Mikhail"
-            + divider
-            + url.render("https://github.com/thatstoasty/mog")
-        ),
+        desc_style.render("Style Definitions for Nice Terminal Layouts.\nInspired by charmbracelet/lipgloss"),
+        info_style.render("From Mikhail" + divider + url.render("https://github.com/thatstoasty/mog")),
     )
 
 
 fn build_dialog_box() raises -> String:
-    var dialog_box_style = Style.new().alignment(position.center).border(
-        rounded_border()
-    ).border_foreground(mog.Color("#874BFD")).padding(1, 0)
+    var dialog_box_style = Style.new().alignment(position.center).border(rounded_border()).border_foreground(
+        mog.Color("#874BFD")
+    ).padding(1, 0)
 
-    var button_style = Style.new().foreground(mog.Color("#FFF7DB")).background(
-        mog.Color("#888B7E")
-    ).padding(0, 3).margin_top(1)
+    var button_style = Style.new().foreground(mog.Color("#FFF7DB")).background(mog.Color("#888B7E")).padding(
+        0, 3
+    ).margin_top(1)
 
-    var active_button_style = button_style.copy().foreground(
-        mog.Color("#FFF7DB")
-    ).background(mog.Color("#F25D94")).margin_right(2).underline()
+    var active_button_style = button_style.copy().foreground(mog.Color("#FFF7DB")).background(
+        mog.Color("#F25D94")
+    ).margin_right(2).underline()
 
     var ok_button = active_button_style.render("Yes")
     var cancel_button = button_style.render("Maybe")
 
-    var question = Style.new().width(50).alignment(position.center).render(
-        "Are you sure you want to eat marmalade?"
-    )
+    var question = Style.new().width(50).alignment(position.center).render("Are you sure you want to eat marmalade?")
 
     var buttons = join_horizontal(position.top, ok_button, cancel_button)
     var ui = join_vertical(position.center, question, buttons)
@@ -126,25 +111,19 @@ fn build_dialog_box() raises -> String:
 
 
 fn build_lists() raises -> String:
-    var list_style = Style.new().border(
-        normal_border(), False, True, False, False
-    ).border_foreground(subtle).margin_right(2).height(8).width(
-        column_width + 1
-    )
+    var list_style = Style.new().border(normal_border(), False, True, False, False).border_foreground(
+        subtle
+    ).margin_right(2).height(8).width(column_width + 1)
 
-    var list_header = Style.new().border(
-        normal_border(), False, False, True, False
-    ).border_foreground(subtle).margin_right(2)
+    var list_header = Style.new().border(normal_border(), False, False, True, False).border_foreground(
+        subtle
+    ).margin_right(2)
 
     var list_item = Style.new().padding_left(2)
 
-    var check_mark = Style.new().foreground(special).padding_right(1).render(
-        "✔"
-    )
+    var check_mark = Style.new().foreground(special).padding_right(1).render("✔")
 
-    var list_done = Style.new().crossout().foreground(
-        mog.AdaptiveColor(light="#969B86", dark="#696969")
-    )
+    var list_done = Style.new().crossout().foreground(mog.AdaptiveColor(light="#969B86", dark="#696969"))
 
     var lists = join_horizontal(
         position.top,
@@ -191,13 +170,9 @@ fn build_lists() raises -> String:
 
 
 fn build_history() raises -> String:
-    var history_style = Style.new().height(20).width(column_width).padding(
-        1, 2
-    ).margin(1, 3, 0, 0).alignment(position.left).foreground(
-        mog.Color("#FFFDF5")
-    ).background(
-        highlight
-    )
+    var history_style = Style.new().height(20).width(column_width).padding(1, 2).margin(1, 3, 0, 0).alignment(
+        position.left
+    ).foreground(mog.Color("#FFFDF5")).background(highlight)
 
     alias history_a = "The Romans learned from the Greeks that quinces slowly cooked with honey would “set” when cool. The Apicius gives a recipe for preserving whole quinces, stems and leaves attached, in a bath of honey diluted with defrutum: Roman marmalade. Preserves of quince and lemon appear (along with rose, apple, plum and pear) in the Book of ceremonies of the Byzantine Emperor Constantine VII Porphyrogennetos."
     alias history_b = "Medieval quince preserves, which went by the French name cotignac, produced in a clear version and a fruit pulp version, began to lose their medieval seasoning of spices in the 16th century. In the 17th century, La Varenne provided recipes for both thick and clear cotignac."
@@ -212,36 +187,25 @@ fn build_history() raises -> String:
 
 
 fn build_status_bar() raises -> String:
-    var status_nugget_style = Style.new().foreground(
-        mog.Color("#FFFDF5")
-    ).padding(0, 1)
+    var status_nugget_style = Style.new().foreground(mog.Color("#FFFDF5")).padding(0, 1)
 
-    var status_bar_style = Style.new().foreground(
-        mog.Color("#C1C6B2")
-    ).background(mog.Color("#353533"))
+    var status_bar_style = Style.new().foreground(mog.Color("#C1C6B2")).background(mog.Color("#353533"))
 
-    var status_style = Style.new().foreground(mog.Color("#FFFDF5")).background(
-        mog.Color("#FF5F87")
-    ).padding(0, 1)
+    var status_style = Style.new().foreground(mog.Color("#FFFDF5")).background(mog.Color("#FF5F87")).padding(0, 1)
     # .margin_right(1)
 
-    var encoding_style = status_nugget_style.copy().background(
-        mog.Color("#A550DF")
-    ).horizontal_alignment(position.right)
+    var encoding_style = status_nugget_style.copy().background(mog.Color("#A550DF")).horizontal_alignment(
+        position.right
+    )
 
     var status_text_style = status_bar_style.copy().padding_left(1)
-    var fish_cake_style = status_nugget_style.copy().background(
-        mog.Color("#6124DF")
-    )
+    var fish_cake_style = status_nugget_style.copy().background(mog.Color("#6124DF"))
 
     var status_key = status_style.render("STATUS")
     var encoding = encoding_style.render("UTF-8")
     var fish_cake = fish_cake_style.render("Fish Cake")
     var status_val = status_text_style.copy().width(
-        width
-        - get_width(status_key)
-        - get_width(encoding)
-        - get_width(fish_cake)
+        width - get_width(status_key) - get_width(encoding) - get_width(fish_cake)
     ).render("Ravishing")
 
     var bar = join_horizontal(
@@ -258,9 +222,7 @@ fn build_status_bar() raises -> String:
 fn main() raises:
     # The page style
     var builder = StringBuilder()
-    var doc_style = Style.new().padding(1, 2, 1, 2).border(
-        rounded_border()
-    ).border_foreground(subtle)
+    var doc_style = Style.new().padding(1, 2, 1, 2).border(rounded_border()).border_foreground(subtle)
 
     # Tabs.
     _ = builder.write_string(build_tabs())

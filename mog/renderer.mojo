@@ -145,13 +145,9 @@ struct Renderer:
         Returns:
             The string with the text placed in the block.
         """
-        return self.place_vertical(
-            height, vPos, self.place_horizontal(width, hPos, text, opts), opts
-        )
+        return self.place_vertical(height, vPos, self.place_horizontal(width, hPos, text, opts), opts)
 
-    fn place_horizontal(
-        self, width: Int, pos: Float64, text: String, /, *opts: WhitespaceOption
-    ) raises -> String:
+    fn place_horizontal(self, width: Int, pos: Float64, text: String, /, *opts: WhitespaceOption) raises -> String:
         """Places a string or text block horizontally in an unstyled
         block of a given width. If the given width is shorter than the max width of
         the string (measured by its longest line) this will be a noöp.
@@ -185,9 +181,7 @@ struct Renderer:
         var builder = StringBuilder()
         for i in range(len(lines)):
             # Is this line shorter than the longest line?
-            var short = max(
-                0, content_width - ansi.printable_rune_width(lines[i])
-            )
+            var short = max(0, content_width - ansi.printable_rune_width(lines[i]))
             if pos == position.left:
                 _ = builder.write_string(lines[i])
                 _ = builder.write_string(white_space.render(gap + short))
@@ -246,9 +240,7 @@ struct Renderer:
         var builder = StringBuilder()
         for i in range(len(lines)):
             # Is this line shorter than the longest line?
-            var short = max(
-                0, content_width - ansi.printable_rune_width(lines[i])
-            )
+            var short = max(0, content_width - ansi.printable_rune_width(lines[i]))
             if pos == position.left:
                 _ = builder.write_string(lines[i])
                 _ = builder.write_string(white_space.render(gap + short))

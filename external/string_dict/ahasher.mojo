@@ -22,9 +22,7 @@ fn read_small(data: DTypePointer[DType.uint8], length: Int) -> U128:
         if length >= 4:
             # len 4-8
             var a = data.bitcast[DType.uint32]().load().cast[DType.uint64]()
-            var b = data.offset(length - 4).bitcast[DType.uint32]().load().cast[
-                DType.uint64
-            ]()
+            var b = data.offset(length - 4).bitcast[DType.uint32]().load().cast[DType.uint64]()
             return U128(a, b)
         else:
             var a = data.bitcast[DType.uint16]().load().cast[DType.uint64]()
@@ -60,9 +58,7 @@ struct AHasher:
 
     @always_inline
     fn large_update(inout self, new_data: U128):
-        var combined = folded_multiply(
-            new_data[0] ^ self.extra_keys[0], new_data[1] ^ self.extra_keys[1]
-        )
+        var combined = folded_multiply(new_data[0] ^ self.extra_keys[0], new_data[1] ^ self.extra_keys[1])
         self.buffer = rotate_bits_left[ROT]((self.buffer + self.pad) ^ combined)
 
     @always_inline
@@ -80,15 +76,11 @@ struct AHasher:
         self.buffer = (self.buffer + length) * MULTIPLE
         if length > 8:
             if length > 16:
-                var tail = data.offset(length - 16).bitcast[
-                    DType.uint64
-                ]().load[width=2]()
+                var tail = data.offset(length - 16).bitcast[DType.uint64]().load[width=2]()
                 self.large_update(tail)
                 var offset = 0
                 while length - offset > 16:
-                    var block = data.offset(offset).bitcast[
-                        DType.uint64
-                    ]().load[width=2]()
+                    var block = data.offset(offset).bitcast[DType.uint64]().load[width=2]()
                     self.large_update(block)
                     offset += 16
             else:
@@ -110,9 +102,7 @@ fn ahash(s: String) -> UInt64:
         hasher.write(b, length)
     else:
         var value = read_small(b, length)
-        hasher.buffer = folded_multiply(
-            value[0] ^ hasher.buffer, value[1] ^ hasher.extra_keys[1]
-        )
+        hasher.buffer = folded_multiply(value[0] ^ hasher.buffer, value[1] ^ hasher.extra_keys[1])
         hasher.pad = hasher.pad + length
 
     return hasher.finish()

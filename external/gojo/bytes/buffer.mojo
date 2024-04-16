@@ -352,9 +352,7 @@ struct Buffer(
 
             # all bytes should have been written, by definition of write method in io.Writer
             if bytes_written != bytes_to_write:
-                return Result(
-                    total_bytes_written, WrappedError(ERR_SHORT_WRITE)
-                )
+                return Result(total_bytes_written, WrappedError(ERR_SHORT_WRITE))
 
         # Buffer is now empty; reset.
         self.reset()
@@ -517,10 +515,7 @@ struct Buffer(
         bytes, unread_byte returns an error.
         """
         if self.last_read == OP_INVALID:
-            return WrappedError(
-                "buffer.Buffer: unread_byte: previous operation was not a"
-                " successful read"
-            )
+            return WrappedError("buffer.Buffer: unread_byte: previous operation was not a successful read")
 
         self.last_read = OP_INVALID
         if self.off > 0:

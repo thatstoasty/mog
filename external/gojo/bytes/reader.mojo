@@ -71,9 +71,7 @@ struct Reader(
         """
         # cannot modify state - see io.ReaderAt
         if off < 0:
-            return Result(
-                0, WrappedError("bytes.Reader.read_at: negative offset")
-            )
+            return Result(0, WrappedError("bytes.Reader.read_at: negative offset"))
 
         if off >= Int64(len(self.buffer)):
             return Result(0, WrappedError(io.EOF))
@@ -86,8 +84,7 @@ struct Reader(
         return bytes_written
 
     fn read_byte(inout self) -> Result[Byte]:
-        """Reads and returns a single byte from the internal buffer. Implements the [io.ByteReader] Interface.
-        """
+        """Reads and returns a single byte from the internal buffer. Implements the [io.ByteReader] Interface."""
         self.prev_rune = -1
         if self.index >= len(self.buffer):
             return Result(Int8(0), WrappedError(io.EOF))
@@ -101,9 +98,7 @@ struct Reader(
         Complements [Reader.read_byte] in implementing the [io.ByteScanner] Interface.
         """
         if self.index <= 0:
-            return WrappedError(
-                "bytes.Reader.unread_byte: at beginning of slice"
-            )
+            return WrappedError("bytes.Reader.unread_byte: at beginning of slice")
 
         self.prev_rune = -1
         self.index -= 1
@@ -158,14 +153,10 @@ struct Reader(
         elif whence == io.SEEK_END:
             position = len(self.buffer) + offset
         else:
-            return Result(
-                Int64(0), WrappedError("bytes.Reader.seek: invalid whence")
-            )
+            return Result(Int64(0), WrappedError("bytes.Reader.seek: invalid whence"))
 
         if position < 0:
-            return Result(
-                Int64(0), WrappedError("bytes.Reader.seek: negative position")
-            )
+            return Result(Int64(0), WrappedError("bytes.Reader.seek: negative position"))
 
         self.index = position
         return Result(position, None)

@@ -21,9 +21,7 @@ fn write_string[W: Writer](inout writer: W, string: String) -> Result[Int]:
     return writer.write(string.as_bytes())
 
 
-fn write_string[
-    W: StringWriter
-](inout writer: W, string: String) -> Result[Int]:
+fn write_string[W: StringWriter](inout writer: W, string: String) -> Result[Int]:
     """Writes the contents of the string s to w, which accepts a slice of bytes.
     If w implements [StringWriter], [StringWriter.write_string] is invoked directly.
     Otherwise, [Writer.write] is called exactly once.
@@ -37,9 +35,7 @@ fn write_string[
     return writer.write_string(string)
 
 
-fn read_at_least[
-    R: Reader
-](inout reader: R, inout dest: List[Byte], min: Int) -> Result[Int]:
+fn read_at_least[R: Reader](inout reader: R, inout dest: List[Byte], min: Int) -> Result[Int]:
     """Reads from r into buf until it has read at least min bytes.
     It returns the number of bytes copied and an error if fewer bytes were read.
     The error is EOF only if no bytes were read.

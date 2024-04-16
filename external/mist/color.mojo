@@ -97,8 +97,7 @@ struct ANSIColor(Color, Stringable):
         return ANSI_HEX_CODES[self.value]
 
     fn convert_to_rgb(self) -> RGB:
-        """Converts an ANSI color to RGB by looking up the hex value and converting it.
-        """
+        """Converts an ANSI color to RGB by looking up the hex value and converting it."""
         var hex: String = ANSI_HEX_CODES[self.value]
 
         return hex_to_rgb(hex)
@@ -133,8 +132,7 @@ struct ANSI256Color(Color, Stringable):
         return ANSI_HEX_CODES[self.value]
 
     fn convert_to_rgb(self) -> RGB:
-        """Converts an ANSI color to RGB by looking up the hex value and converting it.
-        """
+        """Converts an ANSI color to RGB by looking up the hex value and converting it."""
         var hex: String = ANSI_HEX_CODES[self.value]
 
         return hex_to_rgb(hex)
@@ -235,15 +233,7 @@ struct RGBColor(Color):
         if is_background:
             prefix = background
 
-        return (
-            prefix
-            + String(";2;")
-            + String(int(rgb.R))
-            + ";"
-            + String(int(rgb.G))
-            + ";"
-            + String(int(rgb.B))
-        )
+        return prefix + String(";2;") + String(int(rgb.R)) + ";" + String(int(rgb.G)) + ";" + String(int(rgb.B))
 
     fn convert_to_rgb(self) -> RGB:
         """Converts the Hex code value to RGB."""

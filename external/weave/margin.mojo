@@ -17,8 +17,7 @@ struct Writer(Stringable, io.Writer):
         self.iw = iw^
 
     fn close(inout self):
-        """Will finish the margin operation. Always call it before trying to retrieve the final result.
-        """
+        """Will finish the margin operation. Always call it before trying to retrieve the final result."""
         _ = self.pw.close()
         _ = self.buf.write(self.pw.bytes())
 
@@ -57,9 +56,7 @@ fn new_writer(width: UInt8, margin: UInt8) -> Writer:
     return Writer(padding.new_writer(width), indent.new_writer(margin))
 
 
-fn apply_margin_to_bytes(
-    b: List[Byte], width: UInt8, margin: UInt8
-) -> List[Byte]:
+fn apply_margin_to_bytes(b: List[Byte], width: UInt8, margin: UInt8) -> List[Byte]:
     """Shorthand for declaring a new default margin-writer instance,
     used to immediately apply a margin to a byte slice.
 

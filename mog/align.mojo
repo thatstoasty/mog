@@ -9,9 +9,7 @@ from .extensions import count, repeat
 # Perform text alignment. If the string is multi-lined, we also make all lines
 # the same width by padding them with spaces. If a termenv style is passed,
 # use that to style the spaces added.
-fn align_text_horizontal(
-    text: String, pos: position.Position, width: Int, style: TerminalStyle
-) raises -> String:
+fn align_text_horizontal(text: String, pos: position.Position, width: Int, style: TerminalStyle) raises -> String:
     # TODO: Replace when get_lines works.
     var lines = text.split("\n")
     var widest_line: Int = 0
@@ -25,9 +23,7 @@ fn align_text_horizontal(
         var line_width = printable_rune_width(line)
 
         var short_amount = widest_line - line_width  # difference from the widest line
-        short_amount += max(
-            0, width - (short_amount + line_width)
-        )  # difference from the total width, if set
+        short_amount += max(0, width - (short_amount + line_width))  # difference from the total width, if set
         if short_amount > 0:
             if pos == position.right:
                 var spaces = repeat(" ", short_amount)
@@ -58,9 +54,7 @@ fn align_text_horizontal(
     return str(aligned_text)
 
 
-fn align_text_vertical(
-    text: String, pos: position.Position, height: Int
-) raises -> String:
+fn align_text_vertical(text: String, pos: position.Position, height: Int) raises -> String:
     var text_height = count(text, "\n") + 1
     if height < text_height:
         return text
@@ -76,11 +70,7 @@ fn align_text_vertical(
         elif text_height + top_padding + bottom_padding < height:
             bottom_padding += 1
 
-        return (
-            repeat("\n", int(top_padding))
-            + text
-            + repeat("\n", int(bottom_padding))
-        )
+        return repeat("\n", int(top_padding)) + text + repeat("\n", int(bottom_padding))
 
     if pos == position.bottom:
         return repeat("\n", height - text_height) + text

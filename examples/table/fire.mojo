@@ -2,9 +2,7 @@ from mog import Style, Border, Table, center, default_styles, new_string_data
 
 
 fn dummy_style_func(row: Int, col: Int) raises -> Style:
-    var style = Style.new().horizontal_alignment(center).vertical_alignment(
-        center
-    ).padding(0, 1)
+    var style = Style.new().horizontal_alignment(center).vertical_alignment(center).padding(0, 1)
     if row == 0:
         style = style.foreground(mog.Color("#c9a0dc"))
         return style

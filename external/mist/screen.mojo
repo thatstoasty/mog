@@ -72,9 +72,7 @@ fn __string__mul__(input_string: String, n: UInt16) -> String:
     return result
 
 
-fn replace(
-    input_string: String, old: String, new: String, count: Int = -1
-) -> String:
+fn replace(input_string: String, old: String, new: String, count: Int = -1) -> String:
     if count == 0:
         return input_string
 
@@ -191,14 +189,12 @@ fn save_screen():
 
 
 fn alt_screen():
-    """Switches to the alternate screen buffer. The former view can be restored with ExitAltScreen().
-    """
+    """Switches to the alternate screen buffer. The former view can be restored with ExitAltScreen()."""
     print(csi + alt_screen_seq, end="")
 
 
 fn exit_alt_screen():
-    """Exits the alternate screen buffer and returns to the former terminal view.
-    """
+    """Exits the alternate screen buffer and returns to the former terminal view."""
     print(csi + exit_alt_screen_seq, end="")
 
 
@@ -219,8 +215,7 @@ fn move_cursor(row: UInt16, column: UInt16):
 
 
 fn hide_cursor():
-    """TODO: Show and Hide cursor don't seem to work ATM. HideCursor hides the cursor.
-    """
+    """TODO: Show and Hide cursor don't seem to work ATM. HideCursor hides the cursor."""
     print(csi + hide_cursor_seq, end="")
 
 

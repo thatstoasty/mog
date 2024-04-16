@@ -9,9 +9,7 @@ from mog import position
 
 fn main() raises:
     # The page style
-    var fire_style = Style.new().padding(1).border(
-        rounded_border()
-    ).border_foreground("#eb4034").foreground("#eb4034")
+    var fire_style = Style.new().padding(1).border(rounded_border()).border_foreground("#eb4034").foreground("#eb4034")
 
     # gradient colors
     var colors = List[String](

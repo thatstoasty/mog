@@ -1,137 +1,162 @@
-from external.string_dict import Dict
-from mog.border import rounded_border
-from mog.table import StyleFunction
-import mog
-import mog.table
+# from external.string_dict import Dict
+# from mog.border import rounded_border
+# from mog.table import StyleFunction
+# import mog
+# import mog.table
 
 
-fn make_row(*strs: String) -> List[String]:
-    var row = List[String](capacity=len(strs))
-    for s in strs:
-        row.append(s[])
-    return row
+# fn build_color_mapping() -> Dict[mog.Color]:
+#     var type_colors = Dict[mog.Color]()
+#     type_colors.put("Bug", mog.Color("#D7FF87"))
+#     type_colors.put("Electric", mog.Color("#FDFF90"))
+#     type_colors.put("Fire", mog.Color("#FF7698"))
+#     type_colors.put("Flying", mog.Color("#FF87D7"))
+#     type_colors.put("Grass", mog.Color("#75FBAB"))
+#     type_colors.put("Ground", mog.Color("#FF875F"))
+#     type_colors.put("Normal", mog.Color("#929292"))
+#     type_colors.put("Poison", mog.Color("#7D5AFC"))
+#     type_colors.put("Water", mog.Color("#00E2C7"))
+
+#     return type_colors
+
+# alias TYPE_COLORS = build_color_mapping()
 
 
-fn make_style_func[
-    style: mog.Style,
-    header_style: mog.Style,
-    selected_style: mog.Style,
-    type_colors: Dict[String],
-    dim_type_colors: Dict[String],
-    data: List[List[String]],
-]() -> StyleFunction:
-    @always_inline
-    fn style_func(row: Int, col: Int) raises -> mog.Style:
-        if row == 0:
-            return header_style
+# fn build_dim_color_mapping() -> Dict[mog.Color]:
+#     var dim_type_colors = Dict[mog.Color]()
+#     dim_type_colors.put("Bug", mog.Color("#97AD64"))
+#     dim_type_colors.put("Electric", mog.Color("#FCFF5F"))
+#     dim_type_colors.put("Fire", mog.Color("#BA5F75"))
+#     dim_type_colors.put("Flying", mog.Color("#C97AB2"))
+#     dim_type_colors.put("Grass", mog.Color("#59B980"))
+#     dim_type_colors.put("Ground", mog.Color("#C77252"))
+#     dim_type_colors.put("Normal", mog.Color("#727272"))
+#     dim_type_colors.put("Poison", mog.Color("#634BD0"))
+#     dim_type_colors.put("Water", mog.Color("#439F8E"))
 
-        if data[row - 1][1] == "Pikachu":
-            return selected_style
-
-        var is_even = (row % 2 == 0)
-        if col == 2 or col == 3:
-            var colors = type_colors
-            if is_even:
-                colors = dim_type_colors
-
-            var color = colors.get(data[row - 1][col], "#FFFFFF")
-            var copy_style = style.copy()
-            copy_style.foreground(color)
-            return copy_style
-
-        if is_even:
-            var copy_style = style.copy()
-            copy_style.foreground("245")
-            return copy_style
-
-        var copy_style = style.copy()
-        copy_style.foreground("252")
-        return copy_style
+#     return dim_type_colors
 
 
-fn main() raises:
-    var style = mog.Style()
-    style.padding_top(1)
-    style.padding_right(1)
-    style.padding_bottom(1)
-    style.padding_left(1)
+# alias DIM_TYPE_COLORS = build_dim_color_mapping()
 
-    var header_style = style.copy()
-    header_style.foreground("252")
-    header_style.bold()
-    var selected_style = style.copy()
-    selected_style.foreground("#01BE85")
-    selected_style.background("#00432F")
+# alias headers = List[String](
+#         "#",
+#         "Name",
+#         "Type 1",
+#         "Type 2",
+#         "Official Rom."
+#     )
+# alias data = List[List[String]](
+#     List[String]("1", "Bulbasaur", "Grass", "Poison", "Bulbasaur"),
+#     List[String]("2", "Ivysaur", "Grass", "Poison", "Ivysaur"),
+#     List[String]("3", "Venusaur", "Grass", "Poison", "Venusaur"),
+#     List[String]("4", "Charmander", "Fire", "", "Hitokage"),
+#     List[String]("5", "Charmeleon", "Fire", "", "Lizardo")
+# )
 
-    var type_colors = Dict[String]()
-    type_colors.put("Bug", "#D7FF87")
-    type_colors.put("Electric", "#FDFF90")
-    type_colors.put("Fire", "#FF7698")
-    type_colors.put("Flying", "#FF87D7")
-    type_colors.put("Grass", "#75FBAB")
-    type_colors.put("Ground", "#FF875F")
-    type_colors.put("Normal", "#929292")
-    type_colors.put("Poison", "#7D5AFC")
-    type_colors.put("Water", "#00E2C7")
 
-    var dim_type_colors = Dict[String]()
-    dim_type_colors.put("Bug", "#97AD64")
-    dim_type_colors.put("Electric", "#FCFF5F")
-    dim_type_colors.put("Fire", "#BA5F75")
-    dim_type_colors.put("Flying", "#C97AB2")
-    dim_type_colors.put("Grass", "#59B980")
-    dim_type_colors.put("Ground", "#C77252")
-    dim_type_colors.put("Normal", "#727272")
-    dim_type_colors.put("Poison", "#634BD0")
-    dim_type_colors.put("Water", "#439F8E")
+# fn make_style_func[data: List[List[String]]](
+#     header_style: mog.Style,
+#     selected_style: mog.Style,
+#     style: mog.Style,
+#     # data: List[List[String]] = data,
+#     # TYPE_COLORS: Dict[mog.Color] = TYPE_COLORS,
+#     # DIM_TYPE_COLORS: Dict[mog.Color] = DIM_TYPE_COLORS,
+# ) -> StyleFunction:
+#     @always_inline
+#     fn style_func(row: Int, col: Int) raises -> mog.Style:
+#         if row == 0:
+#             return header_style
 
-    var headers = List[String]()
-    headers.append("#")
-    headers.append("Name")
-    headers.append("Type 1")
-    headers.append("Type 2")
-    headers.append("Official Rom.")
+#         if data[row - 1][1] == "Pikachu":
+#             return selected_style
 
-    var data = List[List[String]]()
-    data.append(make_row("1", "Bulbasaur", "Grass", "Poison", "Bulbasaur"))
-    data.append(make_row("2", "Ivysaur", "Grass", "Poison", "Ivysaur"))
-    data.append(make_row("3", "Venusaur", "Grass", "Poison", "Venusaur"))
-    data.append(make_row("4", "Charmander", "Fire", "", "Hitokage"))
-    data.append(make_row("5", "Charmeleon", "Fire", "", "Lizardo"))
+#         var is_even = (row % 2 == 0)
+#         if col == 2 or col == 3:
+#             var colors = TYPE_COLORS
+#             if is_even:
+#                 colors = DIM_TYPE_COLORS
 
-    @always_inline
-    fn capitalize_headers(inout data: List[String]) -> List[String]:
-        for element in data:
-            element[] = element[].upper()
+#             var color = colors.get(data[row - 1][col], mog.Color("#FFFFFF"))
+#             var copy_style = style.copy().foreground(color)
+#             return copy_style
 
-        return data
+#         if is_even:
+#             var copy_style = style.copy().foreground(mog.Color("245"))
+#             return copy_style
 
-    var border_style = mog.Style()
-    border_style = border_style.foreground("238")
-    # var table = mog.new_table()
-    var table = mog.Table(
-        style_function=make_style_func[
-            style,
-            header_style,
-            selected_style,
-            type_colors,
-            dim_type_colors,
-            data,
-        ](),
-        border=rounded_border(),
-        border_style=border_style,
-        border_bottom=True,
-        border_column=True,
-        border_header=True,
-        border_left=True,
-        border_right=True,
-        border_top=True,
-        data=mog.new_string_data(),
-        width=80,
-    )
-    table.rows(data)
-    table.width = 100
-    table.border = rounded_border()
-    table.set_headers(capitalize_headers(headers))
-    # table.style_function = style_func
-    print(table.render())
+#         var copy_style = style.copy().foreground(mog.Color("252"))
+#         return copy_style
+#     return style_func
+
+
+# fn main() raises:
+#     var style = mog.Style() \
+#     .padding_top(1) \
+#     .padding_right(1) \
+#     .padding_bottom(1) \
+#     .padding_left(1)
+
+#     var header_style = style.copy() \
+#     .foreground("252") \
+#     .bold()
+
+#     var selected_style = style.copy() \
+#     .foreground(mog.Color("#01BE85")) \
+#     .background(mog.Color("#00432F"))
+
+#     @always_inline
+#     fn capitalize_headers(data: List[String]) -> List[String]:
+#         var upper = List[String]()
+#         for element in data:
+#             upper.append(element[].upper())
+
+#         return data
+
+#     @always_inline
+#     fn style_func(row: Int, col: Int) escaping raises -> mog.Style:
+#         if row == 0:
+#             return header_style
+
+#         if data[row - 1][1] == "Pikachu":
+#             return selected_style
+
+#         var is_even = (row % 2 == 0)
+#         if col == 2 or col == 3:
+#             var colors = TYPE_COLORS
+#             if is_even:
+#                 colors = DIM_TYPE_COLORS
+
+#             var color = colors.get(data[row - 1][col], mog.Color("#FFFFFF"))
+#             var copy_style = style.copy().foreground(color)
+#             return copy_style
+
+#         if is_even:
+#             var copy_style = style.copy().foreground(mog.Color("245"))
+#             return copy_style
+
+#         var copy_style = style.copy().foreground(mog.Color("252"))
+#         return copy_style
+
+#     var border_style = mog.Style()
+#     border_style = border_style.foreground("238")
+#     # var table = mog.new_table()
+#     var table = mog.Table(
+#         style_function=style_func,
+#         border=rounded_border(),
+#         border_style=border_style,
+#         border_bottom=True,
+#         border_column=True,
+#         border_header=True,
+#         border_left=True,
+#         border_right=True,
+#         border_top=True,
+#         data=mog.new_string_data(),
+#         width=80,
+#     )
+#     table.rows(data)
+#     table.width = 100
+#     table.border = rounded_border()
+#     table.set_headers(capitalize_headers(headers))
+#     # table.style_function = style_func
+#     print(table.render())

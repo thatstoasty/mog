@@ -1903,7 +1903,6 @@ struct Style:
             var lines = styled_text.split("\n")
 
             for i in range(len(lines)):
-                # TODO: Truncation causes issues with border due to incorrect width calculation.
                 lines[i] = truncate.apply_truncate(lines[i], max_width)
 
             styled_text = join("\n", lines)

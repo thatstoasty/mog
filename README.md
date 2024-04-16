@@ -7,10 +7,10 @@ If you're a Go developer, please check out their CLI tooling and libraries. They
 
 For bugs and todos, see the bottom of the readme. At the moment, characters with a printable length greater than 1 ARE NOT supported.
 
-![Lip Gloss example](https://github.com/thatstoasty/mog/blob/main/layout.png)
+![Mog example](https://github.com/thatstoasty/mog/blob/main/layout.png)
 
-Lip Gloss takes an expressive, declarative approach to terminal rendering.
-Users familiar with CSS will feel at home with Lip Gloss.
+Mog takes an expressive, declarative approach to terminal rendering.
+Users familiar with CSS will feel at home with Mog.
 
 ```mojo
 
@@ -29,7 +29,7 @@ print(style.render("Hello, kitty"))
 
 ## Colors
 
-Lip Gloss supports the following color profiles:
+Mog supports the following color profiles:
 
 ### ANSI 16 colors (4-bit)
 
@@ -99,7 +99,7 @@ mog.CompleteAdaptiveColor(
 
 ## Inline Formatting
 
-Lip Gloss supports the usual ANSI text formatting options:
+Mog supports the usual ANSI text formatting options:
 
 ```mojo
 var style = Style.new().
@@ -114,7 +114,7 @@ var style = Style.new().
 
 ## Block-Level Formatting
 
-Lip Gloss also supports rules for block-level formatting:
+Mog also supports rules for block-level formatting:
 
 ```mojo
 # Padding
@@ -284,7 +284,7 @@ some_style.max_width(5).max_height(5).render("yadda yadda")
 ## Tabs
 
 The tab character (`\t`) is rendered differently in different terminals (often
-as 8 spaces, sometimes 4). Because of this inconsistency, Lip Gloss converts
+as 8 spaces, sometimes 4). Because of this inconsistency, Mog converts
 tabs to 4 spaces at render time. This behavior can be changed on a per-style
 basis, however:
 
@@ -334,7 +334,7 @@ fn my_little_handler():
 
 ## Utilities
 
-In addition to pure styling, Lip Gloss also ships with some utilities to help
+In addition to pure styling, Mog also ships with some utilities to help
 assemble your layouts.
 
 ### Joining Paragraphs
@@ -392,7 +392,7 @@ block = place(30, 80, mog.right, mog.bottom, fancy_styled_paragraph)
 
 ### Rendering Tables
 
-Lip Gloss ships with a table rendering sub-package.
+Mog ships with a table rendering sub-package.
 
 ```mojo
 import mog.table

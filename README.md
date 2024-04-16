@@ -156,10 +156,10 @@ You can align paragraphs of text to the left, right, or center.
 
 ```mojo
 var style = Style.new() \
-    width(24) \
-    align(position.left) \ # align it left
-    align(position.right) \ # no wait, align it right
-    align(position.center) # just kidding, align it in the center
+    .width(24) \
+    .align(position.left) \ # align it left
+    .align(position.right) \ # no wait, align it right
+    .align(position.center) # just kidding, align it in the center
 ```
 
 ## Width and Height

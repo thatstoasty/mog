@@ -34,25 +34,25 @@ Mog supports the following color profiles:
 ### ANSI 16 colors (4-bit)
 
 ```mojo
-5")  # magenta
-"9")  # red
-"12") # light blue
+mog.Color("5") # magenta
+mog.Color("9")  # red
+mog.Color("12") # light blue
 ```
 
 ### ANSI 256 Colors (8-bit)
 
 ```mojo
-"86")  # aqua
-"201") # hot pink
-"202") # orange
+mog.Color("86")  # aqua
+mog.Color("201") # hot pink
+mog.Color("202") # orange
 ```
 
 ### True Color (16,777,216 colors; 24-bit)
 
 ```mojo
-"#0000FF") # good ol' 100% blue
-"#04B575") # a green
-"#3C3C3C") # a dark gray
+mog.Color("#0000FF") # good ol' 100% blue
+mog.Color(#04B575") # a green
+mog.Color("#3C3C3C") # a dark gray
 ```
 
 ...as well as a 1-bit ASCII profile, which is black and white only.
@@ -102,13 +102,13 @@ mog.CompleteAdaptiveColor(
 Mog supports the usual ANSI text formatting options:
 
 ```mojo
-var style = Style.new().
-    bold(True).
-    italic(True).
-    faint(True).
-    blink(True).
-    strikethrough(True).
-    underline(True).
+var style = Style.new(). \
+    bold(True). \
+    italic(True). \
+    faint(True). \
+    blink(True). \
+    crossout(True). \
+    underline(True). \
     reverse(True)
 ```
 
@@ -118,17 +118,17 @@ Mog also supports rules for block-level formatting:
 
 ```mojo
 # Padding
-var style = Style.new().
-    padding_top(2).
-    padding_right(4).
-    padding_bottom(2).
-    padding_left(4)
+var style = Style.new(). \
+    padding_top(2). \
+    padding_right(4). \
+    padding_bottom(2). \
+    padding_left(4) 
 
 # Margins
-var style = Style.new().
-    margin_top(2).
-    margin_right(4).
-    margin_bottom(2).
+var style = Style.new(). \
+    margin_top(2). \
+    margin_right(4). \
+    margin_bottom(2). \
     margin_left(4)
 ```
 
@@ -157,8 +157,8 @@ You can align paragraphs of text to the left, right, or center.
 ```mojo
 var style = Style.new() \
     width(24) \
-    align(position.left)  # align it left
-    align(position.right) # no wait, align it right
+    align(position.left) \ # align it left
+    align(position.right) \ # no wait, align it right
     align(position.center) # just kidding, align it in the center
 ```
 
@@ -180,8 +180,8 @@ Adding borders is easy:
 
 ```mojo
 # Add a purple, rectangular border
-var style = Style.new().
-    border(normal_border()).
+var style = Style.new(). \
+    border(normal_border()). \
     border_foreground(mog.Color("63"))
 
 # Set a rounded, yellow-on-purple border to the top and left
@@ -210,13 +210,11 @@ pattern to the margin and padding shorthand functions.
 
 ```mojo
 # Add a thick border to the top and bottom
-Style.new().
-rder(thick_border(), True, False)
+Style.new().border(thick_border(), True, False)
 
 # Add a double border to the top and left sides. Rules are set clockwise
 # from top.
-Style.new().
-    border(double_border(), True, False, False, True)
+Style.new().border(double_border(), True, False, False, True)
 ```
 
 ## Copying Styles
@@ -224,7 +222,7 @@ Style.new().
 Just use `copy()`:
 
 ```mojo
-var style = Style.new().foreground(mog.Color("219")) \
+var style = Style.new().foreground(mog.Color("219"))
 
 var wild_style = style.copy().blink(True)
 ```
@@ -233,32 +231,15 @@ var wild_style = style.copy().blink(True)
 a True, dereferenced copy of a style. Without copying, it's possible to mutate
 styles.
 
-## Inheritance
-
-Styles can inherit rules from other styles. When inheriting, only unset rules
-on the receiver are inherited.
-
-```mojo
-var style_a = Style.new(). \
-    foreground(mog.Color("229")). \
-    background(mog.Color("63"))
-
-# Only the background color will be inherited here, because the foreground
-# color will have been already set:
-var style_b = Style.new(). \
-    foreground(mog.Color("201")). \
-    inherit(style_a)
-```
-
 ## Unsetting Rules
 
 All rules can be unset:
 
 ```mojo
-var style = Style.new().
-    bold(True).                        # make it bold
-    unset_bold().                       # jk don't make it bold
-    background(mog.Color("227")). # yellow background
+var style = Style.new(). \
+    bold(True). \                       # make it bold
+    unset_bold(). \                     # jk don't make it bold
+    background(mog.Color("227")). \     # yellow background
     unset_background()                  # never mind
 ```
 
@@ -297,12 +278,13 @@ style = style.tab_width(mog.NO_TAB_CONVERSION) # leave tabs intact
 
 ## Rendering
 
-Generally, you just call the `render(string...)` method on a `mog.Style`:
+Generally, you just call the `render(string)` method on a `mog.Style`:
 
 ```mojo
 style = Style.new().bold(True).set_string("Hello,")
 print(style.render("kitty.")) # Hello, kitty.
 print(style.render("puppy.")) # Hello, puppy.
+print(style.render("my", "puppy.")) # Hello, my puppy.
 ```
 
 But you could also use the Stringer interface:
@@ -370,7 +352,9 @@ width = mog.get_width(block)
 height = mog.get_height(block)
 
 # Here's a shorthand function.
-w, h = mog.get_size(block)
+var width = 0
+var height = 0
+width, height = mog.get_size(block)
 ```
 
 ### Placing Text in Whitespace
@@ -414,23 +398,13 @@ Use the table package to style and render the table.
 
 ```mojo
 t = table.new_table().
-    border(normal_border()) \
-    border_style(Style.new().foreground(mog.Color("99"))) \
-    style_func(func(row, col int) lipgloss.Style {
-        switch {
-        case row == 0:
-            return header_style
-        case row%2 == 0:
-            return even_row_style
-        default:
-            return odd_row_style
-        }
-    }).
-    headers("LANGUAGE", "FORMAL", "INFORMAL").
-    rows(rows)
+    .border(normal_border()) \
+    .border_style(Style.new().foreground(mog.Color("99"))) \
+    .headers("LANGUAGE", "FORMAL", "INFORMAL") \
+    .rows(rows)
 
 # You can also add tables row-by-row
-t.Row("English", "You look absolutely fabulous.", "How's it going?")
+t.row("English", "You look absolutely fabulous.", "How's it going?")
 ```
 
 Print the table.
@@ -439,29 +413,15 @@ Print the table.
 print(t)
 ```
 
-![Table Example](https:#github.com/charmbracelet/lipgloss/assets/42545625/6e4b70c4-f494-45da-a467-bdd27df30d5d)
-
-For more on tables see [the docs](https:#pkg.go.dev/github.com/charmbracelet/lipgloss?tab=doc) and [examples](https:#github.com/charmbracelet/lipgloss/tree/master/examples/table).
-
 ---
 
-## FAQ
-
-```mojo
-import (
-    "github.com/charmbracelet/lipgloss"
-    "github.com/muesli/termenv"
-)
-
-```
-
-TODO:
+## TODO
 
 - Decompose style render mega function and mega class into smaller ones.
 - Figure out capturing variables in table style functions. Using escaping and capturing crashes, and creating the style each time the function is called is slow.
 - Fix table top and bottom rendering. Fire emoji border example renders those lengths incorrectly.
 - Code cannot handle characters with a printable length greater than 1.
 
-Notes:
+## Notes
 
 - ANSI256's support of setting both foreground and background colors is limited. It's possible to set both, but often the foreground color will be ignored.

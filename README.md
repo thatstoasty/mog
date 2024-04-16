@@ -51,7 +51,7 @@ mog.Color("202") # orange
 
 ```mojo
 mog.Color("#0000FF") # good ol' 100% blue
-mog.Color(#04B575") # a green
+mog.Color("#04B575") # a green
 mog.Color("#3C3C3C") # a dark gray
 ```
 

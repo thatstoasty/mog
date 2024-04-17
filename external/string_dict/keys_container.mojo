@@ -55,7 +55,7 @@ struct KeysContainer[KeyEndType: DType = DType.uint32](Sized):
 
         if needs_realocation:
             var keys = DTypePointer[DType.int8].alloc(self.allocated_bytes)
-            memcpy(keys, self.keys, prev_end.to_int())
+            memcpy(keys, self.keys, int(prev_end))
             self.keys.free()
             self.keys = keys
 
@@ -76,8 +76,8 @@ struct KeysContainer[KeyEndType: DType = DType.uint32](Sized):
     fn get(self, index: Int) -> StringRef:
         if index < 0 or index >= self.count:
             return ""
-        var start = 0 if index == 0 else self.keys_end[index - 1].to_int()
-        var length = self.keys_end[index].to_int() - start
+        var start = 0 if index == 0 else int(self.keys_end[index - 1])
+        var length = int(self.keys_end[index]) - start
         return StringRef(self.keys.offset(start), length)
 
     @always_inline

@@ -1,6 +1,6 @@
 from math.bit import ctlz
 from external.gojo.bytes import buffer
-from external.gojo.builtins import Result, Byte
+from external.gojo.builtins import Byte
 import external.gojo.io
 from .ansi import writer, is_terminator, Marker, printable_rune_width
 from .strings import repeat, strip
@@ -28,7 +28,7 @@ struct Writer(Stringable, io.Writer):
         self.cache = buffer.new_buffer()
         self.ansi_writer = writer.new_default_writer()
 
-    fn write(inout self, src: List[Byte]) -> Result[Int]:
+    fn write(inout self, src: List[Byte]) -> (Int, Error):
         """Pads content to the given printable cell width.
 
         Args:
@@ -37,11 +37,12 @@ struct Writer(Stringable, io.Writer):
         Returns:
             The number of bytes written and optional error.
         """
+        var err = Error()
         # Rune iterator
         var bytes = len(src)
-        var p = DTypePointer[DType.int8](src.data.value).bitcast[DType.uint8]()
+        var p = DTypePointer[DType.int8](src.data).bitcast[DType.uint8]()
         while bytes > 0:
-            var char_length = ((p.load() >> 7 == 0).cast[DType.uint8]() * 1 + ctlz(~p.load())).to_int()
+            var char_length = int((p.load() >> 7 == 0).cast[DType.uint8]() * 1 + ctlz(~p.load()))
             var sp = DTypePointer[DType.int8].alloc(char_length + 1)
             memcpy(sp, p.bitcast[DType.int8](), char_length)
             sp[char_length] = 0
@@ -62,15 +63,17 @@ struct Writer(Stringable, io.Writer):
                 else:
                     self.line_len += printable_rune_width(char)
 
-            var result = self.ansi_writer.write(char.as_bytes())
-            if result.error:
-                return result
+            var bytes_written = 0
+
+            bytes_written, err = self.ansi_writer.write(char.as_bytes())
+            if err:
+                return bytes_written, err
 
             # Move iterator forward
             bytes -= char_length
             p += char_length
 
-        return len(src)
+        return len(src), err
 
     fn pad(inout self):
         """Pads the current line with spaces to the given width."""

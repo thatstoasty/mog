@@ -1,5 +1,4 @@
 from math.bit import ctlz
-from memory.unsafe import Reference
 import external.mist
 import external.weave.ansi
 from external.gojo.strings import StringBuilder
@@ -71,7 +70,7 @@ struct WhiteSpace:
             var bytes = len(self.chars)
             var p = self.chars._as_ptr().bitcast[DType.uint8]()
             while bytes > 0:
-                var char_length = ((p.load() >> 7 == 0).cast[DType.uint8]() * 1 + ctlz(~p.load())).to_int()
+                var char_length = int((p.load() >> 7 == 0).cast[DType.uint8]() * 1 + ctlz(~p.load()))
                 var sp = DTypePointer[DType.int8].alloc(char_length + 1)
                 memcpy(sp, p.bitcast[DType.int8](), char_length)
                 sp[char_length] = 0

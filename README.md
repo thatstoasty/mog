@@ -16,13 +16,13 @@ Users familiar with CSS will feel at home with Mog.
 
 from mog import Style
 
-var style = Style.new(). \
-    bold(True). \
-    foreground("#FAFAFA"). \
-    background("#7D56F4"). \
-    padding_top(2). \
-    padding_left(4). \
-    width(22)
+var style = Style.new() \
+    .bold(True) \
+    .foreground(mog.Color("#FAFAFA")) \
+    .background(mog.Color("#7D56F4")) \
+    .padding_top(2) \
+    .padding_left(4) \
+    .width(22)
 
 print(style.render("Hello, kitty"))
 ```
@@ -102,14 +102,14 @@ mog.CompleteAdaptiveColor(
 Mog supports the usual ANSI text formatting options:
 
 ```mojo
-var style = Style.new(). \
-    bold(True). \
-    italic(True). \
-    faint(True). \
-    blink(True). \
-    crossout(True). \
-    underline(True). \
-    reverse(True)
+var style = Style.new() \
+    .bold(True) \
+    .italic(True) \
+    .faint(True) \
+    .blink(True) \
+    .crossout(True) \
+    .underline(True) \
+    .reverse(True)
 ```
 
 ## Block-Level Formatting
@@ -118,18 +118,18 @@ Mog also supports rules for block-level formatting:
 
 ```mojo
 # Padding
-var style = Style.new(). \
-    padding_top(2). \
-    padding_right(4). \
-    padding_bottom(2). \
-    padding_left(4) 
+var style = Style.new() \
+    .padding_top(2) \
+    .padding_right(4) \
+    .padding_bottom(2) \
+    .padding_left(4)
 
 # Margins
-var style = Style.new(). \
-    margin_top(2). \
-    margin_right(4). \
-    margin_bottom(2). \
-    margin_left(4)
+var style = Style.new() \
+    .margin_top(2) \
+    .margin_right(4) \
+    .margin_bottom(2) \
+    .margin_left(4)
 ```
 
 There is also shorthand syntax for margins and padding, which follows the same
@@ -180,17 +180,17 @@ Adding borders is easy:
 
 ```mojo
 # Add a purple, rectangular border
-var style = Style.new(). \
-    border(normal_border()). \
-    border_foreground(mog.Color("63"))
+var style = Style.new() \
+    .border(normal_border()) \
+    .border_foreground(mog.Color("63"))
 
 # Set a rounded, yellow-on-purple border to the top and left
 var another_style = Style.new() \
-    border(rounded_border()) \
-    border_foreground(mog.Color("228")) \
-    border_background(mog.Color("63")) \
-    border_top(True) \
-    border_left(True)
+    .border(rounded_border()) \
+    .border_foreground(mog.Color("228")) \
+    .border_background(mog.Color("63")) \
+    .border_top(True) \
+    .border_left(True)
 
 # Make your own border
 var my_cute_border = Border(
@@ -236,11 +236,11 @@ styles.
 All rules can be unset:
 
 ```mojo
-var style = Style.new(). \
-    bold(True). \                       # make it bold
-    unset_bold(). \                     # jk don't make it bold
-    background(mog.Color("227")). \     # yellow background
-    unset_background()                  # never mind
+var style = Style.new() \
+    .bold(True) \                       # make it bold
+    .unset_bold() \                     # jk don't make it bold
+    .background(mog.Color("227")) \     # yellow background
+    .unset_background()                  # never mind
 ```
 
 When a rule is unset, it won't be inherited or copied.
@@ -342,9 +342,9 @@ your layouts.
 
 ```mojo
 # render a block of text.
-var style = Style.new(). \
-    width(40). \
-    padding(2)
+var style = Style.new() \
+    .width(40) \
+    .padding(2)
 var block string = style.render(some_long_string)
 
 # Get the actual, physical dimensions of the text block.
@@ -419,7 +419,6 @@ print(t)
 
 - Decompose style render mega function and mega class into smaller ones.
 - Figure out capturing variables in table style functions. Using escaping and capturing crashes, and creating the style each time the function is called is slow.
-- Fix table top and bottom rendering. Fire emoji border example renders those lengths incorrectly.
 - Code cannot handle characters with a printable length greater than 1.
 
 ## Notes

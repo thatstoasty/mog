@@ -7,6 +7,8 @@ If you're a Go developer, please check out their CLI tooling and libraries. They
 
 For bugs and todos, see the bottom of the readme. At the moment, characters with a printable length greater than 1 ARE NOT supported.
 
+NOTE: This does not work on Mojo 24.2, you must use the nightly build for now. This will be resolved in the next Mojo release.
+
 ![Mog example](https://github.com/thatstoasty/mog/blob/main/layout.png)
 
 Mog takes an expressive, declarative approach to terminal rendering.

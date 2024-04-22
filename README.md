@@ -1,5 +1,7 @@
 # Mog
 
+![Mojo Nightly 24.x](https://img.shields.io/badge/Mojo%F0%9F%94%A5-Nightly_24.x-purple)
+
 Style definitions for nice terminal layouts. Built with TUIs in mind.
 Ported from/Inspired by: <https://github.com/charmbracelet/lipgloss/tree/master>
 

@@ -183,7 +183,7 @@ fn convert_base16_to_base10(value: String) -> Int:
     var sum: Int = 0
     for i in range(length - 1, -1, -1):
         var exponent = length - 1 - i
-        sum += mapping.find(value[i]).value() * (16**exponent)
+        sum += mapping.find(value[i]).value()[] * (16**exponent)
 
     return sum
 

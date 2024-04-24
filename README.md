@@ -424,6 +424,7 @@ print(t)
 - Decompose style render mega function and mega class into smaller ones.
 - Figure out capturing variables in table style functions. Using escaping and capturing crashes, and creating the style each time the function is called is slow.
 - Code cannot handle characters with a printable length greater than 1.
+- It seems like renderer.place_vertical renders whitespace with a width that's too long in the Ubuntu test container. Will need to investigate why this happened. It might be because the execution environment is not necessarily a terminal.
 
 ## Notes
 

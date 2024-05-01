@@ -61,9 +61,11 @@ mog.Color("#3C3C3C") # a dark gray
 
 ...as well as a 1-bit ASCII profile, which is black and white only.
 
-The terminal's color profile will be automatically detected, and colors outside
+The terminal's color profile will soon be automatically detected, and colors outside
 the gamut of the current palette will be automatically coerced to their closest
 available value.
+
+For now, the library assumes a dark background. You can set this to light by modifying the style's profile field.
 
 ### Adaptive Colors
 

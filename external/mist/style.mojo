@@ -10,7 +10,7 @@ from .color import (
     ansi256_to_ansi,
 )
 from .profile import get_color_profile, ASCII
-
+import time
 
 # Text formatting sequences
 alias reset = "0"
@@ -32,15 +32,6 @@ alias st = escape + chr(92)  # String Terminator - Might not work, haven't tried
 
 # clear terminal and return cursor to top left
 alias clear = escape + "[2J" + escape + "[H"
-
-
-fn join(separator: String, iterable: List[String]) -> String:
-    var result: String = ""
-    for i in range(iterable.__len__()):
-        result += iterable[i]
-        if i != iterable.__len__() - 1:
-            result += separator
-    return result
 
 
 @value
@@ -251,14 +242,14 @@ struct TerminalStyle:
         Returns:
             The text with the styles applied.
         """
+        var start = time.now()
         if self.profile.value == ASCII:
             return text
 
         if len(self.styles) == 0:
             return text
 
-        var seq = join(";", self.styles)
-        if seq == "":
-            return text
-
+        var seq: String = ""
+        for i in range(len(self.styles)):
+            seq = seq + ";" + self.styles[i]
         return csi + seq + "m" + text + csi + reset + "m"

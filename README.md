@@ -1,6 +1,6 @@
 # Mog
 
-![Mojo Nightly 24.x](https://img.shields.io/badge/Mojo%F0%9F%94%A5-Nightly_24.x-purple)
+![Mojo 24.3](https://img.shields.io/badge/Mojo%F0%9F%94%A5-24.3-purple)
 
 Style definitions for nice terminal layouts. Built with TUIs in mind.
 Ported from/Inspired by: <https://github.com/charmbracelet/lipgloss/tree/master>
@@ -8,8 +8,6 @@ Ported from/Inspired by: <https://github.com/charmbracelet/lipgloss/tree/master>
 If you're a Go developer, please check out their CLI tooling and libraries. They're unmatched!
 
 For bugs and todos, see the bottom of the readme. At the moment, characters with a printable length greater than 1 ARE NOT supported.
-
-NOTE: This does not work on Mojo 24.2, you must use the nightly build for now. This will be resolved in the next Mojo release.
 
 ![Mog example](https://github.com/thatstoasty/mog/blob/main/layout.png)
 

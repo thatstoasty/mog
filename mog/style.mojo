@@ -1680,7 +1680,6 @@ struct Style:
 
         return padded_text
 
-    @always_inline
     fn render(self, *texts: String) raises -> String:
         """Render the text with the style.
 

@@ -71,9 +71,12 @@ fn test_table() raises:
 
 fn test_horizontal_joined_paragraphs() raises:
     var test = MojoTest("Testing Style rendering")
+    var style_build_start = now()
     var style = Style.new().bold().width(50).padding(1, 1, 1, 1).horizontal_alignment(position.center).border(
         rounded_border()
     ).foreground(mog.Color("#c9a0dc")).border_foreground(mog.Color("#39E506"))
+    var style_build_duration = now() - style_build_start
+    print("Style build duration: ", style_build_duration, style_build_duration / 1e9)
     var start_time = now()
 
     print(style.render("You should be able to join blocks of different heights"))
@@ -123,7 +126,7 @@ fn test_horizontal_joined_paragraphs() raises:
         )
     )
     var execution_time = now() - start_time
-    print("Headered Execution Time: ", execution_time, execution_time / 1e9)
+    print("Block execution time: ", execution_time, execution_time / 1e9)
 
 
 fn test_borderless_paragraph() raises:
@@ -149,6 +152,9 @@ fn test_borderless_paragraph() raises:
 
 
 fn main() raises:
+    var start_test = now()
     test_horizontal_joined_paragraphs()
-    test_borderless_paragraph()
-    test_table()
+    var test_duration = now() - start_test
+    print("Test duration: ", test_duration, test_duration / 1e9)
+    # test_borderless_paragraph()
+    # test_table()

@@ -81,7 +81,7 @@ struct Reader(Sized, io.Reader, io.ReaderAt, io.ByteReader, io.ByteScanner, io.S
         if copied_elements_count < len(dest):
             error = Error(io.EOF)
 
-        return copied_elements_count, Error()
+        return copied_elements_count, error
 
     fn read_byte(inout self) -> (Byte, Error):
         """Reads the next byte from the underlying string.

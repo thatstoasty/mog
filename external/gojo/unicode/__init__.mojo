@@ -1,1 +1,1 @@
-from .utf8 import string_iterator, rune_count_in_string
+from .utf8 import rune_count_in_string, UnicodeString

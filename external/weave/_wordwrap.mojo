@@ -1,14 +1,13 @@
-from math.bit import ctlz
 from external.gojo.bytes import buffer
-from external.gojo.builtins import Byte
+from external.gojo.unicode import UnicodeString
 import external.gojo.io
 from .ansi import writer, is_terminator, Marker, printable_rune_width
 from .strings import repeat, strip
 
 
-alias default_newline = "\n"
-alias default_tab_width = 4
-alias default_breakpoint = "-"
+alias DEFAULT_NEWLINE = "\n"
+alias DEFAULT_TAB_WIDTH = 4
+alias DEFAULT_BREAKPOINT = "-"
 
 
 # WordWrap contains settings and state for customisable text reflowing with
@@ -31,8 +30,8 @@ struct WordWrap(Stringable, io.Writer):
     fn __init__(
         inout self,
         limit: Int,
-        breakpoint: String = default_breakpoint,
-        newline: String = default_newline,
+        breakpoint: String = DEFAULT_BREAKPOINT,
+        newline: String = DEFAULT_NEWLINE,
         keep_newlines: Bool = True,
         line_len: Int = 0,
         ansi: Bool = False,
@@ -68,7 +67,7 @@ struct WordWrap(Stringable, io.Writer):
         self.line_len = 0
         self.space.reset()
 
-    fn write(inout self, src: List[Byte]) -> (Int, Error):
+    fn write(inout self, src: List[UInt8]) -> (Int, Error):
         """Write more content to the word-wrap buffer.
 
         Args:
@@ -87,19 +86,9 @@ struct WordWrap(Stringable, io.Writer):
             s = strip(s)
             s = s.replace("\n", " ")
 
-        # Rune iterator
-        var bytes = len(s)
-        var s_bytes = s.as_bytes()  # needs to be mutable, so we steal the data of the copy
-        var p = DTypePointer[DType.int8](s_bytes.steal_data()).bitcast[DType.uint8]()
-        while bytes > 0:
-            var char_length = int((p.load() >> 7 == 0).cast[DType.uint8]() * 1 + ctlz(~p.load()))
-            var sp = DTypePointer[DType.int8].alloc(char_length + 1)
-            memcpy(sp, p.bitcast[DType.int8](), char_length)
-            sp[char_length] = 0
-
-            # Functional logic
-            var char = String(sp, char_length + 1)
-            if char == ord(Marker):
+        var uni_str = UnicodeString(s)
+        for char in uni_str:
+            if char == Marker:
                 # ANSI escape sequence
                 _ = self.word.write(char.as_bytes())
                 self.ansi = True
@@ -143,17 +132,13 @@ struct WordWrap(Stringable, io.Writer):
                 ):
                     self.add_newline()
 
-            # Move iterator forward
-            bytes -= char_length
-            p += char_length
-
         return len(src), Error()
 
     fn close(inout self):
         """Finishes the word-wrap operation. Always call it before trying to retrieve the final result."""
         self.add_word()
 
-    fn bytes(self) -> List[Byte]:
+    fn bytes(self) -> List[UInt8]:
         """Returns the word-wrapped result as a byte slice.
 
         Returns:
@@ -178,7 +163,7 @@ fn new_writer(limit: Int) -> WordWrap:
     return WordWrap(limit=limit)
 
 
-fn apply_wordwrap_to_bytes(b: List[Byte], limit: Int) -> List[Byte]:
+fn apply_wordwrap_to_bytes(b: List[UInt8], limit: Int) -> List[UInt8]:
     """Shorthand for declaring a new default WordWrap instance,
     used to immediately word-wrap a byte slice.
 
@@ -196,7 +181,7 @@ fn apply_wordwrap_to_bytes(b: List[Byte], limit: Int) -> List[Byte]:
     return f.bytes()
 
 
-fn apply_wordwrap(s: String, limit: Int) -> String:
+fn wordwrap(s: String, limit: Int) -> String:
     """Shorthand for declaring a new default WordWrap instance,
     used to immediately wrap a string.
 

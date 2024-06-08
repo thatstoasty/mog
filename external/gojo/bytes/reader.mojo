@@ -87,7 +87,7 @@ struct Reader(
         """Reads and returns a single byte from the internal buffer. Implements the [io.ByteReader] Interface."""
         self.prev_rune = -1
         if self.index >= len(self.buffer):
-            return Int8(0), Error(io.EOF)
+            return UInt8(0), Error(io.EOF)
 
         var byte = self.buffer[int(self.index)]
         self.index += 1

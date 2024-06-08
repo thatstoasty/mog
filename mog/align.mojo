@@ -1,4 +1,3 @@
-from math import max, min
 from external.weave.ansi.ansi import printable_rune_width
 from external.mist import TerminalStyle
 from external.gojo.strings import StringBuilder

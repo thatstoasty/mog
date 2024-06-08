@@ -1,6 +1,5 @@
-from math.bit import ctlz
 from external.gojo.bytes import buffer
-from external.gojo.builtins import Byte
+from external.gojo.unicode import UnicodeString
 import external.gojo.io
 from .ansi import writer, is_terminator, Marker, printable_rune_width
 from .strings import repeat
@@ -50,7 +49,7 @@ struct Wrap(Stringable, io.Writer):
         _ = self.buf.write_byte(ord(self.newline))
         self.line_len = 0
 
-    fn write(inout self, src: List[Byte]) -> (Int, Error):
+    fn write(inout self, src: List[UInt8]) -> (Int, Error):
         """Writes the given byte slice to the buffer, wrapping lines as needed.
 
         Args:
@@ -73,18 +72,8 @@ struct Wrap(Stringable, io.Writer):
             self.line_len += width
             return self.buf.write(src)
 
-        # Rune iterator
-        var bytes = len(s)
-        var s_bytes = s.as_bytes()  # needs to be mutable, so we steal the data of the copy
-        var p = DTypePointer[DType.int8](s_bytes.steal_data()).bitcast[DType.uint8]()
-        while bytes > 0:
-            var char_length = int((p.load() >> 7 == 0).cast[DType.uint8]() * 1 + ctlz(~p.load()))
-            var sp = DTypePointer[DType.int8].alloc(char_length + 1)
-            memcpy(sp, p.bitcast[DType.int8](), char_length)
-            sp[char_length] = 0
-
-            # Functional logic
-            var char = String(sp, char_length + 1)
+        var uni_str = UnicodeString(src)
+        for char in uni_str:
             if char == Marker:
                 self.ansi = True
             elif self.ansi:
@@ -93,8 +82,6 @@ struct Wrap(Stringable, io.Writer):
             elif char == "\n":
                 self.add_newline()
                 self.forceful_newline = False
-                bytes -= char_length
-                p += char_length
                 continue
             else:
                 var width = printable_rune_width(char)
@@ -105,8 +92,6 @@ struct Wrap(Stringable, io.Writer):
 
                 if self.line_len == 0:
                     if self.forceful_newline and not self.preserve_space and char == " ":
-                        bytes -= char_length
-                        p += char_length
                         continue
                 else:
                     self.forceful_newline = False
@@ -115,13 +100,9 @@ struct Wrap(Stringable, io.Writer):
 
             _ = self.buf.write_string(char)
 
-            # Move iterator forward
-            bytes -= char_length
-            p += char_length
-
         return len(src), Error()
 
-    fn bytes(self) -> List[Byte]:
+    fn bytes(self) -> List[UInt8]:
         """Returns the wrapped result as a byte slice.
 
         Returns:
@@ -147,7 +128,7 @@ fn new_writer(limit: Int) -> Wrap:
     return Wrap(limit=limit)
 
 
-fn apply_wrap_to_bytes(b: List[Byte], limit: Int) -> List[Byte]:
+fn apply_wrap_to_bytes(b: List[UInt8], limit: Int) -> List[UInt8]:
     """Shorthand for declaring a new default Wrap instance,
     used to immediately wrap a byte slice.
 
@@ -164,7 +145,7 @@ fn apply_wrap_to_bytes(b: List[Byte], limit: Int) -> List[Byte]:
     return f.bytes()
 
 
-fn apply_wrap(s: String, limit: Int) -> String:
+fn wrap(s: String, limit: Int) -> String:
     """Shorthand for declaring a new default Wrap instance,
     used to immediately wrap a string.
 

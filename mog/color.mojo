@@ -64,7 +64,7 @@ struct ANSIColor(TerminalColor):
     var value: UInt64
 
     fn color(self, renderer: Renderer) -> mist.AnyColor:
-        return Color(self.value).color(renderer)
+        return Color(str(self.value)).color(renderer)
 
 
 @value

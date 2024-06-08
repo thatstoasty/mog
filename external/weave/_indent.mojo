@@ -1,6 +1,5 @@
-from math.bit import ctlz
 from external.gojo.bytes import buffer
-from external.gojo.builtins import Byte
+from external.gojo.unicode import UnicodeString
 import external.gojo.io
 from .ansi import writer, is_terminator, Marker
 from .strings import repeat
@@ -21,14 +20,14 @@ struct Writer(Stringable, io.Writer):
         self.skip_indent = False
         self.ansi = False
 
-    fn bytes(self) -> List[Byte]:
+    fn bytes(self) -> List[UInt8]:
         """Returns the indented result as a byte slice."""
         return self.ansi_writer.forward.bytes()
 
     fn __str__(self) -> String:
         return str(self.ansi_writer.forward)
 
-    fn write(inout self, src: List[Byte]) -> (Int, Error):
+    fn write(inout self, src: List[UInt8]) -> (Int, Error):
         """Writes the given byte slice to the writer.
 
         Args:
@@ -38,17 +37,8 @@ struct Writer(Stringable, io.Writer):
             The number of bytes written and optional error.
         """
         var err = Error()
-        # Rune iterator
-        var bytes = len(src)
-        var p = DTypePointer[DType.int8](src.data).bitcast[DType.uint8]()
-        while bytes > 0:
-            var char_length = int((p.load() >> 7 == 0).cast[DType.uint8]() * 1 + ctlz(~p.load()))
-            var sp = DTypePointer[DType.int8].alloc(char_length + 1)
-            memcpy(sp, p.bitcast[DType.int8](), char_length)
-            sp[char_length] = 0
-
-            # Functional logic
-            var char = String(sp, char_length + 1)
+        var uni_str = UnicodeString(src)
+        for char in uni_str:
             if char == Marker:
                 # ANSI escape sequence
                 self.ansi = True
@@ -78,10 +68,6 @@ struct Writer(Stringable, io.Writer):
             if err:
                 return bytes_written, err
 
-            # Move iterator forward
-            bytes -= char_length
-            p += char_length
-
         return len(src), err
 
 
@@ -105,7 +91,7 @@ fn new_writer(indent: UInt8) -> Writer:
 #
 
 
-fn apply_indent_to_bytes(b: List[Byte], indent: UInt8) -> List[Byte]:
+fn apply_indent_to_bytes(b: List[UInt8], indent: UInt8) -> List[UInt8]:
     """Shorthand for declaring a new default indent-writer instance, used to immediately indent a byte slice.
 
     Args:
@@ -121,7 +107,7 @@ fn apply_indent_to_bytes(b: List[Byte], indent: UInt8) -> List[Byte]:
     return f.bytes()
 
 
-fn apply_indent(s: String, indent: UInt8) -> String:
+fn indent(s: String, indent: UInt8) -> String:
     """Shorthand for declaring a new default indent-writer instance,
     used to immediately indent a string.
 

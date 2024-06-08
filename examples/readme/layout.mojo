@@ -1,4 +1,3 @@
-from math import max
 from external.gojo.strings import StringBuilder
 from external.weave.ansi import printable_rune_width
 from mog.join import join_vertical, join_horizontal
@@ -23,7 +22,7 @@ alias special = mog.AdaptiveColor(light="#43BF6D", dark="#73F59F")
 
 
 fn build_tabs() raises -> String:
-    var active_tab_border = Border(
+    alias active_tab_border = Border(
         top="─",
         bottom=" ",
         left="│",
@@ -34,7 +33,7 @@ fn build_tabs() raises -> String:
         bottom_right="└",
     )
 
-    var tab_border = Border(
+    alias tab_border = Border(
         top="─",
         bottom="─",
         left="│",
@@ -248,4 +247,4 @@ fn main() raises:
     _ = builder.write_string(build_status_bar())
 
     # Render the final document with doc_style
-    print(doc_style.render(str(builder)))
+    print(doc_style.render(builder.render()))

@@ -1,7 +1,8 @@
-from math.bit import ctlz
+from bit import countl_zero
 import external.mist
 import external.weave.ansi
 from external.gojo.strings import StringBuilder
+from external.gojo.unicode import UnicodeString
 from .renderer import Renderer
 from .color import (
     TerminalColor,
@@ -66,19 +67,10 @@ struct WhiteSpace:
         var i = 0
 
         while i < width:
-            # Rune iterator
-            var bytes = len(self.chars)
-            var p = self.chars._as_ptr().bitcast[DType.uint8]()
-            while bytes > 0:
-                var char_length = int((p.load() >> 7 == 0).cast[DType.uint8]() * 1 + ctlz(~p.load()))
-                var sp = DTypePointer[DType.int8].alloc(char_length + 1)
-                memcpy(sp, p.bitcast[DType.int8](), char_length)
-                sp[char_length] = 0
+            var uni_str = UnicodeString(self.chars)
 
-                # Functional logic
-                var char = String(sp, char_length + 1)
+            for char in uni_str:
                 _ = b.write_string(char)
-                j += 1
                 var printable_width = ansi.printable_rune_width(char)
                 if j >= printable_width:
                     j = 0
@@ -87,10 +79,6 @@ struct WhiteSpace:
                 i += printable_width
                 if i >= width:
                     break
-
-                # Move iterator forward
-                bytes -= char_length
-                p += char_length
 
         #  Fill any extra gaps white spaces. This might be necessary if any runes
         #  are more than one cell wide, which could leave a one-rune gap.
@@ -140,15 +128,15 @@ fn with_whitespace_foreground[terminal_color: AnyTerminalColor]() -> WhitespaceO
             return None
 
         if terminal_color.isa[Color]():
-            color = terminal_color.take[Color]().color(w.renderer)
+            color = terminal_color[Color].color(w.renderer)
         elif terminal_color.isa[ANSIColor]():
-            color = terminal_color.take[ANSIColor]().color(w.renderer)
+            color = terminal_color[ANSIColor].color(w.renderer)
         elif terminal_color.isa[AdaptiveColor]():
-            color = terminal_color.take[AdaptiveColor]().color(w.renderer)
+            color = terminal_color[AdaptiveColor].color(w.renderer)
         elif terminal_color.isa[CompleteColor]():
-            color = terminal_color.take[CompleteColor]().color(w.renderer)
+            color = terminal_color[CompleteColor].color(w.renderer)
         elif terminal_color.isa[CompleteAdaptiveColor]():
-            color = terminal_color.take[CompleteAdaptiveColor]().color(w.renderer)
+            color = terminal_color[CompleteAdaptiveColor].color(w.renderer)
 
         w.style = w.style.foreground(color)
 
@@ -164,15 +152,15 @@ fn with_whitespace_background[terminal_color: AnyTerminalColor]() -> WhitespaceO
             return None
 
         if terminal_color.isa[Color]():
-            color = terminal_color.take[Color]().color(w.renderer)
+            color = terminal_color[Color].color(w.renderer)
         elif terminal_color.isa[ANSIColor]():
-            color = terminal_color.take[ANSIColor]().color(w.renderer)
+            color = terminal_color[ANSIColor].color(w.renderer)
         elif terminal_color.isa[AdaptiveColor]():
-            color = terminal_color.take[AdaptiveColor]().color(w.renderer)
+            color = terminal_color[AdaptiveColor].color(w.renderer)
         elif terminal_color.isa[CompleteColor]():
-            color = terminal_color.take[CompleteColor]().color(w.renderer)
+            color = terminal_color[CompleteColor].color(w.renderer)
         elif terminal_color.isa[CompleteAdaptiveColor]():
-            color = terminal_color.take[CompleteAdaptiveColor]().color(w.renderer)
+            color = terminal_color[CompleteAdaptiveColor].color(w.renderer)
 
         w.style = w.style.background(color)
 

@@ -1,8 +1,13 @@
-from math.bit import ctlz
+from bit import countl_zero
 from external.gojo.bytes import buffer
 from external.gojo.builtins.bytes import Byte, has_suffix
-from external.gojo.io import traits as io
+from external.gojo.unicode import UnicodeString
+import external.gojo.io
 from .ansi import Marker, is_terminator
+
+
+alias ANSI_ESCAPE = String("[0m").as_bytes()
+alias ANSI_RESET = String("\x1b[0m").as_bytes()
 
 
 @value
@@ -31,17 +36,8 @@ struct Writer(io.Writer):
         Returns:
             The number of bytes written and optional error.
         """
-        # Rune iterator
-        var bytes = len(src)
-        var p = DTypePointer[DType.int8](src.data).bitcast[DType.uint8]()
-        while bytes > 0:
-            var char_length = int((p.load() >> 7 == 0).cast[DType.uint8]() * 1 + ctlz(~p.load()))
-            var sp = DTypePointer[DType.int8].alloc(char_length + 1)
-            memcpy(sp, p.bitcast[DType.int8](), char_length)
-            sp[char_length] = 0
-
-            # Functional logic
-            var char = String(sp, char_length + 1)
+        var uni_str = UnicodeString(src)
+        for char in uni_str:
             if char == Marker:
                 # ANSI escape sequence
                 self.ansi = True
@@ -52,7 +48,7 @@ struct Writer(io.Writer):
                 if is_terminator(ord(char)):
                     self.ansi = False
 
-                    if has_suffix(self.ansi_seq.bytes(), String("[0m").as_bytes()):
+                    if has_suffix(self.ansi_seq.bytes(), ANSI_ESCAPE):
                         # reset sequence
                         self.last_seq.reset()
                         self.seq_changed = False
@@ -63,10 +59,6 @@ struct Writer(io.Writer):
                     _ = self.ansi_seq.write_to(self.forward)
             else:
                 _ = self.forward.write_string(char)
-
-            # move forward iterator
-            bytes -= char_length
-            p += char_length
 
         return len(src), Error()
 
@@ -83,10 +75,9 @@ struct Writer(io.Writer):
     fn reset_ansi(inout self):
         if not self.seq_changed:
             return
-        var ansi_code = String("\x1b[0m").as_bytes()
         var b = List[Byte](capacity=512)
-        for i in range(len(ansi_code)):
-            b[i] = ansi_code[i]
+        for i in range(len(ANSI_RESET)):
+            b[i] = ANSI_RESET[i]
         _ = self.forward.write(b)
 
     fn restore_ansi(inout self):

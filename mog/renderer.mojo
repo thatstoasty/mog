@@ -1,4 +1,3 @@
-from math import max
 from external.mist import Profile
 from external.gojo.strings import StringBuilder
 import external.weave.ansi
@@ -191,7 +190,7 @@ struct Renderer:
             else:
                 # somewhere in the middle
                 var total_gap = gap + short
-                var split = int(math.round(Float64(total_gap) * pos))
+                var split = int(round(Float64(total_gap) * pos))
                 var left = total_gap - split
                 var right = total_gap - left
                 _ = builder.write_string(white_space.render(left))
@@ -250,7 +249,7 @@ struct Renderer:
             else:
                 # somewhere in the middle
                 var total_gap = gap + short
-                var split = int(math.round(Float64(total_gap) * pos))
+                var split = int(round(Float64(total_gap) * pos))
                 var left = total_gap - split
                 var right = total_gap - left
                 _ = builder.write_string(white_space.render(left))
@@ -321,7 +320,7 @@ struct Renderer:
             _ = builder.write_string(text)
         else:
             # somewhere in the middle
-            var split = int(math.round(Float64(gap) * pos))
+            var split = int(round(Float64(gap) * pos))
             var top = gap - split
             var bottom = gap - top
             _ = builder.write_string(repeat(empty_line + "\n", top))
@@ -389,7 +388,7 @@ struct Renderer:
             _ = builder.write_string(text)
         else:
             # somewhere in the middle
-            var split = int(math.round(Float64(gap) * pos))
+            var split = int(round(Float64(gap) * pos))
             var top = gap - split
             var bottom = gap - top
 

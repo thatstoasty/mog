@@ -1,5 +1,4 @@
-from math import max, min
-from external.weave import truncate
+from external.weave import truncate_with_tail
 from external.gojo.strings import StringBuilder
 from ..extensions import repeat
 from ..style import Style
@@ -221,12 +220,12 @@ struct Table:
         # Initialize the widths.
         var widths_len = max(len(self.headers), self.data.columns())
         self.widths = List[Int](capacity=widths_len)
-        for i in range(widths_len):
+        for _ in range(widths_len):
             self.widths.append(0)
 
         var heights_len = btoi(has_headers) + self.data.rows()
         self.heights = List[Int](capacity=heights_len)
-        for i in range(heights_len):
+        for _ in range(heights_len):
             self.heights.append(0)
 
         # The style function may affect width of the table. It's possible to set
@@ -307,7 +306,6 @@ struct Table:
             for i in range(len(self.widths)):
                 var trimmed_width = List[Int](capacity=self.data.rows())
 
-                var r: Int = 0
                 for r in range(self.data.rows()):
                     var rendered_cell = self.style(r + btoi(has_headers), i).render(self.data.at(r, i))
                     var non_whitespace_chars = get_width(trim_right(rendered_cell, " "))
@@ -414,7 +412,6 @@ struct Table:
 
         var i: Int = 0
         while i < len(self.widths):
-            var l = self.border_style.render(repeat(self.border.top, self.widths[i]))
             _ = builder.write_string(self.border_style.render(repeat(self.border.top, self.widths[i])))
             if i < len(self.widths) - 1 and self.border_column:
                 _ = builder.write_string(self.border_style.render(self.border.middle_top))
@@ -464,9 +461,7 @@ struct Table:
             var header = self.headers[i]
             var style = self.style(0, i).max_height(1).width(self.widths[i]).max_width(self.widths[i])
 
-            _ = builder.write_string(
-                style.render(truncate.apply_truncate_with_tail(header, UInt8(self.widths[i]), "…"))
-            )
+            _ = builder.write_string(style.render(truncate_with_tail(header, UInt8(self.widths[i]), "…")))
 
             if (i < len(self.headers) - 1) and (self.border_column):
                 _ = builder.write_string(self.border_style.render(self.border.left))
@@ -522,7 +517,7 @@ struct Table:
                 self.widths[c]
             )
 
-            cells.append(style.render(truncate.apply_truncate_with_tail(cell, UInt8(self.widths[c] * height), "…")))
+            cells.append(style.render(truncate_with_tail(cell, UInt8(self.widths[c] * height), "…")))
 
             if c < self.data.columns() - 1 and self.border_column:
                 cells.append(left)

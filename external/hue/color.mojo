@@ -136,12 +136,12 @@ struct Color(Stringable):
 
     fn almost_equal_rgb(self, c2: Self) -> Bool:
         """Check for equality between colors within the tolerance Delta (1/255)."""
-        return math.abs(self.R - c2.R) + math.abs(self.G - c2.G) + math.abs(self.B - c2.B) < 3.0 * Delta
+        return abs(self.R - c2.R) + abs(self.G - c2.G) + abs(self.B - c2.B) < 3.0 * Delta
 
     fn hsv(self) -> (Float64, Float64, Float64):
         """Hsv returns the Hue [0..360], Saturation and Value [0..1] of the color."""
-        var min = math.min(math.min(self.R, self.G), self.B)
-        var v = math.max(math.max(self.R, self.G), self.B)
+        var min = min(min(self.R, self.G), self.B)
+        var v = max(max(self.R, self.G), self.B)
         var C = v - min
 
         var s = 0.0
@@ -151,7 +151,7 @@ struct Color(Stringable):
         var h = 0.0  # We use 0 instead of undefined as in wp.
         if min != v:
             if v == self.R:
-                h = math.mod((self.G - self.B) / C, 6.0)
+                h = (self.G - self.B) / C % 6.0
             if v == self.G:
                 h = (self.B - self.R) / C + 2.0
             if v == self.B:
@@ -163,8 +163,8 @@ struct Color(Stringable):
 
     fn hsl(self) -> (Float64, Float64, Float64):
         """Hsl returns the Hue [0..360], Saturation [0..1], and Luminance (lightness) [0..1] of the color."""
-        var min = math.min(math.min(self.R, self.G), self.B)
-        var max = math.max(math.max(self.R, self.G), self.B)
+        var min = min(min(self.R, self.G), self.B)
+        var max = max(max(self.R, self.G), self.B)
 
         var l = (max + min) / 2.0
 
@@ -360,7 +360,7 @@ struct Color(Stringable):
         var cabmean = (cab1 + cab2) / 2
         var p: Float64 = 25.0
 
-        var g = 0.5 * (1 - math.sqrt(math.pow(cabmean, 7) / (math.pow(cabmean, 7) + math.pow(p, 7))))
+        var g = 0.5 * (1 - math.sqrt((cabmean**7) / ((cabmean**7) + (p**7))))
         var ap1 = (1 + g) * a1
         var ap2 = (1 + g) * a2
         var cp1 = math.sqrt(sq(ap1) + sq(b1))
@@ -396,7 +396,7 @@ struct Color(Stringable):
         var hpmean = hp1 + hp2
         if cpProduct != 0:
             hpmean /= 2
-            if math.abs(hp1 - hp2) > 180:
+            if abs(hp1 - hp2) > 180:
                 if hp1 + hp2 < 360:
                     hpmean += 180
                 else:
@@ -406,7 +406,7 @@ struct Color(Stringable):
             2 * hpmean * pi / 180
         ) + 0.32 * math.cos((3 * hpmean + 6) * pi / 180) - 0.2 * math.cos((4 * hpmean - 63) * pi / 180)
         var deltaTheta = 30 * math.exp(-sq((hpmean - 275) / 25))
-        var rc = 2 * math.sqrt(math.pow(cpmean, 7) / (math.pow(cpmean, 7) + math.pow(p, 7)))
+        var rc = 2 * math.sqrt((cpmean**7) / ((cpmean**7) + (p**7)))
         var sl = 1 + (0.015 * sq(lpmean - 50)) / math.sqrt(20 + sq(lpmean - 50))
         var sc = 1 + 0.045 * cpmean
         var sh = 1 + 0.015 * cpmean * t
@@ -563,8 +563,8 @@ fn interp_angle(a0: Float64, a1: Float64, t: Float64) -> Float64:
     """Utility used by Hxx color-spaces for interpolating between two angles in [0,360]."""
     # Based on the answer here: http://stackoverflow.com/a/14498790/2366315
     # With potential proof that it works here: http://math.stackexchange.com/a/2144499
-    var delta = math.mod(math.mod(a1 - a0, 360.0) + 540.0, 360.0) - 180.0
-    return math.mod(a0 + t * delta + 360.0, 360.0)
+    var delta = ((((a1 - a0) % 360.0) + 540.0)) % 360.0 - 180.0
+    return (a0 + t * delta + 360.0) % 360.0
 
 
 ### HSV ###
@@ -577,7 +577,7 @@ fn hsv(h: Float64, s: Float64, v: Float64) -> Color:
     """Hsv creates a new Color given a Hue in [0..360], a Saturation and a Value in [0..1]."""
     var hp = h / 60.0
     var C = v * s
-    var X = C * (1.0 - math.abs(math.mod(hp, 2.0) - 1.0))
+    var X = C * (1.0 - abs((hp % 2.0) - 1.0))
     var m = v - C
     var r = 0.0
     var g = 0.0
@@ -783,7 +783,7 @@ fn xyz_to_xyY_white_ref(X: Float64, Y: Float64, Z: Float64, wref: List[Float64])
     var N = X + Y + Z
     var x = X
     var y = Y
-    if math.abs(N) < 1e-14:
+    if abs(N) < 1e-14:
         x = wref[0] / (wref[0] + wref[1] + wref[2])
         y = wref[1] / (wref[0] + wref[1] + wref[2])
     else:
@@ -932,8 +932,8 @@ fn Luv_white_ref(l: Float64, u: Float64, v: Float64, wref: List[Float64]) -> Col
 
 fn lab_to_hcl(L: Float64, a: Float64, b: Float64) -> (Float64, Float64, Float64):
     var h = 0.0
-    if math.abs(b - a) > 1e-4 and math.abs(a) > 1e-4:
-        var h = math.mod(57.29577951308232087721 * math.atan2(b, a) + 360.0, 360.0)  # Rad2Deg
+    if abs(b - a) > 1e-4 and abs(a) > 1e-4:
+        h = (57.29577951308232087721 * math.atan2(b, a) + 360.0) % 360.0  # Rad2Deg
 
     var c = math.sqrt(sq(a) + sq(b))
     var l = L
@@ -1085,8 +1085,8 @@ fn xyz_to_Luv_white_ref(x: Float64, y: Float64, z: Float64, wref: List[Float64])
 fn Luv_To_LuvLCh(L: Float64, u: Float64, v: Float64) -> (Float64, Float64, Float64):
     # Oops, floating point workaround necessary if u ~= v and both are very small (i.e. almost zero).
     var h: Float64
-    if math.abs(v - u) > 1e-4 and math.abs(u) > 1e-4:
-        h = math.mod(57.29577951308232087721 * math.atan2(v, u) + 360.0, 360.0)  # Rad2Deg
+    if abs(v - u) > 1e-4 and abs(u) > 1e-4:
+        h = (57.29577951308232087721 * math.atan2(v, u) + 360.0) % 360.0  # Rad2Deg
     else:
         h = 0.0
 

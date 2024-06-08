@@ -5,25 +5,26 @@ from .position import Position, top, bottom, left, right, center
 from .extensions import repeat
 
 
-# join_horizontal is a utility function for horizontally joining two
-# potentially multi-lined strings along a vertical axis. The first argument is
-# the position, with 0 being all the way at the top and 1 being all the way
-# at the bottom.
-#
-# If you just want to align to the left, right or center you may as well just
-# use the helper constants Top, Center, and Bottom.
-#
-# Example:
-#
-# 	blockB := "...\n...\n..."
-# 	blockA := "...\n...\n...\n...\n..."
-#
-# 	# Join 20% from the top
-# 	str := lipgloss.join_horizontal(0.2, blockA, blockB)
-#
-# 	# Join on the top edge
-# 	str := lipgloss.join_horizontal(lipgloss.Top, blockA, blockB)
 fn join_horizontal(pos: Position, *strs: String) raises -> String:
+    """Utility function for horizontally joining two
+    potentially multi-lined strings along a vertical axis. The first argument is
+    the position, with 0 being all the way at the top and 1 being all the way
+    at the bottom.
+
+    If you just want to align to the left, right or center you may as well just
+    use the helper constants Top, Center, and Bottom.
+
+    Example:
+
+        blockB := "...\n...\n..."
+        blockA := "...\n...\n...\n...\n..."
+
+        # Join 20% from the top
+        str := mog.join_horizontal(0.2, blockA, blockB)
+
+        # Join on the top edge
+        str := mog.join_horizontal(mog.Top, blockA, blockB)
+    """
     if len(strs) == 0:
         return ""
 
@@ -94,25 +95,26 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
     return str(builder)
 
 
-# join_horizontal is a utility function for horizontally joining two
-# potentially multi-lined strings along a vertical axis. The first argument is
-# the position, with 0 being all the way at the top and 1 being all the way
-# at the bottom.
-#
-# If you just want to align to the left, right or center you may as well just
-# use the helper constants Top, Center, and Bottom.
-#
-# Example:
-#
-# 	blockB := "...\n...\n..."
-# 	blockA := "...\n...\n...\n...\n..."
-#
-# 	# Join 20% from the top
-# 	str := lipgloss.join_horizontal(0.2, blockA, blockB)
-#
-# 	# Join on the top edge
-# 	str := lipgloss.join_horizontal(lipgloss.Top, blockA, blockB)
 fn join_horizontal(pos: Position, strs: List[String]) raises -> String:
+    """Utility function for horizontally joining two
+    potentially multi-lined strings along a vertical axis. The first argument is
+    the position, with 0 being all the way at the top and 1 being all the way
+    at the bottom.
+
+    If you just want to align to the left, right or center you may as well just
+    use the helper constants Top, Center, and Bottom.
+
+    Example:
+
+        blockB := "...\n...\n..."
+        blockA := "...\n...\n...\n...\n..."
+
+        # Join 20% from the top
+        str := mog.join_horizontal(0.2, blockA, blockB)
+
+        # Join on the top edge
+        str := mog.join_horizontal(mog.Top, blockA, blockB)
+    """
     if len(strs) == 0:
         return ""
 
@@ -184,25 +186,26 @@ fn join_horizontal(pos: Position, strs: List[String]) raises -> String:
     return str(builder)
 
 
-# join_vertical is a utility function for vertically joining two potentially
-# multi-lined strings along a horizontal axis. The first argument is the
-# position, with 0 being all the way to the left and 1 being all the way to
-# the right.
-#
-# If you just want to align to the left, right or center you may as well just
-# use the helper constants Left, Center, and Right.
-#
-# Example:
-#
-# 	blockB := "...\n...\n..."
-# 	blockA := "...\n...\n...\n...\n..."
-#
-# 	# Join 20% from the top
-# 	str := lipgloss.join_vertical(0.2, blockA, blockB)
-#
-# 	# Join on the right edge
-# 	str := lipgloss.join_vertical(lipgloss.Right, blockA, blockB)
 fn join_vertical(pos: Position, *strs: String) raises -> String:
+    """Utility function for vertically joining two potentially
+    multi-lined strings along a horizontal axis. The first argument is the
+    position, with 0 being all the way to the left and 1 being all the way to
+    the right.
+
+    If you just want to align to the left, right or center you may as well just
+    use the helper constants Left, Center, and Right.
+
+    Example:
+
+        blockB := "...\n...\n..."
+        blockA := "...\n...\n...\n...\n..."
+
+        # Join 20% from the top
+        str := mog.join_vertical(0.2, blockA, blockB)
+
+        # Join on the right edge
+        str := mog.join_vertical(mog.Right, blockA, blockB)
+    """
     if len(strs) == 0:
         return ""
 
@@ -262,6 +265,25 @@ fn join_vertical(pos: Position, *strs: String) raises -> String:
 
 
 fn join_vertical(pos: Position, strs: List[String]) raises -> String:
+    """Utility function for vertically joining two potentially
+    multi-lined strings along a horizontal axis. The first argument is the
+    position, with 0 being all the way to the left and 1 being all the way to
+    the right.
+
+    If you just want to align to the left, right or center you may as well just
+    use the helper constants Left, Center, and Right.
+
+    Example:
+
+        blockB := "...\n...\n..."
+        blockA := "...\n...\n...\n...\n..."
+
+        # Join 20% from the top
+        str := mog.join_vertical(0.2, blockA, blockB)
+
+        # Join on the right edge
+        str := mog.join_vertical(mog.Right, blockA, blockB)
+    """
     if len(strs) == 0:
         return ""
 

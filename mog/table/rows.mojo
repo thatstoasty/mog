@@ -1,6 +1,3 @@
-from math import max
-
-
 # Data is the interface that wraps the basic methods of a table model.
 trait Data:
     # At returns the contents of the cell at the given index.

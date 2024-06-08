@@ -3,7 +3,7 @@ from external.gojo.builtins import Byte
 from .ansi import printable_rune_width
 
 
-fn apply_dedent(owned s: String) -> String:
+fn dedent(owned s: String) -> String:
     """Automatically detects the maximum indentation shared by all lines and
     trims them accordingly.
 
@@ -17,7 +17,7 @@ fn apply_dedent(owned s: String) -> String:
     if indent == 0:
         return s
 
-    return dedent(s, indent)
+    return apply_dedent(s, indent)
 
 
 fn min_indent(s: String) -> Int:
@@ -28,10 +28,10 @@ fn min_indent(s: String) -> Int:
 
     var s_bytes = s.as_bytes()
     while i < len(s_bytes):
-        if s_bytes[i] == ord("\t") or s_bytes[i] == ord(" "):
+        if s_bytes[i] == TAB_BYTE or s_bytes[i] == SPACE_BYTE:
             if should_append:
                 cur_indent += 1
-        elif s_bytes[i] == ord("\n"):
+        elif s_bytes[i] == NEWLINE_BYTE:
             cur_indent = 0
             should_append = True
         else:
@@ -45,19 +45,19 @@ fn min_indent(s: String) -> Int:
     return min_indent
 
 
-fn dedent(s: String, indent: Int) -> String:
+fn apply_dedent(s: String, indent: Int) -> String:
     var omitted: Int = 0
     var buf = buffer.new_buffer()
     var i: Int = 0
 
     var s_bytes = s.as_bytes()
     while i < len(s_bytes):
-        if s_bytes[i] == ord("\t") or s_bytes[i] == ord(" "):
+        if s_bytes[i] == TAB_BYTE or s_bytes[i] == SPACE_BYTE:
             if omitted < indent:
                 omitted += 1
             else:
                 _ = buf.write_byte(s_bytes[i])
-        elif s_bytes[i] == ord("\n"):
+        elif s_bytes[i] == NEWLINE_BYTE:
             omitted = 0
             _ = buf.write_byte(s_bytes[i])
         else:

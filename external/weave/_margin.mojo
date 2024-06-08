@@ -1,6 +1,7 @@
-from external.gojo.bytes import buffer
-from external.gojo.builtins import Byte
 import external.gojo.io
+import . _padding as padding
+import . _indent as indent
+from external.gojo.bytes import buffer
 from .ansi import writer, is_terminator, Marker
 from .strings import repeat, strip
 
@@ -21,14 +22,14 @@ struct Writer(Stringable, io.Writer):
         _ = self.pw.close()
         _ = self.buf.write(self.pw.bytes())
 
-    fn bytes(self) -> List[Byte]:
+    fn bytes(self) -> List[UInt8]:
         """Returns the result as a byte slice."""
         return self.buf.bytes()
 
     fn __str__(self) -> String:
         return str(self.buf)
 
-    fn write(inout self, src: List[Byte]) -> (Int, Error):
+    fn write(inout self, src: List[UInt8]) -> (Int, Error):
         """Writes the given byte slice to the writer.
         Args:
             src: The byte slice to write.
@@ -58,7 +59,7 @@ fn new_writer(width: UInt8, margin: UInt8) -> Writer:
     return Writer(padding.new_writer(width), indent.new_writer(margin))
 
 
-fn apply_margin_to_bytes(b: List[Byte], width: UInt8, margin: UInt8) -> List[Byte]:
+fn apply_margin_to_bytes(b: List[UInt8], width: UInt8, margin: UInt8) -> List[UInt8]:
     """Shorthand for declaring a new default margin-writer instance,
     used to immediately apply a margin to a byte slice.
 
@@ -77,7 +78,7 @@ fn apply_margin_to_bytes(b: List[Byte], width: UInt8, margin: UInt8) -> List[Byt
     return f.bytes()
 
 
-fn apply_margin(s: String, width: UInt8, margin: UInt8) -> String:
+fn margin(s: String, width: UInt8, margin: UInt8) -> String:
     """Shorthand for declaring a new default margin-writer instance,
     used to immediately apply a margin to a String.
 

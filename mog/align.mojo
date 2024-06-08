@@ -2,15 +2,16 @@ from external.weave.ansi.ansi import printable_rune_width
 from external.mist import TerminalStyle
 from external.gojo.strings import StringBuilder
 import .position
-from .extensions import count, repeat
+from .extensions import count, repeat, split
 
 
 # Perform text alignment. If the string is multi-lined, we also make all lines
 # the same width by padding them with spaces. If a termenv style is passed,
 # use that to style the spaces added.
-fn align_text_horizontal(text: String, pos: position.Position, width: Int, style: TerminalStyle) raises -> String:
+fn align_text_horizontal(text: String, pos: position.Position, width: Int, style: TerminalStyle) -> String:
     # TODO: Replace when get_lines works.
-    var lines = text.split("\n")
+    var lines = split(text, "\n")
+
     var widest_line: Int = 0
     for i in range(len(lines)):
         if printable_rune_width(lines[i]) > widest_line:
@@ -53,7 +54,7 @@ fn align_text_horizontal(text: String, pos: position.Position, width: Int, style
     return str(aligned_text)
 
 
-fn align_text_vertical(text: String, pos: position.Position, height: Int) raises -> String:
+fn align_text_vertical(text: String, pos: position.Position, height: Int) -> String:
     var text_height = count(text, "\n") + 1
     if height < text_height:
         return text

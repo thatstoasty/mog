@@ -18,7 +18,7 @@ from .border import (
     star_border,
     plus_border,
 )
-from .extensions import repeat, join, contains
+from .extensions import repeat, join, contains, split
 from .align import align_text_horizontal, align_text_vertical
 from .color import (
     AnyTerminalColor,
@@ -146,7 +146,7 @@ fn str_to_float(s: String) raises -> Float64:
 
 
 # Apply left padding.
-fn pad_left(text: String, n: Int, style: mist.TerminalStyle) raises -> String:
+fn pad_left(text: String, n: Int, style: mist.TerminalStyle) -> String:
     if n == 0:
         return text
     var sp = repeat(" ", n)
@@ -154,7 +154,7 @@ fn pad_left(text: String, n: Int, style: mist.TerminalStyle) raises -> String:
     sp = style.render(sp)
 
     var padded_text: String = ""
-    var lines = text.split("\n")
+    var lines = split(text, "\n")
 
     for i in range(len(lines)):
         padded_text += sp
@@ -166,16 +166,15 @@ fn pad_left(text: String, n: Int, style: mist.TerminalStyle) raises -> String:
 
 
 # Apply right padding.
-fn pad_right(text: String, n: Int, style: mist.TerminalStyle) raises -> String:
+fn pad_right(text: String, n: Int, style: mist.TerminalStyle) -> String:
     if n == 0 or text == "":
         return text
 
     var sp = repeat(" ", n)
-
     sp = style.render(sp)
 
     var padded_text: String = ""
-    var lines = text.split("\n")
+    var lines = split(text, "\n")
 
     for i in range(len(lines)):
         padded_text += lines[i]
@@ -1485,7 +1484,7 @@ struct Style:
 
         return styler.render(border)
 
-    fn apply_border(self, text: String) raises -> String:
+    fn apply_border(self, text: String) -> String:
         """Apply a border to the text.
 
         Args:
@@ -1530,7 +1529,7 @@ struct Style:
         if border == borderless or (not has_top and not has_right and not has_bottom and not has_left):
             return text
 
-        var lines = text.split("\n")
+        var lines = split(text, "\n")
 
         var width: Int = 0
         for i in range(len(lines)):
@@ -1636,7 +1635,7 @@ struct Style:
 
         return str(builder)
 
-    fn apply_margins(self, text: String, inline: Bool) raises -> String:
+    fn apply_margins(self, text: String, inline: Bool) -> String:
         var padded_text: String = text
         var top_margin = self.get_as_int(str(MARGIN_TOP_KEY))
         var right_margin = self.get_as_int(str(MARGIN_RIGHT_KEY))
@@ -1665,7 +1664,8 @@ struct Style:
 
         # Top/bottom margin
         if not inline:
-            var lines = text.split("\n")
+            var lines = split(text, "\n")
+
             var width: Int = 0
             for i in range(len(lines)):
                 if printable_rune_width(lines[i]) > width:
@@ -1680,7 +1680,7 @@ struct Style:
 
         return padded_text
 
-    fn render(self, *texts: String) raises -> String:
+    fn render(self, *texts: String) -> String:
         """Render the text with the style.
 
         Args:
@@ -1849,7 +1849,8 @@ struct Style:
         input_text = self.maybe_convert_tabs(input_text)
 
         var builder = StringBuilder()
-        var lines = input_text.split("\n")
+        var lines = split(input_text, "\n")
+
         for i in range(len(lines)):
             var line = lines[i]
             if use_space_styler:
@@ -1895,7 +1896,7 @@ struct Style:
 
         # Truncate according to max_width
         if max_width > 0:
-            var lines = styled_text.split("\n")
+            var lines = split(styled_text, "\n")
 
             for i in range(len(lines)):
                 lines[i] = truncate(lines[i], max_width)
@@ -1904,7 +1905,7 @@ struct Style:
 
         # Truncate according to max_height
         if max_height > 0:
-            var lines = styled_text.split("\n")
+            var lines = split(styled_text, "\n")
             var truncated_lines = lines[0 : min(max_height, len(lines))]
             styled_text = join("\n", truncated_lines)
 
@@ -1912,7 +1913,12 @@ struct Style:
         #     return transform(styled_text)
 
         # Apply border at the end
-        var number_of_lines = len(styled_text.split("\n"))
+        try:
+            lines = styled_text.split("\n")
+        except:
+            lines = List[String](styled_text)
+
+        var number_of_lines = len(lines)
         if not (number_of_lines == 0 and width == 0):
             var style = mist.TerminalStyle(self.renderer.color_profile)
             if color_whitespace or use_whitespace_styler:

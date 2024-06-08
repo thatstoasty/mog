@@ -3,7 +3,7 @@ from external.gojo.strings import StringBuilder
 import external.weave.ansi
 from .whitespace import WhitespaceOption, new_whitespace
 import .position
-from .extensions import repeat
+from .extensions import repeat, split
 
 
 # TODO: Cannot handle characters with a printable width of 2 or more. Like east asian characters (Kanji, etc.).
@@ -125,7 +125,7 @@ struct Renderer:
         vPos: Float64,
         text: String,
         opts: List[WhitespaceOption],
-    ) raises -> String:
+    ) -> String:
         """Places a string or text block vertically in an unstyled box of a given
         width or height.
 
@@ -209,7 +209,7 @@ struct Renderer:
         pos: Float64,
         text: String,
         opts: List[WhitespaceOption],
-    ) raises -> String:
+    ) -> String:
         """Places a string or text block horizontally in an unstyled
         block of a given width. If the given width is shorter than the max width of
         the string (measured by its longest line) this will be a noöp.
@@ -225,7 +225,7 @@ struct Renderer:
         Returns:
             The string with the text placed in the block.
         """
-        var lines = text.split("\n")
+        var lines = split(text, "\n")
         var content_width: Int = 0
         for i in range(len(lines)):
             if ansi.printable_rune_width(lines[i]) > content_width:
@@ -268,7 +268,7 @@ struct Renderer:
         text: String,
         /,
         *opts: WhitespaceOption,
-    ) raises -> String:
+    ) -> String:
         """Places a string or text block vertically in an unstyled block
         of a given height. If the given height is shorter than the height of the
         string (measured by its newlines) then this will be a noöp.
@@ -295,7 +295,7 @@ struct Renderer:
             options.append(opt)
         var white_space = new_whitespace(self, options)
 
-        var lines = text.split("\n")
+        var lines = split(text, "\n")
         var width: Int = 0
         for i in range(len(lines)):
             if ansi.printable_rune_width(lines[i]) > width:
@@ -340,7 +340,7 @@ struct Renderer:
         pos: Float64,
         text: String,
         opts: List[WhitespaceOption],
-    ) raises -> String:
+    ) -> String:
         """Places a string or text block vertically in an unstyled block
         of a given height. If the given height is shorter than the height of the
         string (measured by its newlines) then this will be a noöp.
@@ -364,7 +364,7 @@ struct Renderer:
 
         var white_space = new_whitespace(self, opts)
 
-        var lines = text.split("\n")
+        var lines = split(text, "\n")
         var width: Int = 0
         for i in range(len(lines)):
             if ansi.printable_rune_width(lines[i]) > width:

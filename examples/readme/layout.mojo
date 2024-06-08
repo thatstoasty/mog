@@ -21,7 +21,7 @@ alias highlight = mog.AdaptiveColor(light="#874BFD", dark="#7D56F4")
 alias special = mog.AdaptiveColor(light="#43BF6D", dark="#73F59F")
 
 
-fn build_tabs() raises -> String:
+fn build_tabs() -> String:
     alias active_tab_border = Border(
         top="─",
         bottom=" ",
@@ -62,7 +62,7 @@ fn build_tabs() raises -> String:
     return join_horizontal(position.bottom, row, gap)
 
 
-fn build_description() raises -> String:
+fn build_description() -> String:
     var divider = Style.new().padding(0, 1).foreground(subtle).render("•")
 
     var url = Style.new().foreground(special)
@@ -76,7 +76,7 @@ fn build_description() raises -> String:
     )
 
 
-fn build_dialog_box() raises -> String:
+fn build_dialog_box() -> String:
     var dialog_box_style = Style.new().alignment(position.center).border(rounded_border()).border_foreground(
         mog.Color("#874BFD")
     ).padding(1, 0)
@@ -109,7 +109,7 @@ fn build_dialog_box() raises -> String:
     )
 
 
-fn build_lists() raises -> String:
+fn build_lists() -> String:
     var list_style = Style.new().border(normal_border(), False, True, False, False).border_foreground(
         subtle
     ).margin_right(2).height(8).width(column_width + 1)
@@ -168,7 +168,7 @@ fn build_lists() raises -> String:
     return join_horizontal(position.top, lists)
 
 
-fn build_history() raises -> String:
+fn build_history() -> String:
     var history_style = Style.new().height(20).width(column_width).padding(1, 2).margin(1, 3, 0, 0).alignment(
         position.left
     ).foreground(mog.Color("#FFFDF5")).background(highlight)
@@ -185,7 +185,7 @@ fn build_history() raises -> String:
     )
 
 
-fn build_status_bar() raises -> String:
+fn build_status_bar() -> String:
     var status_nugget_style = Style.new().foreground(mog.Color("#FFFDF5")).padding(0, 1)
 
     var status_bar_style = Style.new().foreground(mog.Color("#C1C6B2")).background(mog.Color("#353533"))
@@ -218,7 +218,7 @@ fn build_status_bar() raises -> String:
     return status_bar_style.width(width).render(bar)
 
 
-fn main() raises:
+fn main():
     # The page style
     var builder = StringBuilder()
     var doc_style = Style.new().padding(1, 2, 1, 2).border(rounded_border()).border_foreground(subtle)

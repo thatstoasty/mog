@@ -1,6 +1,10 @@
 # Strings
-fn count(text: String, substr: String) raises -> Int:
-    var chunks = text.split(substr)
+fn count(text: String, substr: String) -> Int:
+    var chunks: List[String]
+    try:
+        chunks = text.split(substr)
+    except:
+        chunks = List[String](text)
 
     return chunks.size
 
@@ -19,40 +23,18 @@ fn from_string(input_value: String) -> List[String]:
     return result
 
 
-fn split(input_string: String, sep: String = " ", owned max_split: Int = -1) raises -> List[String]:
-    """The separator can be multiple characters long."""
-    var result = List[String]()
-    if max_split == 0:
-        result.append(input_string)
-        return result
-    if max_split < 0:
-        max_split = len(input_string)
-
-    if not sep:
-        return from_string(input_string)[0:max_split]
-
-    var output = List[String]()
-    var start = 0
-    var split_count = 0
-
-    for end in range(len(input_string) - len(sep) + 1):
-        if input_string[end : end + len(sep)] == sep:
-            output.append(input_string[start:end])
-            start = end + len(sep)
-            split_count += 1
-
-            if max_split > 0 and split_count >= max_split:
-                break
-
-    output.append(input_string[start:])
-    return output
+fn split(text: String, sep: String, max_split: Int = -1) -> List[String]:
+    try:
+        return text.split(sep, max_split)
+    except:
+        return List[String](text)
 
 
-fn join(separator: String, iterable: List[String]) raises -> String:
+fn join(separator: String, iterable: List[String]) -> String:
     var result: String = ""
-    for i in range(iterable.__len__()):
+    for i in range(len(iterable)):
         result += iterable[i]
-        if i != iterable.__len__() - 1:
+        if i != len(iterable) - 1:
             result += separator
     return result
 

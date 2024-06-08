@@ -2,10 +2,10 @@ import math
 from external.weave.ansi.ansi import printable_rune_width
 from external.gojo.strings import StringBuilder
 from .position import Position, top, bottom, left, right, center
-from .extensions import repeat
+from .extensions import repeat, split
 
 
-fn join_horizontal(pos: Position, *strs: String) raises -> String:
+fn join_horizontal(pos: Position, *strs: String) -> String:
     """Utility function for horizontally joining two
     potentially multi-lined strings along a vertical axis. The first argument is
     the position, with 0 being all the way at the top and 1 being all the way
@@ -41,7 +41,7 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
     # Break text blocks into lines and get max widths for each text block
     for i in range(len(strs)):
         var s = strs[i]
-        var lines = s.split("\n")
+        var lines = split(s, "\n")
         var widest: Int = 0
         for i in range(len(lines)):
             var rune_count = printable_rune_width(lines[i])
@@ -95,7 +95,7 @@ fn join_horizontal(pos: Position, *strs: String) raises -> String:
     return str(builder)
 
 
-fn join_horizontal(pos: Position, strs: List[String]) raises -> String:
+fn join_horizontal(pos: Position, strs: List[String]) -> String:
     """Utility function for horizontally joining two
     potentially multi-lined strings along a vertical axis. The first argument is
     the position, with 0 being all the way at the top and 1 being all the way
@@ -131,7 +131,7 @@ fn join_horizontal(pos: Position, strs: List[String]) raises -> String:
     # Break text blocks into lines and get max widths for each text block
     for i in range(len(strs)):
         var s = strs[i]
-        var lines = s.split("\n")
+        var lines = split(s, "\n")
         var widest: Int = 0
         for i in range(len(lines)):
             var rune_count = printable_rune_width(lines[i])
@@ -186,7 +186,7 @@ fn join_horizontal(pos: Position, strs: List[String]) raises -> String:
     return str(builder)
 
 
-fn join_vertical(pos: Position, *strs: String) raises -> String:
+fn join_vertical(pos: Position, *strs: String) -> String:
     """Utility function for vertically joining two potentially
     multi-lined strings along a horizontal axis. The first argument is the
     position, with 0 being all the way to the left and 1 being all the way to
@@ -220,7 +220,7 @@ fn join_vertical(pos: Position, *strs: String) raises -> String:
 
     for i in range(len(strs)):
         var s = strs[i]
-        var lines = s.split("\n")
+        var lines = split(s, "\n")
         var widest: Int = 0
         for i in range(len(lines)):
             var rune_count = printable_rune_width(lines[i])
@@ -264,7 +264,7 @@ fn join_vertical(pos: Position, *strs: String) raises -> String:
     return str(builder)
 
 
-fn join_vertical(pos: Position, strs: List[String]) raises -> String:
+fn join_vertical(pos: Position, strs: List[String]) -> String:
     """Utility function for vertically joining two potentially
     multi-lined strings along a horizontal axis. The first argument is the
     position, with 0 being all the way to the left and 1 being all the way to
@@ -298,7 +298,7 @@ fn join_vertical(pos: Position, strs: List[String]) raises -> String:
 
     for i in range(len(strs)):
         var s = strs[i]
-        var lines = s.split("\n")
+        var lines = split(s, "\n")
         var widest: Int = 0
         for i in range(len(lines)):
             var rune_count = printable_rune_width(lines[i])

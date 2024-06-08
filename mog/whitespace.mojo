@@ -188,7 +188,7 @@ fn place(
     text: String,
     /,
     *opts: WhitespaceOption,
-) raises -> String:
+) -> String:
     """Places a string or text block vertically in an unstyled box of a given
     width or height.
 

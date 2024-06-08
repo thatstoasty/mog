@@ -1,6 +1,5 @@
 from external.weave import truncate_with_tail
 from external.gojo.strings import StringBuilder
-from ..extensions import repeat
 from ..style import Style
 from ..border import rounded_border, Border
 from ..position import top, bottom, left, right, center
@@ -44,10 +43,10 @@ fn trim_right(s: String, cutset: String) -> String:
 # 	               return Oddrowstyle
 #
 # 	    )
-alias StyleFunction = fn (row: Int, col: Int) raises escaping -> Style
+alias StyleFunction = fn (row: Int, col: Int) escaping -> Style
 
 
-fn default_styles(row: Int, col: Int) raises -> Style:
+fn default_styles(row: Int, col: Int) -> Style:
     """TableStyleFunction that returns a new Style with no attributes.
 
     Args:
@@ -131,7 +130,7 @@ struct Table:
         """Clears the table rows."""
         self.data = StringData(_rows=List[List[String]](), _columns=0)
 
-    fn style(self, row: Int, col: Int) raises -> Style:
+    fn style(self, row: Int, col: Int) -> Style:
         """Returns the style for a cell based on it's position (row, column).
 
         Args:
@@ -199,7 +198,7 @@ struct Table:
         """
         self.headers = headers
 
-    fn __str__(inout self) raises -> String:
+    fn __str__(inout self) -> String:
         """Returns the table as a String."""
         var has_headers = len(self.headers) > 0
         var has_rows = self.data.rows() > 0
@@ -391,7 +390,7 @@ struct Table:
         )
 
     # render
-    fn render(inout self) raises -> String:
+    fn render(inout self) -> String:
         """Returns the table as a String.
 
         Returns:
@@ -399,7 +398,7 @@ struct Table:
         """
         return self.__str__()
 
-    fn construct_top_border(self) raises -> String:
+    fn construct_top_border(self) -> String:
         """Constructs the top border for the table given it's current
         border configuration and data.
 
@@ -412,7 +411,7 @@ struct Table:
 
         var i: Int = 0
         while i < len(self.widths):
-            _ = builder.write_string(self.border_style.render(repeat(self.border.top, self.widths[i])))
+            _ = builder.write_string(self.border_style.render(self.border.top * self.widths[i]))
             if i < len(self.widths) - 1 and self.border_column:
                 _ = builder.write_string(self.border_style.render(self.border.middle_top))
             i += 1
@@ -422,7 +421,7 @@ struct Table:
 
         return str(builder)
 
-    fn construct_bottom_border(self) raises -> String:
+    fn construct_bottom_border(self) -> String:
         """Constructs the bottom border for the table given it's current
         border configuration and data.
 
@@ -435,7 +434,7 @@ struct Table:
 
         var i: Int = 0
         while i < len(self.widths):
-            _ = builder.write_string(self.border_style.render(repeat(self.border.bottom, self.widths[i])))
+            _ = builder.write_string(self.border_style.render(self.border.bottom * self.widths[i]))
             if i < len(self.widths) - 1 and self.border_column:
                 _ = builder.write_string(self.border_style.render(self.border.middle_bottom))
 
@@ -446,7 +445,7 @@ struct Table:
 
         return str(builder)
 
-    fn construct_headers(self) raises -> String:
+    fn construct_headers(self) -> String:
         """Constructs the headers for the table given it's current
         header configuration and data.
 
@@ -476,7 +475,7 @@ struct Table:
 
             var i: Int = 0
             while i < len(self.headers):
-                _ = builder.write_string(self.border_style.render(repeat(self.border.bottom, self.widths[i])))
+                _ = builder.write_string(self.border_style.render(self.border.bottom * self.widths[i]))
                 if i < len(self.headers) - 1 and self.border_column:
                     _ = builder.write_string(self.border_style.render(self.border.middle))
 
@@ -490,7 +489,7 @@ struct Table:
 
         return str(builder)
 
-    fn construct_row(self, index: Int) raises -> String:
+    fn construct_row(self, index: Int) -> String:
         """Constructs the row for the table given an index and row data
         based on the current configuration.
 
@@ -506,7 +505,7 @@ struct Table:
         var height = self.heights[index + btoi(has_headers)]
 
         var cells = List[String]()
-        var left = repeat(self.border_style.render(self.border.left) + "\n", height)
+        var left = (self.border_style.render(self.border.left) + "\n") * height
         if self.border_left:
             cells.append(left)
 
@@ -525,7 +524,7 @@ struct Table:
             c += 1
 
         if self.border_right:
-            var right = repeat(self.border_style.render(self.border.right) + "\n", height)
+            var right = (self.border_style.render(self.border.right) + "\n") * height
             cells.append(right)
 
         for i in range(len(cells)):
@@ -538,7 +537,7 @@ struct Table:
             _ = builder.write_string(self.border_style.render(self.border.middle_left))
             var i: Int = 0
             while i < len(self.widths):
-                _ = builder.write_string(self.border_style.render(repeat(self.border.middle, self.widths[i])))
+                _ = builder.write_string(self.border_style.render(self.border.middle * self.widths[i]))
                 if i < len(self.widths) - 1 and self.border_column:
                     _ = builder.write_string(self.border_style.render(self.border.middle))
 

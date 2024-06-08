@@ -2,7 +2,7 @@ import math
 from external.weave.ansi.ansi import printable_rune_width
 from external.gojo.strings import StringBuilder
 from .position import Position, top, bottom, left, right, center
-from .extensions import repeat, split
+from .extensions import split
 
 
 fn join_horizontal(pos: Position, *strs: String) -> String:
@@ -86,7 +86,7 @@ fn join_horizontal(pos: Position, *strs: String) -> String:
             _ = builder.write_string(block[i])
 
             # Also make lines the same length
-            var spaces = repeat(" ", max_widths[j] - printable_rune_width(block[i]))
+            var spaces = WHITESPACE * (max_widths[j] - printable_rune_width(block[i]))
             _ = builder.write_string(spaces)
 
         if i < len(blocks[0]) - 1:
@@ -177,7 +177,8 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
             _ = builder.write_string(block[i])
 
             # Also make lines the same length
-            var spaces = repeat("", max_widths[j] - printable_rune_width(block[i]))
+            # TODO: Is this doing nothing??
+            var spaces = String("") * (max_widths[j] - printable_rune_width(block[i]))
             _ = builder.write_string(spaces)
 
         if i < len(blocks[0]) - 1:
@@ -242,9 +243,9 @@ fn join_vertical(pos: Position, *strs: String) -> String:
 
             if pos == left:
                 _ = builder.write_string(line)
-                _ = builder.write_string(repeat(" ", w))
+                _ = builder.write_string(WHITESPACE * w)
             elif pos == right:
-                _ = builder.write_string(repeat(" ", w))
+                _ = builder.write_string(WHITESPACE * w)
                 _ = builder.write_string(line)
             else:
                 if w < 1:
@@ -254,9 +255,9 @@ fn join_vertical(pos: Position, *strs: String) -> String:
                     var right = w - split
                     var left = w - right
 
-                    _ = builder.write_string(repeat(" ", left))
+                    _ = builder.write_string(WHITESPACE * left)
                     _ = builder.write_string(line)
-                    _ = builder.write_string(repeat(" ", right))
+                    _ = builder.write_string(WHITESPACE * right)
 
             if not (i == len(blocks) - 1 and j == len(block) - 1):
                 _ = builder.write_string("\n")
@@ -320,9 +321,9 @@ fn join_vertical(pos: Position, strs: List[String]) -> String:
 
             if pos == left:
                 _ = builder.write_string(line)
-                _ = builder.write_string(repeat(" ", w))
+                _ = builder.write_string(WHITESPACE * w)
             elif pos == right:
-                _ = builder.write_string(repeat(" ", w))
+                _ = builder.write_string(WHITESPACE * w)
                 _ = builder.write_string(line)
             else:
                 if w < 1:
@@ -332,9 +333,9 @@ fn join_vertical(pos: Position, strs: List[String]) -> String:
                     var right = w - split
                     var left = w - right
 
-                    _ = builder.write_string(repeat(" ", left))
+                    _ = builder.write_string(WHITESPACE * left)
                     _ = builder.write_string(line)
-                    _ = builder.write_string(repeat(" ", right))
+                    _ = builder.write_string(WHITESPACE * right)
 
             if not (i == len(blocks) - 1 and j == len(block) - 1):
                 _ = builder.write_string("\n")

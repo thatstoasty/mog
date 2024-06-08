@@ -1,4 +1,4 @@
-from .style import Style, NO_TAB_CONVERSION
+from .style import Style, NO_TAB_CONVERSION, get_lines, new_style
 from .border import Border
 from .table import Table, new_table, new_string_data, default_styles
 from .position import top, bottom, center, left, right
@@ -12,3 +12,7 @@ from .color import (
     CompleteAdaptiveColor,
     AnyTerminalColor,
 )
+
+
+alias WHITESPACE = String(" ")
+alias NEWLINE = String("\n")

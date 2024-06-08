@@ -3,7 +3,6 @@ from external.weave.ansi import printable_rune_width
 from mog.join import join_vertical, join_horizontal
 from mog.border import hidden_border, normal_border, rounded_border, Border
 from mog.style import Style
-from mog.extensions import repeat
 from mog.size import get_width
 from mog import position
 from mog.whitespace import (
@@ -58,7 +57,7 @@ fn build_tabs() -> String:
         tab_style.render("Basalt"),
         tab_style.render("Prism"),
     )
-    var gap = tab_gap.render(repeat(" ", max(0, width - get_width(row) - 2)))
+    var gap = tab_gap.render(String(" ") * max(0, width - get_width(row) - 2))
     return join_horizontal(position.bottom, row, gap)
 
 

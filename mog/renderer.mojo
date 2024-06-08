@@ -3,7 +3,7 @@ from external.gojo.strings import StringBuilder
 import external.weave.ansi
 from .whitespace import WhitespaceOption, new_whitespace
 import .position
-from .extensions import repeat, split
+from .extensions import split
 
 
 # TODO: Cannot handle characters with a printable width of 2 or more. Like east asian characters (Kanji, etc.).
@@ -316,14 +316,14 @@ struct Renderer:
                 i += 1
 
         elif pos == position.bottom:
-            _ = builder.write_string(repeat(empty_line + "\n", gap))
+            _ = builder.write_string((empty_line + "\n") * gap)
             _ = builder.write_string(text)
         else:
             # somewhere in the middle
             var split = int(round(Float64(gap) * pos))
             var top = gap - split
             var bottom = gap - top
-            _ = builder.write_string(repeat(empty_line + "\n", top))
+            _ = builder.write_string((empty_line + "\n") * top)
             _ = builder.write_string(text)
 
             var i = 0
@@ -384,7 +384,7 @@ struct Renderer:
                     _ = builder.write_byte(ord("\n"))
                 i += 1
         elif pos == position.bottom:
-            _ = builder.write_string(repeat(empty_line + "\n", gap))
+            _ = builder.write_string((empty_line + "\n") * gap)
             _ = builder.write_string(text)
         else:
             # somewhere in the middle
@@ -392,7 +392,7 @@ struct Renderer:
             var top = gap - split
             var bottom = gap - top
 
-            _ = builder.write_string(repeat(empty_line + "\n", top))
+            _ = builder.write_string((empty_line + "\n") * top)
             _ = builder.write_string(text)
 
             var i = 0

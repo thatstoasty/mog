@@ -18,7 +18,7 @@ from .border import (
     star_border,
     plus_border,
 )
-from .extensions import repeat, join, contains, split
+from .extensions import join, split
 from .align import align_text_horizontal, align_text_vertical
 from .color import (
     AnyTerminalColor,
@@ -101,29 +101,31 @@ alias UNDERLINE_SPACES_KEY: PropertyKey = 40
 alias CROSSOUT_SPACES_KEY: PropertyKey = 41
 
 
-fn get_lines(s: String) raises -> (List[String], Int):
-    """Split a string into lines, additionally returning the size of the widest line.
+fn get_lines(text: String) -> Tuple[List[String], Int]:
+    """Split a string into lines.
 
     Args:
-        s: The string to split.
-    """
-    var lines = s.split("\n")
-    var widest: Int = 0
-    for i in range(len(lines)):
-        if printable_rune_width(lines[i]) > widest:
-            widest = printable_rune_width(lines[i])
+        text: The string to split.
 
-    return lines, widest
+    Returns:
+        A tuple containing the lines and the width of the widest line.
+    """
+    var lines = split(text, "\n")
+
+    var widest_line: Int = 0
+    for i in range(len(lines)):
+        if printable_rune_width(lines[i]) > widest_line:
+            widest_line = printable_rune_width(lines[i])
+
+    return lines, widest_line
 
 
 alias TRUTHY_VALUES = List[String]("True", "true", "TRUE", "1")
 
 
+@always_inline
 fn to_bool(s: String) -> Bool:
-    if contains(TRUTHY_VALUES, s):
-        return True
-
-    return False
+    return s in TRUTHY_VALUES
 
 
 fn str_to_float(s: String) raises -> Float64:
@@ -149,10 +151,8 @@ fn str_to_float(s: String) raises -> Float64:
 fn pad_left(text: String, n: Int, style: mist.TerminalStyle) -> String:
     if n == 0:
         return text
-    var sp = repeat(" ", n)
 
-    sp = style.render(sp)
-
+    var sp = style.render(WHITESPACE * n)
     var padded_text: String = ""
     var lines = split(text, "\n")
 
@@ -170,9 +170,7 @@ fn pad_right(text: String, n: Int, style: mist.TerminalStyle) -> String:
     if n == 0 or text == "":
         return text
 
-    var sp = repeat(" ", n)
-    sp = style.render(sp)
-
+    var sp = style.render(WHITESPACE * n)
     var padded_text: String = ""
     var lines = split(text, "\n")
 
@@ -186,6 +184,11 @@ fn pad_right(text: String, n: Int, style: mist.TerminalStyle) -> String:
 
 
 alias Rule = Variant[Bool, Border, Int, Position, AnyTerminalColor]
+
+
+fn new_style() -> Style:
+    """Create a new Style object."""
+    return Style()
 
 
 @value
@@ -1440,7 +1443,7 @@ struct Style:
         if DEFAULT_TAB_WIDTH == 0:
             return text.replace("\t", "")
         else:
-            return text.replace("\t", repeat(" ", DEFAULT_TAB_WIDTH))
+            return text.replace("\t", (WHITESPACE * DEFAULT_TAB_WIDTH))
 
     fn style_border(self, border: String, fg: AnyTerminalColor, bg: AnyTerminalColor) -> String:
         """Style a border with foreground and background colors.
@@ -1529,13 +1532,9 @@ struct Style:
         if border == borderless or (not has_top and not has_right and not has_bottom and not has_left):
             return text
 
-        var lines = split(text, "\n")
-
-        var width: Int = 0
-        for i in range(len(lines)):
-            var rune_count = printable_rune_width(lines[i])
-            if rune_count > width:
-                width = rune_count
+        var lines: List[String]
+        var width: Int
+        lines, width = get_lines(text)
 
         if has_left:
             if border.left == "":
@@ -1664,19 +1663,16 @@ struct Style:
 
         # Top/bottom margin
         if not inline:
-            var lines = split(text, "\n")
+            var lines: List[String]
+            var width: Int
+            lines, width = get_lines(text)
 
-            var width: Int = 0
-            for i in range(len(lines)):
-                if printable_rune_width(lines[i]) > width:
-                    width = printable_rune_width(lines[i])
-
-            var spaces = repeat(" ", width)
+            var spaces = WHITESPACE * width
 
             if top_margin > 0:
-                padded_text = repeat("\n", top_margin) + padded_text
+                padded_text = (NEWLINE * top_margin) + padded_text
             if bottom_margin > 0:
-                padded_text += repeat("\n", bottom_margin)
+                padded_text += NEWLINE * bottom_margin
 
         return padded_text
 
@@ -1885,10 +1881,10 @@ struct Style:
                 styled_text = pad_right(styled_text, right_padding, style)
 
             if top_padding > 0:
-                styled_text = repeat("\n", top_padding) + styled_text
+                styled_text = (NEWLINE * top_padding) + styled_text
 
             if bottom_padding > 0:
-                styled_text += repeat("\n", bottom_padding)
+                styled_text += NEWLINE * bottom_padding
 
         # Alignment
         if height > 0:

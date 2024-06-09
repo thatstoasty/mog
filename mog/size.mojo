@@ -2,7 +2,7 @@ from external.weave.ansi import ansi
 from .extensions import split
 
 
-fn get_width(text: String) raises -> Int:
+fn get_width(text: String) -> Int:
     """Returns the cell width of characters in the string. ANSI sequences are
     ignored and characters wider than one cell (such as Chinese characters and
     emojis) are appropriately measured.

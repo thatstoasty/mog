@@ -2,14 +2,12 @@ from external.gojo.bytes import buffer
 from external.gojo.unicode import UnicodeString
 import external.gojo.io
 from .ansi import writer, is_terminator, Marker, printable_rune_width
-from .strings import repeat
 
 
 alias DEFAULT_NEWLINE = "\n"
 alias DEFAULT_TAB_WIDTH = 4
 
 
-@value
 struct Wrap(Stringable, io.Writer):
     var limit: Int
     var newline: String
@@ -44,6 +42,19 @@ struct Wrap(Stringable, io.Writer):
         self.ansi = ansi
         self.forceful_newline = forceful_newline
 
+    @always_inline
+    fn __moveinit__(inout self, owned other: Self):
+        self.limit = other.limit
+        self.newline = other.newline
+        self.keep_newlines = other.keep_newlines
+        self.preserve_space = other.preserve_space
+        self.tab_width = other.tab_width
+
+        self.buf = other.buf^
+        self.line_len = other.line_len
+        self.ansi = other.ansi
+        self.forceful_newline = other.forceful_newline
+
     fn add_newline(inout self):
         """Adds a newline to the buffer and resets the line length."""
         _ = self.buf.write_byte(ord(self.newline))
@@ -58,7 +69,7 @@ struct Wrap(Stringable, io.Writer):
         Returns:
             The number of bytes written to the buffer and optional error.
         """
-        var tab_space = repeat(" ", self.tab_width)
+        var tab_space = SPACE * self.tab_width
         var copy = src
         copy.append(0)
         var s = String(copy)

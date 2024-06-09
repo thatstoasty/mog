@@ -46,7 +46,7 @@ struct Color(TerminalColor):
     var value: String
 
     fn color(self, renderer: Renderer) -> mist.AnyColor:
-        return renderer.color_profile.color(String(self.value))
+        return renderer.color_profile.color(self.value)
 
 
 @value

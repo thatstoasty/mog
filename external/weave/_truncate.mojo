@@ -2,10 +2,8 @@ from external.gojo.bytes import buffer
 from external.gojo.unicode import UnicodeString
 import external.gojo.io
 from .ansi import writer, is_terminator, Marker, printable_rune_width
-from .strings import repeat, strip
 
 
-@value
 struct Writer(Stringable, io.Writer):
     var width: UInt8
     var tail: String
@@ -19,6 +17,13 @@ struct Writer(Stringable, io.Writer):
         self.ansi = ansi
 
         self.ansi_writer = writer.new_default_writer()
+
+    @always_inline
+    fn __moveinit__(inout self, owned other: Self):
+        self.width = other.width
+        self.tail = other.tail
+        self.ansi_writer = other.ansi_writer^
+        self.ansi = other.ansi
 
     fn write(inout self, src: List[UInt8]) -> (Int, Error):
         """Truncates content at the given printable cell width, leaving any ANSI sequences intact.

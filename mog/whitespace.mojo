@@ -13,7 +13,6 @@ from .color import (
     CompleteColor,
     CompleteAdaptiveColor,
 )
-from .extensions import repeat
 from .position import Position
 
 
@@ -84,7 +83,7 @@ struct WhiteSpace:
         #  are more than one cell wide, which could leave a one-rune gap.
         var short = width - ansi.printable_rune_width(str(b))
         if short > 0:
-            _ = b.write_string(repeat(" ", short))
+            _ = b.write_string(WHITESPACE * short)
 
         return self.style.render(str(b))
 
@@ -188,7 +187,7 @@ fn place(
     text: String,
     /,
     *opts: WhitespaceOption,
-) raises -> String:
+) -> String:
     """Places a string or text block vertically in an unstyled box of a given
     width or height.
 

@@ -1,5 +1,4 @@
 from external.gojo.bytes import buffer
-from external.gojo.builtins import Byte
 from .ansi import printable_rune_width
 
 

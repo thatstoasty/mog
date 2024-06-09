@@ -1,7 +1,7 @@
 # Data is the interface that wraps the basic methods of a table model.
 trait Data:
     # At returns the contents of the cell at the given index.
-    fn at(self, row: Int, cell: Int) raises -> String:
+    fn at(self, row: Int, cell: Int) -> String:
         ...
 
     # Rows returns the number of rows in the table.
@@ -20,7 +20,7 @@ struct StringData(Data):
     var _columns: Int
 
     # At returns the contents of the cell at the given index.
-    fn at(self, row: Int, cell: Int) raises -> String:
+    fn at(self, row: Int, cell: Int) -> String:
         if row >= len(self._rows) or cell >= len(self._rows[row]):
             return ""
 
@@ -76,7 +76,7 @@ struct Filter(Data):
         return self.filter_function(data)
 
     # Row returns the row at the given index.
-    fn at(self, row: Int, cell: Int) raises -> String:
+    fn at(self, row: Int, cell: Int) -> String:
         var j: Int = 0
         var i: Int = 0
         while i < self.data.rows():

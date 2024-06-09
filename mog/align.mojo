@@ -22,7 +22,7 @@ fn align_text_horizontal(text: String, pos: position.Position, width: Int, style
         short_amount += max(0, width - (short_amount + line_width))  # difference from the total width, if set
         if short_amount > 0:
             if pos == position.right:
-                var spaces = (WHITESPACE * short_amount)
+                var spaces = WHITESPACE * short_amount
 
                 # Removed the nil check before rendering the spaces in whatever style for now.
                 spaces = style.render(spaces)
@@ -56,7 +56,7 @@ fn align_text_vertical(text: String, pos: position.Position, height: Int) -> Str
         return text
 
     if pos == position.top:
-        return text + NEWLINE * (height - text_height)
+        return text + (NEWLINE * (height - text_height))
 
     if pos == position.center:
         var top_padding = (height - text_height) / 2

@@ -29,25 +29,25 @@ fn test_align_text_horizontal() raises:
 
 fn test_align_text_vertical() raises:
     var test = MojoTest("Testing align.align_text_vertical")
-    var style = TerminalStyle(Profile())
+    # var style = TerminalStyle(Profile())
 
     # Test center alignment
     var centered = align_text_vertical("hello", position.center, 3)
     # print(centered)
 
-    test.assert_equal(centered, "hello")
+    test.assert_equal(centered, "\nhello\n")
 
     # Test top alignment
     var top = align_text_vertical("hello", position.top, 3)
     # print(top)
 
-    test.assert_equal(top, "hello\n")
+    test.assert_equal(top, "hello\n\n")
 
     # Test bottom alignment
     var bottom = align_text_vertical("hello", position.bottom, 5)
-    # print(right)
+    # print(bottom)
 
-    test.assert_equal(bottom, "\n\n\nhello")
+    test.assert_equal(bottom, "\n\n\n\nhello")
 
 
 fn main() raises:

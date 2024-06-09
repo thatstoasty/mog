@@ -36,7 +36,6 @@ alias ERR_NEGATIVE_READ = "buffer.Buffer: reader returned negative count from re
 alias ERR_SHORT_WRITE = "short write"
 
 
-@value
 struct Buffer(
     Stringable,
     Sized,
@@ -67,6 +66,19 @@ struct Buffer(
         self.data = buf.steal_data()
         self.offset = 0
         self.last_read = OP_INVALID
+
+    @always_inline
+    fn __moveinit__(inout self, owned other: Self):
+        self.data = other.data
+        self.size = other.size
+        self.capacity = other.capacity
+        self.offset = other.offset
+        self.last_read = other.last_read
+        other.data = DTypePointer[DType.uint8]()
+        other.size = 0
+        other.capacity = 0
+        other.offset = 0
+        other.last_read = OP_INVALID
 
     @always_inline
     fn __del__(owned self):
@@ -100,7 +112,6 @@ struct Buffer(
           capacity: The new capacity of the string builder buffer.
         """
         var new_data = UnsafePointer[UInt8]().alloc(capacity)
-        # parallel_memcpy(new_data, self.data, self.size, 1, 5)
         memcpy(new_data, self.data, self.size)
         self.data.free()
         self.data = new_data

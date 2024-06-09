@@ -2,7 +2,6 @@ import ..io
 from ..builtins import Byte
 
 
-@value
 struct StringBuilder[growth_factor: Float32 = 2](
     Stringable,
     Sized,
@@ -24,14 +23,14 @@ struct StringBuilder[growth_factor: Float32 = 2](
     builder and appending the strings is not worth the performance gain.
 
     Example:
-                    ```
-                    from strings.builder import StringBuilder
+        ```
+        from strings.builder import StringBuilder
 
-                    var sb = StringBuilder()
-                    sb.write_string("Hello ")
-                    sb.write_string("World!")
-                    print(sb) # Hello World!
-                    ```
+        var sb = StringBuilder()
+        sb.write_string("Hello ")
+        sb.write_string("World!")
+        print(sb) # Hello World!
+        ```
     """
 
     var data: DTypePointer[DType.uint8]
@@ -44,6 +43,15 @@ struct StringBuilder[growth_factor: Float32 = 2](
         self.data = DTypePointer[DType.uint8]().alloc(capacity)
         self.size = 0
         self.capacity = capacity
+
+    @always_inline
+    fn __moveinit__(inout self, owned other: Self):
+        self.data = other.data
+        self.size = other.size
+        self.capacity = other.capacity
+        other.data = DTypePointer[DType.uint8]()
+        other.size = 0
+        other.capacity = 0
 
     @always_inline
     fn __del__(owned self):
@@ -92,7 +100,7 @@ struct StringBuilder[growth_factor: Float32 = 2](
         Resizes the string builder buffer.
 
         Args:
-                capacity: The new capacity of the string builder buffer.
+            capacity: The new capacity of the string builder buffer.
         """
         var new_data = DTypePointer[DType.uint8]().alloc(capacity)
         memcpy(new_data, self.data, self.size)
@@ -138,7 +146,7 @@ struct StringBuilder[growth_factor: Float32 = 2](
         Appends a string to the builder buffer.
 
         Args:
-                src: The string to append.
+            src: The string to append.
         """
         return self._write(src.as_bytes_slice())
 

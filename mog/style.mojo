@@ -1,4 +1,3 @@
-from utils.variant import Variant
 from external.string_dict import Dict
 from .renderer import Renderer
 from .position import Position
@@ -134,7 +133,7 @@ fn str_to_float(s: String) raises -> Float64:
         var int_str = s[0:dot_pos]
         var num_str = s[dot_pos + 1 : len(s)]
         var numerator = atol(num_str)
-        var denom_str = String()
+        var denom_str = String("")
         for _ in range(len(num_str)):
             denom_str += "0"
         var denominator = atol("1" + denom_str)
@@ -1863,7 +1862,6 @@ struct Style:
             # Readd the newlines
             if i != len(lines) - 1:
                 _ = builder.write_string("\n")
-
         var styled_text = str(builder)
 
         # Padding

@@ -5,7 +5,6 @@ from .ansi import writer, is_terminator, Marker
 from .strings import repeat
 
 
-@value
 struct Writer(Stringable, io.Writer):
     var indent: UInt8
 
@@ -19,6 +18,13 @@ struct Writer(Stringable, io.Writer):
         self.ansi_writer = writer.new_default_writer()
         self.skip_indent = False
         self.ansi = False
+
+    @always_inline
+    fn __moveinit__(inout self, owned other: Self):
+        self.indent = other.indent
+        self.ansi_writer = other.ansi_writer^
+        self.skip_indent = other.skip_indent
+        self.ansi = other.ansi
 
     fn bytes(self) -> List[UInt8]:
         """Returns the indented result as a byte slice."""
@@ -49,7 +55,7 @@ struct Writer(Stringable, io.Writer):
             else:
                 if not self.skip_indent:
                     self.ansi_writer.reset_ansi()
-                    var indent = repeat(" ", int(self.indent)).as_bytes()
+                    var indent = (SPACE * int(self.indent)).as_bytes()
 
                     var bytes_written = 0
                     bytes_written, err = self.ansi_writer.write(indent)
@@ -78,17 +84,6 @@ fn new_writer(indent: UInt8) -> Writer:
         indent: The number of spaces to indent.
     """
     return Writer(indent=indent)
-
-
-# fn NewWriterPipe(forward io.Writer, indent UInt8, indent_fn Indentfn)-> Writer:
-# 	return &Writer
-# 		Indent:     indent,
-# 		Indentfn: indent_fn,
-# 		ansi_writer: &ansi.Writer
-# 			Forward: forward,
-# 		,
-#
-#
 
 
 fn apply_indent_to_bytes(b: List[UInt8], indent: UInt8) -> List[UInt8]:

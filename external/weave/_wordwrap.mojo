@@ -2,7 +2,6 @@ from external.gojo.bytes import buffer
 from external.gojo.unicode import UnicodeString
 import external.gojo.io
 from .ansi import writer, is_terminator, Marker, printable_rune_width
-from .strings import repeat, strip
 
 
 alias DEFAULT_NEWLINE = "\n"
@@ -13,7 +12,6 @@ alias DEFAULT_BREAKPOINT = "-"
 # WordWrap contains settings and state for customisable text reflowing with
 # support for ANSI escape sequences. This means you can style your terminal
 # output without affecting the word wrapping algorithm.
-@value
 struct WordWrap(Stringable, io.Writer):
     var limit: Int
     var breakpoint: String
@@ -46,6 +44,18 @@ struct WordWrap(Stringable, io.Writer):
 
         self.line_len = line_len
         self.ansi = ansi
+
+    @always_inline
+    fn __moveinit__(inout self, owned other: Self):
+        self.limit = other.limit
+        self.breakpoint = other.breakpoint
+        self.newline = other.newline
+        self.keep_newlines = other.keep_newlines
+        self.buf = other.buf^
+        self.space = other.space^
+        self.word = other.word^
+        self.line_len = other.line_len
+        self.ansi = other.ansi
 
     fn add_space(inout self):
         """Write the content of the space buffer to the word-wrap buffer."""
@@ -83,7 +93,7 @@ struct WordWrap(Stringable, io.Writer):
         copy.append(0)
         var s = String(copy)
         if not self.keep_newlines:
-            s = strip(s)
+            s = s.strip()
             s = s.replace("\n", " ")
 
         var uni_str = UnicodeString(s)

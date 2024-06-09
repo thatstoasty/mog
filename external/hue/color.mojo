@@ -20,7 +20,7 @@ struct Color(Stringable):
     var B: Float64
 
     fn __str__(self) -> String:
-        return "Color(" + String(self.R) + ", " + String(self.G) + ", " + String(self.B) + ")"
+        return "Color(" + str(self.R) + ", " + str(self.G) + ", " + str(self.B) + ")"
 
     fn linear_rgb(self) -> (Float64, Float64, Float64):
         """Converts the color into the linear Color space (see http://www.sjbrown.co.uk/2004/05/14/gamma-correct-rendering/).

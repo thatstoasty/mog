@@ -2,13 +2,10 @@ from external.gojo.bytes import buffer
 from external.gojo.unicode import UnicodeString
 import external.gojo.io
 from .ansi import writer, is_terminator, Marker, printable_rune_width
-from .strings import repeat, strip
 
 
-@value
 struct Writer(Stringable, io.Writer):
     var padding: UInt8
-
     var ansi_writer: writer.Writer
     var cache: buffer.Buffer
     var line_len: Int
@@ -26,6 +23,14 @@ struct Writer(Stringable, io.Writer):
 
         self.cache = buffer.new_buffer()
         self.ansi_writer = writer.new_default_writer()
+
+    @always_inline
+    fn __moveinit__(inout self, owned other: Self):
+        self.padding = other.padding
+        self.ansi_writer = other.ansi_writer^
+        self.cache = other.cache^
+        self.line_len = other.line_len
+        self.ansi = other.ansi
 
     fn write(inout self, src: List[UInt8]) -> (Int, Error):
         """Pads content to the given printable cell width.
@@ -64,7 +69,7 @@ struct Writer(Stringable, io.Writer):
     fn pad(inout self):
         """Pads the current line with spaces to the given width."""
         if self.padding > 0 and UInt8(self.line_len) < self.padding:
-            var padding = repeat(" ", int(self.padding) - self.line_len)
+            var padding = SPACE * (int(self.padding) - self.line_len)
             _ = self.ansi_writer.write(padding.as_bytes())
 
     fn close(inout self):

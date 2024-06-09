@@ -10,7 +10,6 @@ alias ANSI_ESCAPE = String("[0m").as_bytes()
 alias ANSI_RESET = String("\x1b[0m").as_bytes()
 
 
-@value
 struct Writer(io.Writer):
     var forward: buffer.Buffer
     var ansi: Bool
@@ -20,12 +19,20 @@ struct Writer(io.Writer):
     # var rune_buf: List[Byte]
 
     fn __init__(inout self, owned forward: buffer.Buffer):
-        self.forward = forward
+        self.forward = forward^
         self.ansi = False
         self.ansi_seq = buffer.new_buffer()
         self.last_seq = buffer.new_buffer()
         self.seq_changed = False
         # self.rune_buf = List[Byte](capacity=4096)
+
+    fn __moveinit__(inout self, owned other: Writer):
+        self.forward = other.forward^
+        self.ansi = other.ansi
+        self.ansi_seq = other.ansi_seq^
+        self.last_seq = other.last_seq^
+        self.seq_changed = other.seq_changed
+        # self.rune_buf = other.rune_buf
 
     fn write(inout self, src: List[Byte]) -> (Int, Error):
         """Write content to the ANSI buffer.

@@ -1,12 +1,9 @@
 import external.gojo.io
+from external.gojo.bytes import buffer
 import . _padding as padding
 import . _indent as indent
-from external.gojo.bytes import buffer
-from .ansi import writer, is_terminator, Marker
-from .strings import repeat, strip
 
 
-@value
 struct Writer(Stringable, io.Writer):
     var buf: buffer.Buffer
     var pw: padding.Writer
@@ -16,6 +13,12 @@ struct Writer(Stringable, io.Writer):
         self.buf = buffer.new_buffer()
         self.pw = pw^
         self.iw = iw^
+
+    @always_inline
+    fn __moveinit__(inout self, owned other: Self):
+        self.buf = other.buf^
+        self.pw = other.pw^
+        self.iw = other.iw^
 
     fn close(inout self):
         """Will finish the margin operation. Always call it before trying to retrieve the final result."""

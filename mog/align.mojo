@@ -13,7 +13,7 @@ fn align_text_horizontal(text: String, pos: position.Position, width: Int, style
     var widest_line: Int
     lines, widest_line = get_lines(text)
 
-    var aligned_text = StringBuilder()
+    var aligned_text = StringBuilder(capacity=len(text))
     for i in range(len(lines)):
         var line = lines[i]
         var line_width = printable_rune_width(line)

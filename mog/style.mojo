@@ -1581,7 +1581,7 @@ struct Style:
         # border.bottom_right = border.bottom_right[:1]
         # border.bottom_left = border.bottom_left[:1]
 
-        var builder = StringBuilder()
+        var builder = StringBuilder(capacity=int(len(text) * 1.5))
 
         # Render top
         if has_top:
@@ -1843,7 +1843,7 @@ struct Style:
 
         input_text = self.maybe_convert_tabs(input_text)
 
-        var builder = StringBuilder()
+        var builder = StringBuilder(capacity=int(len(input_text) * 1.5))
         var lines = split(input_text, "\n")
 
         for i in range(len(lines)):

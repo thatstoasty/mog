@@ -152,6 +152,9 @@ fn test_borderless_paragraph() raises:
 
 
 fn main() raises:
+    var start_test = now()
     test_horizontal_joined_paragraphs()
+    var test_duration = now() - start_test
+    print("Test duration: ", test_duration, test_duration / 1e9)
     test_borderless_paragraph()
     test_table()

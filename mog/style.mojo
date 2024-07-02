@@ -42,62 +42,62 @@ alias NO_TAB_CONVERSION = -1
 
 
 alias PropertyKey = Int
-alias BOLD_KEY: PropertyKey = 0
-alias ITALIC_KEY: PropertyKey = 1
-alias UNDERLINE_KEY: PropertyKey = 2
-alias CROSSOUT_KEY: PropertyKey = 3
-alias REVERSE_KEY: PropertyKey = 4
-alias BLINK_KEY: PropertyKey = 5
-alias FAINT_KEY: PropertyKey = 6
-alias FOREGROUND_KEY: PropertyKey = 7
-alias BACKGROUND_KEY: PropertyKey = 8
-alias WIDTH_KEY: PropertyKey = 9
-alias HEIGHT_KEY: PropertyKey = 10
-alias HORIZONTAL_ALIGNMENT_KEY: PropertyKey = 11
-alias VERTICAL_ALIGNMENT_KEY: PropertyKey = 12
+alias BOLD_KEY: PropertyKey = 1
+alias ITALIC_KEY: PropertyKey = 2
+alias UNDERLINE_KEY: PropertyKey = 3
+alias CROSSOUT_KEY: PropertyKey = 4
+alias REVERSE_KEY: PropertyKey = 5
+alias BLINK_KEY: PropertyKey = 6
+alias FAINT_KEY: PropertyKey = 7
+alias FOREGROUND_KEY: PropertyKey = 8
+alias BACKGROUND_KEY: PropertyKey = 9
+alias WIDTH_KEY: PropertyKey = 10
+alias HEIGHT_KEY: PropertyKey = 11
+alias HORIZONTAL_ALIGNMENT_KEY: PropertyKey = 12
+alias VERTICAL_ALIGNMENT_KEY: PropertyKey = 13
 
 # Padding.
-alias PADDING_TOP_KEY: PropertyKey = 13
-alias PADDING_RIGHT_KEY: PropertyKey = 14
-alias PADDING_BOTTOM_KEY: PropertyKey = 15
-alias PADDING_LEFT_KEY: PropertyKey = 16
+alias PADDING_TOP_KEY: PropertyKey = 14
+alias PADDING_RIGHT_KEY: PropertyKey = 15
+alias PADDING_BOTTOM_KEY: PropertyKey = 16
+alias PADDING_LEFT_KEY: PropertyKey = 17
 
-alias COLOR_WHITESPACE_KEY: PropertyKey = 17
+alias COLOR_WHITESPACE_KEY: PropertyKey = 18
 
 # Margins.
-alias MARGIN_TOP_KEY: PropertyKey = 18
-alias MARGIN_RIGHT_KEY: PropertyKey = 19
-alias MARGIN_BOTTOM_KEY: PropertyKey = 20
-alias MARGIN_LEFT_KEY: PropertyKey = 21
-alias MARGIN_BACKGROUND_KEY: PropertyKey = 22
+alias MARGIN_TOP_KEY: PropertyKey = 19
+alias MARGIN_RIGHT_KEY: PropertyKey = 20
+alias MARGIN_BOTTOM_KEY: PropertyKey = 21
+alias MARGIN_LEFT_KEY: PropertyKey = 22
+alias MARGIN_BACKGROUND_KEY: PropertyKey = 23
 
 # Border runes.
-alias BORDER_STYLE_KEY: PropertyKey = 23
+alias BORDER_STYLE_KEY: PropertyKey = 24
 
 # Border edges.
-alias BORDER_TOP_KEY: PropertyKey = 24
-alias BORDER_RIGHT_KEY: PropertyKey = 25
-alias BORDER_BOTTOM_KEY: PropertyKey = 26
-alias BORDER_LEFT_KEY: PropertyKey = 27
+alias BORDER_TOP_KEY: PropertyKey = 25
+alias BORDER_RIGHT_KEY: PropertyKey = 26
+alias BORDER_BOTTOM_KEY: PropertyKey = 27
+alias BORDER_LEFT_KEY: PropertyKey = 28
 
 # Border foreground colors.
-alias BORDER_TOP_FOREGROUND_KEY: PropertyKey = 28
-alias BORDER_RIGHT_FOREGROUND_KEY: PropertyKey = 29
-alias BORDER_BOTTOM_FOREGROUND_KEY: PropertyKey = 30
-alias BORDER_LEFT_FOREGROUND_KEY: PropertyKey = 31
+alias BORDER_TOP_FOREGROUND_KEY: PropertyKey = 29
+alias BORDER_RIGHT_FOREGROUND_KEY: PropertyKey = 30
+alias BORDER_BOTTOM_FOREGROUND_KEY: PropertyKey = 31
+alias BORDER_LEFT_FOREGROUND_KEY: PropertyKey = 32
 
 # Border background colors.
-alias BORDER_TOP_BACKGROUND_KEY: PropertyKey = 32
-alias BORDER_RIGHT_BACKGROUND_KEY: PropertyKey = 33
-alias BORDER_BOTTOM_BACKGROUND_KEY: PropertyKey = 34
-alias BORDER_LEFT_BACKGROUND_KEY: PropertyKey = 35
+alias BORDER_TOP_BACKGROUND_KEY: PropertyKey = 33
+alias BORDER_RIGHT_BACKGROUND_KEY: PropertyKey = 34
+alias BORDER_BOTTOM_BACKGROUND_KEY: PropertyKey = 35
+alias BORDER_LEFT_BACKGROUND_KEY: PropertyKey = 36
 
-alias INLINE_KEY: PropertyKey = 36
-alias MAX_WIDTH_KEY: PropertyKey = 37
-alias MAX_HEIGHT_KEY: PropertyKey = 38
-alias TAB_WIDTH_KEY: PropertyKey = 39
-alias UNDERLINE_SPACES_KEY: PropertyKey = 40
-alias CROSSOUT_SPACES_KEY: PropertyKey = 41
+alias INLINE_KEY: PropertyKey = 37
+alias MAX_WIDTH_KEY: PropertyKey = 38
+alias MAX_HEIGHT_KEY: PropertyKey = 39
+alias TAB_WIDTH_KEY: PropertyKey = 40
+alias UNDERLINE_SPACES_KEY: PropertyKey = 41
+alias CROSSOUT_SPACES_KEY: PropertyKey = 42
 
 
 fn get_lines(text: String) -> Tuple[List[String], Int]:
@@ -117,12 +117,6 @@ fn get_lines(text: String) -> Tuple[List[String], Int]:
             widest_line = printable_rune_width(lines[i])
 
     return lines, widest_line
-
-
-@always_inline
-fn to_bool(s: String) -> Bool:
-    alias TRUTHY_VALUES = List[String]("True", "true", "TRUE", "1")
-    return s in TRUTHY_VALUES
 
 
 # Apply left padding.
@@ -173,15 +167,15 @@ fn new_style() -> Style:
 struct Properties:
     """Properties for a style."""
 
-    var properties: PropertyKey
+    var value: PropertyKey
 
-    fn __init__(inout self, properties: PropertyKey = 0):
+    fn __init__(inout self, value: PropertyKey = 0):
         """Initialize a new Properties object.
 
         Args:
-            properties: The properties to set.
+            value: The properties to set.
         """
-        self.properties = properties
+        self.value = value
 
     fn set(self, key: PropertyKey) -> Properties:
         """Set a property.
@@ -192,7 +186,8 @@ struct Properties:
         Returns:
             A new Properties object with the property set.
         """
-        return self.properties | key
+        print("setting", key)
+        return self.value | key
 
     fn unset(self, key: PropertyKey) -> Properties:
         """Unset a property.
@@ -203,7 +198,7 @@ struct Properties:
         Returns:
             A new Properties object with the property unset.
         """
-        return self.properties & ~key
+        return self.value & ~key
 
     fn has(self, key: PropertyKey) -> Bool:
         """Check if a property is set.
@@ -214,7 +209,7 @@ struct Properties:
         Returns:
             True if the property is set, False otherwise.
         """
-        return (self.properties & key) != 0
+        return (self.value & key) != 0
 
 
 @value
@@ -224,8 +219,7 @@ struct Style:
     More documentation to come."""
 
     var renderer: Renderer
-    var properites: Properties
-    var rules: Dict[Rule]
+    var properties: Properties
     var value: String
 
     # we store bool props values here
@@ -273,8 +267,10 @@ struct Style:
             value: Internal string value to apply the style to. Not required, but useful for reusing some string you want to format multiple times.
         """
         self.renderer = Renderer()
-        self.rules = Dict[Rule]()
+        self.properties = Properties()
         self.value = value
+        self.attrs = 0
+
         self._fg = NoColor()
         self._bg = NoColor()
 
@@ -322,7 +318,8 @@ struct Style:
         if not self.is_set(key):
             return default
 
-        return self.attrs & int(key) != 0
+        print(self.attrs & int(key), self.attrs, key)
+        return (self.attrs & int(key)) != 0
 
     fn get_as_color(self, key: PropertyKey) -> AnyTerminalColor:
         """Get a rule as an AnyTerminalColor value.
@@ -441,7 +438,8 @@ struct Style:
         Returns:
             True if the rule is set, False otherwise.
         """
-        return self.properites.has(key)
+        print("is set", key, self.properties.has(key))
+        return self.properties.has(key)
 
     fn set_attribute(inout self, key: PropertyKey, value: Bool):
         """Set a boolean attribute on the style.
@@ -456,7 +454,7 @@ struct Style:
             self.attrs &= ~key
 
         # Set the prop
-        self.properites = self.properites.set(key)
+        self.properties = self.properties.set(key)
 
     fn unset_attribute(inout self, key: PropertyKey):
         """Set a boolean attribute on the style.
@@ -464,8 +462,7 @@ struct Style:
         Args:
             key: The key to set.
         """
-        # Set the prop
-        self.properites = self.properites.unset(key)
+        self.properties = self.properties.unset(key)
 
     fn set_renderer(self, renderer: Renderer) -> Style:
         """Set the renderer for the style.
@@ -797,6 +794,7 @@ struct Style:
             A new Style object with the width rule set.
         """
         var new = self
+        new.properties = new.properties.set(WIDTH_KEY)
         new._width = width
         return new
 
@@ -820,7 +818,8 @@ struct Style:
             A new Style object with the height rule set.
         """
         var new = self
-        new._height = height
+        new.properties = new.properties.set(HEIGHT_KEY)
+        new.set_attribute(HEIGHT_KEY, height)
         return new
 
     fn unset_height(self) -> Style:
@@ -853,6 +852,7 @@ struct Style:
             A new Style object with the maximum width rule set.
         """
         var new = self
+        new.properties = new.properties.set(MAX_WIDTH_KEY)
         new._max_width = width
         return new
 
@@ -876,6 +876,7 @@ struct Style:
             A new Style object with the maximum height rule set.
         """
         var new = self
+        new.properties = new.properties.set(MAX_HEIGHT_KEY)
         new._max_height = height
         return new
 
@@ -899,6 +900,7 @@ struct Style:
             A new Style object with the alignment rule set.
         """
         var new = self
+        new.properties = new.properties.set(HORIZONTAL_ALIGNMENT_KEY)
         new._horizontal_alignment = align
         return new
 
@@ -922,6 +924,7 @@ struct Style:
             A new Style object with the alignment rule set.
         """
         var new = self
+        new.properties = new.properties.set(VERTICAL_ALIGNMENT_KEY)
         new._vertical_alignment = align
         return new
 
@@ -952,9 +955,9 @@ struct Style:
         var new = self
 
         if len(align) > 0:
-            new._horizontal_alignment = align[0]
+            new = new.horizontal_alignment(align[0])
         if len(align) > 1:
-            new._vertical_alignment = align[1]
+            new = new.vertical_alignment(align[1])
         return new
 
     fn foreground(self, color: AnyTerminalColor) -> Style:
@@ -967,6 +970,7 @@ struct Style:
             A new Style object with the foreground color rule set.
         """
         var new = self
+        new.properties = new.properties.set(FOREGROUND_KEY)
         new._fg = color
         return new
 
@@ -990,6 +994,7 @@ struct Style:
             A new Style object with the background color rule set.
         """
         var new = self
+        new.properties = new.properties.set(BACKGROUND_KEY)
         new._bg = color
         return new
 
@@ -1025,6 +1030,7 @@ struct Style:
         """
         var new = self
         new._border = border
+        new.properties = new.properties.set(BORDER_STYLE_KEY)
         if top:
             new = new.border_top(True)
         if right:
@@ -1182,6 +1188,7 @@ struct Style:
             A new Style object with the border foreground color rule set.
         """
         var new = self
+        new.properties = new.properties.set(BORDER_TOP_FOREGROUND_KEY)
         new._border_top_fg = color
         return new
 
@@ -1205,6 +1212,7 @@ struct Style:
             A new Style object with the border foreground color rule set.
         """
         var new = self
+        new.properties = new.properties.set(BORDER_RIGHT_FOREGROUND_KEY)
         new._border_right_fg = color
         return new
 
@@ -1228,6 +1236,7 @@ struct Style:
             A new Style object with the border foreground color rule set.
         """
         var new = self
+        new.properties = new.properties.set(BORDER_LEFT_FOREGROUND_KEY)
         new._border_left_fg = color
         return new
 
@@ -1251,6 +1260,7 @@ struct Style:
             A new Style object with the border foreground color rule set.
         """
         var new = self
+        new.properties = new.properties.set(BORDER_BOTTOM_FOREGROUND_KEY)
         new._border_bottom_fg = color
         return new
 
@@ -1277,7 +1287,7 @@ struct Style:
         var bottom: AnyTerminalColor = NoColor()
         var left: AnyTerminalColor = NoColor()
         var right: AnyTerminalColor = NoColor()
-        var new_style = self.copy()
+        var new_style = self
         var widths_specified = len(colors)
         if widths_specified == 1:
             top = colors[0]
@@ -1319,6 +1329,7 @@ struct Style:
             A new Style object with the border background color rule set.
         """
         var new = self
+        new.properties = new.properties.set(BORDER_TOP_BACKGROUND_KEY)
         new._border_top_bg = color
         return new
 
@@ -1342,6 +1353,7 @@ struct Style:
             A new Style object with the border background color rule set.
         """
         var new = self
+        new.properties = new.properties.set(BORDER_RIGHT_BACKGROUND_KEY)
         new._border_right_bg = color
         return new
 
@@ -1365,6 +1377,7 @@ struct Style:
             A new Style object with the border background color rule set.
         """
         var new = self
+        new.properties = new.properties.set(BORDER_LEFT_BACKGROUND_KEY)
         new._border_left_bg = color
         return new
 
@@ -1388,6 +1401,7 @@ struct Style:
             A new Style object with the border background color rule set.
         """
         var new = self
+        new.properties = new.properties.set(BORDER_BOTTOM_BACKGROUND_KEY)
         new._border_bottom_bg = color
         return new
 
@@ -1461,6 +1475,7 @@ struct Style:
             A new Style object with the padding top rule set.
         """
         var new = self
+        new.properties = new.properties.set(PADDING_TOP_KEY)
         new._padding_top = width
         return new
 
@@ -1484,6 +1499,7 @@ struct Style:
             A new Style object with the padding right rule set.
         """
         var new = self
+        new.properties = new.properties.set(PADDING_RIGHT_KEY)
         new._padding_right = width
         return new
 
@@ -1507,6 +1523,7 @@ struct Style:
             A new Style object with the padding bottom rule set.
         """
         var new = self
+        new.properties = new.properties.set(PADDING_BOTTOM_KEY)
         new._padding_bottom = width
         return new
 
@@ -1530,6 +1547,7 @@ struct Style:
             A new Style object with the padding left rule set.
         """
         var new = self
+        new.properties = new.properties.set(PADDING_LEFT_KEY)
         new._padding_left = width
         return new
 
@@ -1606,6 +1624,7 @@ struct Style:
             A new Style object with the margin top rule set.
         """
         var new = self
+        new.properties = new.properties.set(MARGIN_TOP_KEY)
         new._margin_top = width
         return new
 
@@ -1629,6 +1648,7 @@ struct Style:
             A new Style object with the margin right rule set.
         """
         var new = self
+        new.properties = new.properties.set(MARGIN_RIGHT_KEY)
         new._margin_right = width
         return new
 
@@ -1652,6 +1672,7 @@ struct Style:
             A new Style object with the margin bottom rule set.
         """
         var new = self
+        new.properties = new.properties.set(MARGIN_BOTTOM_KEY)
         new._margin_right = width
         return new
 
@@ -1675,6 +1696,7 @@ struct Style:
             A new Style object with the margin left rule set.
         """
         var new = self
+        new.properties = new.properties.set(MARGIN_LEFT_KEY)
         new._margin_left = width
         return new
 
@@ -1698,6 +1720,7 @@ struct Style:
             A new Style object with the margin background rule set.
         """
         var new = self
+        new.properties = new.properties.set(MARGIN_BACKGROUND_KEY)
         new._margin_bg = color
         return new
 
@@ -1986,19 +2009,21 @@ struct Style:
         var term_style_space = mist.new_style(p)
         var term_style_whitespace = mist.new_style(p)
 
-        var bold: Bool = self.get_as_bool(BOLD_KEY)
-        var italic: Bool = self.get_as_bool(ITALIC_KEY)
-        var underline: Bool = self.get_as_bool(UNDERLINE_KEY)
-        var crossout: Bool = self.get_as_bool(CROSSOUT_KEY)
-        var reverse: Bool = self.get_as_bool(REVERSE_KEY)
-        var blink: Bool = self.get_as_bool(BLINK_KEY)
-        var faint: Bool = self.get_as_bool(FAINT_KEY)
+        var bold: Bool = self.get_as_bool(BOLD_KEY, False)
+        var italic: Bool = self.get_as_bool(ITALIC_KEY, False)
+        var underline: Bool = self.get_as_bool(UNDERLINE_KEY, False)
+        var crossout: Bool = self.get_as_bool(CROSSOUT_KEY, False)
+        var reverse: Bool = self.get_as_bool(REVERSE_KEY, False)
+        var blink: Bool = self.get_as_bool(BLINK_KEY, False)
+        var faint: Bool = self.get_as_bool(FAINT_KEY, False)
 
         var fg = self.get_as_color(FOREGROUND_KEY)
         var bg = self.get_as_color(BACKGROUND_KEY)
 
         var width: Int = self.get_as_int(WIDTH_KEY)
+        print(width)
         var height: Int = self.get_as_int(HEIGHT_KEY)
+        print(height)
         var top_padding: Int = self.get_as_int(PADDING_TOP_KEY)
         var right_padding: Int = self.get_as_int(PADDING_RIGHT_KEY)
         var bottom_padding: Int = self.get_as_int(PADDING_BOTTOM_KEY)
@@ -2008,7 +2033,7 @@ struct Style:
         var vertical_align: Position = self.get_as_position(VERTICAL_ALIGNMENT_KEY)
 
         var color_whitespace: Bool = self.get_as_bool(COLOR_WHITESPACE_KEY, True)
-        var inline: Bool = self.get_as_bool(INLINE_KEY)
+        var inline: Bool = self.get_as_bool(INLINE_KEY, False)
         var max_width: Int = self.get_as_int(MAX_WIDTH_KEY)
         var max_height: Int = self.get_as_int(MAX_HEIGHT_KEY)
 
@@ -2022,7 +2047,7 @@ struct Style:
         var use_space_styler = underline_spaces or crossout_spaces
 
         # transform = self.get_as_transform("transform")
-        if len(self.rules) == 0:
+        if self.properties.value == 0:
             return self.maybe_convert_tabs(input_text)
 
         if bold:
@@ -2167,6 +2192,7 @@ struct Style:
 
             if top_padding > 0:
                 styled_text = (NEWLINE * top_padding) + styled_text
+                print(styled_text)
 
             if bottom_padding > 0:
                 styled_text += NEWLINE * bottom_padding
@@ -2211,10 +2237,3 @@ struct Style:
             styled_text = self.apply_margins(styled_text, inline)
 
         return styled_text
-
-    fn copy(self) -> Self:
-        return Self(
-            renderer=self.renderer,
-            rules=self.rules,
-            value=self.value,
-        )

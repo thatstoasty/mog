@@ -119,33 +119,6 @@ fn get_lines(text: String) -> Tuple[List[String], Int]:
     return lines, widest_line
 
 
-alias TRUTHY_VALUES = List[String]("True", "true", "TRUE", "1")
-
-
-@always_inline
-fn to_bool(s: String) -> Bool:
-    return s in TRUTHY_VALUES
-
-
-fn str_to_float(s: String) raises -> Float64:
-    try:
-        var dot_pos = s.find(".")
-        var int_str = s[0:dot_pos]
-        var num_str = s[dot_pos + 1 : len(s)]
-        var numerator = atol(num_str)
-        var denom_str = String("")
-        for _ in range(len(num_str)):
-            denom_str += "0"
-        var denominator = atol("1" + denom_str)
-        var frac = numerator / denominator
-
-        # return the number as a Float64
-        var result: Float64 = atol(int_str) + frac
-        return result
-    except:
-        raise Error("Failed to convert " + s + " to a float.")
-
-
 # Apply left padding.
 fn pad_left(text: String, n: Int, style: mist.Style) -> String:
     if n == 0:
@@ -317,7 +290,7 @@ struct Style:
         Returns:
             A new Style object with the renderer set.
         """
-        var new_style = self.copy()
+        var new_style = self
         new_style.renderer = renderer
         return new_style
 
@@ -330,7 +303,7 @@ struct Style:
         Returns:
             A new Style object with the string value set.
         """
-        var new_style = self.copy()
+        var new_style = self
         new_style.value = value
         return new_style
 
@@ -344,7 +317,7 @@ struct Style:
         Returns:
             A new Style object with the rule set.
         """
-        var new_style = self.copy()
+        var new_style = self
         new_style.rules.put(str(key), value)
         return new_style
 
@@ -357,7 +330,7 @@ struct Style:
         Returns:
             A new Style object with the rule unset.
         """
-        var new_style = self.copy()
+        var new_style = self
         new_style.rules.delete(str(key))
         return new_style
 
@@ -745,7 +718,7 @@ struct Style:
         Returns:
             A new Style object with the alignment rules set.
         """
-        var new_style = self.copy()
+        var new_style = self
 
         if len(align) > 0:
             new_style.rules.put(str(HORIZONTAL_ALIGNMENT_KEY), align[0])
@@ -811,7 +784,7 @@ struct Style:
         Returns:
             A new Style object with the border rule set.
         """
-        var new_style = self.copy()
+        var new_style = self
         new_style.rules.put(str(BORDER_STYLE_KEY), border)
 
         if top:
@@ -914,7 +887,7 @@ struct Style:
         var bottom: AnyTerminalColor = NoColor()
         var left: AnyTerminalColor = NoColor()
         var right: AnyTerminalColor = NoColor()
-        var new_style = self.copy()
+        var new_style = self
         var widths_specified = len(colors)
         if widths_specified == 1:
             top = colors[0]
@@ -1035,7 +1008,7 @@ struct Style:
         var bottom: AnyTerminalColor = NoColor()
         var left: AnyTerminalColor = NoColor()
         var right: AnyTerminalColor = NoColor()
-        var new_style = self.copy()
+        var new_style = self
         var widths_specified = len(colors)
         if widths_specified == 1:
             top = colors[0]
@@ -1166,7 +1139,7 @@ struct Style:
         var bottom = 0
         var left = 0
         var right = 0
-        var new_style = self.copy()
+        var new_style = self
         var widths_specified = len(widths)
         if widths_specified == 1:
             top = widths[0]
@@ -1296,7 +1269,7 @@ struct Style:
         var bottom = 0
         var left = 0
         var right = 0
-        var new_style = self.copy()
+        var new_style = self
         var widths_specified = len(widths)
         if widths_specified == 1:
             top = widths[0]
@@ -1919,10 +1892,3 @@ struct Style:
             styled_text = self.apply_margins(styled_text, inline)
 
         return styled_text
-
-    fn copy(self) -> Self:
-        return Self(
-            renderer=self.renderer,
-            rules=self.rules,
-            value=self.value,
-        )

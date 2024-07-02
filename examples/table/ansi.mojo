@@ -11,7 +11,7 @@ import mog
 
 
 fn main() raises:
-    var s = Style.new().foreground(mog.Color("240"))
+    var s = mog.new_style().foreground(mog.Color("240"))
 
     var t = new_table()
     t.width = 50

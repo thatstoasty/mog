@@ -455,7 +455,7 @@ struct Style:
         Example:
 
             var: String = "..."
-            var user_style = Style.new().inline(True)
+            var user_style = mog.new_style().inline(True)
             print(user_style.render(user_input))
 
         Args:
@@ -655,7 +655,7 @@ struct Style:
 
         Example:
             var: String = "..."
-            var user_style = Style.new().max_width(16)
+            var user_style = mog.new_style().max_width(16)
             print(user_style.render(user_input))
 
         Args:

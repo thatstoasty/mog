@@ -119,31 +119,10 @@ fn get_lines(text: String) -> Tuple[List[String], Int]:
     return lines, widest_line
 
 
-alias TRUTHY_VALUES = List[String]("True", "true", "TRUE", "1")
-
-
 @always_inline
 fn to_bool(s: String) -> Bool:
+    alias TRUTHY_VALUES = List[String]("True", "true", "TRUE", "1")
     return s in TRUTHY_VALUES
-
-
-fn str_to_float(s: String) raises -> Float64:
-    try:
-        var dot_pos = s.find(".")
-        var int_str = s[0:dot_pos]
-        var num_str = s[dot_pos + 1 : len(s)]
-        var numerator = atol(num_str)
-        var denom_str = String("")
-        for _ in range(len(num_str)):
-            denom_str += "0"
-        var denominator = atol("1" + denom_str)
-        var frac = numerator / denominator
-
-        # return the number as a Float64
-        var result: Float64 = atol(int_str) + frac
-        return result
-    except:
-        raise Error("Failed to convert " + s + " to a float.")
 
 
 # Apply left padding.
@@ -190,6 +169,54 @@ fn new_style() -> Style:
     return Style()
 
 
+@register_passable("trivial")
+struct Properties:
+    """Properties for a style."""
+
+    var properties: PropertyKey
+
+    fn __init__(inout self, properties: PropertyKey = 0):
+        """Initialize a new Properties object.
+
+        Args:
+            properties: The properties to set.
+        """
+        self.properties = properties
+
+    fn set(self, key: PropertyKey) -> Properties:
+        """Set a property.
+
+        Args:
+            key: The key to set.
+
+        Returns:
+            A new Properties object with the property set.
+        """
+        return self.properties | key
+
+    fn unset(self, key: PropertyKey) -> Properties:
+        """Unset a property.
+
+        Args:
+            key: The key to unset.
+
+        Returns:
+            A new Properties object with the property unset.
+        """
+        return self.properties & ~key
+
+    fn has(self, key: PropertyKey) -> Bool:
+        """Check if a property is set.
+
+        Args:
+            key: The key to check.
+
+        Returns:
+            True if the property is set, False otherwise.
+        """
+        return (self.properties & key) != 0
+
+
 @value
 struct Style:
     """Terminal styler.
@@ -197,8 +224,47 @@ struct Style:
     More documentation to come."""
 
     var renderer: Renderer
+    var properites: Properties
     var rules: Dict[Rule]
     var value: String
+
+    # we store bool props values here
+    var attrs: Int
+
+    # props that have values
+    var _fg: AnyTerminalColor
+    var _bg: AnyTerminalColor
+
+    var _width: Int
+    var _height: Int
+
+    var _horizontal_alignment: Position
+    var _vertical_alignment: Position
+
+    var _padding_top: Int
+    var _padding_right: Int
+    var _padding_bottom: Int
+    var _padding_left: Int
+
+    var _margin_top: Int
+    var _margin_right: Int
+    var _margin_bottom: Int
+    var _margin_left: Int
+    var _margin_bg: AnyTerminalColor
+
+    var _border: Border
+    var _border_top_fg: AnyTerminalColor
+    var _border_right_fg: AnyTerminalColor
+    var _border_bottom_fg: AnyTerminalColor
+    var _border_left_fg: AnyTerminalColor
+    var _border_top_bg: AnyTerminalColor
+    var _border_right_bg: AnyTerminalColor
+    var _border_bottom_bg: AnyTerminalColor
+    var _border_left_bg: AnyTerminalColor
+
+    var _max_width: Int
+    var _max_height: Int
+    var _tab_width: Int
 
     fn __init__(inout self, value: String = ""):
         """Initialize a new Style object.
@@ -209,13 +275,41 @@ struct Style:
         self.renderer = Renderer()
         self.rules = Dict[Rule]()
         self.value = value
+        self._fg = NoColor()
+        self._bg = NoColor()
 
-    @staticmethod
-    fn new() -> Self:
-        """Create a new Style object. Use this instead of init."""
-        return Self()
+        self._width = 0
+        self._height = 0
 
-    fn get_as_bool(self, key: String, default: Bool = False) -> Bool:
+        self._horizontal_alignment = 0
+        self._vertical_alignment = 0
+
+        self._padding_top = 0
+        self._padding_right = 0
+        self._padding_bottom = 0
+        self._padding_left = 0
+
+        self._margin_top = 0
+        self._margin_right = 0
+        self._margin_bottom = 0
+        self._margin_left = 0
+        self._margin_bg = NoColor()
+
+        self._border = no_border()
+        self._border_top_fg = NoColor()
+        self._border_right_fg = NoColor()
+        self._border_bottom_fg = NoColor()
+        self._border_left_fg = NoColor()
+        self._border_top_bg = NoColor()
+        self._border_right_bg = NoColor()
+        self._border_bottom_bg = NoColor()
+        self._border_left_bg = NoColor()
+
+        self._max_width = 0
+        self._max_height = 0
+        self._tab_width = 0
+
+    fn get_as_bool(self, key: PropertyKey, default: Bool = False) -> Bool:
         """Get a rule as a boolean value.
 
         Args:
@@ -225,78 +319,118 @@ struct Style:
         Returns:
             The boolean value.
         """
-        var result = self.rules.get(key, default)
-        if result.isa[Bool]():
-            var val = result[Bool]
-            return val
+        if not self.is_set(key):
+            return default
 
-        return default
+        return self.attrs & int(key) != 0
 
-    fn get_as_color(self, key: String, default: AnyTerminalColor) -> AnyTerminalColor:
-        """Get a rule as an AnyColor value.
+    fn get_as_color(self, key: PropertyKey) -> AnyTerminalColor:
+        """Get a rule as an AnyTerminalColor value.
 
         Args:
             key: The key to get.
-            default: The default value to return if the rule is not set.
 
         Returns:
             The color value.
         """
-        var result = self.rules.get(key, default)
-        if result.isa[AnyTerminalColor]():
-            return result[AnyTerminalColor]
+        if not self.is_set(key):
+            return NoColor()
 
-        return default
+        if key == FOREGROUND_KEY:
+            return self._fg
+        elif key == BACKGROUND_KEY:
+            return self._bg
+        elif key == BORDER_TOP_FOREGROUND_KEY:
+            return self._border_top_fg
+        elif key == BORDER_RIGHT_FOREGROUND_KEY:
+            return self._border_right_fg
+        elif key == BORDER_BOTTOM_FOREGROUND_KEY:
+            return self._border_bottom_fg
+        elif key == BORDER_LEFT_FOREGROUND_KEY:
+            return self._border_left_fg
+        elif key == BORDER_TOP_BACKGROUND_KEY:
+            return self._border_top_bg
+        elif key == BORDER_RIGHT_BACKGROUND_KEY:
+            return self._border_right_bg
+        elif key == BORDER_BOTTOM_BACKGROUND_KEY:
+            return self._border_bottom_bg
+        elif key == BORDER_LEFT_BACKGROUND_KEY:
+            return self._border_left_bg
+        elif key == MARGIN_BACKGROUND_KEY:
+            return self._margin_bg
+        else:
+            return NoColor()
 
-    fn get_as_int(self, key: String, default: Int = 0) -> Int:
+    fn get_as_int(self, key: PropertyKey) -> Int:
         """Get a rule as an integer value.
 
         Args:
             key: The key to get.
-            default: The default value to return if the rule is not set.
 
         Returns:
             The integer value.
         """
-        var result = self.rules.get(key, default)
-        if result.isa[Int]():
-            var val = result[Int]
-            return val
+        if not self.is_set(key):
+            return 0
 
-        return default
+        if key == WIDTH_KEY:
+            return self._width
+        elif key == HEIGHT_KEY:
+            return self._height
+        elif key == PADDING_TOP_KEY:
+            return self._padding_top
+        elif key == PADDING_RIGHT_KEY:
+            return self._padding_right
+        elif key == PADDING_BOTTOM_KEY:
+            return self._padding_bottom
+        elif key == PADDING_LEFT_KEY:
+            return self._padding_left
+        elif key == MARGIN_TOP_KEY:
+            return self._margin_top
+        elif key == MARGIN_RIGHT_KEY:
+            return self._margin_right
+        elif key == MARGIN_BOTTOM_KEY:
+            return self._margin_bottom
+        elif key == MARGIN_LEFT_KEY:
+            return self._margin_left
+        elif key == MAX_WIDTH_KEY:
+            return self._max_width
+        elif key == MAX_HEIGHT_KEY:
+            return self._max_height
+        elif key == TAB_WIDTH_KEY:
+            return self._tab_width
+        else:
+            return 0
 
-    fn get_as_position(self, key: String, default: Position = 0) -> Position:
+    fn get_as_position(self, key: PropertyKey) -> Position:
         """Get a rule as a Position value.
 
         Args:
             key: The key to get.
-            default: The default value to return if the rule is not set.
 
         Returns:
             The Position value.
         """
-        var result = self.rules.get(key, default)
-        if result.isa[Position]():
-            var val = result[Position]
-            return val
+        if not self.is_set(key):
+            return 0
 
-        return default
+        if key == HORIZONTAL_ALIGNMENT_KEY:
+            return self._horizontal_alignment
+        elif key == VERTICAL_ALIGNMENT_KEY:
+            return self._vertical_alignment
+        else:
+            return 0
 
-    fn get_border_style(self, default: Border = Border()) -> Border:
+    fn get_border_style(self) -> Border:
         """Get the Border style rule.
-
-        Args:
-            default: The default value to return if the rule is not set.
 
         Returns:
             The Border style.
         """
-        var result = self.rules.get(str(BORDER_STYLE_KEY), default)
-        if result.isa[Border]():
-            var val = result[Border]
-            return val
+        if not self.is_set(BORDER_STYLE_KEY):
+            return Border()
 
-        return default
+        return self._border
 
     fn is_set(self, key: PropertyKey) -> Bool:
         """Check if a rule is set on the style.
@@ -307,11 +441,31 @@ struct Style:
         Returns:
             True if the rule is set, False otherwise.
         """
-        for i in range(len(self.rules.keys)):
-            if str(self.rules.keys[i]) == str(key):
-                return True
+        return self.properites.has(key)
 
-        return False
+    fn set_attribute(inout self, key: PropertyKey, value: Bool):
+        """Set a boolean attribute on the style.
+
+        Args:
+            key: The key to set.
+            value: The value to set.
+        """
+        if value:
+            self.attrs |= key
+        else:
+            self.attrs &= ~key
+
+        # Set the prop
+        self.properites = self.properites.set(key)
+
+    fn unset_attribute(inout self, key: PropertyKey):
+        """Set a boolean attribute on the style.
+
+        Args:
+            key: The key to set.
+        """
+        # Set the prop
+        self.properites = self.properites.unset(key)
 
     fn set_renderer(self, renderer: Renderer) -> Style:
         """Set the renderer for the style.
@@ -322,7 +476,7 @@ struct Style:
         Returns:
             A new Style object with the renderer set.
         """
-        var new_style = self.copy()
+        var new_style = self
         new_style.renderer = renderer
         return new_style
 
@@ -335,39 +489,12 @@ struct Style:
         Returns:
             A new Style object with the string value set.
         """
-        var new_style = self.copy()
+        var new_style = self
         new_style.value = value
         return new_style
 
-    fn _set_rule(self, key: PropertyKey, value: Rule) -> Style:
-        """Set a rule on the style.
-
-        Args:
-            key: The key to set.
-            value: The value to set.
-
-        Returns:
-            A new Style object with the rule set.
-        """
-        var new_style = self.copy()
-        new_style.rules.put(str(key), value)
-        return new_style
-
-    fn _unset_rule(self, key: PropertyKey) -> Style:
-        """Unset a rule on the style.
-
-        Args:
-            key: The key to unset.
-
-        Returns:
-            A new Style object with the rule unset.
-        """
-        var new_style = self.copy()
-        new_style.rules.delete(str(key))
-        return new_style
-
     fn tab_width(self, width: Int) -> Style:
-        """Aets the number of spaces that a tab (/t) should be rendered as.
+        """Sets the number of spaces that a tab (/t) should be rendered as.
         When set to 0, tabs will be removed. To disable the replacement of tabs with
         spaces entirely, set this to [NO_TAB_CONVERSION].
 
@@ -379,7 +506,9 @@ struct Style:
         Returns:
             A new Style object with the tab width rule set.
         """
-        return self._set_rule(TAB_WIDTH_KEY, width)
+        var new = self
+        new._tab_width = width
+        return new
 
     fn unset_tab_width(self) -> Style:
         """Unset the tab width of the text.
@@ -387,7 +516,9 @@ struct Style:
         Returns:
             A new Style object with the tab width rule unset.
         """
-        return self._unset_rule(TAB_WIDTH_KEY)
+        var new = self
+        new._tab_width = TAB_WIDTH
+        return new
 
     fn underline_spaces(self, value: Bool = True) -> Style:
         """Determines whether to underline spaces between words.
@@ -399,7 +530,9 @@ struct Style:
         Returns:
             A new Style object with the crossout rule set.
         """
-        return self._set_rule(UNDERLINE_SPACES_KEY, value)
+        var new = self
+        new.set_attribute(UNDERLINE_SPACES_KEY, value)
+        return new
 
     fn unset_underline_spaces(self) -> Style:
         """Unset the underline spaces rule.
@@ -407,7 +540,9 @@ struct Style:
         Returns:
             A new Style object with the underline spaces rule unset.
         """
-        return self._unset_rule(UNDERLINE_SPACES_KEY)
+        var new = self
+        new.unset_attribute(UNDERLINE_SPACES_KEY)
+        return new
 
     fn crossout_spaces(self, value: Bool = True) -> Style:
         """Determines whether to crossout spaces between words. Spaces can also be
@@ -419,7 +554,9 @@ struct Style:
         Returns:
             A new Style object with the crossout rule set.
         """
-        return self._set_rule(CROSSOUT_SPACES_KEY, value)
+        var new = self
+        new.set_attribute(CROSSOUT_SPACES_KEY, value)
+        return new
 
     fn unset_crossout_spaces(self) -> Style:
         """Unset the crossout spaces rule.
@@ -427,7 +564,9 @@ struct Style:
         Returns:
             A new Style object with the crossout spaces rule unset.
         """
-        return self._unset_rule(CROSSOUT_SPACES_KEY)
+        var new = self
+        new.unset_attribute(CROSSOUT_SPACES_KEY)
+        return new
 
     fn color_whitespace(self, value: Bool = True) -> Style:
         """Determines whether to color whitespace.
@@ -438,7 +577,9 @@ struct Style:
         Returns:
             A new Style object with the color whitespace rule set.
         """
-        return self._set_rule(COLOR_WHITESPACE_KEY, value)
+        var new = self
+        new.set_attribute(COLOR_WHITESPACE_KEY, value)
+        return new
 
     fn unset_color_whitespace(self) -> Style:
         """Unset the color whitespace rule.
@@ -446,7 +587,9 @@ struct Style:
         Returns:
             A new Style object with the color whitespace rule unset.
         """
-        return self._unset_rule(COLOR_WHITESPACE_KEY)
+        var new = self
+        new.unset_attribute(COLOR_WHITESPACE_KEY)
+        return new
 
     fn inline(self, value: Bool = True) -> Style:
         """Makes rendering output one line and disables the rendering of
@@ -469,7 +612,9 @@ struct Style:
         Returns:
             A new Style object with the bold rule set.
         """
-        return self._set_rule(INLINE_KEY, value)
+        var new = self
+        new.set_attribute(INLINE_KEY, value)
+        return new
 
     fn unset_inline(self) -> Style:
         """Unset the inline rule.
@@ -477,7 +622,9 @@ struct Style:
         Returns:
             A new Style object with the inline rule unset.
         """
-        return self._unset_rule(INLINE_KEY)
+        var new = self
+        new.unset_attribute(INLINE_KEY)
+        return new
 
     fn bold(self, value: Bool = True) -> Style:
         """Set the text to be bold.
@@ -488,7 +635,9 @@ struct Style:
         Returns:
             A new Style object with the bold rule set.
         """
-        return self._set_rule(BOLD_KEY, value)
+        var new = self
+        new.set_attribute(BOLD_KEY, value)
+        return new
 
     fn italic(self, value: Bool = True) -> Style:
         """Set the text to be italic.
@@ -499,7 +648,9 @@ struct Style:
         Returns:
             A new Style object with the italic rule set.
         """
-        return self._set_rule(ITALIC_KEY, value)
+        var new = self
+        new.set_attribute(ITALIC_KEY, value)
+        return new
 
     fn underline(self, value: Bool = True) -> Style:
         """Set the text to be underline.
@@ -510,7 +661,9 @@ struct Style:
         Returns:
             A new Style object with the underline rule set.
         """
-        return self._set_rule(UNDERLINE_KEY, value)
+        var new = self
+        new.set_attribute(UNDERLINE_KEY, value)
+        return new
 
     fn crossout(self, value: Bool = True) -> Style:
         """Set the text to be crossed out.
@@ -521,7 +674,9 @@ struct Style:
         Returns:
             A new Style object with the crossout rule set.
         """
-        return self._set_rule(CROSSOUT_KEY, value)
+        var new = self
+        new.set_attribute(CROSSOUT_KEY, value)
+        return new
 
     fn reverse(self, value: Bool = True) -> Style:
         """Set the text have the foreground and background colors reversed.
@@ -532,7 +687,9 @@ struct Style:
         Returns:
             A new Style object with the reverse rule set.
         """
-        return self._set_rule(REVERSE_KEY, value)
+        var new = self
+        new.set_attribute(REVERSE_KEY, value)
+        return new
 
     fn blink(self, value: Bool = True) -> Style:
         """Set the text to blink.
@@ -543,7 +700,9 @@ struct Style:
         Returns:
             A new Style object with the blink rule set.
         """
-        return self._set_rule(BLINK_KEY, value)
+        var new = self
+        new.set_attribute(BLINK_KEY, value)
+        return new
 
     fn faint(self, value: Bool = True) -> Style:
         """Set the text to be faint.
@@ -554,7 +713,9 @@ struct Style:
         Returns:
             A new Style object with the faint rule set.
         """
-        return self._set_rule(FAINT_KEY, value)
+        var new = self
+        new.set_attribute(FAINT_KEY, value)
+        return new
 
     fn unset_bold(self) -> Style:
         """Unset the bold rule.
@@ -562,7 +723,9 @@ struct Style:
         Returns:
             A new Style object with the bold rule unset.
         """
-        return self._unset_rule(BOLD_KEY)
+        var new = self
+        new.unset_attribute(BOLD_KEY)
+        return new
 
     fn unset_italic(self) -> Style:
         """Unset the italic rule.
@@ -570,7 +733,9 @@ struct Style:
         Returns:
             A new Style object with the italic rule unset.
         """
-        return self._unset_rule(ITALIC_KEY)
+        var new = self
+        new.unset_attribute(ITALIC_KEY)
+        return new
 
     fn unset_underline(self) -> Style:
         """Unset the text to be underline.
@@ -578,7 +743,9 @@ struct Style:
         Returns:
             A new Style object with the underline rule set.
         """
-        return self._unset_rule(UNDERLINE_KEY)
+        var new = self
+        new.unset_attribute(UNDERLINE_KEY)
+        return new
 
     fn unset_crossout(self) -> Style:
         """Unset the crossout rule.
@@ -586,7 +753,9 @@ struct Style:
         Returns:
             A new Style object with the crossout rule unset.
         """
-        return self._unset_rule(CROSSOUT_KEY)
+        var new = self
+        new.unset_attribute(CROSSOUT_KEY)
+        return new
 
     fn unset_reverse(self) -> Style:
         """Unset the reverse rule.
@@ -594,7 +763,9 @@ struct Style:
         Returns:
             A new Style object with the reverse rule unset.
         """
-        return self._unset_rule(REVERSE_KEY)
+        var new = self
+        new.unset_attribute(REVERSE_KEY)
+        return new
 
     fn unset_blink(self) -> Style:
         """Unset the blink rule.
@@ -602,7 +773,9 @@ struct Style:
         Returns:
             A new Style object with the blink rule unset.
         """
-        return self._unset_rule(BLINK_KEY)
+        var new = self
+        new.unset_attribute(BLINK_KEY)
+        return new
 
     fn unset_faint(self) -> Style:
         """Unset the text to be faint.
@@ -610,7 +783,9 @@ struct Style:
         Returns:
             A new Style object with the faint rule unset.
         """
-        return self._unset_rule(FAINT_KEY)
+        var new = self
+        new.unset_attribute(FAINT_KEY)
+        return new
 
     fn width(self, width: Int) -> Style:
         """Set the width of the text.
@@ -621,7 +796,9 @@ struct Style:
         Returns:
             A new Style object with the width rule set.
         """
-        return self._set_rule(WIDTH_KEY, width)
+        var new = self
+        new._width = width
+        return new
 
     fn unset_width(self) -> Style:
         """Unset the width of the text.
@@ -629,7 +806,9 @@ struct Style:
         Returns:
             A new Style object with the width rule unset.
         """
-        return self._unset_rule(WIDTH_KEY)
+        var new = self
+        new.unset_attribute(WIDTH_KEY)
+        return new
 
     fn height(self, height: Int) -> Style:
         """Set the height of the text.
@@ -640,7 +819,9 @@ struct Style:
         Returns:
             A new Style object with the height rule set.
         """
-        return self._set_rule(HEIGHT_KEY, height)
+        var new = self
+        new._height = height
+        return new
 
     fn unset_height(self) -> Style:
         """Unset the height of the text.
@@ -648,7 +829,9 @@ struct Style:
         Returns:
             A new Style object with the height rule unset.
         """
-        return self._unset_rule(HEIGHT_KEY)
+        var new = self
+        new.unset_attribute(HEIGHT_KEY)
+        return new
 
     fn max_width(self, width: Int) -> Style:
         """Applies a max width to a given style. This is useful in enforcing
@@ -669,7 +852,9 @@ struct Style:
         Returns:
             A new Style object with the maximum width rule set.
         """
-        return self._set_rule(MAX_WIDTH_KEY, width)
+        var new = self
+        new._max_width = width
+        return new
 
     fn unset_max_width(self) -> Style:
         """Unset the max width of the text.
@@ -677,7 +862,9 @@ struct Style:
         Returns:
             A new Style object with the max width rule unset.
         """
-        return self._unset_rule(MAX_WIDTH_KEY)
+        var new = self
+        new.unset_attribute(MAX_WIDTH_KEY)
+        return new
 
     fn max_height(self, height: Int) -> Style:
         """Set the maximum height of the text.
@@ -688,7 +875,9 @@ struct Style:
         Returns:
             A new Style object with the maximum height rule set.
         """
-        return self._set_rule(MAX_HEIGHT_KEY, height)
+        var new = self
+        new._max_height = height
+        return new
 
     fn unset_max_height(self) -> Style:
         """Unset the max height of the text.
@@ -696,7 +885,9 @@ struct Style:
         Returns:
             A new Style object with the max height rule unset.
         """
-        return self._unset_rule(MAX_HEIGHT_KEY)
+        var new = self
+        new.unset_attribute(MAX_HEIGHT_KEY)
+        return new
 
     fn horizontal_alignment(self, align: Position) -> Style:
         """Set the horizontal alignment of the text.
@@ -707,7 +898,9 @@ struct Style:
         Returns:
             A new Style object with the alignment rule set.
         """
-        return self._set_rule(HORIZONTAL_ALIGNMENT_KEY, align)
+        var new = self
+        new._horizontal_alignment = align
+        return new
 
     fn unset_horizontal_alignment(self) -> Style:
         """Unset the horizontal alignment of the text.
@@ -715,7 +908,9 @@ struct Style:
         Returns:
             A new Style object with the horizontal alignment rule unset.
         """
-        return self._unset_rule(HORIZONTAL_ALIGNMENT_KEY)
+        var new = self
+        new.unset_attribute(HORIZONTAL_ALIGNMENT_KEY)
+        return new
 
     fn vertical_alignment(self, align: Position) -> Style:
         """Set the vertical alignment of the text.
@@ -726,7 +921,9 @@ struct Style:
         Returns:
             A new Style object with the alignment rule set.
         """
-        return self._set_rule(VERTICAL_ALIGNMENT_KEY, align)
+        var new = self
+        new._vertical_alignment = align
+        return new
 
     fn unset_vertical_alignment(self) -> Style:
         """Unset the vertical alignment of the text.
@@ -734,7 +931,9 @@ struct Style:
         Returns:
             A new Style object with the vertical alignment rule unset.
         """
-        return self._unset_rule(VERTICAL_ALIGNMENT_KEY)
+        var new = self
+        new.unset_attribute(VERTICAL_ALIGNMENT_KEY)
+        return new
 
     fn alignment(self, *align: Position) -> Style:
         """Align is a shorthand method for setting horizontal and vertical alignment.
@@ -750,13 +949,13 @@ struct Style:
         Returns:
             A new Style object with the alignment rules set.
         """
-        var new_style = self.copy()
+        var new = self
 
         if len(align) > 0:
-            new_style.rules.put(str(HORIZONTAL_ALIGNMENT_KEY), align[0])
+            new._horizontal_alignment = align[0]
         if len(align) > 1:
-            new_style.rules.put(str(VERTICAL_ALIGNMENT_KEY), align[1])
-        return new_style
+            new._vertical_alignment = align[1]
+        return new
 
     fn foreground(self, color: AnyTerminalColor) -> Style:
         """Set the foreground color of the text.
@@ -767,7 +966,9 @@ struct Style:
         Returns:
             A new Style object with the foreground color rule set.
         """
-        return self._set_rule(FOREGROUND_KEY, color)
+        var new = self
+        new._fg = color
+        return new
 
     fn unset_foreground(self) -> Style:
         """Unset the foreground color of the text.
@@ -775,7 +976,9 @@ struct Style:
         Returns:
             A new Style object with the foreground color rule unset.
         """
-        return self._unset_rule(FOREGROUND_KEY)
+        var new = self
+        new.unset_attribute(FOREGROUND_KEY)
+        return new
 
     fn background(self, color: AnyTerminalColor) -> Style:
         """Set the background color of the text.
@@ -786,7 +989,9 @@ struct Style:
         Returns:
             A new Style object with the background color rule set.
         """
-        return self._set_rule(BACKGROUND_KEY, color)
+        var new = self
+        new._bg = color
+        return new
 
     fn unset_background(self) -> Style:
         """Unset the background color of the text.
@@ -794,7 +999,9 @@ struct Style:
         Returns:
             A new Style object with the background color rule unset.
         """
-        return self._unset_rule(BACKGROUND_KEY)
+        var new = self
+        new.unset_attribute(BACKGROUND_KEY)
+        return new
 
     fn border(
         self,
@@ -816,19 +1023,17 @@ struct Style:
         Returns:
             A new Style object with the border rule set.
         """
-        var new_style = self.copy()
-        new_style.rules.put(str(BORDER_STYLE_KEY), border)
-
+        var new = self
+        new._border = border
         if top:
-            new_style.rules.put(str(BORDER_TOP_KEY), True)
+            new = new.border_top(True)
         if right:
-            new_style.rules.put(str(BORDER_RIGHT_KEY), True)
+            new = new.border_right(True)
         if bottom:
-            new_style.rules.put(str(BORDER_BOTTOM_KEY), True)
+            new = new.border_bottom(True)
         if left:
-            new_style.rules.put(str(BORDER_LEFT_KEY), True)
-
-        return new_style
+            new = new.border_left(True)
+        return new
 
     fn border_top(self, top: Bool) -> Style:
         """Sets the top border to be rendered or not.
@@ -839,7 +1044,9 @@ struct Style:
         Returns:
             A new Style object with the border rule set.
         """
-        return self._set_rule(BORDER_TOP_KEY, top)
+        var new = self
+        new.set_attribute(BORDER_TOP_KEY, top)
+        return new
 
     fn unset_border_top(self) -> Style:
         """Unsets the top border rule.
@@ -847,7 +1054,9 @@ struct Style:
         Returns:
             A new Style object with the border rule unset.
         """
-        return self._unset_rule(BORDER_TOP_KEY)
+        var new = self
+        new.unset_attribute(BORDER_TOP_KEY)
+        return new
 
     fn border_bottom(self, bottom: Bool) -> Style:
         """Sets the bottom border to be rendered or not.
@@ -858,7 +1067,9 @@ struct Style:
         Returns:
             A new Style object with the border rule set.
         """
-        return self._set_rule(BORDER_BOTTOM_KEY, bottom)
+        var new = self
+        new.set_attribute(BORDER_BOTTOM_KEY, bottom)
+        return new
 
     fn unset_border_bottom(self) -> Style:
         """Unsets the bottom border rule.
@@ -866,7 +1077,9 @@ struct Style:
         Returns:
             A new Style object with the border rule unset.
         """
-        return self._unset_rule(BORDER_BOTTOM_KEY)
+        var new = self
+        new.unset_attribute(BORDER_BOTTOM_KEY)
+        return new
 
     fn border_left(self, left: Bool) -> Style:
         """Sets the left border to be rendered or not.
@@ -877,7 +1090,9 @@ struct Style:
         Returns:
             A new Style object with the border rule set.
         """
-        return self._set_rule(BORDER_LEFT_KEY, left)
+        var new = self
+        new.set_attribute(BORDER_LEFT_KEY, left)
+        return new
 
     fn unset_border_left(self) -> Style:
         """Unsets the left border rule.
@@ -885,7 +1100,9 @@ struct Style:
         Returns:
             A new Style object with the border rule unset.
         """
-        return self._unset_rule(BORDER_LEFT_KEY)
+        var new = self
+        new.unset_attribute(BORDER_LEFT_KEY)
+        return new
 
     fn border_right(self, right: Bool) -> Style:
         """Sets the right border to be rendered or not.
@@ -896,7 +1113,9 @@ struct Style:
         Returns:
             A new Style object with the border rule set.
         """
-        return self._set_rule(BORDER_RIGHT_KEY, right)
+        var new = self
+        new.set_attribute(BORDER_RIGHT_KEY, right)
+        return new
 
     fn unset_border_right(self) -> Style:
         """Unsets the right border rule.
@@ -904,7 +1123,9 @@ struct Style:
         Returns:
             A new Style object with the border rule unset.
         """
-        return self._unset_rule(TAB_WIDTH_KEY)
+        var new = self
+        new.unset_attribute(TAB_WIDTH_KEY)
+        return new
 
     fn border_foreground(self, *colors: AnyTerminalColor) -> Style:
         """Set the border foreground color.
@@ -919,7 +1140,7 @@ struct Style:
         var bottom: AnyTerminalColor = NoColor()
         var left: AnyTerminalColor = NoColor()
         var right: AnyTerminalColor = NoColor()
-        var new_style = self.copy()
+        var new = self
         var widths_specified = len(colors)
         if widths_specified == 1:
             top = colors[0]
@@ -942,10 +1163,10 @@ struct Style:
             bottom = colors[2]
             left = colors[3]
         else:
-            return new_style
+            return new
 
         return (
-            new_style.border_top_foreground(top)
+            new.border_top_foreground(top)
             .border_right_foreground(right)
             .border_bottom_foreground(bottom)
             .border_left_foreground(left)
@@ -960,7 +1181,9 @@ struct Style:
         Returns:
             A new Style object with the border foreground color rule set.
         """
-        return self._set_rule(BORDER_TOP_FOREGROUND_KEY, color)
+        var new = self
+        new._border_top_fg = color
+        return new
 
     fn unset_border_top_foreground(self) -> Style:
         """Unsets the top border foreground rule.
@@ -968,7 +1191,9 @@ struct Style:
         Returns:
             A new Style object with the border foreground rule unset.
         """
-        return self._unset_rule(BORDER_TOP_FOREGROUND_KEY)
+        var new = self
+        new.unset_attribute(BORDER_TOP_FOREGROUND_KEY)
+        return new
 
     fn border_right_foreground(self, color: AnyTerminalColor) -> Style:
         """Set the right border foreground color.
@@ -979,7 +1204,9 @@ struct Style:
         Returns:
             A new Style object with the border foreground color rule set.
         """
-        return self._set_rule(BORDER_RIGHT_FOREGROUND_KEY, color)
+        var new = self
+        new._border_right_fg = color
+        return new
 
     fn unset_border_right_foreground(self) -> Style:
         """Unsets the right border foreground rule.
@@ -987,7 +1214,9 @@ struct Style:
         Returns:
             A new Style object with the border foreground rule unset.
         """
-        return self._unset_rule(BORDER_RIGHT_FOREGROUND_KEY)
+        var new = self
+        new.unset_attribute(BORDER_RIGHT_FOREGROUND_KEY)
+        return new
 
     fn border_left_foreground(self, color: AnyTerminalColor) -> Style:
         """Set the left border foreground color.
@@ -998,7 +1227,9 @@ struct Style:
         Returns:
             A new Style object with the border foreground color rule set.
         """
-        return self._set_rule(BORDER_LEFT_FOREGROUND_KEY, color)
+        var new = self
+        new._border_left_fg = color
+        return new
 
     fn unset_border_left_foreground(self) -> Style:
         """Unsets the left border foreground rule.
@@ -1006,7 +1237,9 @@ struct Style:
         Returns:
             A new Style object with the border foreground rule unset.
         """
-        return self._unset_rule(BORDER_LEFT_FOREGROUND_KEY)
+        var new = self
+        new.unset_attribute(BORDER_LEFT_FOREGROUND_KEY)
+        return new
 
     fn border_bottom_foreground(self, color: AnyTerminalColor) -> Style:
         """Set the bottom border foreground color.
@@ -1017,7 +1250,9 @@ struct Style:
         Returns:
             A new Style object with the border foreground color rule set.
         """
-        return self._set_rule(BORDER_BOTTOM_FOREGROUND_KEY, color)
+        var new = self
+        new._border_bottom_fg = color
+        return new
 
     fn unset_border_bottom_foreground(self) -> Style:
         """Unsets the bottom border foreground rule.
@@ -1025,7 +1260,9 @@ struct Style:
         Returns:
             A new Style object with the border foreground rule unset.
         """
-        return self._unset_rule(BORDER_BOTTOM_FOREGROUND_KEY)
+        var new = self
+        new.unset_attribute(BORDER_BOTTOM_FOREGROUND_KEY)
+        return new
 
     fn border_background(self, *colors: AnyTerminalColor) -> Style:
         """Set the border background color.
@@ -1081,7 +1318,9 @@ struct Style:
         Returns:
             A new Style object with the border background color rule set.
         """
-        return self._set_rule(BORDER_TOP_BACKGROUND_KEY, color)
+        var new = self
+        new._border_top_bg = color
+        return new
 
     fn unset_border_top_background(self) -> Style:
         """Unsets the top border background rule.
@@ -1089,7 +1328,9 @@ struct Style:
         Returns:
             A new Style object with the border background rule unset.
         """
-        return self._unset_rule(BORDER_TOP_BACKGROUND_KEY)
+        var new = self
+        new.unset_attribute(BORDER_TOP_BACKGROUND_KEY)
+        return new
 
     fn border_right_background(self, color: AnyTerminalColor) -> Style:
         """Set the right border background color.
@@ -1100,7 +1341,9 @@ struct Style:
         Returns:
             A new Style object with the border background color rule set.
         """
-        return self._set_rule(BORDER_RIGHT_BACKGROUND_KEY, color)
+        var new = self
+        new._border_right_bg = color
+        return new
 
     fn unset_border_right_background(self) -> Style:
         """Unsets the right border background rule.
@@ -1108,7 +1351,9 @@ struct Style:
         Returns:
             A new Style object with the border background rule unset.
         """
-        return self._unset_rule(BORDER_RIGHT_BACKGROUND_KEY)
+        var new = self
+        new.unset_attribute(BORDER_RIGHT_BACKGROUND_KEY)
+        return new
 
     fn border_left_background(self, color: AnyTerminalColor) -> Style:
         """Set the left border background color.
@@ -1119,7 +1364,9 @@ struct Style:
         Returns:
             A new Style object with the border background color rule set.
         """
-        return self._set_rule(BORDER_LEFT_BACKGROUND_KEY, color)
+        var new = self
+        new._border_left_bg = color
+        return new
 
     fn unset_border_left_background(self) -> Style:
         """Unsets the left border background rule.
@@ -1127,7 +1374,9 @@ struct Style:
         Returns:
             A new Style object with the border background rule unset.
         """
-        return self._unset_rule(BORDER_LEFT_BACKGROUND_KEY)
+        var new = self
+        new.unset_attribute(BORDER_LEFT_BACKGROUND_KEY)
+        return new
 
     fn border_bottom_background(self, color: AnyTerminalColor) -> Style:
         """Set the bottom border background color.
@@ -1138,7 +1387,9 @@ struct Style:
         Returns:
             A new Style object with the border background color rule set.
         """
-        return self._set_rule(BORDER_BOTTOM_BACKGROUND_KEY, color)
+        var new = self
+        new._border_bottom_bg = color
+        return new
 
     fn unset_border_bottom_background(self) -> Style:
         """Unsets the bottom border background rule.
@@ -1146,7 +1397,9 @@ struct Style:
         Returns:
             A new Style object with the border background rule unset.
         """
-        return self._unset_rule(BORDER_BOTTOM_BACKGROUND_KEY)
+        var new = self
+        new.unset_attribute(BORDER_BOTTOM_BACKGROUND_KEY)
+        return new
 
     fn padding(self, *widths: Int) -> Style:
         """Shorthand method for setting padding on all sides at once.
@@ -1171,7 +1424,7 @@ struct Style:
         var bottom = 0
         var left = 0
         var right = 0
-        var new_style = self.copy()
+        var new = self
         var widths_specified = len(widths)
         if widths_specified == 1:
             top = widths[0]
@@ -1194,10 +1447,9 @@ struct Style:
             bottom = widths[2]
             left = widths[3]
         else:
-            return new_style
+            return new
 
-        new_style = new_style.padding_top(top).padding_right(right).padding_bottom(bottom).padding_left(left)
-        return new_style
+        return new.padding_top(top).padding_right(right).padding_bottom(bottom).padding_left(left)
 
     fn padding_top(self, width: Int) -> Style:
         """Set the padding on the top side.
@@ -1208,7 +1460,9 @@ struct Style:
         Returns:
             A new Style object with the padding top rule set.
         """
-        return self._set_rule(PADDING_TOP_KEY, width)
+        var new = self
+        new._padding_top = width
+        return new
 
     fn unset_padding_top(self) -> Style:
         """Unset the padding top rule.
@@ -1216,7 +1470,9 @@ struct Style:
         Returns:
             A new Style object with the padding top rule unset.
         """
-        return self._unset_rule(PADDING_TOP_KEY)
+        var new = self
+        new.unset_attribute(PADDING_TOP_KEY)
+        return new
 
     fn padding_right(self, width: Int) -> Style:
         """Set the padding on the right side.
@@ -1227,7 +1483,9 @@ struct Style:
         Returns:
             A new Style object with the padding right rule set.
         """
-        return self._set_rule(PADDING_RIGHT_KEY, width)
+        var new = self
+        new._padding_right = width
+        return new
 
     fn unset_padding_right(self) -> Style:
         """Unset the padding right rule.
@@ -1235,7 +1493,9 @@ struct Style:
         Returns:
             A new Style object with the padding right rule unset.
         """
-        return self._unset_rule(PADDING_RIGHT_KEY)
+        var new = self
+        new.unset_attribute(PADDING_RIGHT_KEY)
+        return new
 
     fn padding_bottom(self, width: Int) -> Style:
         """Set the padding on the bottom side.
@@ -1246,7 +1506,9 @@ struct Style:
         Returns:
             A new Style object with the padding bottom rule set.
         """
-        return self._set_rule(PADDING_BOTTOM_KEY, width)
+        var new = self
+        new._padding_bottom = width
+        return new
 
     fn unset_padding_bottom(self) -> Style:
         """Unset the padding bottom rule.
@@ -1254,7 +1516,9 @@ struct Style:
         Returns:
             A new Style object with the padding bottom rule unset.
         """
-        return self._unset_rule(PADDING_BOTTOM_KEY)
+        var new = self
+        new.unset_attribute(PADDING_BOTTOM_KEY)
+        return new
 
     fn padding_left(self, width: Int) -> Style:
         """Set the padding on the left side.
@@ -1265,7 +1529,9 @@ struct Style:
         Returns:
             A new Style object with the padding left rule set.
         """
-        return self._set_rule(PADDING_LEFT_KEY, width)
+        var new = self
+        new._padding_left = width
+        return new
 
     fn unset_padding_left(self) -> Style:
         """Unset the padding left rule.
@@ -1273,7 +1539,9 @@ struct Style:
         Returns:
             A new Style object with the padding left rule unset.
         """
-        return self._unset_rule(PADDING_LEFT_KEY)
+        var new = self
+        new.unset_attribute(PADDING_LEFT_KEY)
+        return new
 
     fn margin(self, *widths: Int) -> Style:
         """Shorthand method for setting padding on all sides at once.
@@ -1301,7 +1569,7 @@ struct Style:
         var bottom = 0
         var left = 0
         var right = 0
-        var new_style = self.copy()
+        var new = self
         var widths_specified = len(widths)
         if widths_specified == 1:
             top = widths[0]
@@ -1324,10 +1592,9 @@ struct Style:
             bottom = widths[2]
             left = widths[3]
         else:
-            return new_style
+            return new
 
-        new_style = new_style.margin_top(top).margin_right(right).margin_bottom(bottom).margin_left(left)
-        return new_style
+        return new.margin_top(top).margin_right(right).margin_bottom(bottom).margin_left(left)
 
     fn margin_top(self, width: Int) -> Style:
         """Set the margin on the top side.
@@ -1338,7 +1605,9 @@ struct Style:
         Returns:
             A new Style object with the margin top rule set.
         """
-        return self._set_rule(MARGIN_TOP_KEY, width)
+        var new = self
+        new._margin_top = width
+        return new
 
     fn unset_margin_top(self) -> Style:
         """Unset the margin top rule.
@@ -1346,7 +1615,9 @@ struct Style:
         Returns:
             A new Style object with the margin top rule unset.
         """
-        return self._unset_rule(MARGIN_TOP_KEY)
+        var new = self
+        new.unset_attribute(MARGIN_TOP_KEY)
+        return new
 
     fn margin_right(self, width: Int) -> Style:
         """Set the margin on the right side.
@@ -1357,7 +1628,9 @@ struct Style:
         Returns:
             A new Style object with the margin right rule set.
         """
-        return self._set_rule(MARGIN_RIGHT_KEY, width)
+        var new = self
+        new._margin_right = width
+        return new
 
     fn unset_margin_right(self) -> Style:
         """Unset the margin right rule.
@@ -1365,7 +1638,9 @@ struct Style:
         Returns:
             A new Style object with the margin right rule unset.
         """
-        return self._unset_rule(MARGIN_RIGHT_KEY)
+        var new = self
+        new.unset_attribute(MARGIN_RIGHT_KEY)
+        return new
 
     fn margin_bottom(self, width: Int) -> Style:
         """Set the margin on the bottom side.
@@ -1376,7 +1651,9 @@ struct Style:
         Returns:
             A new Style object with the margin bottom rule set.
         """
-        return self._set_rule(MARGIN_BOTTOM_KEY, width)
+        var new = self
+        new._margin_right = width
+        return new
 
     fn unset_margin_bottom(self) -> Style:
         """Unset the margin bottom rule.
@@ -1384,7 +1661,9 @@ struct Style:
         Returns:
             A new Style object with the margin bottom rule unset.
         """
-        return self._unset_rule(MARGIN_BOTTOM_KEY)
+        var new = self
+        new.unset_attribute(MARGIN_BOTTOM_KEY)
+        return new
 
     fn margin_left(self, width: Int) -> Style:
         """Set the margin on the left side.
@@ -1395,7 +1674,9 @@ struct Style:
         Returns:
             A new Style object with the margin left rule set.
         """
-        return self._set_rule(MARGIN_LEFT_KEY, width)
+        var new = self
+        new._margin_left = width
+        return new
 
     fn unset_margin_left(self) -> Style:
         """Unset the margin left rule.
@@ -1403,7 +1684,9 @@ struct Style:
         Returns:
             A new Style object with the margin left rule unset.
         """
-        return self._unset_rule(MARGIN_LEFT_KEY)
+        var new = self
+        new.unset_attribute(MARGIN_LEFT_KEY)
+        return new
 
     fn margin_background(self, color: AnyTerminalColor) -> Style:
         """Set the margin on the background color.
@@ -1414,7 +1697,9 @@ struct Style:
         Returns:
             A new Style object with the margin background rule set.
         """
-        return self._set_rule(MARGIN_BACKGROUND_KEY, color)
+        var new = self
+        new._margin_bg = color
+        return new
 
     fn unset_margin_background(self) -> Style:
         """Unset the margin background rule.
@@ -1422,7 +1707,9 @@ struct Style:
         Returns:
             A new Style object with the margin background rule unset.
         """
-        return self._unset_rule(MARGIN_BACKGROUND_KEY)
+        var new = self
+        new.unset_attribute(MARGIN_BACKGROUND_KEY)
+        return new
 
     fn maybe_convert_tabs(self, text: String) -> String:
         """Convert tabs to spaces if the tab width is set.
@@ -1435,7 +1722,7 @@ struct Style:
         """
         var DEFAULT_TAB_WIDTH = TAB_WIDTH
         if self.is_set(TAB_WIDTH_KEY):
-            DEFAULT_TAB_WIDTH = self.get_as_int(str(TAB_WIDTH_KEY), DEFAULT_TAB_WIDTH)
+            DEFAULT_TAB_WIDTH = self.get_as_int(TAB_WIDTH_KEY)
 
         if DEFAULT_TAB_WIDTH == -1:
             return text
@@ -1501,22 +1788,22 @@ struct Style:
         var left_set = self.is_set(BORDER_LEFT_KEY)
 
         var border = self.get_border_style()
-        var has_top = self.get_as_bool(str(BORDER_TOP_KEY), False)
-        var has_right = self.get_as_bool(str(BORDER_RIGHT_KEY), False)
-        var has_bottom = self.get_as_bool(str(BORDER_BOTTOM_KEY), False)
-        var has_left = self.get_as_bool(str(BORDER_LEFT_KEY), False)
+        var has_top = self.get_as_bool(BORDER_TOP_KEY)
+        var has_right = self.get_as_bool(BORDER_RIGHT_KEY)
+        var has_bottom = self.get_as_bool(BORDER_BOTTOM_KEY)
+        var has_left = self.get_as_bool(BORDER_LEFT_KEY)
 
         # FG Colors
-        var top_fg = self.get_as_color(str(BORDER_TOP_FOREGROUND_KEY), NoColor())
-        var right_fg = self.get_as_color(str(BORDER_RIGHT_FOREGROUND_KEY), NoColor())
-        var bottom_fg = self.get_as_color(str(BORDER_BOTTOM_FOREGROUND_KEY), NoColor())
-        var left_fg = self.get_as_color(str(BORDER_LEFT_FOREGROUND_KEY), NoColor())
+        var top_fg = self.get_as_color(BORDER_TOP_FOREGROUND_KEY)
+        var right_fg = self.get_as_color(BORDER_RIGHT_FOREGROUND_KEY)
+        var bottom_fg = self.get_as_color(BORDER_BOTTOM_FOREGROUND_KEY)
+        var left_fg = self.get_as_color(BORDER_LEFT_FOREGROUND_KEY)
 
         # BG Colors
-        var top_bg = self.get_as_color(str(BORDER_TOP_BACKGROUND_KEY), NoColor())
-        var right_bg = self.get_as_color(str(BORDER_RIGHT_BACKGROUND_KEY), NoColor())
-        var bottom_bg = self.get_as_color(str(BORDER_BOTTOM_BACKGROUND_KEY), NoColor())
-        var left_bg = self.get_as_color(str(BORDER_LEFT_BACKGROUND_KEY), NoColor())
+        var top_bg = self.get_as_color(BORDER_TOP_BACKGROUND_KEY)
+        var right_bg = self.get_as_color(BORDER_RIGHT_BACKGROUND_KEY)
+        var bottom_bg = self.get_as_color(BORDER_BOTTOM_BACKGROUND_KEY)
+        var left_bg = self.get_as_color(BORDER_LEFT_BACKGROUND_KEY)
 
         # If a border is set and no sides have been specifically turned on or off
         # render borders on all sideself.
@@ -1635,14 +1922,14 @@ struct Style:
 
     fn apply_margins(self, text: String, inline: Bool) -> String:
         var padded_text: String = text
-        var top_margin = self.get_as_int(str(MARGIN_TOP_KEY))
-        var right_margin = self.get_as_int(str(MARGIN_RIGHT_KEY))
-        var bottom_margin = self.get_as_int(str(MARGIN_BOTTOM_KEY))
-        var left_margin = self.get_as_int(str(MARGIN_LEFT_KEY))
+        var top_margin = self.get_as_int(MARGIN_TOP_KEY)
+        var right_margin = self.get_as_int(MARGIN_RIGHT_KEY)
+        var bottom_margin = self.get_as_int(MARGIN_BOTTOM_KEY)
+        var left_margin = self.get_as_int(MARGIN_LEFT_KEY)
 
         var styler = mist.TerminalStyle.new(self.renderer.color_profile)
 
-        var bgc = self.get_as_color(str(MARGIN_BACKGROUND_KEY), NoColor())
+        var bgc = self.get_as_color(MARGIN_BACKGROUND_KEY)
 
         # TODO: Dealing with variants is verbose :(
         if bgc.isa[Color]():
@@ -1699,34 +1986,34 @@ struct Style:
         var term_style_space = mist.TerminalStyle(p)
         var term_style_whitespace = mist.TerminalStyle(p)
 
-        var bold: Bool = self.get_as_bool(str(BOLD_KEY), False)
-        var italic: Bool = self.get_as_bool(str(ITALIC_KEY), False)
-        var underline: Bool = self.get_as_bool(str(UNDERLINE_KEY), False)
-        var crossout: Bool = self.get_as_bool(str(CROSSOUT_KEY), False)
-        var reverse: Bool = self.get_as_bool(str(REVERSE_KEY), False)
-        var blink: Bool = self.get_as_bool(str(BLINK_KEY), False)
-        var faint: Bool = self.get_as_bool(str(FAINT_KEY), False)
+        var bold: Bool = self.get_as_bool(BOLD_KEY)
+        var italic: Bool = self.get_as_bool(ITALIC_KEY)
+        var underline: Bool = self.get_as_bool(UNDERLINE_KEY)
+        var crossout: Bool = self.get_as_bool(CROSSOUT_KEY)
+        var reverse: Bool = self.get_as_bool(REVERSE_KEY)
+        var blink: Bool = self.get_as_bool(BLINK_KEY)
+        var faint: Bool = self.get_as_bool(FAINT_KEY)
 
-        var fg = self.get_as_color(str(FOREGROUND_KEY), NoColor())
-        var bg = self.get_as_color(str(BACKGROUND_KEY), NoColor())
+        var fg = self.get_as_color(FOREGROUND_KEY)
+        var bg = self.get_as_color(BACKGROUND_KEY)
 
-        var width: Int = self.get_as_int(str(WIDTH_KEY))
-        var height: Int = self.get_as_int(str(HEIGHT_KEY))
-        var top_padding: Int = self.get_as_int(str(PADDING_TOP_KEY))
-        var right_padding: Int = self.get_as_int(str(PADDING_RIGHT_KEY))
-        var bottom_padding: Int = self.get_as_int(str(PADDING_BOTTOM_KEY))
-        var left_padding: Int = self.get_as_int(str(PADDING_LEFT_KEY))
+        var width: Int = self.get_as_int(WIDTH_KEY)
+        var height: Int = self.get_as_int(HEIGHT_KEY)
+        var top_padding: Int = self.get_as_int(PADDING_TOP_KEY)
+        var right_padding: Int = self.get_as_int(PADDING_RIGHT_KEY)
+        var bottom_padding: Int = self.get_as_int(PADDING_BOTTOM_KEY)
+        var left_padding: Int = self.get_as_int(PADDING_LEFT_KEY)
 
-        var horizontal_align: Position = self.get_as_position(str(HORIZONTAL_ALIGNMENT_KEY))
-        var vertical_align: Position = self.get_as_position(str(VERTICAL_ALIGNMENT_KEY))
+        var horizontal_align: Position = self.get_as_position(HORIZONTAL_ALIGNMENT_KEY)
+        var vertical_align: Position = self.get_as_position(VERTICAL_ALIGNMENT_KEY)
 
-        var color_whitespace: Bool = self.get_as_bool(str(COLOR_WHITESPACE_KEY), True)
-        var inline: Bool = self.get_as_bool(str(INLINE_KEY), False)
-        var max_width: Int = self.get_as_int(str(MAX_WIDTH_KEY))
-        var max_height: Int = self.get_as_int(str(MAX_HEIGHT_KEY))
+        var color_whitespace: Bool = self.get_as_bool(COLOR_WHITESPACE_KEY, True)
+        var inline: Bool = self.get_as_bool(INLINE_KEY)
+        var max_width: Int = self.get_as_int(MAX_WIDTH_KEY)
+        var max_height: Int = self.get_as_int(MAX_HEIGHT_KEY)
 
-        var underline_spaces = underline and self.get_as_bool(str(UNDERLINE_SPACES_KEY), True)
-        var crossout_spaces = crossout and self.get_as_bool(str(CROSSOUT_SPACES_KEY), True)
+        var underline_spaces = underline and self.get_as_bool(UNDERLINE_SPACES_KEY, True)
+        var crossout_spaces = crossout and self.get_as_bool(CROSSOUT_SPACES_KEY, True)
 
         # Do we need to style whitespace (padding and space outside paragraphs) separately?
         var use_whitespace_styler = reverse

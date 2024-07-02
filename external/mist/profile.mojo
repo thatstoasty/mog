@@ -23,14 +23,14 @@ alias ASCII_PROFILE = Profile(ASCII)
 
 
 # TODO: UNIX systems only for now. Need to add Windows, POSIX, and SOLARIS support.
-fn get_color_profile() -> Profile:
+fn get_color_profile() -> Int:
     """Queries the terminal to determine the color profile it supports.
     ASCII, ANSI, ANSI256, or TRUE_COLOR.
     """
     # if not o.isTTY():
     # 	return Ascii
     if os.getenv("GOOGLE_CLOUD_SHELL", "false") == "true":
-        return Profile(TRUE_COLOR)
+        return TRUE_COLOR
 
     var term = os.getenv("TERM").lower()
     var color_term = os.getenv("COLORTERM").lower()
@@ -42,29 +42,29 @@ fn get_color_profile() -> Profile:
         if term.startswith("screen"):
             # tmux supports TRUE_COLOR, screen only ANSI256
             if os.getenv("TERM_PROGRAM") != "tmux":
-                return Profile(ANSI256)
-        return Profile(TRUE_COLOR)
+                return ANSI256
+        return TRUE_COLOR
     elif color_term == "yes":
         pass
     elif color_term == "true":
-        return Profile(ANSI256)
+        return ANSI256
 
     # TERM is used by most terminals to indicate color support.
     if term == "xterm-kitty" or term == "wezterm" or term == "xterm-ghostty":
-        return Profile(TRUE_COLOR)
+        return TRUE_COLOR
     elif term == "linux":
-        return Profile(ANSI)
+        return ANSI
 
     if "256color" in term:
-        return Profile(ANSI256)
+        return ANSI256
 
     if "color" in term:
-        return Profile(ANSI)
+        return ANSI
 
     if "ansi" in term:
-        return Profile(ANSI)
+        return ANSI
 
-    return Profile(ASCII)
+    return ASCII
 
 
 @register_passable
@@ -72,6 +72,7 @@ struct Profile:
     alias valid = InlineArray[Int, 4](TRUE_COLOR, ANSI256, ANSI, ASCII)
     var value: Int
 
+    @always_inline
     fn __init__(inout self, value: Int):
         """
         Initialize a new profile with the given profile type.
@@ -85,12 +86,14 @@ struct Profile:
 
         self.value = value
 
+    @always_inline
     fn __init__(inout self):
         """
         Initialize a new profile with the given profile type.
         """
-        self = get_color_profile()
+        self.value = get_color_profile()
 
+    @always_inline
     fn __copyinit__(inout self, other: Profile):
         self.value = other.value
 
@@ -109,7 +112,7 @@ struct Profile:
             return color[ANSIColor]
         elif color.isa[ANSI256Color]():
             if self.value == ANSI:
-                return ansi256_to_ansi(color[ANSIColor].value)
+                return ansi256_to_ansi(color[ANSI256Color].value)
 
             return color[ANSI256Color]
         elif color.isa[RGBColor]():
@@ -127,6 +130,7 @@ struct Profile:
         # If it somehow gets here, just return No Color until I can figure out how to just return whatever color was passed in.
         return color[NoColor]
 
+    @always_inline
     fn color(self, value: String) -> AnyColor:
         """Color creates a Color from a string. Valid inputs are hex colors, as well as
         ANSI color codes (0-15, 16-255). If an invalid input is passed in, NoColor() is returned which will not apply any coloring.
@@ -141,11 +145,11 @@ struct Profile:
             return NoColor()
 
         if value[0] == "#":
-            var c = RGBColor(value)
-            return self.convert(c)
+            return self.convert(RGBColor(value))
 
         return NoColor()
 
+    @always_inline
     fn color(self, value: UInt8) -> AnyColor:
         """Color creates a Color from a string. Valid inputs are hex colors, as well as
         ANSI color codes (0-15, 16-255). If an invalid input is passed in, NoColor() is returned which will not apply any coloring.
@@ -155,7 +159,4 @@ struct Profile:
         """
         if value < 16:
             return self.convert(ANSIColor(value))
-        elif value < 256:
-            return self.convert(ANSI256Color(value))
-
-        return NoColor()
+        return self.convert(ANSI256Color(value))

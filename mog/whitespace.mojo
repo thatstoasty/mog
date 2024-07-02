@@ -27,13 +27,13 @@ struct WhiteSpace:
     """
 
     var renderer: Renderer
-    var style: mist.TerminalStyle
+    var style: mist.Style
     var chars: String
 
     fn __init__(
         inout self,
         renderer: Renderer,
-        style: mist.TerminalStyle,
+        style: mist.Style,
         chars: String = "",
     ):
         """Initializes a new whitespace renderer.

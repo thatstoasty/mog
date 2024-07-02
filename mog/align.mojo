@@ -1,11 +1,11 @@
 from external.weave.ansi.ansi import printable_rune_width
-from external.mist import TerminalStyle
+import external.mist
 from external.gojo.strings import StringBuilder
 import .position
 from .extensions import split
 
 
-fn align_text_horizontal(text: String, pos: position.Position, width: Int, style: TerminalStyle) -> String:
+fn align_text_horizontal(text: String, pos: position.Position, width: Int, style: mist.Style) -> String:
     """Perform text alignment. If the string is multi-lined, we also make all lines
     the same width by padding them with spaces. If a termenv style is passed,
     use that to style the spaces added."""

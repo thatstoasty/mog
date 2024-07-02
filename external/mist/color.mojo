@@ -1,7 +1,4 @@
-from collections.dict import Dict, KeyElement
-from utils.variant import Variant
 import external.hue
-from external.hue.math import max_float64
 from .ansi_colors import ANSI_HEX_CODES
 
 
@@ -20,33 +17,28 @@ fn int_to_str(owned value: Int, base: Int = 10) -> String:
     if value == 0:
         return "0"
 
-    var buffer = List[UInt8](0, 0, 0, 0)
-    var i = 3
-    while value and i:
-        buffer[i - 1] = ord(String("0123456789abcdef")[value % base])
-        i -= 1
+    var temp = List[UInt8]()
+    var i = 0
+    while value > 0:
+        temp.append(ord(String("0123456789abcdef")[value % base]))
+        i += 1
         value /= 10
 
+    var buffer = List[UInt8]()
+    for i in range(len(temp) - 1, -1, -1):
+        buffer.append(temp[i])
+
+    buffer.append(0)
     var result = String(buffer^)
     return result
 
 
-alias foreground = "38"
-alias background = "48"
+alias FOREGROUND = "38"
+alias BACKGROUND = "48"
 alias AnyColor = Variant[NoColor, ANSIColor, ANSI256Color, RGBColor]
 
 
-trait Equalable:
-    fn __eq__(self: Self, other: Self) -> Bool:
-        ...
-
-
-trait NotEqualable:
-    fn __ne__(self: Self, other: Self) -> Bool:
-        ...
-
-
-trait Color(Movable, Copyable, Equalable, NotEqualable, CollectionElement):
+trait Color(EqualityComparable, CollectionElement):
     fn sequence(self, is_background: Bool) -> String:
         """Sequence returns the ANSI Sequence for the color."""
         ...
@@ -74,12 +66,15 @@ struct ANSIColor(Color, Stringable):
 
     var value: UInt8
 
+    @always_inline
     fn __eq__(self, other: ANSIColor) -> Bool:
         return self.value == other.value
 
+    @always_inline
     fn __ne__(self, other: ANSIColor) -> Bool:
         return self.value != other.value
 
+    @always_inline
     fn sequence(self, is_background: Bool) -> String:
         """Returns the ANSI Sequence for the color and the text.
 
@@ -92,13 +87,14 @@ struct ANSIColor(Color, Stringable):
 
         if self.value < 8:
             return int_to_str(modifier + int(self.value) + 30)
-        else:
-            return int_to_str(modifier + int(self.value) - 8 + 90)
+        return int_to_str(modifier + int(self.value) - 8 + 90)
 
+    @always_inline
     fn __str__(self) -> String:
         """String returns the ANSI Sequence for the color and the text."""
         return ANSI_HEX_CODES[int(self.value)]
 
+    @always_inline
     fn convert_to_rgb(self) -> hue.Color:
         """Converts an ANSI color to hue.Color by looking up the hex value and converting it."""
         var hex: String = ANSI_HEX_CODES[int(self.value)]
@@ -112,28 +108,33 @@ struct ANSI256Color(Color, Stringable):
 
     var value: UInt8
 
+    @always_inline
     fn __eq__(self, other: ANSI256Color) -> Bool:
         return self.value == other.value
 
+    @always_inline
     fn __ne__(self, other: ANSI256Color) -> Bool:
         return self.value != other.value
 
+    @always_inline
     fn sequence(self, is_background: Bool) -> String:
         """Returns the ANSI Sequence for the color and the text.
 
         Args:
             is_background: Whether the color is a background color.
         """
-        var prefix: String = foreground
+        var prefix: String = FOREGROUND
         if is_background:
-            prefix = background
+            prefix = BACKGROUND
 
         return prefix + ";5;" + int_to_str(int(self.value))
 
+    @always_inline
     fn __str__(self) -> String:
         """String returns the ANSI Sequence for the color and the text."""
         return ANSI_HEX_CODES[int(self.value)]
 
+    @always_inline
     fn convert_to_rgb(self) -> hue.Color:
         """Converts an ANSI color to hue.Color by looking up the hex value and converting it."""
         var hex: String = ANSI_HEX_CODES[int(self.value)]
@@ -151,24 +152,7 @@ fn convert_base16_to_base10(value: String) -> Int:
     Returns:
         Base 10 number.
     """
-    alias mapping = List[String](
-        "0",
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-        "a",
-        "b",
-        "c",
-        "d",
-        "e",
-        "f",
-    )
+    alias mapping = List[String]("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f")
 
     # We assume mapping.find always returns a value considering the value passed in is a valid hex value
     # and the mapping has all the values.
@@ -176,6 +160,8 @@ fn convert_base16_to_base10(value: String) -> Int:
     var total: Int = 0
     for i in range(length - 1, -1, -1):
         var exponent = length - 1 - i
+
+        @parameter
         for j in range(16):
             if mapping[j] == value[i]:
                 total += j * (16**exponent)
@@ -193,10 +179,10 @@ fn hex_to_rgb(value: String) -> hue.Color:
     Returns:
         Color.
     """
-    alias indices = List[Int](0, 2, 4)
     var hex = value[1:]
     var results = List[Int]()
 
+    @parameter
     for i in range(3):
         results.append(convert_base16_to_base10(hex[(i * 2) : (i * 2) + 2]))
 
@@ -209,15 +195,19 @@ struct RGBColor(Color):
 
     var value: String
 
+    @always_inline
     fn __init__(inout self, value: String):
         self.value = value.lower()
 
+    @always_inline
     fn __eq__(self, other: RGBColor) -> Bool:
         return self.value == other.value
 
+    @always_inline
     fn __ne__(self, other: RGBColor) -> Bool:
         return self.value != other.value
 
+    @always_inline
     fn sequence(self, is_background: Bool) -> String:
         """Returns the ANSI Sequence for the color and the text.
 
@@ -226,9 +216,9 @@ struct RGBColor(Color):
         """
         var rgb = hex_to_rgb(self.value)
 
-        var prefix = foreground
+        var prefix = FOREGROUND
         if is_background:
-            prefix = background
+            prefix = BACKGROUND
 
         return (
             prefix
@@ -240,6 +230,7 @@ struct RGBColor(Color):
             + int_to_str(int(rgb.B))
         )
 
+    @always_inline
     fn convert_to_rgb(self) -> hue.Color:
         """Converts the Hex code value to hue.Color."""
         return hex_to_rgb(self.value)
@@ -252,7 +243,7 @@ fn ansi256_to_ansi(value: UInt8) -> ANSIColor:
         value: ANSI256 color value.
     """
     var r: Int = 0
-    var md = max_float64
+    var md = hue.math.max_float64
 
     var h = hex_to_rgb(ANSI_HEX_CODES[int(value)])
 

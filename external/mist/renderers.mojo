@@ -1,4 +1,4 @@
-from .style import TerminalStyle, new_style
+from .style import Style, new_style
 from .profile import Profile
 
 

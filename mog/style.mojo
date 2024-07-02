@@ -147,7 +147,7 @@ fn str_to_float(s: String) raises -> Float64:
 
 
 # Apply left padding.
-fn pad_left(text: String, n: Int, style: mist.TerminalStyle) -> String:
+fn pad_left(text: String, n: Int, style: mist.Style) -> String:
     if n == 0:
         return text
 
@@ -165,7 +165,7 @@ fn pad_left(text: String, n: Int, style: mist.TerminalStyle) -> String:
 
 
 # Apply right padding.
-fn pad_right(text: String, n: Int, style: mist.TerminalStyle) -> String:
+fn pad_right(text: String, n: Int, style: mist.Style) -> String:
     if n == 0 or text == "":
         return text
 
@@ -1690,9 +1690,9 @@ struct Style:
                 input_text += " "
 
         var p = self.renderer.color_profile
-        var term_style = mist.TerminalStyle(p)
-        var term_style_space = mist.TerminalStyle(p)
-        var term_style_whitespace = mist.TerminalStyle(p)
+        var term_style = mist.new_style(p)
+        var term_style_space = mist.new_style(p)
+        var term_style_whitespace = mist.new_style(p)
 
         var bold: Bool = self.get_as_bool(str(BOLD_KEY), False)
         var italic: Bool = self.get_as_bool(str(ITALIC_KEY), False)
@@ -1862,13 +1862,13 @@ struct Style:
         # Padding
         if not inline:
             if left_padding > 0:
-                var style = mist.TerminalStyle(self.renderer.color_profile)
+                var style = mist.new_style(self.renderer.color_profile)
                 if color_whitespace or use_whitespace_styler:
                     style = term_style_whitespace
                 styled_text = pad_left(styled_text, left_padding, style)
 
             if right_padding > 0:
-                var style = mist.TerminalStyle(self.renderer.color_profile)
+                var style = mist.new_style(self.renderer.color_profile)
                 if color_whitespace or use_whitespace_styler:
                     style = term_style_whitespace
                 styled_text = pad_right(styled_text, right_padding, style)
@@ -1909,7 +1909,7 @@ struct Style:
 
         var number_of_lines = len(lines)
         if not (number_of_lines == 0 and width == 0):
-            var style = mist.TerminalStyle(self.renderer.color_profile)
+            var style = mist.new_style(self.renderer.color_profile)
             if color_whitespace or use_whitespace_styler:
                 style = term_style_whitespace
             styled_text = align_text_horizontal(styled_text, horizontal_align, width, style)

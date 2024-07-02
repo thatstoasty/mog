@@ -346,8 +346,7 @@ fn disable_mouse_all_motion():
 
 fn enable_mouse_extended_mode():
     """Enables Extended Mouse mode (SGR). This should be
-    enabled in conjunction with EnableMouseCellMotion, and EnableMouseAllMotion.
-    """
+    enabled in conjunction with EnableMouseCellMotion, and EnableMouseAllMotion."""
     print(csi + enable_mouse_extended_mode_seq, end="")
 
 

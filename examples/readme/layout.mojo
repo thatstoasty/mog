@@ -45,9 +45,9 @@ fn build_tabs() -> String:
 
     var tab_style = mog.new_style().border(tab_border).border_foreground(highlight).padding(0, 1)
 
-    var active_tab = tab_style.copy().border(active_tab_border, True)
+    var active_tab = tab_style.border(active_tab_border, True)
 
-    var tab_gap = tab_style.copy().border_top(False).border_left(False).border_right(False)
+    var tab_gap = tab_style.border_top(False).border_left(False).border_right(False)
 
     var row = join_horizontal(
         position.top,
@@ -84,7 +84,7 @@ fn build_dialog_box() -> String:
         0, 3
     ).margin_top(1)
 
-    var active_button_style = button_style.copy().foreground(mog.Color("#FFF7DB")).background(
+    var active_button_style = button_style.foreground(mog.Color("#FFF7DB")).background(
         mog.Color("#F25D94")
     ).margin_right(2).underline()
 
@@ -138,9 +138,7 @@ fn build_lists() -> String:
                 list_item.render("Pomelo"),
             ),
         ),
-        list_style.copy()
-        .width(column_width)
-        .render(
+        list_style.width(column_width).render(
             join_vertical(
                 position.left,
                 list_header.render("Actual Lip Gloss Vendors"),
@@ -151,9 +149,7 @@ fn build_lists() -> String:
                 check_mark + list_done.render("Milk"),
             ),
         ),
-        list_style.copy()
-        .width(column_width - 1)
-        .render(
+        list_style.width(column_width - 1).render(
             join_vertical(
                 position.left,
                 list_header.render("Programming Languages"),
@@ -180,9 +176,9 @@ fn build_history() -> String:
 
     return join_horizontal(
         position.top,
-        history_style.copy().alignment(position.right).render(history_a),
-        history_style.copy().alignment(position.center).render(history_b),
-        history_style.copy().margin_right(0).render(history_c),
+        history_style.alignment(position.right).render(history_a),
+        history_style.alignment(position.center).render(history_b),
+        history_style.margin_right(0).render(history_c),
     )
 
 
@@ -194,17 +190,15 @@ fn build_status_bar() -> String:
     var status_style = mog.new_style().foreground(mog.Color("#FFFDF5")).background(mog.Color("#FF5F87")).padding(0, 1)
     # .margin_right(1)
 
-    var encoding_style = status_nugget_style.copy().background(mog.Color("#A550DF")).horizontal_alignment(
-        position.right
-    )
+    var encoding_style = status_nugget_style.background(mog.Color("#A550DF")).horizontal_alignment(position.right)
 
-    var status_text_style = status_bar_style.copy().padding_left(1)
-    var fish_cake_style = status_nugget_style.copy().background(mog.Color("#6124DF"))
+    var status_text_style = status_bar_style.padding_left(1)
+    var fish_cake_style = status_nugget_style.background(mog.Color("#6124DF"))
 
     var status_key = status_style.render("STATUS")
     var encoding = encoding_style.render("UTF-8")
     var fish_cake = fish_cake_style.render("Fish Cake")
-    var status_val = status_text_style.copy().width(
+    var status_val = status_text_style.width(
         width - get_width(status_key) - get_width(encoding) - get_width(fish_cake)
     ).render("Ravishing")
 

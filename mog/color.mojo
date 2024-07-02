@@ -28,7 +28,7 @@ struct NoColor(TerminalColor):
 
     Example usage:
 
-        var style = some_style.copy().background(NoColor())
+        var style = some_style.background(NoColor())
     """
 
     fn color(self, renderer: Renderer) -> mist.AnyColor:

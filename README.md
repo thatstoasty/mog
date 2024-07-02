@@ -232,7 +232,7 @@ Just use `copy()`:
 ```mojo
 var style = mog.new_style().foreground(mog.Color("219"))
 
-var wild_style = style.copy().blink(True)
+var wild_style = style.blink(True)
 ```
 
 `copy()` performs a copy on the underlying data structure ensuring that you get

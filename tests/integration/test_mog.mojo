@@ -16,7 +16,7 @@ from time import now
 
 
 fn dummy_style_func(row: Int, col: Int) -> Style:
-    var style = Style.new().horizontal_alignment(position.center).vertical_alignment(position.center).padding(0, 1)
+    var style = mog.new_style().horizontal_alignment(position.center).vertical_alignment(position.center).padding(0, 1)
     if row == 0:
         style = style.foreground(mog.Color("#c9a0dc"))
         return style
@@ -29,7 +29,7 @@ fn dummy_style_func(row: Int, col: Int) -> Style:
 
 fn test_table() raises:
     var test = MojoTest("Testing table creation with and without headers")
-    var border_style = Style.new().foreground(mog.Color("#39E506"))
+    var border_style = mog.new_style().foreground(mog.Color("#39E506"))
 
     var table = Table(
         style_function=default_styles,
@@ -72,7 +72,7 @@ fn test_table() raises:
 fn test_horizontal_joined_paragraphs() raises:
     var test = MojoTest("Testing Style rendering")
     var style_build_start = now()
-    var style = Style.new().bold().width(50).padding(1, 1, 1, 1).horizontal_alignment(position.center).border(
+    var style = mog.new_style().bold().width(50).padding(1, 1, 1, 1).horizontal_alignment(position.center).border(
         rounded_border()
     ).foreground(mog.Color("#c9a0dc")).border_foreground(mog.Color("#39E506"))
     var style_build_duration = now() - style_build_start
@@ -130,7 +130,7 @@ fn test_horizontal_joined_paragraphs() raises:
 
 
 fn test_borderless_paragraph() raises:
-    var borderless_style = Style.new().width(50).padding(1, 2).horizontal_alignment(position.center).border(
+    var borderless_style = mog.new_style().width(50).padding(1, 2).horizontal_alignment(position.center).border(
         hidden_border()
     ).background(mog.Color("#c9a0dc"))
 

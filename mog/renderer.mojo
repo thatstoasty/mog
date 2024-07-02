@@ -1,4 +1,4 @@
-from external.mist import Profile
+import external.mist
 from external.gojo.strings import StringBuilder
 import external.weave.ansi
 from .whitespace import WhitespaceOption, new_whitespace
@@ -11,31 +11,22 @@ from .extensions import split
 # If you need to set it to light, you can do so manually via the `set_dark_background` method.
 @value
 struct Renderer:
-    var color_profile: Profile
+    var color_profile: mist.Profile
     var dark_background: Bool
     var explicit_color_profile: Bool
     var explicit_background_color: Bool
 
     fn __init__(
         inout self,
-        color_profile: Profile,
+        color_profile: Optional[Int] = 0,
         dark_background: Bool = True,
         explicit_color_profile: Bool = False,
         explicit_background_color: Bool = False,
     ):
-        self.color_profile = color_profile
-        self.dark_background = dark_background
-        self.explicit_color_profile = explicit_color_profile
-        self.explicit_background_color = explicit_background_color
-
-    # TODO: Having a default Profile arg value causes a compiler error `unable to interpret call to unknown external function: getenv`
-    fn __init__(
-        inout self,
-        dark_background: Bool = True,
-        explicit_color_profile: Bool = False,
-        explicit_background_color: Bool = False,
-    ):
-        self.color_profile = Profile()
+        if color_profile:
+            self.color_profile = mist.Profile(color_profile.value()[])
+        else:
+            self.color_profile = mist.Profile()
         self.dark_background = dark_background
         self.explicit_color_profile = explicit_color_profile
         self.explicit_background_color = explicit_background_color

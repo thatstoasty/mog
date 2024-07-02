@@ -17,6 +17,22 @@ fn basic_styling():
     keep(output)
 
 
+var file_style = (
+    mog.new_style()
+    .bold(True)
+    .foreground(mog.Color("#FAFAFA"))
+    .background(mog.Color("#7D56F4"))
+    .padding_top(2)
+    .padding_left(4)
+    .width(22)
+)
+
+
+fn basic_comptime_styling():
+    var output = file_style.render("Hello, kitty")
+    keep(output)
+
+
 fn basic_styling_big_file():
     var content: String = ""
     try:

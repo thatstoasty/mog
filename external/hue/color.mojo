@@ -200,8 +200,13 @@ struct Color(Stringable):
 
     fn fast_linear_rgb(self) -> (Float64, Float64, Float64):
         """Is much faster than and almost as accurate as LinearRgb.
-        BUT it is important to NOTE that they only produce good results for valid colors r,g,b in [0,1]."""
-        return delinearize_fast(self.R), delinearize_fast(self.G), delinearize_fast(self.B)
+        BUT it is important to NOTE that they only produce good results for valid colors r,g,b in [0,1].
+        """
+        return (
+            delinearize_fast(self.R),
+            delinearize_fast(self.G),
+            delinearize_fast(self.B),
+        )
 
     fn blend_linear_rgb(self, c2: Self, t: Float64) -> Self:
         """Blends two colors in the Linear RGB color-space.
@@ -479,7 +484,8 @@ struct Color(Stringable):
 
     fn hcl(self) -> (Float64, Float64, Float64):
         """Converts the given color to HCL space using D65 as reference white.
-        H values are in [0..360], C and L values are in [0..1] although C can overshoot 1.0."""
+        H values are in [0..360], C and L values are in [0..1] although C can overshoot 1.0.
+        """
         return self.hcl_white_ref(D65)
 
     fn hcl_white_ref(self, wref: List[Float64]) -> (Float64, Float64, Float64):
@@ -516,7 +522,8 @@ struct Color(Stringable):
 
     fn LuvLCh(self) -> (Float64, Float64, Float64):
         """Converts the given color to LuvLCh space using D65 as reference white.
-        h values are in [0..360], C and L values are in [0..1] although C can overshoot 1.0."""
+        h values are in [0..360], C and L values are in [0..1] although C can overshoot 1.0.
+        """
         return self.Luv_LCh_white_ref(D65)
 
     fn Luv_LCh_white_ref(self, wref: List[Float64]) -> (Float64, Float64, Float64):

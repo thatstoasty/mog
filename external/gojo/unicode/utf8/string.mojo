@@ -78,7 +78,9 @@ struct UnicodeString(Stringable, Sized):
         return len(self.inner)
 
     @always_inline
-    fn __iter__(self: Reference[Self]) -> _StringIter[self.is_mutable, self.lifetime]:
+    fn __iter__(
+        self: Reference[Self],
+    ) -> _StringIter[self.is_mutable, self.lifetime]:
         return _StringIter(self[].inner)
 
 

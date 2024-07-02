@@ -1,6 +1,7 @@
 from benchmark.compiler import keep
 from external.gojo.strings import StringBuilder
 from external.weave.ansi import printable_rune_width
+import mog
 from mog.join import join_vertical, join_horizontal
 from mog.border import hidden_border, normal_border, rounded_border, Border
 from mog.style import Style
@@ -44,7 +45,7 @@ fn build_tabs() -> String:
         bottom_right="┴",
     )
 
-    var tab_style = Style.new().border(tab_border).border_foreground(highlight).padding(0, 1)
+    var tab_style = mog.new_style().border(tab_border).border_foreground(highlight).padding(0, 1)
 
     var active_tab = tab_style.copy().border(active_tab_border, True)
 
@@ -63,11 +64,11 @@ fn build_tabs() -> String:
 
 
 fn build_description() -> String:
-    var divider = Style.new().padding(0, 1).foreground(subtle).render("•")
+    var divider = mog.new_style().padding(0, 1).foreground(subtle).render("•")
 
-    var url = Style.new().foreground(special)
-    var desc_style = Style.new().margin_top(1)
-    var info_style = Style.new().border(normal_border(), True, False, False, False).border_foreground(subtle)
+    var url = mog.new_style().foreground(special)
+    var desc_style = mog.new_style().margin_top(1)
+    var info_style = mog.new_style().border(normal_border(), True, False, False, False).border_foreground(subtle)
 
     return join_vertical(
         position.left,
@@ -77,11 +78,11 @@ fn build_description() -> String:
 
 
 fn build_dialog_box() -> String:
-    var dialog_box_style = Style.new().alignment(position.center).border(rounded_border()).border_foreground(
+    var dialog_box_style = mog.new_style().alignment(position.center).border(rounded_border()).border_foreground(
         mog.Color("#874BFD")
     ).padding(1, 0)
 
-    var button_style = Style.new().foreground(mog.Color("#FFF7DB")).background(mog.Color("#888B7E")).padding(
+    var button_style = mog.new_style().foreground(mog.Color("#FFF7DB")).background(mog.Color("#888B7E")).padding(
         0, 3
     ).margin_top(1)
 
@@ -92,7 +93,9 @@ fn build_dialog_box() -> String:
     var ok_button = active_button_style.render("Yes")
     var cancel_button = button_style.render("Maybe")
 
-    var question = Style.new().width(50).alignment(position.center).render("Are you sure you want to eat marmalade?")
+    var question = mog.new_style().width(50).alignment(position.center).render(
+        "Are you sure you want to eat marmalade?"
+    )
 
     var buttons = join_horizontal(position.top, ok_button, cancel_button)
     var ui = join_vertical(position.center, question, buttons)
@@ -110,19 +113,19 @@ fn build_dialog_box() -> String:
 
 
 fn build_lists() -> String:
-    var list_style = Style.new().border(normal_border(), False, True, False, False).border_foreground(
+    var list_style = mog.new_style().border(normal_border(), False, True, False, False).border_foreground(
         subtle
     ).margin_right(2).height(8).width(column_width + 1)
 
-    var list_header = Style.new().border(normal_border(), False, False, True, False).border_foreground(
+    var list_header = mog.new_style().border(normal_border(), False, False, True, False).border_foreground(
         subtle
     ).margin_right(2)
 
-    var list_item = Style.new().padding_left(2)
+    var list_item = mog.new_style().padding_left(2)
 
-    var check_mark = Style.new().foreground(special).padding_right(1).render("✔")
+    var check_mark = mog.new_style().foreground(special).padding_right(1).render("✔")
 
-    var list_done = Style.new().crossout().foreground(mog.AdaptiveColor(light="#969B86", dark="#696969"))
+    var list_done = mog.new_style().crossout().foreground(mog.AdaptiveColor(light="#969B86", dark="#696969"))
 
     var lists = join_horizontal(
         position.top,
@@ -169,7 +172,7 @@ fn build_lists() -> String:
 
 
 fn build_history() -> String:
-    var history_style = Style.new().height(20).width(column_width).padding(1, 2).margin(1, 3, 0, 0).alignment(
+    var history_style = mog.new_style().height(20).width(column_width).padding(1, 2).margin(1, 3, 0, 0).alignment(
         position.left
     ).foreground(mog.Color("#FFFDF5")).background(highlight)
 
@@ -186,11 +189,11 @@ fn build_history() -> String:
 
 
 fn build_status_bar() -> String:
-    var status_nugget_style = Style.new().foreground(mog.Color("#FFFDF5")).padding(0, 1)
+    var status_nugget_style = mog.new_style().foreground(mog.Color("#FFFDF5")).padding(0, 1)
 
-    var status_bar_style = Style.new().foreground(mog.Color("#C1C6B2")).background(mog.Color("#353533"))
+    var status_bar_style = mog.new_style().foreground(mog.Color("#C1C6B2")).background(mog.Color("#353533"))
 
-    var status_style = Style.new().foreground(mog.Color("#FFFDF5")).background(mog.Color("#FF5F87")).padding(0, 1)
+    var status_style = mog.new_style().foreground(mog.Color("#FFFDF5")).background(mog.Color("#FF5F87")).padding(0, 1)
     # .margin_right(1)
 
     var encoding_style = status_nugget_style.copy().background(mog.Color("#A550DF")).horizontal_alignment(
@@ -221,7 +224,7 @@ fn build_status_bar() -> String:
 fn render_layout():
     # The page style
     var builder = StringBuilder()
-    var doc_style = Style.new().padding(1, 2, 1, 2).border(rounded_border()).border_foreground(subtle)
+    var doc_style = mog.new_style().padding(1, 2, 1, 2).border(rounded_border()).border_foreground(subtle)
 
     # Tabs.
     _ = builder.write_string(build_tabs())

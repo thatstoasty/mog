@@ -1,14 +1,26 @@
 from external.weave.ansi.ansi import printable_rune_width
-from external.mist import TerminalStyle
+import external.mist
 from external.gojo.strings import StringBuilder
 import .position
 from .extensions import split
 
 
-fn align_text_horizontal(text: String, pos: position.Position, width: Int, style: TerminalStyle) -> String:
+fn align_text_horizontal(
+    text: String, pos: position.Position, width: Int, style: Optional[mist.Style] = None
+) -> String:
     """Perform text alignment. If the string is multi-lined, we also make all lines
     the same width by padding them with spaces. If a termenv style is passed,
-    use that to style the spaces added."""
+    use that to style the spaces added.
+
+    Args:
+        text: The text to align.
+        pos: The position to align the text to.
+        width: The width to align the text to.
+        style: The style to use for the spaces added. Defaults to None.
+
+    Returns:
+        The aligned text.
+    """
     var lines: List[String]
     var widest_line: Int
     lines, widest_line = get_lines(text)
@@ -25,7 +37,8 @@ fn align_text_horizontal(text: String, pos: position.Position, width: Int, style
                 var spaces = WHITESPACE * short_amount
 
                 # Removed the nil check before rendering the spaces in whatever style for now.
-                spaces = style.render(spaces)
+                if style:
+                    spaces = style.value()[].render(spaces)
                 line = spaces + line
             elif pos == position.center:
                 # Note: remainder goes on the right.
@@ -35,12 +48,14 @@ fn align_text_horizontal(text: String, pos: position.Position, width: Int, style
                 var left_spaces = WHITESPACE * int(left)
                 var right_spaces = WHITESPACE * int(right)
 
-                left_spaces = style.render(left_spaces)
-                right_spaces = style.render(right_spaces)
+                if style:
+                    left_spaces = style.value()[].render(left_spaces)
+                    right_spaces = style.value()[].render(right_spaces)
                 line = left_spaces + line + right_spaces
             elif pos == position.left:
                 var spaces = WHITESPACE * int(short_amount)
-                spaces = style.render(spaces)
+                if style:
+                    spaces = style.value()[].render(spaces)
                 line += spaces
 
         _ = aligned_text.write_string(line)

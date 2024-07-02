@@ -66,13 +66,6 @@ alias show_cursor_seq = "?25h"
 alias hide_cursor_seq = "?25l"
 
 
-fn __string__mul__(input_string: String, n: Int) -> String:
-    var result: String = ""
-    for _ in range(n):
-        result += input_string
-    return result
-
-
 fn reset_terminal():
     """Reset the terminal to its default style, removing any active styles."""
     print(csi + reset + "m", end="")
@@ -267,7 +260,7 @@ fn clear_lines(n: Int):
     """
     var clear_line = sprintf(csi + erase_line_seq, UInt16(2))
     var cursor_up = sprintf(csi + cursor_up_seq, UInt16(1))
-    var movement = __string__mul__(cursor_up + clear_line, n)
+    var movement = (cursor_up + clear_line) * n
     print(clear_line + movement, end="")
 
 

@@ -147,7 +147,7 @@ fn str_to_float(s: String) raises -> Float64:
 
 
 # Apply left padding.
-fn pad_left(text: String, n: Int, style: mist.TerminalStyle) -> String:
+fn pad_left(text: String, n: Int, style: mist.Style) -> String:
     if n == 0:
         return text
 
@@ -165,7 +165,7 @@ fn pad_left(text: String, n: Int, style: mist.TerminalStyle) -> String:
 
 
 # Apply right padding.
-fn pad_right(text: String, n: Int, style: mist.TerminalStyle) -> String:
+fn pad_right(text: String, n: Int, style: mist.Style) -> String:
     if n == 0 or text == "":
         return text
 
@@ -209,11 +209,6 @@ struct Style:
         self.renderer = Renderer()
         self.rules = Dict[Rule]()
         self.value = value
-
-    @staticmethod
-    fn new() -> Self:
-        """Create a new Style object. Use this instead of init."""
-        return Self()
 
     fn get_as_bool(self, key: String, default: Bool = False) -> Bool:
         """Get a rule as a boolean value.
@@ -460,7 +455,7 @@ struct Style:
         Example:
 
             var: String = "..."
-            var user_style = Style.new().inline(True)
+            var user_style = mog.new_style().inline(True)
             print(user_style.render(user_input))
 
         Args:
@@ -660,7 +655,7 @@ struct Style:
 
         Example:
             var: String = "..."
-            var user_style = Style.new().max_width(16)
+            var user_style = mog.new_style().max_width(16)
             print(user_style.render(user_input))
 
         Args:
@@ -1458,7 +1453,7 @@ struct Style:
         if fg.isa[NoColor]() and bg.isa[NoColor]():
             return border
 
-        var styler = mist.TerminalStyle.new()
+        var styler = mist.new_style()
 
         # Sooooo verbose compared to just passing the string value. But this is closer to the lipgloss API.
         # It's more verbose because we can't pass around args with trait as the arg type.
@@ -1640,7 +1635,7 @@ struct Style:
         var bottom_margin = self.get_as_int(str(MARGIN_BOTTOM_KEY))
         var left_margin = self.get_as_int(str(MARGIN_LEFT_KEY))
 
-        var styler = mist.TerminalStyle.new(self.renderer.color_profile)
+        var styler = mist.new_style(self.renderer.color_profile)
 
         var bgc = self.get_as_color(str(MARGIN_BACKGROUND_KEY), NoColor())
 
@@ -1695,9 +1690,9 @@ struct Style:
                 input_text += " "
 
         var p = self.renderer.color_profile
-        var term_style = mist.TerminalStyle(p)
-        var term_style_space = mist.TerminalStyle(p)
-        var term_style_whitespace = mist.TerminalStyle(p)
+        var term_style = mist.new_style(p)
+        var term_style_space = mist.new_style(p)
+        var term_style_whitespace = mist.new_style(p)
 
         var bold: Bool = self.get_as_bool(str(BOLD_KEY), False)
         var italic: Bool = self.get_as_bool(str(ITALIC_KEY), False)
@@ -1867,13 +1862,13 @@ struct Style:
         # Padding
         if not inline:
             if left_padding > 0:
-                var style = mist.TerminalStyle(self.renderer.color_profile)
+                var style = mist.new_style(self.renderer.color_profile)
                 if color_whitespace or use_whitespace_styler:
                     style = term_style_whitespace
                 styled_text = pad_left(styled_text, left_padding, style)
 
             if right_padding > 0:
-                var style = mist.TerminalStyle(self.renderer.color_profile)
+                var style = mist.new_style(self.renderer.color_profile)
                 if color_whitespace or use_whitespace_styler:
                     style = term_style_whitespace
                 styled_text = pad_right(styled_text, right_padding, style)
@@ -1914,7 +1909,7 @@ struct Style:
 
         var number_of_lines = len(lines)
         if not (number_of_lines == 0 and width == 0):
-            var style = mist.TerminalStyle(self.renderer.color_profile)
+            var style = mist.new_style(self.renderer.color_profile)
             if color_whitespace or use_whitespace_styler:
                 style = term_style_whitespace
             styled_text = align_text_horizontal(styled_text, horizontal_align, width, style)

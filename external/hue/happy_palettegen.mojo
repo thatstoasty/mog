@@ -14,7 +14,9 @@ fn fast_happy_palette(colors_count: Int) -> List[Color]:
     var i = 0
     while i < colors_count:
         colors[i] = hsv(
-            Float64(i) * (360.0 / Float64(colors_count)), 0.8 + randn_float64() * 0.2, 0.65 + randn_float64() * 0.2
+            Float64(i) * (360.0 / Float64(colors_count)),
+            0.8 + randn_float64() * 0.2,
+            0.65 + randn_float64() * 0.2,
         )
         i += 1
 

@@ -77,7 +77,24 @@ fn find_first_verb(s: String, verbs: List[String]) -> String:
     return verb
 
 
-alias BASE10_TO_BASE16 = List[String]("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f")
+alias BASE10_TO_BASE16 = List[String](
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "a",
+    "b",
+    "c",
+    "d",
+    "e",
+    "f",
+)
 
 
 fn convert_base10_to_base16(value: Int) -> String:

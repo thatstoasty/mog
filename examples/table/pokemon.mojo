@@ -78,14 +78,14 @@
 # #                 colors = DIM_TYPE_COLORS
 
 # #             var color = colors.get(data[row - 1][col], mog.Color("#FFFFFF"))
-# #             var copy_style = style.copy().foreground(color)
+# #             var copy_style = style.foreground(color)
 # #             return copy_style
 
 # #         if is_even:
-# #             var copy_style = style.copy().foreground(mog.Color("245"))
+# #             var copy_style = style.foreground(mog.Color("245"))
 # #             return copy_style
 
-# #         var copy_style = style.copy().foreground(mog.Color("252"))
+# #         var copy_style = style.foreground(mog.Color("252"))
 # #         return copy_style
 # #     return style_func
 
@@ -97,11 +97,11 @@
 #     # .padding_bottom(1) \
 #     # .padding_left(1)
 
-#     # var header_style = style.copy() \
+#     # var header_style = style \
 #     # .foreground(mog.Color("252")) \
 #     # .bold()
 
-#     # var selected_style = style.copy() \
+#     # var selected_style = style \
 #     # .foreground(mog.Color("#01BE85")) \
 #     # .background(mog.Color("#00432F"))
 
@@ -121,11 +121,11 @@
 #         .padding_bottom(1) \
 #         .padding_left(1)
 
-#         var header_style = style.copy() \
+#         var header_style = style \
 #         .foreground(mog.Color("252")) \
 #         .bold()
 
-#         var selected_style = style.copy() \
+#         var selected_style = style \
 #         .foreground(mog.Color("#01BE85")) \
 #         .background(mog.Color("#00432F"))
 
@@ -142,14 +142,14 @@
 #                 colors = DIM_TYPE_COLORS
 
 #             var color = colors.get(data[row - 1][col], mog.Color("#FFFFFF"))
-#             var copy_style = style.copy().foreground(color)
+#             var copy_style = style.foreground(color)
 #             return copy_style
 
 #         if is_even:
-#             var copy_style = style.copy().foreground(mog.Color("245"))
+#             var copy_style = style.foreground(mog.Color("245"))
 #             return copy_style
 
-#         var copy_style = style.copy().foreground(mog.Color("252"))
+#         var copy_style = style.foreground(mog.Color("252"))
 #         return copy_style
 
 #     var border_style = mog.Style()

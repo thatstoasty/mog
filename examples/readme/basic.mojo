@@ -2,7 +2,7 @@ from mog import Style
 import mog
 
 
-fn main() raises:
+fn main():
     var style = (
         mog.new_style()
         .bold(True)

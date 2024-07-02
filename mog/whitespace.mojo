@@ -96,7 +96,7 @@ fn new_whitespace(renderer: Renderer, *opts: WhitespaceOption) -> WhiteSpace:
     """Creates a new whitespace renderer. The order of the options
     matters, if you're using WithWhitespaceRenderer, make sure it comes first as
     other options might depend on it."""
-    var w = WhiteSpace(renderer=renderer, style=mist.TerminalStyle.new(renderer.color_profile))
+    var w = WhiteSpace(renderer=renderer, style=mist.new_style(renderer.color_profile))
 
     for opt in opts:
         opt(w)
@@ -109,7 +109,7 @@ fn new_whitespace(renderer: Renderer, opts: List[WhitespaceOption]) -> WhiteSpac
     """Creates a new whitespace renderer. The order of the options
     matters, if you're using WithWhitespaceRenderer, make sure it comes first as
     other options might depend on it."""
-    var w = WhiteSpace(renderer=renderer, style=mist.TerminalStyle.new(renderer.color_profile))
+    var w = WhiteSpace(renderer=renderer, style=mist.new_style(renderer.color_profile))
 
     for opt in opts:
         opt[](w)

@@ -56,7 +56,7 @@ fn default_styles(row: Int, col: Int) -> Style:
     Returns:
         A new Style with no attributes.
     """
-    return Style.new()
+    return mog.new_style()
 
 
 @value
@@ -358,7 +358,7 @@ struct Table:
         if self.border_bottom:
             _ = builder.write_string(self.construct_bottom_border())
 
-        return Style.new().max_height(self.compute_height()).max_width(self.width).render(str(builder))
+        return mog.new_style().max_height(self.compute_height()).max_width(self.width).render(str(builder))
 
     fn compute_width(self) -> Int:
         """Computes the width of the table in it's current configuration.
@@ -555,7 +555,7 @@ fn new_table() -> Table:
     return Table(
         style_function=default_styles,
         border=rounded_border(),
-        border_style=Style.new(),
+        border_style=mog.new_style(),
         border_bottom=True,
         border_column=True,
         border_header=True,

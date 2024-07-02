@@ -75,30 +75,6 @@ struct TerminalStyle:
         self.styles = styles
         self.profile = Profile()
 
-    @staticmethod
-    fn new(profile: Profile, *, styles: List[String] = List[String]()) -> Self:
-        """Constructs a TerminalStyle. Use new instead of __init__ to chain function calls.
-
-        Args:
-            profile: The color profile to use for color conversion.
-            styles: A list of ANSI styles to apply to the text.
-        """
-        return Self(profile, styles=styles)
-
-    @staticmethod
-    fn new(styles: List[String] = List[String]()) -> Self:
-        """Constructs a TerminalStyle. Use new instead of __init__ to chain function calls.
-
-        Args:
-            styles: A list of ANSI styles to apply to the text.
-        """
-        return Self(styles=styles)
-
-    @always_inline
-    fn copy(self) -> Self:
-        """Creates a deepcopy of Self and returns that. Immutability instead of mutating the object."""
-        return Self(self.profile, styles=self.get_styles())
-
     @always_inline
     fn _add_style(self, style: String) -> Self:
         """Creates a deepcopy of Self, adds a style to it's list of styles, and returns that. Immutability instead of mutating the object.
@@ -281,3 +257,24 @@ struct TerminalStyle:
         _ = builder.write_string("m")
 
         return builder.render()
+
+
+fn new_style() -> TerminalStyle:
+    """Creates a new TerminalStyle with no styles applied.
+
+    Returns:
+        A new TerminalStyle with the given color profile.
+    """
+    return TerminalStyle()
+
+
+fn new_style(profile: Profile) -> TerminalStyle:
+    """Creates a new TerminalStyle with no styles applied.
+
+    Args:
+        profile: The color profile to use for color conversion.
+
+    Returns:
+        A new TerminalStyle with the given color profile.
+    """
+    return TerminalStyle(profile)

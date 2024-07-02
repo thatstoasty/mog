@@ -123,8 +123,9 @@ fn soft_palette_ex(colors_count: Int, settings: SoftPaletteSettings) raises -> L
             + str(colors_count)
             + " than samples available "
             + str(len(samples))
-            + " Your requested color count may be wrong, you might want to use many samples or your constraint fntion"
-            " makes the valid color space too small"
+            + " Your requested color count may be wrong, you might want to use"
+            " many samples or your constraint fntion makes the valid color"
+            " space too small"
         )
     elif len(samples) == colors_count:
         return labs_2_cols(samples)  # Oops?

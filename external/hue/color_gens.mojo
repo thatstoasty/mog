@@ -6,7 +6,11 @@ from .color import Color, hsv, hcl
 
 fn fast_warm_color() -> Color:
     """Creates a random dark, "warm" color through a restricted HSV space."""
-    return hsv(randn_float64() * 360.0, 0.5 + randn_float64() * 0.3, 0.3 + randn_float64() * 0.3)
+    return hsv(
+        randn_float64() * 360.0,
+        0.5 + randn_float64() * 0.3,
+        0.3 + randn_float64() * 0.3,
+    )
 
 
 fn warm_color() -> Color:
@@ -21,12 +25,20 @@ fn warm_color() -> Color:
 
 
 fn random_warm() -> Color:
-    return hcl(randn_float64() * 360.0, 0.1 + randn_float64() * 0.3, 0.2 + randn_float64() * 0.3)
+    return hcl(
+        randn_float64() * 360.0,
+        0.1 + randn_float64() * 0.3,
+        0.2 + randn_float64() * 0.3,
+    )
 
 
 fn fast_happy_color() -> Color:
     """Creates a random bright, "pimpy" color through a restricted HSV space."""
-    return hsv(randn_float64() * 360.0, 0.7 + randn_float64() * 0.3, 0.6 + randn_float64() * 0.3)
+    return hsv(
+        randn_float64() * 360.0,
+        0.7 + randn_float64() * 0.3,
+        0.6 + randn_float64() * 0.3,
+    )
 
 
 fn happy_color() -> Color:
@@ -41,4 +53,8 @@ fn happy_color() -> Color:
 
 
 fn random_pimp() -> Color:
-    return hcl(randn_float64() * 360.0, 0.5 + randn_float64() * 0.3, 0.5 + randn_float64() * 0.3)
+    return hcl(
+        randn_float64() * 360.0,
+        0.5 + randn_float64() * 0.3,
+        0.5 + randn_float64() * 0.3,
+    )

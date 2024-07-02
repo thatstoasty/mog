@@ -210,11 +210,6 @@ struct Style:
         self.rules = Dict[Rule]()
         self.value = value
 
-    @staticmethod
-    fn new() -> Self:
-        """Create a new Style object. Use this instead of init."""
-        return Self()
-
     fn get_as_bool(self, key: String, default: Bool = False) -> Bool:
         """Get a rule as a boolean value.
 
@@ -1458,7 +1453,7 @@ struct Style:
         if fg.isa[NoColor]() and bg.isa[NoColor]():
             return border
 
-        var styler = mist.TerminalStyle.new()
+        var styler = mist.new_style()
 
         # Sooooo verbose compared to just passing the string value. But this is closer to the lipgloss API.
         # It's more verbose because we can't pass around args with trait as the arg type.
@@ -1640,7 +1635,7 @@ struct Style:
         var bottom_margin = self.get_as_int(str(MARGIN_BOTTOM_KEY))
         var left_margin = self.get_as_int(str(MARGIN_LEFT_KEY))
 
-        var styler = mist.TerminalStyle.new(self.renderer.color_profile)
+        var styler = mist.new_style(self.renderer.color_profile)
 
         var bgc = self.get_as_color(str(MARGIN_BACKGROUND_KEY), NoColor())
 

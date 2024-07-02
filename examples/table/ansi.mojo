@@ -1,4 +1,12 @@
-from mog import Style, Border, Table, center, default_styles, new_string_data, new_table
+from mog import (
+    Style,
+    Border,
+    Table,
+    center,
+    default_styles,
+    new_string_data,
+    new_table,
+)
 import mog
 
 

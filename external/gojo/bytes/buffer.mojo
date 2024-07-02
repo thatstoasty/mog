@@ -101,7 +101,11 @@ struct Buffer(
         """Returns a list of bytes holding a copy of the unread portion of the buffer."""
         var copy = UnsafePointer[UInt8]().alloc(self.size)
         memcpy(copy, self.data.offset(self.offset), self.size)
-        return List[UInt8](unsafe_pointer=copy, size=self.size - self.offset, capacity=self.size - self.offset)
+        return List[UInt8](
+            unsafe_pointer=copy,
+            size=self.size - self.offset,
+            capacity=self.size - self.offset,
+        )
 
     @always_inline
     fn _resize(inout self, capacity: Int) -> None:
@@ -142,7 +146,9 @@ struct Buffer(
         return StringRef(copy, self.size)
 
     @always_inline
-    fn render(self: Reference[Self]) -> StringSlice[self.is_mutable, self.lifetime]:
+    fn render(
+        self: Reference[Self],
+    ) -> StringSlice[self.is_mutable, self.lifetime]:
         """
         Return a StringSlice view of the data owned by the builder.
         Slightly faster than __str__, 10-20% faster in limited testing.
@@ -248,7 +254,11 @@ struct Buffer(
 
         # Copy the data of the internal buffer from offset to len(buf) into the destination buffer at the given index.
         var bytes_read = copy(
-            target=dest, source=self.data, source_start=self.offset, source_end=self.size, target_start=len(dest)
+            target=dest,
+            source=self.data,
+            source_start=self.offset,
+            source_end=self.size,
+            target_start=len(dest),
         )
         self.offset += bytes_read
 
@@ -335,7 +345,11 @@ struct Buffer(
 
         var copy = UnsafePointer[UInt8]().alloc(end - self.offset)
         memcpy(copy, self.data.offset(self.offset), end - self.offset)
-        var line = List[Byte](unsafe_pointer=copy, size=end - self.offset, capacity=end - self.offset)
+        var line = List[Byte](
+            unsafe_pointer=copy,
+            size=end - self.offset,
+            capacity=end - self.offset,
+        )
         self.offset = end
         self.last_read = OP_READ
 
@@ -540,7 +554,8 @@ struct LegacyBuffer(
     fn try_grow_by_reslice(inout self, n: Int) -> (Int, Bool):
         """Inlineable version of grow for the fast-case where the
         internal buffer only needs to be resliced.
-        It returns the index where bytes should be written and whether it succeeded."""
+        It returns the index where bytes should be written and whether it succeeded.
+        """
         var buffer_already_used = len(self.buf)
 
         if n <= self.buf.capacity - buffer_already_used:

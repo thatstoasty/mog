@@ -13,5 +13,4 @@ fn main():
         .width(22)
     )
 
-    print(style.get_as_bool(mog.style.INLINE_KEY))
     print(style.render("Hello, kitty"))

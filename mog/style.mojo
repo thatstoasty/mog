@@ -163,18 +163,62 @@ fn new_style() -> Style:
     return Style()
 
 
+# @register_passable("trivial")
+# struct Properties:
+#     """Properties for a style."""
+
+#     var value: PropertyKey
+
+#     fn __init__(inout self, value: PropertyKey = 0):
+#         """Initialize a new Properties object.
+
+#         Args:
+#             value: The properties to set.
+#         """
+#         self.value = value
+
+#     fn set(self, key: PropertyKey) -> Properties:
+#         """Set a property.
+
+#         Args:
+#             key: The key to set.
+
+#         Returns:
+#             A new Properties object with the property set.
+#         """
+#         return self.value | key
+
+#     fn unset(self, key: PropertyKey) -> Properties:
+#         """Unset a property.
+
+#         Args:
+#             key: The key to unset.
+
+#         Returns:
+#             A new Properties object with the property unset.
+#         """
+#         return self.value & ~key
+
+#     fn has(self, key: PropertyKey) -> Bool:
+#         """Check if a property is set.
+
+#         Args:
+#             key: The key to check.
+
+#         Returns:
+#             True if the property is set, False otherwise.
+#         """
+#         return (self.value & key) != 0
+
+
 @register_passable("trivial")
 struct Properties:
     """Properties for a style."""
 
-    var value: PropertyKey
+    var value: SIMD[DType.uint8, 64]
 
-    fn __init__(inout self, value: PropertyKey = 0):
-        """Initialize a new Properties object.
-
-        Args:
-            value: The properties to set.
-        """
+    fn __init__(inout self, value: SIMD[DType.uint8, 64] = SIMD[DType.uint8, 64]()):
+        """Initialize a new Properties object."""
         self.value = value
 
     fn set(self, key: PropertyKey) -> Properties:
@@ -186,8 +230,9 @@ struct Properties:
         Returns:
             A new Properties object with the property set.
         """
-        print("setting", key)
-        return self.value | key
+        var new = self
+        new.value[key] = 1
+        return new
 
     fn unset(self, key: PropertyKey) -> Properties:
         """Unset a property.
@@ -198,7 +243,9 @@ struct Properties:
         Returns:
             A new Properties object with the property unset.
         """
-        return self.value & ~key
+        var new = self
+        new.value[key] = 0
+        return new
 
     fn has(self, key: PropertyKey) -> Bool:
         """Check if a property is set.
@@ -209,7 +256,7 @@ struct Properties:
         Returns:
             True if the property is set, False otherwise.
         """
-        return (self.value & key) != 0
+        return self.value[key] == 1
 
 
 @value
@@ -318,8 +365,7 @@ struct Style:
         if not self.is_set(key):
             return default
 
-        print(self.attrs & int(key), self.attrs, key)
-        return (self.attrs & int(key)) != 0
+        return self.attrs & int(key) != 0
 
     fn get_as_color(self, key: PropertyKey) -> AnyTerminalColor:
         """Get a rule as an AnyTerminalColor value.
@@ -438,7 +484,6 @@ struct Style:
         Returns:
             True if the rule is set, False otherwise.
         """
-        print("is set", key, self.properties.has(key))
         return self.properties.has(key)
 
     fn set_attribute(inout self, key: PropertyKey, value: Bool):
@@ -613,6 +658,9 @@ struct Style:
         new.set_attribute(INLINE_KEY, value)
         return new
 
+    fn get_inline(self) -> Bool:
+        return self.get_as_bool(INLINE_KEY, False)
+
     fn unset_inline(self) -> Style:
         """Unset the inline rule.
 
@@ -636,6 +684,9 @@ struct Style:
         new.set_attribute(BOLD_KEY, value)
         return new
 
+    fn get_bold(self) -> Bool:
+        return self.get_as_bool(BOLD_KEY, False)
+
     fn italic(self, value: Bool = True) -> Style:
         """Set the text to be italic.
 
@@ -648,6 +699,9 @@ struct Style:
         var new = self
         new.set_attribute(ITALIC_KEY, value)
         return new
+
+    fn get_italic(self) -> Bool:
+        return self.get_as_bool(ITALIC_KEY, False)
 
     fn underline(self, value: Bool = True) -> Style:
         """Set the text to be underline.
@@ -2021,9 +2075,7 @@ struct Style:
         var bg = self.get_as_color(BACKGROUND_KEY)
 
         var width: Int = self.get_as_int(WIDTH_KEY)
-        print(width)
         var height: Int = self.get_as_int(HEIGHT_KEY)
-        print(height)
         var top_padding: Int = self.get_as_int(PADDING_TOP_KEY)
         var right_padding: Int = self.get_as_int(PADDING_RIGHT_KEY)
         var bottom_padding: Int = self.get_as_int(PADDING_BOTTOM_KEY)
@@ -2047,7 +2099,7 @@ struct Style:
         var use_space_styler = underline_spaces or crossout_spaces
 
         # transform = self.get_as_transform("transform")
-        if self.properties.value == 0:
+        if not any(self.properties.value):
             return self.maybe_convert_tabs(input_text)
 
         if bold:
@@ -2192,7 +2244,6 @@ struct Style:
 
             if top_padding > 0:
                 styled_text = (NEWLINE * top_padding) + styled_text
-                print(styled_text)
 
             if bottom_padding > 0:
                 styled_text += NEWLINE * bottom_padding

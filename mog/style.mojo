@@ -32,14 +32,14 @@ from .color import (
 from external.weave import wrap, wordwrap, truncate
 from external.weave.ansi.ansi import printable_rune_width
 import external.mist
-from external.gojo.strings import StringBuilder
+from external.gojo.strings import StringBuilder, Reader
 
 
 alias TAB_WIDTH: Int = 4
-# NoTabConversion can be passed to [Style.tab_width] to disable the replacement
-# of tabs with spaces at render time.
-alias NO_TAB_CONVERSION = -1
 
+alias NO_TAB_CONVERSION = -1
+"""NoTabConversion can be passed to [Style.tab_width] to disable the replacement
+of tabs with spaces at render time."""
 
 alias PropertyKey = Int
 alias BOLD_KEY: PropertyKey = 0
@@ -120,39 +120,34 @@ fn get_lines(text: String) -> Tuple[List[String], Int]:
 
 
 # Apply left padding.
-fn pad_left(text: String, n: Int, style: mist.Style) -> String:
+fn pad(text: String, n: Int, style: mist.Style) -> String:
     if n == 0:
         return text
 
-    var sp = style.render(WHITESPACE * n)
-    var padded_text: String = ""
+    var sp = style.render(WHITESPACE * abs(n))
+    var builder = StringBuilder(capacity=int(len(text) * 1.5))
     var lines = split(text, "\n")
 
     for i in range(len(lines)):
-        padded_text += sp
-        padded_text += lines[i]
+        if n > 0:
+            _ = builder.write_string(lines[i])
+            _ = builder.write_string(sp)
+        else:
+            _ = builder.write_string(sp)
+            _ = builder.write_string(lines[i])
+
         if i != len(lines) - 1:
-            padded_text += "\n"
+            _ = builder.write_string("\n")
 
-    return padded_text
+    return str(builder)
 
 
-# Apply right padding.
+fn pad_left(text: String, n: Int, style: mist.Style) -> String:
+    return pad(text, -n, style)
+
+
 fn pad_right(text: String, n: Int, style: mist.Style) -> String:
-    if n == 0 or text == "":
-        return text
-
-    var sp = style.render(WHITESPACE * n)
-    var padded_text: String = ""
-    var lines = split(text, "\n")
-
-    for i in range(len(lines)):
-        padded_text += lines[i]
-        padded_text += sp
-        if i != len(lines) - 1:
-            padded_text += "\n"
-
-    return padded_text
+    return pad(text, n, style)
 
 
 alias Rule = Variant[Bool, Border, Int, Position, AnyTerminalColor]
@@ -1637,9 +1632,9 @@ struct Style:
             var spaces = WHITESPACE * width
 
             if top_margin > 0:
-                padded_text = (NEWLINE * top_margin) + padded_text
+                padded_text = ((spaces + NEWLINE) * top_margin) + padded_text
             if bottom_margin > 0:
-                padded_text += NEWLINE * bottom_margin
+                padded_text += (NEWLINE + spaces) * bottom_margin
 
         return padded_text
 
@@ -1815,17 +1810,15 @@ struct Style:
         var lines = split(input_text, "\n")
 
         for i in range(len(lines)):
-            var line = lines[i]
             if use_space_styler:
                 # Look for spaces and apply a different styler
-                for i in range(printable_rune_width(line)):
-                    var character = line[i]
-                    if character == " ":
-                        _ = builder.write_string(term_style_space.render(character))
+                for j in range(printable_rune_width(lines[i])):
+                    if lines[i][j] == " ":
+                        _ = builder.write_string(term_style_space.render(lines[i][j]))
                     else:
-                        _ = builder.write_string(term_style.render(character))
+                        _ = builder.write_string(term_style.render(lines[i][j]))
             else:
-                _ = builder.write_string(term_style.render(line))
+                _ = builder.write_string(term_style.render(lines[i]))
 
             # Readd the newlines
             if i != len(lines) - 1:

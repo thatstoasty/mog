@@ -2058,36 +2058,35 @@ struct Style:
             if i != len(texts) - 1:
                 input_text += " "
 
-        var p = self.renderer.color_profile
-        var term_style = mist.new_style(p)
-        var term_style_space = mist.new_style(p)
-        var term_style_whitespace = mist.new_style(p)
+        var term_style = mist.new_style(self.renderer.color_profile)
+        var term_style_space = term_style
+        var term_style_whitespace = term_style
 
-        var bold: Bool = self.get_as_bool(BOLD_KEY, False)
-        var italic: Bool = self.get_as_bool(ITALIC_KEY, False)
-        var underline: Bool = self.get_as_bool(UNDERLINE_KEY, False)
-        var crossout: Bool = self.get_as_bool(CROSSOUT_KEY, False)
-        var reverse: Bool = self.get_as_bool(REVERSE_KEY, False)
-        var blink: Bool = self.get_as_bool(BLINK_KEY, False)
-        var faint: Bool = self.get_as_bool(FAINT_KEY, False)
+        var bold = self.get_as_bool(BOLD_KEY, False)
+        var italic = self.get_as_bool(ITALIC_KEY, False)
+        var underline = self.get_as_bool(UNDERLINE_KEY, False)
+        var crossout = self.get_as_bool(CROSSOUT_KEY, False)
+        var reverse = self.get_as_bool(REVERSE_KEY, False)
+        var blink = self.get_as_bool(BLINK_KEY, False)
+        var faint = self.get_as_bool(FAINT_KEY, False)
 
         var fg = self.get_as_color(FOREGROUND_KEY)
         var bg = self.get_as_color(BACKGROUND_KEY)
 
-        var width: Int = self.get_as_int(WIDTH_KEY)
-        var height: Int = self.get_as_int(HEIGHT_KEY)
-        var top_padding: Int = self.get_as_int(PADDING_TOP_KEY)
-        var right_padding: Int = self.get_as_int(PADDING_RIGHT_KEY)
-        var bottom_padding: Int = self.get_as_int(PADDING_BOTTOM_KEY)
-        var left_padding: Int = self.get_as_int(PADDING_LEFT_KEY)
+        var width = self.get_as_int(WIDTH_KEY)
+        var height = self.get_as_int(HEIGHT_KEY)
+        var top_padding = self.get_as_int(PADDING_TOP_KEY)
+        var right_padding = self.get_as_int(PADDING_RIGHT_KEY)
+        var bottom_padding = self.get_as_int(PADDING_BOTTOM_KEY)
+        var left_padding = self.get_as_int(PADDING_LEFT_KEY)
 
-        var horizontal_align: Position = self.get_as_position(HORIZONTAL_ALIGNMENT_KEY)
-        var vertical_align: Position = self.get_as_position(VERTICAL_ALIGNMENT_KEY)
+        var horizontal_align = self.get_as_position(HORIZONTAL_ALIGNMENT_KEY)
+        var vertical_align = self.get_as_position(VERTICAL_ALIGNMENT_KEY)
 
-        var color_whitespace: Bool = self.get_as_bool(COLOR_WHITESPACE_KEY, True)
-        var inline: Bool = self.get_as_bool(INLINE_KEY, False)
-        var max_width: Int = self.get_as_int(MAX_WIDTH_KEY)
-        var max_height: Int = self.get_as_int(MAX_HEIGHT_KEY)
+        var color_whitespace = self.get_as_bool(COLOR_WHITESPACE_KEY, True)
+        var inline = self.get_as_bool(INLINE_KEY, False)
+        var max_width = self.get_as_int(MAX_WIDTH_KEY)
+        var max_height = self.get_as_int(MAX_HEIGHT_KEY)
 
         var underline_spaces = underline and self.get_as_bool(UNDERLINE_SPACES_KEY, True)
         var crossout_spaces = crossout and self.get_as_bool(CROSSOUT_SPACES_KEY, True)
@@ -2099,6 +2098,7 @@ struct Style:
         var use_space_styler = underline_spaces or crossout_spaces
 
         # transform = self.get_as_transform("transform")
+        # If no style properties are set, return the input text as is with tabs maybe converted.
         if not any(self.properties.value):
             return self.maybe_convert_tabs(input_text)
 

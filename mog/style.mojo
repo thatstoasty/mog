@@ -1,4 +1,3 @@
-from external.string_dict import Dict
 from .renderer import Renderer
 from .position import Position
 from .border import (
@@ -150,60 +149,9 @@ fn pad_right(text: String, n: Int, style: mist.Style) -> String:
     return pad(text, n, style)
 
 
-alias Rule = Variant[Bool, Border, Int, Position, AnyTerminalColor]
-
-
 fn new_style() -> Style:
     """Create a new Style object."""
     return Style()
-
-
-# @register_passable("trivial")
-# struct Properties:
-#     """Properties for a style."""
-
-#     var value: PropertyKey
-
-#     fn __init__(inout self, value: PropertyKey = 0):
-#         """Initialize a new Properties object.
-
-#         Args:
-#             value: The properties to set.
-#         """
-#         self.value = value
-
-#     fn set(self, key: PropertyKey) -> Properties:
-#         """Set a property.
-
-#         Args:
-#             key: The key to set.
-
-#         Returns:
-#             A new Properties object with the property set.
-#         """
-#         return self.value | key
-
-#     fn unset(self, key: PropertyKey) -> Properties:
-#         """Unset a property.
-
-#         Args:
-#             key: The key to unset.
-
-#         Returns:
-#             A new Properties object with the property unset.
-#         """
-#         return self.value & ~key
-
-#     fn has(self, key: PropertyKey) -> Bool:
-#         """Check if a property is set.
-
-#         Args:
-#             key: The key to check.
-
-#         Returns:
-#             True if the property is set, False otherwise.
-#         """
-#         return (self.value & key) != 0
 
 
 @register_passable("trivial")
@@ -264,8 +212,8 @@ struct Style:
     var properties: Properties
     var value: String
 
-    # we store bool props values here
     var attrs: Int
+    """We store bool props values here."""
 
     # props that have values
     var _fg: AnyTerminalColor

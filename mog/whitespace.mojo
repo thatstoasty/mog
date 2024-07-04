@@ -96,7 +96,7 @@ fn new_whitespace(renderer: Renderer, *opts: WhitespaceOption) -> WhiteSpace:
     """Creates a new whitespace renderer. The order of the options
     matters, if you're using WithWhitespaceRenderer, make sure it comes first as
     other options might depend on it."""
-    var w = WhiteSpace(renderer=renderer, style=mist.new_style(renderer.color_profile))
+    var w = WhiteSpace(renderer=renderer, style=mist.new_style(renderer.color_profile.value))
 
     for opt in opts:
         opt(w)
@@ -109,7 +109,7 @@ fn new_whitespace(renderer: Renderer, opts: List[WhitespaceOption]) -> WhiteSpac
     """Creates a new whitespace renderer. The order of the options
     matters, if you're using WithWhitespaceRenderer, make sure it comes first as
     other options might depend on it."""
-    var w = WhiteSpace(renderer=renderer, style=mist.new_style(renderer.color_profile))
+    var w = WhiteSpace(renderer=renderer, style=mist.new_style(renderer.color_profile.value))
 
     for opt in opts:
         opt[](w)
@@ -137,7 +137,7 @@ fn with_whitespace_foreground[terminal_color: AnyTerminalColor]() -> WhitespaceO
         elif terminal_color.isa[CompleteAdaptiveColor]():
             color = terminal_color[CompleteAdaptiveColor].color(w.renderer)
 
-        w.style = w.style.foreground(color)
+        w.style = w.style.foreground(color=color)
 
     return style_foreground
 
@@ -161,7 +161,7 @@ fn with_whitespace_background[terminal_color: AnyTerminalColor]() -> WhitespaceO
         elif terminal_color.isa[CompleteAdaptiveColor]():
             color = terminal_color[CompleteAdaptiveColor].color(w.renderer)
 
-        w.style = w.style.background(color)
+        w.style = w.style.background(color=color)
 
     return style_background
 

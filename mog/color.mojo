@@ -47,22 +47,15 @@ struct Color(TerminalColor):
     Example usage:
     ```mojo
     var ansi_color = mog.Color(21)
-    var hex_color = mog.Color("#0000ff")
+    var hex_color = mog.Color(0x0000ff)
     ```
     .
     """
 
-    var value: Variant[UInt8, String]
-
-    fn __init__(inout self, value: StringLiteral):
-        self.value = str(value)
+    var value: UInt32
 
     fn color(self, renderer: Renderer) -> mist.AnyColor:
-        if self.value.isa[UInt8]():
-            return renderer.color_profile.color(self.value[UInt8])
-        elif self.value.isa[String]():
-            return renderer.color_profile.color(self.value[String])
-        return mist.NoColor()
+        return renderer.color_profile.color(self.value)
 
 
 @value
@@ -83,7 +76,7 @@ struct ANSIColor(TerminalColor):
     ```
     """
 
-    var value: UInt8
+    var value: UInt32
 
     fn color(self, renderer: Renderer) -> mist.AnyColor:
         return Color(self.value).color(renderer)
@@ -101,16 +94,12 @@ struct AdaptiveColor(TerminalColor):
 
     Example usage:
     ```mojo
-    var color = mog.AdaptiveColor(light="#0000ff", dark="#000099")
+    var color = mog.AdaptiveColor(light=0x0000ff, dark=0x000099)
     ```
     """
 
-    var light: Variant[UInt8, String]
-    var dark: Variant[UInt8, String]
-
-    fn __init__(inout self, light: StringLiteral = "", dark: StringLiteral = ""):
-        self.light = str(light)
-        self.dark = str(dark)
+    var light: UInt32
+    var dark: UInt32
 
     fn color(self, renderer: Renderer) -> mist.AnyColor:
         if renderer.has_dark_background():
@@ -131,19 +120,14 @@ struct CompleteColor(TerminalColor):
 
     Example usage:
     ```mojo
-    var color = mog.CompleteColor(true_color="#0000ff", ansi256=21, ansi=4)
+    var color = mog.CompleteColor(true_color=0x0000ff, ansi256=21, ansi=4)
     ```
     .
     """
 
-    var true_color: String
-    var ansi256: Variant[UInt8, String]
-    var ansi: Variant[UInt8, String]
-
-    fn __init__(inout self, true_color: StringLiteral = "", light: StringLiteral = "", dark: StringLiteral = ""):
-        self.true_color = str(true_color)
-        self.ansi256 = str(light)
-        self.ansi = str(dark)
+    var true_color: UInt32
+    var ansi256: UInt32
+    var ansi: UInt32
 
     fn color(self, renderer: Renderer) -> mist.AnyColor:
         var p = renderer.color_profile
@@ -170,8 +154,8 @@ struct CompleteAdaptiveColor(TerminalColor):
     Example usage:
     ```mojo
     var color = mog.CompleteAdaptiveColor(
-        light=mog.CompleteColor(true_color="#0000ff", ansi256=21, ansi=4),
-        dark=mog.CompleteColor(true_color="#000099", ansi256=22, ansi=5),
+        light=mog.CompleteColor(true_color=0x0000ff, ansi256=21, ansi=4),
+        dark=mog.CompleteColor(true_color=0x000099, ansi256=22, ansi=5),
     )
     ```
     .

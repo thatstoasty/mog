@@ -2,7 +2,7 @@ import mog
 
 
 fn main():
-    var s = mog.new_style().foreground(mog.Color("240"))
+    var s = mog.new_style().foreground(mog.Color(240))
 
     var t = mog.new_table()
     t.width = 50

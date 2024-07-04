@@ -7,15 +7,15 @@
 
 # fn build_color_mapping() -> Dict[mog.Color]:
 #     var type_colors = Dict[mog.Color]()
-#     type_colors.put("Bug", mog.Color("#D7FF87"))
-#     type_colors.put("Electric", mog.Color("#FDFF90"))
-#     type_colors.put("Fire", mog.Color("#FF7698"))
-#     type_colors.put("Flying", mog.Color("#FF87D7"))
-#     type_colors.put("Grass", mog.Color("#75FBAB"))
-#     type_colors.put("Ground", mog.Color("#FF875F"))
-#     type_colors.put("Normal", mog.Color("#929292"))
-#     type_colors.put("Poison", mog.Color("#7D5AFC"))
-#     type_colors.put("Water", mog.Color("#00E2C7"))
+#     type_colors.put("Bug", mog.Color(0xD7FF87))
+#     type_colors.put("Electric", mog.Color(0xFDFF90))
+#     type_colors.put("Fire", mog.Color(0xFF7698))
+#     type_colors.put("Flying", mog.Color(0xFF87D7))
+#     type_colors.put("Grass", mog.Color(0x75FBAB))
+#     type_colors.put("Ground", mog.Color(0xFF875F))
+#     type_colors.put("Normal", mog.Color(0x929292))
+#     type_colors.put("Poison", mog.Color(0x7D5AFC))
+#     type_colors.put("Water", mog.Color(0x00E2C7))
 
 #     return type_colors
 
@@ -24,15 +24,15 @@
 
 # fn build_dim_color_mapping() -> Dict[mog.Color]:
 #     var dim_type_colors = Dict[mog.Color]()
-#     dim_type_colors.put("Bug", mog.Color("#97AD64"))
-#     dim_type_colors.put("Electric", mog.Color("#FCFF5F"))
-#     dim_type_colors.put("Fire", mog.Color("#BA5F75"))
-#     dim_type_colors.put("Flying", mog.Color("#C97AB2"))
-#     dim_type_colors.put("Grass", mog.Color("#59B980"))
-#     dim_type_colors.put("Ground", mog.Color("#C77252"))
-#     dim_type_colors.put("Normal", mog.Color("#727272"))
-#     dim_type_colors.put("Poison", mog.Color("#634BD0"))
-#     dim_type_colors.put("Water", mog.Color("#439F8E"))
+#     dim_type_colors.put("Bug", mog.Color(0x97AD64))
+#     dim_type_colors.put("Electric", mog.Color(0xFCFF5F))
+#     dim_type_colors.put("Fire", mog.Color(0xBA5F75))
+#     dim_type_colors.put("Flying", mog.Color(0xC97AB2))
+#     dim_type_colors.put("Grass", mog.Color(0x59B980))
+#     dim_type_colors.put("Ground", mog.Color(0xC77252))
+#     dim_type_colors.put("Normal", mog.Color(0x727272))
+#     dim_type_colors.put("Poison", mog.Color(0x634BD0))
+#     dim_type_colors.put("Water", mog.Color(0x439F8E))
 
 #     return dim_type_colors
 
@@ -77,15 +77,15 @@
 # #             if is_even:
 # #                 colors = DIM_TYPE_COLORS
 
-# #             var color = colors.get(data[row - 1][col], mog.Color("#FFFFFF"))
+# #             var color = colors.get(data[row - 1][col], mog.Color(0xFFFFFF))
 # #             var copy_style = style.foreground(color)
 # #             return copy_style
 
 # #         if is_even:
-# #             var copy_style = style.foreground(mog.Color("245"))
+# #             var copy_style = style.foreground(mog.Color("245))
 # #             return copy_style
 
-# #         var copy_style = style.foreground(mog.Color("252"))
+# #         var copy_style = style.foreground(mog.Color("252))
 # #         return copy_style
 # #     return style_func
 
@@ -98,12 +98,12 @@
 #     # .padding_left(1)
 
 #     # var header_style = style \
-#     # .foreground(mog.Color("252")) \
+#     # .foreground(mog.Color("252)) \
 #     # .bold()
 
 #     # var selected_style = style \
-#     # .foreground(mog.Color("#01BE85")) \
-#     # .background(mog.Color("#00432F"))
+#     # .foreground(mog.Color(0x01BE85)) \
+#     # .background(mog.Color(0x00432F))
 
 #     @always_inline
 #     fn capitalize_headers(data: List[String]) -> List[String]:
@@ -122,12 +122,12 @@
 #         .padding_left(1)
 
 #         var header_style = style \
-#         .foreground(mog.Color("252")) \
+#         .foreground(mog.Color("252)) \
 #         .bold()
 
 #         var selected_style = style \
-#         .foreground(mog.Color("#01BE85")) \
-#         .background(mog.Color("#00432F"))
+#         .foreground(mog.Color(0x01BE85)) \
+#         .background(mog.Color(0x00432F))
 
 #         if row == 0:
 #             return header_style
@@ -141,19 +141,19 @@
 #             if is_even:
 #                 colors = DIM_TYPE_COLORS
 
-#             var color = colors.get(data[row - 1][col], mog.Color("#FFFFFF"))
+#             var color = colors.get(data[row - 1][col], mog.Color(0xFFFFFF))
 #             var copy_style = style.foreground(color)
 #             return copy_style
 
 #         if is_even:
-#             var copy_style = style.foreground(mog.Color("245"))
+#             var copy_style = style.foreground(mog.Color("245))
 #             return copy_style
 
-#         var copy_style = style.foreground(mog.Color("252"))
+#         var copy_style = style.foreground(mog.Color("252))
 #         return copy_style
 
 #     var border_style = mog.Style()
-#     border_style = border_style.foreground(mog.Color("238"))
+#     border_style = border_style.foreground(mog.Color("238))
 #     var table = mog.new_table()
 #     table.rows(data)
 #     table.width = 100

@@ -29,7 +29,6 @@ fn test_align_text_horizontal() raises:
 
 fn test_align_text_vertical() raises:
     var test = MojoTest("Testing align.align_text_vertical")
-    # var style = TerminalStyle(Profile())
 
     # Test center alignment
     var centered = align_text_vertical("hello", position.center, 3)

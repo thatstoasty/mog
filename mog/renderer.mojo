@@ -18,7 +18,7 @@ struct Renderer:
 
     fn __init__(
         inout self,
-        color_profile: Optional[Int] = 0,
+        color_profile: Optional[Int] = None,
         dark_background: Bool = True,
         explicit_color_profile: Bool = False,
         explicit_background_color: Bool = False,
@@ -78,7 +78,7 @@ struct Renderer:
         text: String,
         /,
         *opts: WhitespaceOption,
-    ) raises -> String:
+    ) -> String:
         """Places a string or text block vertically in an unstyled box of a given
         width or height.
 

@@ -44,10 +44,8 @@ fn build_tabs() -> String:
     )
 
     var tab_style = mog.new_style().border(tab_border).border_foreground(highlight).padding(0, 1)
-
     var active_tab = tab_style.border(active_tab_border, True)
-
-    var tab_gap = tab_style.border_top(False).border_left(False).border_right(False)
+    var tab_gap = tab_style.border_top(False).border_left(False).border_right(False).border_bottom(True)
 
     var row = join_horizontal(
         position.top,

@@ -1,13 +1,10 @@
 # Strings
 @always_inline
 fn split(text: String, sep: String, max_split: Int = -1) -> List[String]:
-    var lines: List[String]
     try:
-        lines = text.split(sep, max_split)
+        return text.split(sep, max_split)
     except:
-        lines = List[String](text)
-
-    return lines
+        return List[String](text)
 
 
 @always_inline

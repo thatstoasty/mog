@@ -1,4 +1,3 @@
-from mog import Style
 import mog
 
 
@@ -12,5 +11,4 @@ fn main():
         .padding_left(4)
         .width(22)
     )
-
     print(style.render("Hello, kitty"))

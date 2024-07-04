@@ -17,7 +17,7 @@ fn basic_styling():
     keep(output)
 
 
-alias file_style = (
+var file_style = (
     mog.new_style()
     .bold(True)
     .foreground(mog.Color("#FAFAFA"))

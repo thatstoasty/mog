@@ -17,9 +17,9 @@ import mog
 
 alias width = 96
 alias column_width = 30
-alias subtle = mog.AdaptiveColor(light="#D9DCCF", dark="#383838")
-alias highlight = mog.AdaptiveColor(light="#874BFD", dark="#7D56F4")
-alias special = mog.AdaptiveColor(light="#43BF6D", dark="#73F59F")
+alias subtle = mog.AdaptiveColor(light=0xD9DCCF, dark=0x383838)
+alias highlight = mog.AdaptiveColor(light=0x874BFD, dark=0x7D56F4)
+alias special = mog.AdaptiveColor(light=0x43BF6D, dark=0x73F59F)
 
 
 fn build_tabs() -> String:
@@ -79,16 +79,16 @@ fn build_description() -> String:
 
 fn build_dialog_box() -> String:
     var dialog_box_style = mog.new_style().alignment(position.center).border(rounded_border()).border_foreground(
-        mog.Color("#874BFD")
+        mog.Color(0x874BFD)
     ).padding(1, 0)
 
-    var button_style = mog.new_style().foreground(mog.Color("#FFF7DB")).background(mog.Color("#888B7E")).padding(
+    var button_style = mog.new_style().foreground(mog.Color(0xFFF7DB)).background(mog.Color(0x888B7E)).padding(
         0, 3
     ).margin_top(1)
 
-    var active_button_style = button_style.foreground(mog.Color("#FFF7DB")).background(
-        mog.Color("#F25D94")
-    ).margin_right(2).underline()
+    var active_button_style = button_style.foreground(mog.Color(0xFFF7DB)).background(mog.Color(0xF25D94)).margin_right(
+        2
+    ).underline()
 
     var ok_button = active_button_style.render("Yes")
     var cancel_button = button_style.render("Maybe")
@@ -125,7 +125,7 @@ fn build_lists() -> String:
 
     var check_mark = mog.new_style().foreground(special).padding_right(1).render("✔")
 
-    var list_done = mog.new_style().crossout().foreground(mog.AdaptiveColor(light="#969B86", dark="#696969"))
+    var list_done = mog.new_style().crossout().foreground(mog.AdaptiveColor(light=0x969B86, dark=0x696969))
 
     var lists = join_horizontal(
         position.top,
@@ -170,7 +170,7 @@ fn build_lists() -> String:
 fn build_history() -> String:
     var history_style = mog.new_style().height(20).width(column_width).padding(1, 2).margin(1, 3, 0, 0).alignment(
         position.left
-    ).foreground(mog.Color("#FFFDF5")).background(highlight)
+    ).foreground(mog.Color(0xFFFDF5)).background(highlight)
 
     alias history_a = "The Romans learned from the Greeks that quinces slowly cooked with honey would “set” when cool. The Apicius gives a recipe for preserving whole quinces, stems and leaves attached, in a bath of honey diluted with defrutum: Roman marmalade. Preserves of quince and lemon appear (along with rose, apple, plum and pear) in the Book of ceremonies of the Byzantine Emperor Constantine VII Porphyrogennetos."
     alias history_b = "Medieval quince preserves, which went by the French name cotignac, produced in a clear version and a fruit pulp version, began to lose their medieval seasoning of spices in the 16th century. In the 17th century, La Varenne provided recipes for both thick and clear cotignac."
@@ -185,17 +185,17 @@ fn build_history() -> String:
 
 
 fn build_status_bar() -> String:
-    var status_nugget_style = mog.new_style().foreground(mog.Color("#FFFDF5")).padding(0, 1)
+    var status_nugget_style = mog.new_style().foreground(mog.Color(0xFFFDF5)).padding(0, 1)
 
-    var status_bar_style = mog.new_style().foreground(mog.Color("#C1C6B2")).background(mog.Color("#353533"))
+    var status_bar_style = mog.new_style().foreground(mog.Color(0xC1C6B2)).background(mog.Color(0x353533))
 
-    var status_style = mog.new_style().foreground(mog.Color("#FFFDF5")).background(mog.Color("#FF5F87")).padding(0, 1)
+    var status_style = mog.new_style().foreground(mog.Color(0xFFFDF5)).background(mog.Color(0xFF5F87)).padding(0, 1)
     # .margin_right(1)
 
-    var encoding_style = status_nugget_style.background(mog.Color("#A550DF")).horizontal_alignment(position.right)
+    var encoding_style = status_nugget_style.background(mog.Color(0xA550DF)).horizontal_alignment(position.right)
 
     var status_text_style = status_bar_style.padding_left(1)
-    var fish_cake_style = status_nugget_style.background(mog.Color("#6124DF"))
+    var fish_cake_style = status_nugget_style.background(mog.Color(0x6124DF))
 
     var status_key = status_style.render("STATUS")
     var encoding = encoding_style.render("UTF-8")

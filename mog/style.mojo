@@ -218,8 +218,8 @@ struct Style:
         var style = (
             mog.new_style()
             .bold(True)
-            .foreground(mog.Color("#FAFAFA"))
-            .background(mog.Color("#7D56F4"))
+            .foreground(mog.Color(0xFAFAFA))
+            .background(mog.Color(0x7D56F4))
             .padding_top(2)
             .padding_left(4)
             .width(22)
@@ -1896,26 +1896,26 @@ struct Style:
         # Sooooo verbose compared to just passing the string value. But this is closer to the lipgloss API.
         # It's more verbose because we can't pass around args with trait as the arg type.
         if fg.isa[Color]():
-            styler = styler.foreground(fg[Color].color(self.renderer))
+            styler = styler.foreground(color=fg[Color].color(self.renderer))
         elif fg.isa[ANSIColor]():
-            styler = styler.foreground(fg[ANSIColor].color(self.renderer))
+            styler = styler.foreground(color=fg[ANSIColor].color(self.renderer))
         elif fg.isa[AdaptiveColor]():
-            styler = styler.foreground(fg[AdaptiveColor].color(self.renderer))
+            styler = styler.foreground(color=fg[AdaptiveColor].color(self.renderer))
         elif fg.isa[CompleteColor]():
-            styler = styler.foreground(fg[CompleteColor].color(self.renderer))
+            styler = styler.foreground(color=fg[CompleteColor].color(self.renderer))
         elif fg.isa[CompleteAdaptiveColor]():
-            styler = styler.foreground(fg[CompleteAdaptiveColor].color(self.renderer))
+            styler = styler.foreground(color=fg[CompleteAdaptiveColor].color(self.renderer))
 
         if bg.isa[Color]():
-            styler = styler.background(bg[Color].color(self.renderer))
+            styler = styler.background(color=bg[Color].color(self.renderer))
         elif bg.isa[ANSIColor]():
-            styler = styler.background(bg[ANSIColor].color(self.renderer))
+            styler = styler.background(color=bg[ANSIColor].color(self.renderer))
         elif bg.isa[AdaptiveColor]():
-            styler = styler.background(bg[AdaptiveColor].color(self.renderer))
+            styler = styler.background(color=bg[AdaptiveColor].color(self.renderer))
         elif bg.isa[CompleteColor]():
-            styler = styler.background(bg[CompleteColor].color(self.renderer))
+            styler = styler.background(color=bg[CompleteColor].color(self.renderer))
         elif bg.isa[CompleteAdaptiveColor]():
-            styler = styler.background(bg[CompleteAdaptiveColor].color(self.renderer))
+            styler = styler.background(color=bg[CompleteAdaptiveColor].color(self.renderer))
 
         return styler.render(border)
 
@@ -2073,21 +2073,21 @@ struct Style:
         var bottom_margin = self.get_as_int(MARGIN_BOTTOM_KEY)
         var left_margin = self.get_as_int(MARGIN_LEFT_KEY)
 
-        var styler = mist.new_style(self.renderer.color_profile)
+        var styler = mist.new_style(self.renderer.color_profile.value)
 
         var bgc = self.get_as_color(MARGIN_BACKGROUND_KEY)
 
         # TODO: Dealing with variants is verbose :(
         if bgc.isa[Color]():
-            styler = styler.background(bgc[Color].color(self.renderer))
+            styler = styler.background(color=bgc[Color].color(self.renderer))
         elif bgc.isa[ANSIColor]():
-            styler = styler.background(bgc[ANSIColor].color(self.renderer))
+            styler = styler.background(color=bgc[ANSIColor].color(self.renderer))
         elif bgc.isa[AdaptiveColor]():
-            styler = styler.background(bgc[AdaptiveColor].color(self.renderer))
+            styler = styler.background(color=bgc[AdaptiveColor].color(self.renderer))
         elif bgc.isa[CompleteColor]():
-            styler = styler.background(bgc[CompleteColor].color(self.renderer))
+            styler = styler.background(color=bgc[CompleteColor].color(self.renderer))
         elif bgc.isa[CompleteAdaptiveColor]():
-            styler = styler.background(bgc[CompleteAdaptiveColor].color(self.renderer))
+            styler = styler.background(color=bgc[CompleteAdaptiveColor].color(self.renderer))
 
         # Add left and right margin
         padded_text = pad_left(padded_text, left_margin, styler)
@@ -2127,7 +2127,7 @@ struct Style:
             if i != len(texts) - 1:
                 input_text += " "
 
-        var term_style = mist.new_style(self.renderer.color_profile)
+        var term_style = mist.new_style(self.renderer.color_profile.value)
         var term_style_space = term_style
         var term_style_whitespace = term_style
 
@@ -2190,75 +2190,75 @@ struct Style:
         # TODO: Again super verbose and repetitive bc of Variant
         if fg.isa[Color]():
             var terminal_color = fg[Color].color(self.renderer)
-            term_style = term_style.foreground(terminal_color)
+            term_style = term_style.foreground(color=terminal_color)
             if use_space_styler:
-                term_style_space = term_style_space.foreground(terminal_color)
+                term_style_space = term_style_space.foreground(color=terminal_color)
             if use_whitespace_styler:
-                term_style_whitespace = term_style_whitespace.foreground(terminal_color)
+                term_style_whitespace = term_style_whitespace.foreground(color=terminal_color)
         elif fg.isa[ANSIColor]():
             var terminal_color = fg[ANSIColor].color(self.renderer)
-            term_style = term_style.foreground(terminal_color)
+            term_style = term_style.foreground(color=terminal_color)
             if use_space_styler:
-                term_style_space = term_style_space.foreground(terminal_color)
+                term_style_space = term_style_space.foreground(color=terminal_color)
             if use_whitespace_styler:
-                term_style_whitespace = term_style_whitespace.foreground(terminal_color)
+                term_style_whitespace = term_style_whitespace.foreground(color=terminal_color)
         elif fg.isa[AdaptiveColor]():
             var terminal_color = fg[AdaptiveColor].color(self.renderer)
-            term_style = term_style.foreground(terminal_color)
+            term_style = term_style.foreground(color=terminal_color)
             if use_space_styler:
-                term_style_space = term_style_space.foreground(terminal_color)
+                term_style_space = term_style_space.foreground(color=terminal_color)
             if use_whitespace_styler:
-                term_style_whitespace = term_style_whitespace.foreground(terminal_color)
+                term_style_whitespace = term_style_whitespace.foreground(color=terminal_color)
         elif fg.isa[CompleteColor]():
             var terminal_color = fg[CompleteColor].color(self.renderer)
-            term_style = term_style.foreground(terminal_color)
+            term_style = term_style.foreground(color=terminal_color)
             if use_space_styler:
-                term_style_space = term_style_space.foreground(terminal_color)
+                term_style_space = term_style_space.foreground(color=terminal_color)
             if use_whitespace_styler:
-                term_style_whitespace = term_style_whitespace.foreground(terminal_color)
+                term_style_whitespace = term_style_whitespace.foreground(color=terminal_color)
         elif fg.isa[CompleteAdaptiveColor]():
             var terminal_color = fg[CompleteAdaptiveColor].color(self.renderer)
-            term_style = term_style.foreground(terminal_color)
+            term_style = term_style.foreground(color=terminal_color)
             if use_space_styler:
-                term_style_space = term_style_space.foreground(terminal_color)
+                term_style_space = term_style_space.foreground(color=terminal_color)
             if use_whitespace_styler:
-                term_style_whitespace = term_style_whitespace.foreground(terminal_color)
+                term_style_whitespace = term_style_whitespace.foreground(color=terminal_color)
 
         if bg.isa[Color]():
             var terminal_color = bg[Color].color(self.renderer)
-            term_style = term_style.background(terminal_color)
+            term_style = term_style.background(color=terminal_color)
             if use_space_styler:
-                term_style_space = term_style_space.background(terminal_color)
+                term_style_space = term_style_space.background(color=terminal_color)
             if color_whitespace:
-                term_style_whitespace = term_style_whitespace.background(terminal_color)
+                term_style_whitespace = term_style_whitespace.background(color=terminal_color)
         elif bg.isa[ANSIColor]():
             var terminal_color = bg[ANSIColor].color(self.renderer)
-            term_style = term_style.background(terminal_color)
+            term_style = term_style.background(color=terminal_color)
             if use_space_styler:
-                term_style_space = term_style_space.background(terminal_color)
+                term_style_space = term_style_space.background(color=terminal_color)
             if color_whitespace:
-                term_style_whitespace = term_style_whitespace.background(terminal_color)
+                term_style_whitespace = term_style_whitespace.background(color=terminal_color)
         elif bg.isa[AdaptiveColor]():
             var terminal_color = bg[AdaptiveColor].color(self.renderer)
-            term_style = term_style.background(terminal_color)
+            term_style = term_style.background(color=terminal_color)
             if use_space_styler:
-                term_style_space = term_style_space.background(terminal_color)
+                term_style_space = term_style_space.background(color=terminal_color)
             if color_whitespace:
-                term_style_whitespace = term_style_whitespace.background(terminal_color)
+                term_style_whitespace = term_style_whitespace.background(color=terminal_color)
         elif bg.isa[CompleteColor]():
             var terminal_color = bg[CompleteColor].color(self.renderer)
-            term_style = term_style.background(terminal_color)
+            term_style = term_style.background(color=terminal_color)
             if use_space_styler:
-                term_style_space = term_style_space.background(terminal_color)
+                term_style_space = term_style_space.background(color=terminal_color)
             if color_whitespace:
-                term_style_whitespace = term_style_whitespace.background(terminal_color)
+                term_style_whitespace = term_style_whitespace.background(color=terminal_color)
         elif bg.isa[CompleteAdaptiveColor]():
             var terminal_color = bg[CompleteAdaptiveColor].color(self.renderer)
-            term_style = term_style.background(terminal_color)
+            term_style = term_style.background(color=terminal_color)
             if use_space_styler:
-                term_style_space = term_style_space.background(terminal_color)
+                term_style_space = term_style_space.background(color=terminal_color)
             if color_whitespace:
-                term_style_whitespace = term_style_whitespace.background(terminal_color)
+                term_style_whitespace = term_style_whitespace.background(color=terminal_color)
 
         if underline_spaces:
             term_style = term_style_space.underline()
@@ -2298,13 +2298,13 @@ struct Style:
         # Padding
         if not inline:
             if left_padding > 0:
-                var style = mist.new_style(self.renderer.color_profile)
+                var style = mist.new_style(self.renderer.color_profile.value)
                 if color_whitespace or use_whitespace_styler:
                     style = term_style_whitespace
                 styled_text = pad_left(styled_text, left_padding, style)
 
             if right_padding > 0:
-                var style = mist.new_style(self.renderer.color_profile)
+                var style = mist.new_style(self.renderer.color_profile.value)
                 if color_whitespace or use_whitespace_styler:
                     style = term_style_whitespace
                 styled_text = pad_right(styled_text, right_padding, style)
@@ -2345,7 +2345,7 @@ struct Style:
 
         var number_of_lines = len(lines)
         if not (number_of_lines == 0 and width == 0):
-            var style = mist.new_style(self.renderer.color_profile)
+            var style = mist.new_style(self.renderer.color_profile.value)
             if color_whitespace or use_whitespace_styler:
                 style = term_style_whitespace
             styled_text = align_text_horizontal(styled_text, horizontal_align, width, style)

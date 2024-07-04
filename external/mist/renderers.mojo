@@ -2,19 +2,19 @@ from .style import Style, new_style
 from .profile import Profile
 
 
-alias RED = "#E88388"
-alias GREEN = "#A8CC8C"
-alias YELLOW = "#DBAB79"
-alias BLUE = "#71BEF2"
-alias MAGENTA = "#D290E4"
-alias CYAN = "#66C2CD"
-alias GRAY = "#B9BFCA"
+alias RED = 0xE88388
+alias GREEN = 0xA8CC8C
+alias YELLOW = 0xDBAB79
+alias BLUE = 0x71BEF2
+alias MAGENTA = 0xD290E4
+alias CYAN = 0x66C2CD
+alias GRAY = 0xB9BFCA
 
 
 # Convenience functions for quick style application
-fn render_as_color(text: String, color: String) -> String:
+fn render_as_color(text: String, color: UInt32) -> String:
     var profile = Profile()
-    return new_style(profile).foreground(profile.color(color)).render(text)
+    return new_style(profile.value).foreground(color=profile.color(color)).render(text)
 
 
 fn red(text: String) -> String:
@@ -52,9 +52,9 @@ fn gray(text: String) -> String:
     return render_as_color(text, GRAY)
 
 
-fn render_with_background_color(text: String, color: String) -> String:
+fn render_with_background_color(text: String, color: UInt32) -> String:
     var profile = Profile()
-    return new_style(profile).background(profile.color(color)).render(text)
+    return new_style().background(color=profile.color(color)).render(text)
 
 
 fn red_background(text: String) -> String:

@@ -9,7 +9,7 @@ import mog
 
 
 var style = mog.new_style().horizontal_alignment(mog.center).vertical_alignment(mog.center).padding(0, 1)
-var header_style = style.foreground(mog.Color("#39E506"))
+var header_style = style.foreground(mog.Color(0x39E506))
 
 
 fn table_styling(row: Int, col: Int) -> mog.Style:

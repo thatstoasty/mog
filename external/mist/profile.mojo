@@ -1,4 +1,5 @@
 import os
+import external.hue
 from .color import (
     NoColor,
     ANSIColor,
@@ -8,6 +9,7 @@ from .color import (
     hex_to_ansi256,
     ansi256_to_ansi,
     hex_to_rgb,
+    ansi_to_rgb,
     int_to_str,
 )
 
@@ -72,7 +74,6 @@ struct Profile:
     alias valid = InlineArray[Int, 4](TRUE_COLOR, ANSI256, ANSI, ASCII)
     var value: Int
 
-    @always_inline
     fn __init__(inout self, value: Int):
         """
         Initialize a new profile with the given profile type.
@@ -86,14 +87,12 @@ struct Profile:
 
         self.value = value
 
-    @always_inline
     fn __init__(inout self):
         """
         Initialize a new profile with the given profile type.
         """
         self.value = get_color_profile()
 
-    @always_inline
     fn __copyinit__(inout self, other: Profile):
         self.value = other.value
 
@@ -119,7 +118,9 @@ struct Profile:
             var h = hex_to_rgb(color[RGBColor].value)
 
             if self.value != TRUE_COLOR:
-                var ansi256 = hex_to_ansi256(h)
+                var ansi256 = hex_to_ansi256(
+                    hue.Color(h[0].cast[DType.float64](), h[1].cast[DType.float64](), h[2].cast[DType.float64]())
+                )
                 if self.value == ANSI:
                     return ansi256_to_ansi(ansi256.value)
 
@@ -130,33 +131,19 @@ struct Profile:
         # If it somehow gets here, just return No Color until I can figure out how to just return whatever color was passed in.
         return color[NoColor]
 
-    @always_inline
-    fn color(self, value: String) -> AnyColor:
+    fn color(self, value: UInt32) -> AnyColor:
         """Color creates a Color from a string. Valid inputs are hex colors, as well as
         ANSI color codes (0-15, 16-255). If an invalid input is passed in, NoColor() is returned which will not apply any coloring.
 
         Args:
             value: The string to convert to a color.
         """
-        if len(value) == 0:
-            return NoColor()
-
         if self.value == ASCII:
             return NoColor()
 
-        if value[0] == "#":
-            return self.convert(RGBColor(value))
-
-        return NoColor()
-
-    @always_inline
-    fn color(self, value: UInt8) -> AnyColor:
-        """Color creates a Color from a string. Valid inputs are hex colors, as well as
-        ANSI color codes (0-15, 16-255). If an invalid input is passed in, NoColor() is returned which will not apply any coloring.
-
-        Args:
-            value: The int to convert to a color.
-        """
         if value < 16:
             return self.convert(ANSIColor(value))
-        return self.convert(ANSI256Color(value))
+        elif value < 256:
+            return self.convert(ANSI256Color(value))
+
+        return self.convert(RGBColor(value))

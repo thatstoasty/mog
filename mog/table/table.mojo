@@ -46,7 +46,7 @@ fn main():
         else:
             return odd_row_style
 
-    var t = mog.Table().
+    var t = mog.new_table().
     set_headers("Name", "Age").
     row("Kini", "4").
     row("Eli", "1").
@@ -72,6 +72,7 @@ fn default_styles(row: Int, col: Int) -> Style:
     return mog.Style()
 
 
+# TODO: Parametrize on data field, so other structs that implement `Data` can be used. For now it only support `StringData`.
 @value
 struct Table:
     """Used to model and render tabular data as a table.
@@ -93,7 +94,7 @@ struct Table:
             else:
                 return odd_row_style
 
-        var t = mog.Table().
+        var t = mog.new_table().
         set_headers("Name", "Age").
         row("Kini", "4").
         row("Eli", "1").
@@ -541,7 +542,7 @@ struct Table:
             var header = self.headers[i]
             var style = self.style(0, i).max_height(1).width(self.widths[i]).max_width(self.widths[i])
 
-            _ = builder.write_string(style.render(truncate_with_tail(header, UInt8(self.widths[i]), "…")))
+            _ = builder.write_string(style.render(truncate_with_tail(header, self.widths[i], "…")))
 
             if (i < len(self.headers) - 1) and (self.border_column):
                 _ = builder.write_string(self.border_style.render(self.border.left))

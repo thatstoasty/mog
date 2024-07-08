@@ -95,10 +95,10 @@ alias FilterFunction = fn (row: Int) -> Bool
 
 
 @value
-struct Filter[T: Data](Data):
-    """Applies a filter functoin on some data."""
+struct Filter[DataType: Data](Data):
+    """Applies a filter function on some data."""
 
-    var data: T
+    var data: DataType
     var filter_function: FilterFunction
 
     fn filter(self, data: Int) -> Bool:

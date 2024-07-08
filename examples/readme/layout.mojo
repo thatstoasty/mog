@@ -64,7 +64,7 @@ fn build_description() -> String:
 
     var url = mog.Style().foreground(special)
     var desc_style = mog.Style().margin_top(1)
-    var info_style = mog.Style().border(NORMAL_BORDER(), True, False, False, False).border_foreground(subtle)
+    var info_style = mog.Style().border(NORMAL_BORDER, True, False, False, False).border_foreground(subtle)
 
     return join_vertical(
         position.left,
@@ -74,7 +74,7 @@ fn build_description() -> String:
 
 
 fn build_dialog_box() -> String:
-    var dialog_box_style = mog.Style().alignment(position.center).border(ROUNDED_BORDER()).border_foreground(
+    var dialog_box_style = mog.Style().alignment(position.center).border(ROUNDED_BORDER).border_foreground(
         mog.Color(0x874BFD)
     ).padding(1, 0)
 
@@ -107,11 +107,11 @@ fn build_dialog_box() -> String:
 
 
 fn build_lists() -> String:
-    var list_style = mog.Style().border(NORMAL_BORDER(), False, True, False, False).border_foreground(
+    var list_style = mog.Style().border(NORMAL_BORDER, False, True, False, False).border_foreground(
         subtle
     ).margin_right(2).height(8).width(column_width + 1)
 
-    var list_header = mog.Style().border(NORMAL_BORDER(), False, False, True, False).border_foreground(
+    var list_header = mog.Style().border(NORMAL_BORDER, False, False, True, False).border_foreground(
         subtle
     ).margin_right(2)
 
@@ -212,7 +212,7 @@ fn build_status_bar() -> String:
 fn main():
     # The page style
     var builder = StringBuilder()
-    var doc_style = mog.Style().padding(1, 2, 1, 2).border(ROUNDED_BORDER()).border_foreground(subtle)
+    var doc_style = mog.Style().padding(1, 2, 1, 2).border(ROUNDED_BORDER).border_foreground(subtle)
 
     # Tabs.
     _ = builder.write_string(build_tabs())

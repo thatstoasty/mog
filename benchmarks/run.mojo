@@ -8,7 +8,7 @@ from benchmarks.basic_styling import (
 import mog
 
 
-var style = mog.Style().horizontal_alignment(mog.center).vertical_alignment(mog.center).padding(0, 1)
+var style = mog.Style().alignment(mog.center, mog.center).padding(0, 1)
 var header_style = style.foreground(mog.Color(0x39E506))
 
 

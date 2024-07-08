@@ -3,7 +3,7 @@ import mog
 
 fn main():
     var style = (
-        mog.new_style()
+        mog.Style()
         .bold(True)
         .foreground(mog.Color(0xFAFAFA))
         .background(mog.Color(0x7D56F4))

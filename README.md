@@ -22,7 +22,7 @@ Users familiar with CSS will feel at home with Mog.
 
 import mog
 
-var style = mog.new_style() \
+var style = mog.Style() \
     .bold(True) \
     .foreground(mog.Color("#FAFAFA")) \
     .background(mog.Color("#7D56F4")) \
@@ -110,7 +110,7 @@ mog.CompleteAdaptiveColor(
 Mog supports the usual ANSI text formatting options:
 
 ```mojo
-var style = mog.new_style() \
+var style = mog.Style() \
     .bold(True) \
     .italic(True) \
     .faint(True) \
@@ -126,14 +126,14 @@ Mog also supports rules for block-level formatting:
 
 ```mojo
 # Padding
-var style = mog.new_style() \
+var style = mog.Style() \
     .padding_top(2) \
     .padding_right(4) \
     .padding_bottom(2) \
     .padding_left(4)
 
 # Margins
-var style = mog.new_style() \
+var style = mog.Style() \
     .margin_top(2) \
     .margin_right(4) \
     .margin_bottom(2) \
@@ -145,17 +145,17 @@ format as CSS:
 
 ```mojo
 # 2 cells on all sides
-mog.new_style().padding(2)
+mog.Style().padding(2)
 
 # 2 cells on the top and bottom, 4 cells on the left and right
-mog.new_style().margin(2, 4)
+mog.Style().margin(2, 4)
 
 # 1 cell on the top, 4 cells on the sides, 2 cells on the bottom
-mog.new_style().padding(1, 4, 2)
+mog.Style().padding(1, 4, 2)
 
 # Clockwise, starting from the top: 2 cells on the top, 4 on the right, 3 on
 # the bottom, and 1 on the left
-mog.new_style().margin(2, 4, 3, 1)
+mog.Style().margin(2, 4, 3, 1)
 ```
 
 ## Aligning Text
@@ -163,7 +163,7 @@ mog.new_style().margin(2, 4, 3, 1)
 You can align paragraphs of text to the left, right, or center.
 
 ```mojo
-var style = mog.new_style() \
+var style = mog.Style() \
     .width(24) \
     .align(position.left) \ # align it left
     .align(position.right) \ # no wait, align it right
@@ -175,7 +175,7 @@ var style = mog.new_style() \
 Setting a minimum width and height is simple and straightforward.
 
 ```mojo
-var style = mog.new_style() \
+var style = mog.Style() \
     .set_string("What’s for lunch?") \
     .width(24) \
     .height(32) \
@@ -188,13 +188,13 @@ Adding borders is easy:
 
 ```mojo
 # Add a purple, rectangular border
-var style = mog.new_style() \
-    .border(normal_border()) \
+var style = mog.Style() \
+    .border(NORMAL_BORDER()) \
     .border_foreground(mog.Color("63"))
 
 # Set a rounded, yellow-on-purple border to the top and left
-var another_style = mog.new_style() \
-    .border(rounded_border()) \
+var another_style = mog.Style() \
+    .border(ROUNDED_BORDER()) \
     .border_foreground(mog.Color("228")) \
     .border_background(mog.Color("63")) \
     .border_top(True) \
@@ -218,11 +218,11 @@ pattern to the margin and padding shorthand functions.
 
 ```mojo
 # Add a thick border to the top and bottom
-mog.new_style().border(thick_border(), True, False)
+mog.Style().border(THICK_BORDER(), True, False)
 
 # Add a double border to the top and left sides. Rules are set clockwise
 # from top.
-mog.new_style().border(double_border(), True, False, False, True)
+mog.Style().border(DOUBLE_BORDER(), True, False, False, True)
 ```
 
 ## Copying Styles
@@ -230,7 +230,7 @@ mog.new_style().border(double_border(), True, False, False, True)
 Just use `copy()`:
 
 ```mojo
-var style = mog.new_style().foreground(mog.Color("219"))
+var style = mog.Style().foreground(mog.Color("219"))
 
 var wild_style = style.blink(True)
 ```
@@ -244,7 +244,7 @@ styles.
 All rules can be unset:
 
 ```mojo
-var style = mog.new_style() \
+var style = mog.Style() \
     .bold(True) \                       # make it bold
     .unset_bold() \                     # jk don't make it bold
     .background(mog.Color("227")) \     # yellow background
@@ -278,7 +278,7 @@ tabs to 4 spaces at render time. This behavior can be changed on a per-style
 basis, however:
 
 ```mojo
-style = mog.new_style() # tabs will render as 4 spaces, the default
+style = mog.Style() # tabs will render as 4 spaces, the default
 style = style.tab_width(2)    # render tabs as 2 spaces
 style = style.tab_width(0)    # remove tabs entirely
 style = style.tab_width(mog.NO_TAB_CONVERSION) # leave tabs intact
@@ -289,7 +289,7 @@ style = style.tab_width(mog.NO_TAB_CONVERSION) # leave tabs intact
 Generally, you just call the `render(string)` method on a `mog.Style`:
 
 ```mojo
-style = mog.new_style().bold(True).set_string("Hello,")
+style = mog.Style().bold(True).set_string("Hello,")
 print(style.render("kitty.")) # Hello, kitty.
 print(style.render("puppy.")) # Hello, puppy.
 print(style.render("my", "puppy.")) # Hello, my puppy.
@@ -298,7 +298,7 @@ print(style.render("my", "puppy.")) # Hello, my puppy.
 But you could also use the Stringer interface:
 
 ```mojo
-var style = mog.new_style().set_string("你好，猫咪。").bold(True)
+var style = mog.Style().set_string("你好，猫咪。").bold(True)
 print(style) # 你好，猫咪。
 ```
 
@@ -350,7 +350,7 @@ your layouts.
 
 ```mojo
 # render a block of text.
-var style = mog.new_style() \
+var style = mog.Style() \
     .width(40) \
     .padding(2)
 var block string = style.render(some_long_string)
@@ -406,8 +406,8 @@ Use the table package to style and render the table.
 
 ```mojo
 t = table.new_table().
-    .border(normal_border()) \
-    .border_style(mog.new_style().foreground(mog.Color("99"))) \
+    .border(NORMAL_BORDER()) \
+    .border_style(mog.Style().foreground(mog.Color("99"))) \
     .headers("LANGUAGE", "FORMAL", "INFORMAL") \
     .rows(rows)
 

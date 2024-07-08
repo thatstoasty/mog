@@ -3,18 +3,18 @@ from .position import Position
 from .border import (
     Border,
     render_horizontal_edge,
-    no_border,
-    hidden_border,
-    double_border,
-    rounded_border,
-    normal_border,
-    block_border,
-    inner_half_block_border,
-    outer_half_block_border,
-    thick_border,
-    ascii_border,
-    star_border,
-    plus_border,
+    NO_BORDER,
+    HIDDEN_BORDER,
+    DOUBLE_BORDER,
+    ROUNDED_BORDER,
+    NORMAL_BORDER,
+    BLOCK_BORDER,
+    INNER_HALF_BLOCK_BORDER,
+    OUTER_HALF_BLOCK_BORDER,
+    THICK_BORDER,
+    ASCII_BORDER,
+    STAR_BORDER,
+    PLUS_BORDER,
 )
 from .extensions import join, split
 from .align import align_text_horizontal, align_text_vertical
@@ -149,15 +149,6 @@ fn pad_right(text: String, n: Int, style: mist.Style) -> String:
     return pad(text, n, style)
 
 
-fn new_style(color_profile: Optional[Int] = None) -> Style:
-    """Create a new Style object.
-
-    Args:
-        color_profile: The color profile to use. Defaults to None, which means it'll be queried at run time instead.
-    """
-    return Style(color_profile=color_profile)
-
-
 @register_passable("trivial")
 struct Properties:
     """Properties for a style."""
@@ -216,7 +207,7 @@ struct Style:
 
     fn main():
         var style = (
-            mog.new_style()
+            mog.Style()
             .bold(True)
             .foreground(mog.Color(0xFAFAFA))
             .background(mog.Color(0x7D56F4))
@@ -310,7 +301,7 @@ struct Style:
         self._margin_left = 0
         self._margin_bg = NoColor()
 
-        self._border = no_border()
+        self._border = NO_BORDER
         self._border_top_fg = NoColor()
         self._border_right_fg = NoColor()
         self._border_bottom_fg = NoColor()
@@ -713,7 +704,7 @@ struct Style:
         Example:
 
             var: String = "..."
-            var user_style = mog.new_style().inline(True)
+            var user_style = mog.Style().inline(True)
             print(user_style.render(user_input))
 
         Args:
@@ -962,7 +953,7 @@ struct Style:
 
         Example:
             var: String = "..."
-            var user_style = mog.new_style().max_width(16)
+            var user_style = mog.Style().max_width(16)
             print(user_style.render(user_input))
 
         Args:
@@ -1952,8 +1943,8 @@ struct Style:
         var left_bg = self.get_as_color(BORDER_LEFT_BACKGROUND_KEY)
 
         # If a border is set and no sides have been specifically turned on or off
-        # render borders on all sideself.
-        var borderless = no_border()
+        # render borders on all sides.
+        var borderless = NO_BORDER
         if border != borderless and not (top_set or right_set or bottom_set or left_set):
             has_top = True
             has_right = True

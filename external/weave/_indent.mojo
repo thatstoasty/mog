@@ -1,39 +1,64 @@
 from external.gojo.bytes import buffer
 from external.gojo.unicode import UnicodeString
-import external.gojo.io
-from .ansi import writer, is_terminator, Marker
-from .strings import repeat
+import .ansi
 
 
-struct Writer(Stringable, io.Writer):
+struct Writer(Stringable, Movable):
+    """A writer that indents content by a given number of spaces.
+
+    Example Usage:
+    ```mojo
+    from weave import _indent as indent
+
+    fn main():
+        var writer = indent.Writer(4)
+        _ = writer.write("Hello, World!".as_bytes_slice())
+        print(String(writer.as_string_slice()))
+    ```
+    """
+
     var indent: UInt8
-
-    var ansi_writer: writer.Writer
+    """The number of spaces to indent each line."""
+    var ansi_writer: ansi.Writer
+    """The ANSI aware writer that stores the text content."""
     var skip_indent: Bool
-    var ansi: Bool
+    """Whether to skip the indentation for the next line."""
+    var in_ansi: Bool
+    """Whether the current character is part of an ANSI escape sequence."""
 
     fn __init__(inout self, indent: UInt8):
+        """Initializes a new indent-writer instance.
+
+        Args:
+            indent: The number of spaces to indent each line.
+        """
         self.indent = indent
-
-        self.ansi_writer = writer.new_default_writer()
+        self.ansi_writer = ansi.Writer()
         self.skip_indent = False
-        self.ansi = False
+        self.in_ansi = False
 
-    @always_inline
     fn __moveinit__(inout self, owned other: Self):
         self.indent = other.indent
         self.ansi_writer = other.ansi_writer^
         self.skip_indent = other.skip_indent
-        self.ansi = other.ansi
-
-    fn bytes(self) -> List[UInt8]:
-        """Returns the indented result as a byte slice."""
-        return self.ansi_writer.forward.bytes()
+        self.in_ansi = other.in_ansi
 
     fn __str__(self) -> String:
         return str(self.ansi_writer.forward)
 
-    fn write(inout self, src: List[UInt8]) -> (Int, Error):
+    fn as_bytes(self) -> List[UInt8]:
+        """Returns the indented result as a byte list."""
+        return self.ansi_writer.forward.bytes()
+
+    fn as_bytes_slice(self: Reference[Self]) -> Span[UInt8, self.is_mutable, self.lifetime]:
+        """Returns the indented result as a byte slice."""
+        return self[].ansi_writer.forward.as_bytes_slice()
+
+    fn as_string_slice(self: Reference[Self]) -> StringSlice[self.is_mutable, self.lifetime]:
+        """Returns the indented result as a string slice."""
+        return StringSlice(unsafe_from_utf8=self[].ansi_writer.forward.as_bytes_slice())
+
+    fn write(inout self, src: Span[UInt8]) -> (Int, Error):
         """Writes the given byte slice to the writer.
 
         Args:
@@ -43,22 +68,20 @@ struct Writer(Stringable, io.Writer):
             The number of bytes written and optional error.
         """
         var err = Error()
-        var uni_str = UnicodeString(src)
-        for char in uni_str:
-            if char == Marker:
+        for rune in UnicodeString(src):
+            var char = String(rune)
+            if char == ansi.Marker:
                 # ANSI escape sequence
-                self.ansi = True
-            elif self.ansi:
-                if is_terminator(ord(char)):
+                self.in_ansi = True
+            elif self.in_ansi:
+                if ansi.is_terminator(ord(char)):
                     # ANSI sequence terminated
-                    self.ansi = False
+                    self.in_ansi = False
             else:
                 if not self.skip_indent:
                     self.ansi_writer.reset_ansi()
-                    var indent = (SPACE * int(self.indent)).as_bytes()
-
                     var bytes_written = 0
-                    bytes_written, err = self.ansi_writer.write(indent)
+                    bytes_written, err = self.ansi_writer.write((SPACE * int(self.indent)).as_bytes_slice())
                     if err:
                         return bytes_written, err
 
@@ -70,51 +93,51 @@ struct Writer(Stringable, io.Writer):
                     self.skip_indent = False
 
             var bytes_written = 0
-            bytes_written, err = self.ansi_writer.write(char.as_bytes())
+            bytes_written, err = self.ansi_writer.write(char.as_bytes_slice())
             if err:
                 return bytes_written, err
 
         return len(src), err
 
 
-fn new_writer(indent: UInt8) -> Writer:
-    """Creates a new indent-writer instance with the given indent level.
-
-    Args:
-        indent: The number of spaces to indent.
-    """
-    return Writer(indent=indent)
-
-
-fn apply_indent_to_bytes(b: List[UInt8], indent: UInt8) -> List[UInt8]:
+fn apply_indent_to_bytes(span: Span[UInt8], indent: UInt8) -> List[UInt8]:
     """Shorthand for declaring a new default indent-writer instance, used to immediately indent a byte slice.
+    Returns a NEW list of bytes.
 
     Args:
-        b: The byte slice to indent.
+        span: The byte slice to indent.
         indent: The number of spaces to indent.
 
     Returns:
-        The indented byte slice.
+        A new indented list of bytes.
     """
-    var f = new_writer(indent)
-    _ = f.write(b)
+    var writer = Writer(indent)
+    _ = writer.write(span)
 
-    return f.bytes()
+    return writer.as_bytes()
 
 
-fn indent(s: String, indent: UInt8) -> String:
+fn indent(text: String, indent: UInt8) -> String:
     """Shorthand for declaring a new default indent-writer instance,
     used to immediately indent a string.
 
     Args:
-        s: The string to indent.
+        text: The string to indent.
         indent: The number of spaces to indent.
 
     Returns:
-        The indented string.
-    """
-    var buf = s.as_bytes()
-    var b = apply_indent_to_bytes(buf^, indent)
-    b.append(0)
+        A new indented string.
 
-    return String(b)
+    Example Usage:
+    ```mojo
+    from weave import indent
+
+    fn main():
+        var indented = indent("Hello, World!", 4)
+        print(indented)
+    ```
+    .
+    """
+    var writer = Writer(indent)
+    _ = writer.write(text.as_bytes_slice())
+    return String(writer.as_string_slice())

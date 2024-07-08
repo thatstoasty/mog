@@ -82,195 +82,183 @@ struct Border:
         )
 
 
-fn ascii_border() -> Border:
-    return Border(
-        top="-",
-        bottom="_",
-        left="|",
-        right="|",
-        top_left="*",
-        top_right="*",
-        bottom_left="*",
-        bottom_right="*",
-        middle_left="*",
-        middle_right="*",
-        middle="*",
-        middle_top="*",
-        middle_bottom="*",
-    )
+alias ASCII_BORDER = Border(
+    top="-",
+    bottom="_",
+    left="|",
+    right="|",
+    top_left="*",
+    top_right="*",
+    bottom_left="*",
+    bottom_right="*",
+    middle_left="*",
+    middle_right="*",
+    middle="*",
+    middle_top="*",
+    middle_bottom="*",
+)
 
 
-fn star_border() -> Border:
-    return Border(
-        top="*",
-        bottom="*",
-        left="*",
-        right="*",
-        top_left="*",
-        top_right="*",
-        bottom_left="*",
-        bottom_right="*",
-        middle_left="*",
-        middle_right="*",
-        middle="*",
-        middle_top="*",
-        middle_bottom="*",
-    )
+alias STAR_BORDER = Border(
+    top="*",
+    bottom="*",
+    left="*",
+    right="*",
+    top_left="*",
+    top_right="*",
+    bottom_left="*",
+    bottom_right="*",
+    middle_left="*",
+    middle_right="*",
+    middle="*",
+    middle_top="*",
+    middle_bottom="*",
+)
 
 
-fn plus_border() -> Border:
-    return Border(
-        top="+",
-        bottom="+",
-        left="+",
-        right="+",
-        top_left="+",
-        top_right="+",
-        bottom_left="+",
-        bottom_right="+",
-        middle_left="+",
-        middle_right="+",
-        middle="+",
-        middle_top="+",
-        middle_bottom="+",
-    )
+alias PLUS_BORDER = Border(
+    top="+",
+    bottom="+",
+    left="+",
+    right="+",
+    top_left="+",
+    top_right="+",
+    bottom_left="+",
+    bottom_right="+",
+    middle_left="+",
+    middle_right="+",
+    middle="+",
+    middle_top="+",
+    middle_bottom="+",
+)
 
 
-fn normal_border() -> Border:
-    return Border(
-        top="─",
-        bottom="─",
-        left="│",
-        right="│",
-        top_left="┌",
-        top_right="┐",
-        bottom_left="└",
-        bottom_right="┘",
-        middle_left="├",
-        middle_right="┤",
-        middle="┼",
-        middle_top="┬",
-        middle_bottom="┴",
-    )
+alias NORMAL_BORDER = Border(
+    top="─",
+    bottom="─",
+    left="│",
+    right="│",
+    top_left="┌",
+    top_right="┐",
+    bottom_left="└",
+    bottom_right="┘",
+    middle_left="├",
+    middle_right="┤",
+    middle="┼",
+    middle_top="┬",
+    middle_bottom="┴",
+)
 
 
-fn rounded_border() -> Border:
-    return Border(
-        top="─",
-        bottom="─",
-        left="│",
-        right="│",
-        top_left="╭",
-        top_right="╮",
-        bottom_left="╰",
-        bottom_right="╯",
-        middle_left="├",
-        middle_right="┤",
-        middle="┼",
-        middle_top="┬",
-        middle_bottom="┴",
-    )
+alias ROUNDED_BORDER = Border(
+    top="─",
+    bottom="─",
+    left="│",
+    right="│",
+    top_left="╭",
+    top_right="╮",
+    bottom_left="╰",
+    bottom_right="╯",
+    middle_left="├",
+    middle_right="┤",
+    middle="┼",
+    middle_top="┬",
+    middle_bottom="┴",
+)
 
 
-fn block_border() -> Border:
-    return Border(
-        top="█",
-        bottom="█",
-        left="█",
-        right="█",
-        top_left="█",
-        top_right="█",
-        bottom_left="█",
-        bottom_right="█",
-        middle_left="█",
-        middle_right="█",
-        middle="█",
-        middle_top="█",
-    )
+alias BLOCK_BORDER = Border(
+    top="█",
+    bottom="█",
+    left="█",
+    right="█",
+    top_left="█",
+    top_right="█",
+    bottom_left="█",
+    bottom_right="█",
+    middle_left="█",
+    middle_right="█",
+    middle="█",
+    middle_top="█",
+)
 
 
-fn outer_half_block_border() -> Border:
-    return Border(
-        top="▀",
-        bottom="▄",
-        left="▌",
-        right="▐",
-        top_left="▛",
-        top_right="▜",
-        bottom_left="▙",
-        bottom_right="▟",
-    )
+alias OUTER_HALF_BLOCK_BORDER = Border(
+    top="▀",
+    bottom="▄",
+    left="▌",
+    right="▐",
+    top_left="▛",
+    top_right="▜",
+    bottom_left="▙",
+    bottom_right="▟",
+)
 
 
-fn inner_half_block_border() -> Border:
-    return Border(
-        top="▄",
-        bottom="▀",
-        left="▐",
-        right="▌",
-        top_left="▗",
-        top_right="▖",
-        bottom_left="▝",
-        bottom_right="▘",
-    )
+alias INNER_HALF_BLOCK_BORDER = Border(
+    top="▄",
+    bottom="▀",
+    left="▐",
+    right="▌",
+    top_left="▗",
+    top_right="▖",
+    bottom_left="▝",
+    bottom_right="▘",
+)
 
 
-fn thick_border() -> Border:
-    return Border(
-        top="━",
-        bottom="━",
-        left="┃",
-        right="┃",
-        top_left="┏",
-        top_right="┓",
-        bottom_left="┗",
-        bottom_right="┛",
-        middle_left="┣",
-        middle_right="┫",
-        middle="╋",
-        middle_top="┳",
-        middle_bottom="┻",
-    )
+alias THICK_BORDER = Border(
+    top="━",
+    bottom="━",
+    left="┃",
+    right="┃",
+    top_left="┏",
+    top_right="┓",
+    bottom_left="┗",
+    bottom_right="┛",
+    middle_left="┣",
+    middle_right="┫",
+    middle="╋",
+    middle_top="┳",
+    middle_bottom="┻",
+)
 
 
-fn double_border() -> Border:
-    return Border(
-        top="═",
-        bottom="═",
-        left="║",
-        right="║",
-        top_left="╔",
-        top_right="╗",
-        bottom_left="╚",
-        bottom_right="╝",
-        middle_left="╠",
-        middle_right="╣",
-        middle="╬",
-        middle_top="╦",
-        middle_bottom="╩",
-    )
+alias DOUBLE_BORDER = Border(
+    top="═",
+    bottom="═",
+    left="║",
+    right="║",
+    top_left="╔",
+    top_right="╗",
+    bottom_left="╚",
+    bottom_right="╝",
+    middle_left="╠",
+    middle_right="╣",
+    middle="╬",
+    middle_top="╦",
+    middle_bottom="╩",
+)
 
 
-fn hidden_border() -> Border:
-    return Border(
-        top=" ",
-        bottom=" ",
-        left=" ",
-        right=" ",
-        top_left=" ",
-        top_right=" ",
-        bottom_left=" ",
-        bottom_right=" ",
-        middle_left=" ",
-        middle_right=" ",
-        middle=" ",
-        middle_top=" ",
-        middle_bottom=" ",
-    )
+alias HIDDEN_BORDER = Border(
+    top=" ",
+    bottom=" ",
+    left=" ",
+    right=" ",
+    top_left=" ",
+    top_right=" ",
+    bottom_left=" ",
+    bottom_right=" ",
+    middle_left=" ",
+    middle_right=" ",
+    middle=" ",
+    middle_top=" ",
+    middle_bottom=" ",
+)
 
 
-fn no_border() -> Border:
-    return Border()
+alias NO_BORDER = Border()
 
 
 fn render_horizontal_edge(left: String, middle: String, right: String, width: Int) -> String:

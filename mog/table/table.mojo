@@ -1,11 +1,11 @@
 from external.weave import truncate_with_tail
 from external.gojo.strings import StringBuilder
 from ..style import Style
-from ..border import rounded_border, Border
+from ..border import ROUNDED_BORDER, Border
 from ..position import top, bottom, left, right, center
 from ..join import join_horizontal
 from ..size import get_height, get_width
-from .rows import StringData, new_string_data
+from .rows import StringData
 from .util import btoi, median, largest, sum
 
 
@@ -21,33 +21,46 @@ fn trim_right(s: String, cutset: String) -> String:
     return s[:index]
 
 
-# StyleFunction is the style fntion that determines the style of a Cell.
-#
-# It takes the row and column of the cell as an input and determines the
-# lipgloss Style to use for that cell position.
-#
-# Example:
-#
-# 	t = table.New().
-# 	    Headers("Name", "Age").
-# 	    Row("Kini", 4).
-# 	    Row("Eli", 1).
-# 	    Row("Iris", 102).
-# 	    StyleFunction(fn(row, col Int) Style:
-# 	        switch:
-# 	           case row == 0:
-# 	               return HeaderStyle
-# 	           case row%2 == 0:
-# 	               return Evenrowstyle
-# 	           default:
-# 	               return Oddrowstyle
-#
-# 	    )
 alias StyleFunction = fn (row: Int, col: Int) escaping -> Style
+"""
+StyleFunction is the style fntion that determines the style of a Cell.
+
+It takes the row and column of the cell as an input and determines the
+lipgloss Style to use for that cell position.
+
+Example Usage:
+
+```
+import mog
+
+fn main():
+    var header_style =  mog.Style().bold()
+    var even_row_style = mog.Style().italic()
+    var odd_row_style = mog.Style().faint()
+
+    fn styler(row: Int, col: Int) -> mog.Style:
+        if row == 0:
+            return header_style
+        elif row%2 == 0:
+            return even_row_style
+        else:
+            return odd_row_style
+
+    var t = mog.Table().
+    set_headers("Name", "Age").
+    row("Kini", "4").
+    row("Eli", "1").
+    row("Iris", "102").
+    style_function(styler)
+
+    print(t)
+```
+.
+"""
 
 
 fn default_styles(row: Int, col: Int) -> Style:
-    """TableStyleFunction that returns a new Style with no attributes.
+    """Returns a new Style with no attributes.
 
     Args:
         row: The row of the cell.
@@ -56,58 +69,112 @@ fn default_styles(row: Int, col: Int) -> Style:
     Returns:
         A new Style with no attributes.
     """
-    return mog.new_style()
+    return mog.Style()
 
 
 @value
 struct Table:
-    """Type for rendering tables."""
+    """Used to model and render tabular data as a table.
+
+    Example Usage:
+    ```
+    import mog
+
+    fn main():
+        var header_style =  mog.Style().bold()
+        var even_row_style = mog.Style().italic()
+        var odd_row_style = mog.Style().faint()
+
+        fn styler(row: Int, col: Int) -> mog.Style:
+            if row == 0:
+                return header_style
+            elif row%2 == 0:
+                return even_row_style
+            else:
+                return odd_row_style
+
+        var t = mog.Table().
+        set_headers("Name", "Age").
+        row("Kini", "4").
+        row("Eli", "1").
+        row("Iris", "102").
+        style_function(styler)
+
+        print(t)
+    ```
+    .
+    """
 
     var style_function: StyleFunction
+    """The style function that determines the style of a cell. It returns a `mog.Style` for a given row and column position."""
     var border: Border
-
+    """The border style to use for the table."""
     var border_top: Bool
+    """Whether to render the top border of the table."""
     var border_bottom: Bool
+    """Whether to render the bottom border of the table."""
     var border_left: Bool
+    """Whether to render the left border of the table."""
     var border_right: Bool
+    """Whether to render the right border of the table."""
     var border_header: Bool
+    """Whether to render the header border of the table."""
     var border_column: Bool
+    """Whether to render the column border of the table."""
     var border_row: Bool
-
+    """Whether to render the row divider borders for each row of the table."""
     var border_style: Style
+    """The style to use for the border."""
     var headers: List[String]
+    """The headers of the table."""
     var data: StringData
-
+    """The data of the table."""
     var width: Int
-    # var height: Int
+    """The width of the table."""
+    var height: Int
+    """The height of the table."""
     var offset: Int
-
-    # widths tracks the width of each column.
+    """The offset of the table."""
     var widths: List[Int]
-
-    # heights tracks the height of each row.
+    """Tracks the width of each column."""
     var heights: List[Int]
+    """Tracks the height of each row."""
 
     fn __init__(
         inout self,
         style_function: StyleFunction,
-        border: Border,
         border_style: Style,
-        data: StringData,
-        border_top: Bool = False,
-        border_bottom: Bool = False,
-        border_left: Bool = False,
-        border_right: Bool = False,
-        border_header: Bool = False,
-        border_column: Bool = False,
+        border: Border = ROUNDED_BORDER,
+        border_top: Bool = True,
+        border_bottom: Bool = True,
+        border_left: Bool = True,
+        border_right: Bool = True,
+        border_header: Bool = True,
+        border_column: Bool = True,
         border_row: Bool = False,
         headers: List[String] = List[String](),
+        data: StringData = StringData(),
         width: Int = 0,
-        # height: Int = 0,
-        offset: Int = 0,
-        widths: List[Int] = List[Int](),
-        heights: List[Int] = List[Int](),
+        height: Int = 0,
     ):
+        """Initializes a new Table.
+
+        Args:
+            style_function: The style function that determines the style of a cell.
+            border_style: The style to use for the border.
+            border: The border style to use for the table.
+            border_top: Whether to render the top border of the table.
+            border_bottom: Whether to render the bottom border of the table.
+            border_left: Whether to render the left border of the table.
+            border_right: Whether to render the right border of the table.
+            border_header: Whether to render the header border of the table.
+            border_column: Whether to render the column border of the table.
+            border_row: Whether to render the row divider borders for each row of the table.
+            headers: The headers of the table.
+            data: The data of the table.
+            width: The width of the table.
+            height: The height of the table.
+        """
         self.style_function = style_function
         self.border = border
         self.border_style = border_style
@@ -121,14 +188,16 @@ struct Table:
         self.headers = headers
         self.data = data
         self.width = width
-        # self.height = height
-        self.offset = offset
-        self.widths = widths
-        self.heights = heights
+        self.height = height
+        self.offset = 0
+        self.widths = List[Int]()
+        self.heights = List[Int]()
 
-    fn clear_rows(inout self):
+    fn clear_rows(self) -> Table:
         """Clears the table rows."""
-        self.data = StringData(_rows=List[List[String]](), _columns=0)
+        var new = self
+        new.data = StringData()
+        return new
 
     fn style(self, row: Int, col: Int) -> Style:
         """Returns the style for a cell based on it's position (row, column).
@@ -142,61 +211,73 @@ struct Table:
         """
         return self.style_function(row, col)
 
-    fn rows(inout self, *rows: List[String]):
+    fn rows(self, *rows: List[String]) -> Table:
         """Returns the style for a cell based on it's position (row, column).
 
         Args:
             rows: The rows to add to the table.
         """
+        var new = self
         for i in range(len(rows)):
-            self.data.append(rows[i])
+            new.data.append(rows[i])
+        return new
 
-    fn rows(inout self, rows: List[List[String]]):
+    fn rows(self, rows: List[List[String]]) -> Table:
         """Returns the style for a cell based on it's position (row, column).
 
         Args:
             rows: The rows to add to the table.
         """
+        var new = self
         for i in range(len(rows)):
-            self.data.append(rows[i])
+            new.data.append(rows[i])
+        return new
 
-    fn row(inout self, *row: String):
+    fn row(self, *row: String) -> Table:
         """Appends a row to the table data.
 
         Args:
             row: The row to append to the table.
         """
-        var temp = List[String]()
+        var new = self
+        var temp = List[String](capacity=len(row))
         for element in row:
             temp.append(element[])
-        self.data.append(temp)
+        new.data.append(temp)
+        return new
 
-    fn row(inout self, row: List[String]):
+    fn row(self, row: List[String]) -> Table:
         """Appends a row to the table data.
 
         Args:
             row: The row to append to the table.
         """
-        self.data.append(row)
+        var new = self
+        new.data.append(row)
+        return new
 
-    fn set_headers(inout self, *headers: String):
+    fn set_headers(self, *headers: String) -> Table:
         """Sets the table headers.
 
         Args:
             headers: The headers to set.
         """
+        var new = self
         var temp = List[String]()
         for element in headers:
             temp.append(element[])
-        self.headers = temp
+        new.headers = temp
+        return new
 
-    fn set_headers(inout self, headers: List[String]):
+    fn set_headers(self, headers: List[String]) -> Table:
         """Sets the table headers.
 
         Args:
             headers: The headers to set.
         """
-        self.headers = headers
+        var new = self
+        new.headers = headers
+        return new
 
     fn __str__(inout self) -> String:
         """Returns the table as a String."""
@@ -358,7 +439,7 @@ struct Table:
         if self.border_bottom:
             _ = builder.write_string(self.construct_bottom_border())
 
-        return mog.new_style().max_height(self.compute_height()).max_width(self.width).render(str(builder))
+        return mog.Style().max_height(self.compute_height()).max_width(self.width).render(str(builder))
 
     fn compute_width(self) -> Int:
         """Computes the width of the table in it's current configuration.
@@ -548,19 +629,8 @@ struct Table:
 
 
 fn new_table() -> Table:
-    """Returns a new Table that can be modified through different
-    attributes.
-
-    By default, a table has no border, no styling, and no rows."""
-    return Table(
-        style_function=default_styles,
-        border=rounded_border(),
-        border_style=mog.new_style(),
-        border_bottom=True,
-        border_column=True,
-        border_header=True,
-        border_left=True,
-        border_right=True,
-        border_top=True,
-        data=new_string_data(),
-    )
+    """Returns a new Table, this is to bypass the compiler limitation on these args having default values.
+    It seems like argument default values are handled at compile time, and mog Styles are not compile time constants,
+    UNLESS a profile is specified ahead of time.
+    """
+    return Table(style_function=default_styles, border_style=mog.Style())

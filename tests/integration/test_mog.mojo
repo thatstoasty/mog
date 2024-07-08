@@ -1,13 +1,13 @@
 from tests.wrapper import MojoTest
 from mog.join import join_vertical, join_horizontal
-from mog.table import new_table, new_string_data, Table
+from mog.table import new_table, Table, StringData
 from mog.table.table import default_styles
 from mog.border import (
-    star_border,
-    ascii_border,
+    STAR_BORDER,
+    ASCII_BORDER,
     Border,
-    rounded_border,
-    hidden_border,
+    ROUNDED_BORDER,
+    HIDDEN_BORDER,
 )
 from mog.style import Style
 from mog import position
@@ -16,7 +16,7 @@ from time import now
 
 
 fn dummy_style_func(row: Int, col: Int) -> Style:
-    var style = mog.new_style().horizontal_alignment(position.center).vertical_alignment(position.center).padding(0, 1)
+    var style = mog.Style().horizontal_alignment(position.center).vertical_alignment(position.center).padding(0, 1)
     if row == 0:
         style = style.foreground(mog.Color(0xC9A0DC))
         return style
@@ -29,11 +29,11 @@ fn dummy_style_func(row: Int, col: Int) -> Style:
 
 fn test_table() raises:
     var test = MojoTest("Testing table creation with and without headers")
-    var border_style = mog.new_style().foreground(mog.Color(0x39E506))
+    var border_style = mog.Style().foreground(mog.Color(0x39E506))
 
     var table = Table(
         style_function=default_styles,
-        border=rounded_border(),
+        border=ROUNDED_BORDER,
         border_style=border_style,
         border_bottom=True,
         border_column=True,
@@ -41,18 +41,17 @@ fn test_table() raises:
         border_left=True,
         border_right=True,
         border_top=True,
-        data=new_string_data(),
+        data=StringData(),
         width=50,
     )
     table.style_function = dummy_style_func
-    table.row("French", "Bonjour", "Salut")
-    table.row("Russian", "Zdravstvuyte", "Privet")
+    table = table.row("French", "Bonjour", "Salut").row("Russian", "Zdravstvuyte", "Privet")
 
     var headerless_start_time = now()
     print(table.render())
     var headerless_execution_time = now() - headerless_start_time
 
-    table.set_headers("LANGUAGE", "FORMAL", "INFORMAL")
+    table = table.set_headers("LANGUAGE", "FORMAL", "INFORMAL")
     var headered_start_time = now()
     print(table.render())
     var headered_execution_time = now() - headerless_start_time
@@ -72,8 +71,8 @@ fn test_table() raises:
 fn test_horizontal_joined_paragraphs() raises:
     var test = MojoTest("Testing Style rendering")
     var style_build_start = now()
-    var style = mog.new_style().bold().width(50).padding(1, 1, 1, 1).horizontal_alignment(position.center).border(
-        rounded_border()
+    var style = mog.Style().bold().width(50).padding(1, 1, 1, 1).horizontal_alignment(position.center).border(
+        ROUNDED_BORDER
     ).foreground(mog.Color(0xC9A0DC)).border_foreground(mog.Color(0x39E506))
     var style_build_duration = now() - style_build_start
     print("Style build duration: ", style_build_duration, style_build_duration / 1e9)
@@ -130,8 +129,8 @@ fn test_horizontal_joined_paragraphs() raises:
 
 
 fn test_borderless_paragraph() raises:
-    var borderless_style = mog.new_style().width(50).padding(1, 2).horizontal_alignment(position.center).border(
-        hidden_border()
+    var borderless_style = mog.Style().width(50).padding(1, 2).horizontal_alignment(position.center).border(
+        HIDDEN_BORDER
     ).background(mog.Color(0xC9A0DC))
 
     print(

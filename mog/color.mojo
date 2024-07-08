@@ -28,7 +28,7 @@ struct NoColor(TerminalColor):
 
     Example usage:
     ```mojo
-    var style = mog.new_style().background(mog.NoColor())
+    var style = mog.Style().background(mog.NoColor())
     ```
     .
     """

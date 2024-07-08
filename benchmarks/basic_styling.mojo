@@ -4,7 +4,7 @@ from benchmark.compiler import keep
 
 fn basic_styling():
     var style = (
-        mog.new_style()
+        mog.Style()
         .bold(True)
         .foreground(mog.Color(0xFAFAFA))
         .background(mog.Color(0x7D56F4))
@@ -18,7 +18,7 @@ fn basic_styling():
 
 
 var file_style = (
-    mog.new_style()
+    mog.Style()
     .bold(True)
     .foreground(mog.Color(0xFAFAFA))
     .background(mog.Color(0x7D56F4))
@@ -38,9 +38,9 @@ fn basic_styling_big_file():
     try:
         with open("./benchmarks/data/big.txt", "r") as file:
             content = file.read()
-            var style = mog.new_style().bold(True).foreground(mog.Color(0xFAFAFA)).background(
-                mog.Color(0x7D56F4)
-            ).width(100)
+            var style = mog.Style().bold(True).foreground(mog.Color(0xFAFAFA)).background(mog.Color(0x7D56F4)).width(
+                100
+            )
             var output = style.render(content)
             keep(output)
     except e:

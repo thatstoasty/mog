@@ -8,7 +8,7 @@ from benchmarks.basic_styling import (
 import mog
 
 
-var style = mog.new_style().horizontal_alignment(mog.center).vertical_alignment(mog.center).padding(0, 1)
+var style = mog.Style().alignment(mog.center, mog.center).padding(0, 1)
 var header_style = style.foreground(mog.Color(0x39E506))
 
 
@@ -22,7 +22,7 @@ fn table_styling(row: Int, col: Int) -> mog.Style:
 fn main():
     var results = mog.new_table()
     results.style_function = table_styling
-    results.set_headers(
+    results = results.set_headers(
         "Name",
         "Mean (ms)",
         "Total (ms)",
@@ -32,7 +32,7 @@ fn main():
     )
 
     var report = benchmark.run[render_layout](max_iters=10)
-    results.row(
+    results = results.row(
         "Render layout",
         str(report.mean(benchmark.Unit.ms)),
         str(report.duration(benchmark.Unit.ms)),
@@ -42,7 +42,7 @@ fn main():
     )
 
     var bs_report = benchmark.run[basic_styling](max_iters=50)
-    results.row(
+    results = results.row(
         "Basic styling",
         str(bs_report.mean(benchmark.Unit.ms)),
         str(bs_report.duration(benchmark.Unit.ms)),
@@ -52,7 +52,7 @@ fn main():
     )
 
     var bcs_report = benchmark.run[basic_comptime_styling](max_iters=50)
-    results.row(
+    results = results.row(
         "Basic comptime styling",
         str(bcs_report.mean(benchmark.Unit.ms)),
         str(bcs_report.duration(benchmark.Unit.ms)),

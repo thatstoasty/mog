@@ -3,3 +3,4 @@ This would not be possible without his help.
 """
 from .runes import rune_count_in_string
 from .string import UnicodeString
+from .width import string_width, rune_width, Condition, DEFAULT_CONDITION

@@ -1,2 +1,2 @@
-from .table import new_table, Table, default_styles, StyleFunction
-from .rows import new_string_data, StringData
+from .table import Table, default_styles, StyleFunction, new_table
+from .rows import StringData, Data, Filter

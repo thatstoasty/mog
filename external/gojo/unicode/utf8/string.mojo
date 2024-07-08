@@ -8,8 +8,7 @@ alias simd_width_u8 = simdwidthof[DType.uint8]()
 
 @value
 struct UnicodeString(Stringable, Sized):
-    """A string that supports Unicode characters of printable size 1
-    (ie not east asian characters and such.).
+    """A string that supports Unicode characters.
 
     The algorithms to handle UTF-8 are from @maxim on the Mojo Discord. Thanks!
     """
@@ -48,30 +47,28 @@ struct UnicodeString(Stringable, Sized):
     fn __str__(self) -> String:
         return self.inner
 
-    # @always_inline
-    # fn __getitem__(self, slice: Slice) -> String:
-    #     # Copy N bytes + null terminator into new pointer and construct string.
-    #     var copy_src = self.inner
-    #     var copy = DTypePointer[DType.uint8](copy_src.unsafe_uint8_ptr())
-    #     var bytes_left = len(self.inner)
+    @always_inline
+    fn __getitem__(self: Reference[Self], slice: Slice) -> StringSlice[self.is_mutable, self.lifetime]:
+        """TODO: Doesn't handle negative indices."""
+        var bytes_left = len(self[].inner)
+        var total_char_length: Int = 0
+        for _ in range(slice.start, slice.end):
+            # Number of bytes of the current character
+            var char_length = int(
+                (DTypePointer[DType.uint8](self[].inner.unsafe_uint8_ptr() + total_char_length).load() >> 7 == 0).cast[
+                    DType.uint8
+                ]()
+                * 1
+                + countl_zero(~DTypePointer[DType.uint8](self[].inner.unsafe_uint8_ptr() + total_char_length).load())
+            )
 
-    #     var result = DTypePointer[DType.uint8].alloc(len(self.inner))
-    #     var total_char_length: Int = 0
-    #     for _ in range(slice.start, slice.end):
-    #         print(total_char_length, bytes_left)
-    #         # Number of bytes of the current character
-    #         var char_length = int((copy.load() >> 7 == 0).cast[DType.uint8]() * 1 + countl_zero(~copy.load()))
+            # Move iterator forward
+            bytes_left -= char_length
+            total_char_length += char_length
 
-    #         memcpy(result.offset(total_char_length), copy, char_length)
-
-    #         # Move iterator forward
-    #         bytes_left -= char_length
-    #         copy += char_length
-    #         total_char_length += char_length
-    #         print(total_char_length, char_length, bytes_left)
-
-    #     result[total_char_length] = 0
-    #     return StringRef(result, total_char_length + 1)
+        return StringSlice[self.is_mutable, self.lifetime](
+            unsafe_from_utf8_ptr=self[].inner.unsafe_uint8_ptr(), len=total_char_length
+        )
 
     @always_inline
     fn bytecount(self) -> Int:
@@ -87,26 +84,25 @@ struct UnicodeString(Stringable, Sized):
 @value
 struct _StringIter[mutability: Bool, lifetime: AnyLifetime[mutability].type]():
     var bytes_left: Int
-    var ptr: DTypePointer[DType.uint8]
-
-    fn __init__(inout self, src: Reference[String, mutability, lifetime]):
-        self.bytes_left = len(src[])
-        self.ptr = DTypePointer[DType.uint8](src[]._buffer.data)
+    var ptr: UnsafePointer[UInt8]
 
     @always_inline
-    fn __next__(inout self) -> String:
-        # Number of bytes of the current character
-        var char_length = int((self.ptr.load() >> 7 == 0).cast[DType.uint8]() * 1 + countl_zero(~self.ptr.load()))
+    fn __init__(inout self, src: Reference[String, mutability, lifetime]):
+        self.bytes_left = len(src[])
+        self.ptr = src[].unsafe_uint8_ptr()
 
-        # Copy N bytes + null terminator into new pointer and construct string.
-        var sp = DTypePointer[DType.uint8].alloc(char_length + 1)
-        memcpy(sp, self.ptr, char_length)
+    fn __next__(inout self) -> StringSlice[mutability, lifetime]:
+        # Number of bytes of the current character
+        var char_length = int(
+            (DTypePointer[DType.uint8](self.ptr).load() >> 7 == 0).cast[DType.uint8]() * 1
+            + countl_zero(~DTypePointer[DType.uint8](self.ptr).load())
+        )
 
         # Move iterator forward
         self.bytes_left -= char_length
         self.ptr += char_length
 
-        return StringSlice[mutability, lifetime](unsafe_from_utf8_strref=StringRef(sp, char_length))
+        return StringSlice[mutability, lifetime](unsafe_from_utf8_ptr=self.ptr - char_length, len=char_length)
 
     @always_inline
     fn __len__(self) -> Int:

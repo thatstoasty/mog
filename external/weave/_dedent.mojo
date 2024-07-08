@@ -1,36 +1,52 @@
 from external.gojo.bytes import buffer
-from .ansi import printable_rune_width
 
 
-fn dedent(owned s: String) -> String:
+fn dedent(text: String) -> String:
     """Automatically detects the maximum indentation shared by all lines and
     trims them accordingly.
 
     Args:
-        s: The string to dedent.
+        text: The string to dedent.
 
     Returns:
         The dedented string.
+
+    Example Usage:
+    ```mojo
+    from weave import dedent
+
+    fn main() -> None:
+        var text = dedent("    Hello, World!\\n    This is a test.\\n    \\n")
+        print(text)
+    ```
+    .
     """
-    var indent = min_indent(s)
+    var indent = min_indent(text.as_bytes_slice())
     if indent == 0:
-        return s
+        return text
 
-    return apply_dedent(s, indent)
+    return apply_dedent(text.as_bytes_slice(), indent)
 
 
-fn min_indent(s: String) -> Int:
-    var cur_indent: Int = 0
-    var min_indent: Int = 0
+fn min_indent(bytes: Span[UInt8]) -> Int:
+    """Detects the indentation level shared by all lines.
+
+    Args:
+        bytes: The text to dedent as as bytes slice.
+
+    Returns:
+        The minimum indentation level.
+    """
+    var cur_indent = 0
+    var min_indent = 0
     var should_append = True
-    var i: Int = 0
+    var i = 0
 
-    var s_bytes = s.as_bytes()
-    while i < len(s_bytes):
-        if s_bytes[i] == TAB_BYTE or s_bytes[i] == SPACE_BYTE:
+    while i < len(bytes):
+        if bytes[i] == TAB_BYTE or bytes[i] == SPACE_BYTE:
             if should_append:
                 cur_indent += 1
-        elif s_bytes[i] == NEWLINE_BYTE:
+        elif bytes[i] == NEWLINE_BYTE:
             cur_indent = 0
             should_append = True
         else:
@@ -44,23 +60,31 @@ fn min_indent(s: String) -> Int:
     return min_indent
 
 
-fn apply_dedent(s: String, indent: Int) -> String:
+fn apply_dedent(bytes: Span[UInt8], indent: Int) -> String:
+    """Dedents a string by removing the shared indentation level.
+
+    Args:
+        bytes: The text to dedent as as bytes slice.
+        indent: The number of spaces to remove from the beginning of each line.
+
+    Returns:
+        A new dedented string.
+    """
     var omitted: Int = 0
     var buf = buffer.new_buffer()
     var i: Int = 0
 
-    var s_bytes = s.as_bytes()
-    while i < len(s_bytes):
-        if s_bytes[i] == TAB_BYTE or s_bytes[i] == SPACE_BYTE:
+    while i < len(bytes):
+        if bytes[i] == TAB_BYTE or bytes[i] == SPACE_BYTE:
             if omitted < indent:
                 omitted += 1
             else:
-                _ = buf.write_byte(s_bytes[i])
-        elif s_bytes[i] == NEWLINE_BYTE:
+                _ = buf.write_byte(bytes[i])
+        elif bytes[i] == NEWLINE_BYTE:
             omitted = 0
-            _ = buf.write_byte(s_bytes[i])
+            _ = buf.write_byte(bytes[i])
         else:
-            _ = buf.write_byte(s_bytes[i])
+            _ = buf.write_byte(bytes[i])
 
         i += 1
 

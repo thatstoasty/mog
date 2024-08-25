@@ -1,6 +1,7 @@
-import external.mist
-from external.gojo.strings import StringBuilder
-import external.weave.ansi
+from collections import Optional
+import .mist
+from .gojo.strings import StringBuilder
+import .weave.ansi
 from .whitespace import WhitespaceOption, new_whitespace
 import .position
 from .extensions import split
@@ -24,7 +25,7 @@ struct Renderer:
         explicit_background_color: Bool = False,
     ):
         if color_profile:
-            self.color_profile = mist.Profile(color_profile.value()[])
+            self.color_profile = mist.Profile(color_profile.value())
         else:
             self.color_profile = mist.Profile()
         self.dark_background = dark_background
@@ -154,6 +155,7 @@ struct Renderer:
             The string with the text placed in the block.
         """
         var lines = text.split("\n")
+        print(lines.__str__())
         var content_width: Int = 0
         for i in range(len(lines)):
             if ansi.printable_rune_width(lines[i]) > content_width:
@@ -356,8 +358,10 @@ struct Renderer:
         var white_space = new_whitespace(self, opts)
 
         var lines = split(text, "\n")
+        print(lines.__str__())
         var width: Int = 0
         for i in range(len(lines)):
+            print("len\n", ansi.printable_rune_width(lines[i]), lines[i], "\n")
             if ansi.printable_rune_width(lines[i]) > width:
                 width = ansi.printable_rune_width(lines[i])
 
@@ -383,8 +387,10 @@ struct Renderer:
             var top = gap - split
             var bottom = gap - top
 
+            print(top, bottom)
             _ = builder.write_string((empty_line + "\n") * top)
             _ = builder.write_string(text)
+            print(str(builder))
 
             var i = 0
             while i < bottom:
@@ -392,4 +398,5 @@ struct Renderer:
                 _ = builder.write_string(empty_line)
                 i += 1
 
+        print("done")
         return str(builder)

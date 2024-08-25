@@ -241,4 +241,4 @@ fn render_layout():
     # Status bar
     _ = builder.write_string(build_status_bar())
     var output = doc_style.render(builder.render())
-    keep(output)
+    _ = output

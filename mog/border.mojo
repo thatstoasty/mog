@@ -1,4 +1,4 @@
-from external.weave.ansi.ansi import printable_rune_width
+from .weave.ansi import printable_rune_width
 
 
 @value

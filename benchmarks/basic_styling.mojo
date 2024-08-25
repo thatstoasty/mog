@@ -14,7 +14,7 @@ fn basic_styling():
     )
 
     var output = style.render("Hello, kitty")
-    keep(output)
+    _ = output
 
 
 var file_style = (
@@ -30,7 +30,7 @@ var file_style = (
 
 fn basic_comptime_styling():
     var output = file_style.render("Hello, kitty")
-    keep(output)
+    _ = output
 
 
 fn basic_styling_big_file():
@@ -42,6 +42,6 @@ fn basic_styling_big_file():
                 100
             )
             var output = style.render(content)
-            keep(output)
+            _ = output
     except e:
         print(e)

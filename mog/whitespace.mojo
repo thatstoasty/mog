@@ -1,8 +1,6 @@
-from bit import countl_zero
-import external.mist
-import external.weave.ansi
-from external.gojo.strings import StringBuilder
-from external.gojo.unicode import UnicodeString
+import .mist
+import .weave.ansi
+from .gojo.strings import StringBuilder
 from .renderer import Renderer
 from .color import (
     TerminalColor,
@@ -65,10 +63,9 @@ struct WhiteSpace:
         # Cycle through runes and print them into the whitespace.
         var i = 0
 
+        print("width", width)
         while i < width:
-            var uni_str = UnicodeString(self.chars)
-
-            for char in uni_str:
+            for char in self.chars:
                 _ = b.write_string(char)
                 var printable_width = ansi.printable_rune_width(char)
                 if j >= printable_width:
@@ -96,7 +93,7 @@ fn new_whitespace(renderer: Renderer, *opts: WhitespaceOption) -> WhiteSpace:
     """Creates a new whitespace renderer. The order of the options
     matters, if you're using WithWhitespaceRenderer, make sure it comes first as
     other options might depend on it."""
-    var w = WhiteSpace(renderer=renderer, style=mist.new_style(renderer.color_profile.value))
+    var w = WhiteSpace(renderer=renderer, style=mist.Style(renderer.color_profile.value))
 
     for opt in opts:
         opt(w)
@@ -109,7 +106,7 @@ fn new_whitespace(renderer: Renderer, opts: List[WhitespaceOption]) -> WhiteSpac
     """Creates a new whitespace renderer. The order of the options
     matters, if you're using WithWhitespaceRenderer, make sure it comes first as
     other options might depend on it."""
-    var w = WhiteSpace(renderer=renderer, style=mist.new_style(renderer.color_profile.value))
+    var w = WhiteSpace(renderer=renderer, style=mist.Style(renderer.color_profile.value))
 
     for opt in opts:
         opt[](w)

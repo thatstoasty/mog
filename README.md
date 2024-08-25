@@ -9,7 +9,7 @@ If you're a Go developer, please check out their CLI tooling and libraries. They
 
 For bugs and todos, see the bottom of the readme. At the moment, characters with a printable length greater than 1 ARE NOT supported.
 
-You should be able to build the package by running `mojo package mog -I external`. For the easiest usage method, I recommend just copying the entire external folder into your repository, then copy the `mog` folder into the external folder as well.
+You should be able to build the package by running `mojo package mog`. For the easiest method, I recommend just copying the entire `mog` directory into your project. If you want to build the dependencies and then the package in case it's fallen out of sync, you can run `bash scripts/build.sh package` from the root of the project.
 
 > NOTE: It seems like `.mojopkg` files don't like being part of another package, eg. sticking all of your external deps in an `external` or `vendor` package. The only way I've gotten mojopkg files to work is to be in the same directory as the file being executed, and that directory cannot be a mojo package.
 

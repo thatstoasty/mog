@@ -61,14 +61,14 @@ fn main():
         str(bcs_report.warmup_iters),
     )
 
-    # var bs_big_report = benchmark.run[basic_styling_big_file](max_iters=10)
-    # results.row(
-    #     "Large file test",
-    #     str(bs_big_report.mean(benchmark.Unit.ms)),
-    #     str(bs_big_report.duration(benchmark.Unit.ms)),
-    #     str(bs_big_report.iters()),
-    #     str(bs_big_report.warmup_duration / 1e6),
-    #     str(bs_big_report.warmup_iters),
-    # )
+    var bs_big_report = benchmark.run[basic_styling_big_file](max_iters=10)
+    results = results.row(
+        "Large file test",
+        str(bs_big_report.mean(benchmark.Unit.ms)),
+        str(bs_big_report.duration(benchmark.Unit.ms)),
+        str(bs_big_report.iters()),
+        str(bs_big_report.warmup_duration / 1e6),
+        str(bs_big_report.warmup_iters),
+    )
 
     print(results.render())

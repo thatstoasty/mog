@@ -1,12 +1,12 @@
 from tests.wrapper import MojoTest
 from mog.align import align_text_horizontal, align_text_vertical
-import external.mist
+import mog.mist
 import mog.position
 
 
 fn test_align_text_horizontal() raises:
     var test = MojoTest("Testing align.align_text_horizontal")
-    var style = mist.new_style()
+    var style = mist.Style()
 
     # Test center alignment
     var centered = align_text_horizontal("hello", position.center, 10)

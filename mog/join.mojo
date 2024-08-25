@@ -1,6 +1,6 @@
 import math
-from external.weave.ansi.ansi import printable_rune_width
-from external.gojo.strings import StringBuilder
+from .weave.ansi import printable_rune_width
+from .gojo.strings import StringBuilder
 from .position import Position, top, bottom, left, right, center
 from .extensions import split
 

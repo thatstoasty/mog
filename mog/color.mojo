@@ -1,6 +1,6 @@
 from utils.variant import Variant
 from .renderer import Renderer
-import external.mist
+import .mist
 
 
 trait TerminalColor(CollectionElement):
@@ -49,7 +49,6 @@ struct Color(TerminalColor):
     var ansi_color = mog.Color(21)
     var hex_color = mog.Color(0x0000ff)
     ```
-    .
     """
 
     var value: UInt32

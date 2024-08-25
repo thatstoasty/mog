@@ -1,4 +1,4 @@
-from external.weave.ansi import ansi
+import .weave.ansi
 from .extensions import split
 
 
@@ -15,7 +15,7 @@ fn get_width(text: String) -> Int:
     Returns:
         The width of the string in cells.
     """
-    var strings = split(text, "\n")
+    var strings = split(text, NEWLINE)
     var width: Int = 0
     for i in range(len(strings)):
         var l = strings[i]
@@ -40,7 +40,7 @@ fn get_height(text: String) -> Int:
     """
     var height = 1
     for i in range(len(text)):
-        if text[i] == "\n":
+        if text[i] == NEWLINE:
             height += 1
 
     return height

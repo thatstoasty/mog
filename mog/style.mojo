@@ -1,3 +1,4 @@
+from collections import Optional
 from .renderer import Renderer
 from .position import Position
 from .border import (
@@ -28,10 +29,10 @@ from .color import (
     CompleteColor,
     CompleteAdaptiveColor,
 )
-from external.weave import wrap, wordwrap, truncate
-from external.weave.ansi.ansi import printable_rune_width
-import external.mist
-from external.gojo.strings import StringBuilder, Reader
+from .weave import wrap, wordwrap, truncate
+from .weave.ansi import printable_rune_width
+import .mist
+from .gojo.strings import StringBuilder, Reader
 
 
 alias TAB_WIDTH: Int = 4
@@ -108,8 +109,7 @@ fn get_lines(text: String) -> Tuple[List[String], Int]:
     Returns:
         A tuple containing the lines and the width of the widest line.
     """
-    var lines = split(text, "\n")
-
+    var lines = split(text, NEWLINE)
     var widest_line: Int = 0
     for i in range(len(lines)):
         if printable_rune_width(lines[i]) > widest_line:
@@ -125,7 +125,7 @@ fn pad(text: String, n: Int, style: mist.Style) -> String:
 
     var sp = style.render(WHITESPACE * abs(n))
     var builder = StringBuilder(capacity=int(len(text) * 1.5))
-    var lines = split(text, "\n")
+    var lines = split(text, NEWLINE)
 
     for i in range(len(lines)):
         if n > 0:
@@ -136,7 +136,7 @@ fn pad(text: String, n: Int, style: mist.Style) -> String:
             _ = builder.write_string(lines[i])
 
         if i != len(lines) - 1:
-            _ = builder.write_string("\n")
+            _ = builder.write_string(NEWLINE)
 
     return str(builder)
 
@@ -702,10 +702,11 @@ struct Style:
         not mutate the style and instead return a copy.
 
         Example:
-
-            var: String = "..."
-            var user_style = mog.Style().inline(True)
-            print(user_style.render(user_input))
+        ```mojo
+        var user_input: String = "..."
+        var user_style = mog.Style().inline(True)
+        print(user_style.render(user_input))
+        ```
 
         Args:
             value: Value to set the rule to.
@@ -952,9 +953,11 @@ struct Style:
         not mutate the style and instead return a copy.
 
         Example:
-            var: String = "..."
-            var user_style = mog.Style().max_width(16)
-            print(user_style.render(user_input))
+        ```mojo
+        var user_input: String = "..."
+        var user_style = mog.Style().max_width(16)
+        print(user_style.render(user_input))
+        ```
 
         Args:
             width: The maximum height to apply.
@@ -1882,7 +1885,7 @@ struct Style:
         if fg.isa[NoColor]() and bg.isa[NoColor]():
             return border
 
-        var styler = mist.new_style()
+        var styler = mist.Style()
 
         # Sooooo verbose compared to just passing the string value. But this is closer to the lipgloss API.
         # It's more verbose because we can't pass around args with trait as the arg type.
@@ -1962,7 +1965,6 @@ struct Style:
         if has_left:
             if border.left == "":
                 border.left = " "
-
             width += printable_rune_width(border.left)
 
         if has_right and border.right == "":
@@ -2012,7 +2014,7 @@ struct Style:
             var top = render_horizontal_edge(border.top_left, border.top, border.top_right, width)
             top = self.style_border(top, top_fg, top_bg)
             _ = builder.write_string(top)
-            _ = builder.write_string("\n")
+            _ = builder.write_string(NEWLINE)
 
         # Render sides
         var left_runes = List[String]()
@@ -2023,8 +2025,10 @@ struct Style:
         right_runes.append(border.right)
         var right_index = 0
 
+        print("lines", lines.__str__())
         for i in range(len(lines)):
             var line = lines[i]
+            print("line", line, "`")
             if has_left:
                 var r = left_runes[left_index]
                 left_index += 1
@@ -2046,13 +2050,15 @@ struct Style:
                 _ = builder.write_string(self.style_border(r, right_fg, right_bg))
 
             if i < len(lines) - 1:
-                _ = builder.write_string("\n")
+                _ = builder.write_string(NEWLINE)
+            print("block")
+            raw_print(str(builder))
 
         # Render bottom
         if has_bottom:
             var bottom = render_horizontal_edge(border.bottom_left, border.bottom, border.bottom_right, width)
             bottom = self.style_border(bottom, bottom_fg, bottom_bg)
-            _ = builder.write_string("\n")
+            _ = builder.write_string(NEWLINE)
             _ = builder.write_string(bottom)
 
         return str(builder)
@@ -2064,7 +2070,7 @@ struct Style:
         var bottom_margin = self.get_as_int(MARGIN_BOTTOM_KEY)
         var left_margin = self.get_as_int(MARGIN_LEFT_KEY)
 
-        var styler = mist.new_style(self.renderer.color_profile.value)
+        var styler = mist.Style(self.renderer.color_profile.value)
 
         var bgc = self.get_as_color(MARGIN_BACKGROUND_KEY)
 
@@ -2118,7 +2124,9 @@ struct Style:
             if i != len(texts) - 1:
                 input_text += " "
 
-        var term_style = mist.new_style(self.renderer.color_profile.value)
+        print("Processing:", input_text)
+
+        var term_style = mist.Style(self.renderer.color_profile.value)
         var term_style_space = term_style
         var term_style_whitespace = term_style
 
@@ -2148,8 +2156,12 @@ struct Style:
         var max_width = self.get_as_int(MAX_WIDTH_KEY)
         var max_height = self.get_as_int(MAX_HEIGHT_KEY)
 
-        var underline_spaces = underline and self.get_as_bool(UNDERLINE_SPACES_KEY, True)
-        var crossout_spaces = crossout and self.get_as_bool(CROSSOUT_SPACES_KEY, True)
+        var underline_spaces = self.get_as_bool(UNDERLINE_SPACES_KEY, False) or (
+            underline and self.get_as_bool(UNDERLINE_SPACES_KEY, True)
+        )
+        var crossout_spaces = self.get_as_bool(CROSSOUT_SPACES_KEY, False) or (
+            crossout and self.get_as_bool(CROSSOUT_SPACES_KEY, True)
+        )
 
         # Do we need to style whitespace (padding and space outside paragraphs) separately?
         var use_whitespace_styler = reverse
@@ -2257,7 +2269,7 @@ struct Style:
             term_style = term_style_space.crossout()
 
         if inline:
-            input_text = input_text.replace("\n", "")
+            input_text = input_text.replace(NEWLINE, "")
 
         # Word wrap
         if (not inline) and (width > 0):
@@ -2268,34 +2280,40 @@ struct Style:
         input_text = self.maybe_convert_tabs(input_text)
 
         var builder = StringBuilder(capacity=int(len(input_text) * 1.5))
-        var lines = split(input_text, "\n")
+        var lines = split(input_text, NEWLINE)
+        print(lines.__str__())
 
         for i in range(len(lines)):
+            raw_print(lines[i])
             if use_space_styler:
                 # Look for spaces and apply a different styler
-                for j in range(printable_rune_width(lines[i])):
-                    if lines[i][j] == " ":
-                        _ = builder.write_string(term_style_space.render(lines[i][j]))
+                for char in lines[i]:
+                    # for j in range(printable_rune_width(lines[i])):
+                    if char == " ":
+                        _ = builder.write_string(term_style_space.render(char))
                     else:
-                        _ = builder.write_string(term_style.render(lines[i][j]))
+                        _ = builder.write_string(term_style.render(char))
             else:
                 _ = builder.write_string(term_style.render(lines[i]))
 
             # Readd the newlines
             if i != len(lines) - 1:
-                _ = builder.write_string("\n")
+                _ = builder.write_string(NEWLINE)
+
         var styled_text = str(builder)
+        print("styled text")
+        raw_print(styled_text)
 
         # Padding
         if not inline:
             if left_padding > 0:
-                var style = mist.new_style(self.renderer.color_profile.value)
+                var style = mist.Style(self.renderer.color_profile.value)
                 if color_whitespace or use_whitespace_styler:
                     style = term_style_whitespace
                 styled_text = pad_left(styled_text, left_padding, style)
 
             if right_padding > 0:
-                var style = mist.new_style(self.renderer.color_profile.value)
+                var style = mist.Style(self.renderer.color_profile.value)
                 if color_whitespace or use_whitespace_styler:
                     style = term_style_whitespace
                 styled_text = pad_right(styled_text, right_padding, style)
@@ -2306,43 +2324,61 @@ struct Style:
             if bottom_padding > 0:
                 styled_text += NEWLINE * bottom_padding
 
+        print("pre align")
+        raw_print(styled_text)
         # Alignment
         if height > 0:
             styled_text = align_text_vertical(styled_text, vertical_align, height)
 
+        print("post align")
+        raw_print(styled_text)
+        print("END")
+
         # Truncate according to max_width
         if max_width > 0:
-            var lines = split(styled_text, "\n")
+            var lines = split(styled_text, NEWLINE)
 
             for i in range(len(lines)):
                 lines[i] = truncate(lines[i], max_width)
 
-            styled_text = join("\n", lines)
+            styled_text = join(NEWLINE, lines)
 
         # Truncate according to max_height
         if max_height > 0:
-            var lines = split(styled_text, "\n")
+            var lines = split(styled_text, NEWLINE)
             var truncated_lines = lines[0 : min(max_height, len(lines))]
-            styled_text = join("\n", truncated_lines)
+            styled_text = join(NEWLINE, truncated_lines)
 
         # if transform:
         #     return transform(styled_text)
 
         # Apply border at the end
         try:
-            lines = styled_text.split("\n")
+            lines = styled_text.split(NEWLINE)
         except:
             lines = List[String](styled_text)
 
+        print("styled text before horz align", len(lines))
+        raw_print(styled_text)
         var number_of_lines = len(lines)
         if not (number_of_lines == 0 and width == 0):
-            var style = mist.new_style(self.renderer.color_profile.value)
+            var style = mist.Style(self.renderer.color_profile.value)
             if color_whitespace or use_whitespace_styler:
                 style = term_style_whitespace
             styled_text = align_text_horizontal(styled_text, horizontal_align, width, style)
 
+        print("styled text after horz align")
+        raw_print(styled_text)
+
         if not inline:
+            print("styled text before border")
+            raw_print(styled_text)
+            print("END")
             styled_text = self.apply_border(styled_text)
+            print("styled text after border")
+            raw_print(styled_text)
             styled_text = self.apply_margins(styled_text, inline)
+            print("styled text after margins")
+            raw_print(styled_text)
 
         return styled_text

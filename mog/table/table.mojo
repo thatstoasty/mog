@@ -1,5 +1,5 @@
-from external.weave import truncate_with_tail
-from external.gojo.strings import StringBuilder
+from ..weave import truncate_with_tail
+from ..gojo.strings import StringBuilder
 from ..style import Style
 from ..border import ROUNDED_BORDER, Border
 from ..position import top, bottom, left, right, center

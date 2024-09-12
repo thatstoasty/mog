@@ -1,6 +1,6 @@
 import benchmark
-from benchmarks.layout import render_layout
-from benchmarks.basic_styling import (
+from layout import render_layout
+from basic_styling import (
     basic_styling,
     basic_styling_big_file,
     basic_comptime_styling,

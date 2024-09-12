@@ -1,6 +1,6 @@
 from benchmark.compiler import keep
-from external.gojo.strings import StringBuilder
-from external.weave.ansi import printable_rune_width
+from gojo.strings import StringBuilder
+from weave.ansi import printable_rune_width
 import mog
 from mog.join import join_vertical, join_horizontal
 from mog.border import HIDDEN_BORDER, NORMAL_BORDER, ROUNDED_BORDER, Border
@@ -240,5 +240,5 @@ fn render_layout():
 
     # Status bar
     _ = builder.write_string(build_status_bar())
-    var output = doc_style.render(builder.render())
+    var output = doc_style.render(str(builder))
     _ = output

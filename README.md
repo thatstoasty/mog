@@ -9,9 +9,11 @@ If you're a Go developer, please check out their CLI tooling and libraries. They
 
 For bugs and todos, see the bottom of the readme. At the moment, characters with a printable length greater than 1 ARE NOT supported.
 
-You should be able to build the package by running `mojo package mog`. For the easiest method, I recommend just copying the entire `mog` directory into your project. If you want to build the dependencies and then the package in case it's fallen out of sync, you can run `bash scripts/build.sh package` from the root of the project.
+## Installation
 
-> NOTE: It seems like `.mojopkg` files don't like being part of another package, eg. sticking all of your external deps in an `external` or `vendor` package. The only way I've gotten mojopkg files to work is to be in the same directory as the file being executed, and that directory cannot be a mojo package.
+1. First, you'll need to configure your `mojoproject.toml` file to include my Conda channel. Add `"https://repo.prefix.dev/mojo-community"` to the list of channels.
+2. Next, add `mist` to your project's dependencies by running `magic add mog`.
+3. Finally, run `magic install` to install in `mog` and its dependencies. You should see the `.mojopkg` files in `$CONDA_PREFIX/lib/mojo/`.
 
 ![Mog example](https://github.com/thatstoasty/mog/blob/main/demos/tapes/layout.gif)
 

@@ -1,5 +1,5 @@
-from mog.gojo.strings import StringBuilder
-from mog.weave.ansi import printable_rune_width
+from gojo.strings import StringBuilder
+from weave.ansi import printable_rune_width
 from mog.join import join_vertical, join_horizontal
 from mog.border import HIDDEN_BORDER, NORMAL_BORDER, ROUNDED_BORDER, Border
 from mog.style import Style
@@ -94,7 +94,6 @@ fn build_dialog_box() -> String:
     var buttons = join_horizontal(position.top, ok_button, cancel_button)
     var ui = join_vertical(position.center, question, buttons)
 
-    # TODO: Cannot handle unicode characters with a length greater than 1. For example: east asian characters like Kanji.
     return place(
         width,
         9,
@@ -164,8 +163,6 @@ fn build_history() -> String:
         position.left
     ).foreground(mog.Color(0xFFFDF5)).background(highlight)
 
-    # TODO: removed the unicode quotes because it breaks the string split function.
-    # String does not have consistent unicode handling yet.
     alias history_a = "The Romans learned from the Greeks that quinces slowly cooked with honey would 'set' when cool. The Apicius gives a recipe for preserving whole quinces, stems and leaves attached, in a bath of honey diluted with defrutum: Roman marmalade. Preserves of quince and lemon appear (along with rose, apple, plum and pear) in the Book of ceremonies of the Byzantine Emperor Constantine VII Porphyrogennetos."
     alias history_b = "Medieval quince preserves, which went by the French name cotignac, produced in a clear version and a fruit pulp version, began to lose their medieval seasoning of spices in the 16th century. In the 17th century, La Varenne provided recipes for both thick and clear cotignac."
     alias history_c = "In 1524, Henry VIII, King of England, received a 'box of marmalade' from Mr. Hull of Exeter. This was probably marmelada, a solid quince paste from Portugal, still made and sold in southern Europe today. It became a favourite treat of Anne Boleyn and her ladies in waiting."
@@ -211,32 +208,28 @@ fn main():
     var builder = StringBuilder()
     var doc_style = mog.Style().padding(1, 2, 1, 2).border(ROUNDED_BORDER).border_foreground(subtle)
 
-    # # Tabs.
-    # _ = builder.write_string(build_tabs())
-    # _ = builder.write_string("\n\n")
+    # Tabs.
+    _ = builder.write_string(build_tabs())
+    _ = builder.write_string("\n\n")
 
-    # # Title
-    # _ = builder.write_string(build_description())
-    # _ = builder.write_string("\n\n")
+    # Title
+    _ = builder.write_string(build_description())
+    _ = builder.write_string("\n\n")
 
-    # # Dialog box
-    # _ = builder.write_string(build_dialog_box())
-    # _ = builder.write_string("\n\n")
+    # Dialog box
+    _ = builder.write_string(build_dialog_box())
+    _ = builder.write_string("\n\n")
 
     # List
     _ = builder.write_string(build_lists())
     _ = builder.write_string("\n")
 
-    # # History
-    # _ = builder.write_string(build_history())
-    # _ = builder.write_string("\n\n")
+    # History
+    _ = builder.write_string(build_history())
+    _ = builder.write_string("\n\n")
 
-    # # Status bar
-    # _ = builder.write_string(build_status_bar())
+    # Status bar
+    _ = builder.write_string(build_status_bar())
 
     # Render the final document with doc_style
-    var t = builder.render()
-    print(t)
-    # print(doc_style.render(t))
-    # print(mog.get_width(doc_style.render(builder.render())))
-    # print(doc_style.render(builder.render()))
+    print(doc_style.render(str(builder)))

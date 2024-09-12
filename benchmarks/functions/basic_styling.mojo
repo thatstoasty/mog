@@ -17,8 +17,8 @@ fn basic_styling():
     _ = output
 
 
-var file_style = (
-    mog.Style()
+alias file_style = (
+    mog.Style(color_profile=mog.TRUE_COLOR)
     .bold(True)
     .foreground(mog.Color(0xFAFAFA))
     .background(mog.Color(0x7D56F4))

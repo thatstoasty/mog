@@ -33,6 +33,10 @@ from .join import join_horizontal, join_vertical
 alias WHITESPACE = String(" ")
 alias NEWLINE = String("\n")
 
+alias TRUE_COLOR = mist.TRUE_COLOR
+alias ANSI256 = mist.ANSI256
+alias ANSI = mist.ANSI
+alias ASCII = mist.ASCII
 
 fn raw_print(text: String) -> None:
     """Prints text without any formatting.

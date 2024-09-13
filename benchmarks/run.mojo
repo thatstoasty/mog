@@ -1,6 +1,6 @@
 import benchmark
-from benchmarks.layout import render_layout
-from benchmarks.basic_styling import (
+from functions.layout import render_layout
+from functions.basic_styling import (
     basic_styling,
     basic_styling_big_file,
     basic_comptime_styling,
@@ -8,8 +8,8 @@ from benchmarks.basic_styling import (
 import mog
 
 
-var style = mog.Style().alignment(mog.center, mog.center).padding(0, 1)
-var header_style = style.foreground(mog.Color(0x39E506))
+alias style = mog.Style(color_profile=mog.TRUE_COLOR).alignment(mog.center, mog.center).padding(0, 1)
+alias header_style = style.foreground(mog.Color(0x39E506))
 
 
 fn table_styling(row: Int, col: Int) -> mog.Style:
@@ -62,7 +62,7 @@ fn main():
     )
 
     # var bs_big_report = benchmark.run[basic_styling_big_file](max_iters=10)
-    # results.row(
+    # results = results.row(
     #     "Large file test",
     #     str(bs_big_report.mean(benchmark.Unit.ms)),
     #     str(bs_big_report.duration(benchmark.Unit.ms)),

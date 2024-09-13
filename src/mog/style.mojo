@@ -17,7 +17,7 @@ from .border import (
     STAR_BORDER,
     PLUS_BORDER,
 )
-from .extensions import join, split
+from .extensions import join, split_lines, get_lines
 from .align import align_text_horizontal, align_text_vertical
 from .color import (
     AnyTerminalColor,
@@ -100,24 +100,6 @@ alias UNDERLINE_SPACES_KEY: PropertyKey = 41
 alias CROSSOUT_SPACES_KEY: PropertyKey = 42
 
 
-fn get_lines(text: String) -> Tuple[List[String], Int]:
-    """Split a string into lines.
-
-    Args:
-        text: The string to split.
-
-    Returns:
-        A tuple containing the lines and the width of the widest line.
-    """
-    var lines = split(text, NEWLINE)
-    var widest_line: Int = 0
-    for i in range(len(lines)):
-        if printable_rune_width(lines[i]) > widest_line:
-            widest_line = printable_rune_width(lines[i])
-
-    return lines, widest_line
-
-
 # Apply left padding.
 fn pad(text: String, n: Int, style: mist.Style) -> String:
     if n == 0:
@@ -125,7 +107,7 @@ fn pad(text: String, n: Int, style: mist.Style) -> String:
 
     var sp = style.render(WHITESPACE * abs(n))
     var builder = StringBuilder(capacity=int(len(text) * 1.5))
-    var lines = split(text, NEWLINE)
+    var lines = split_lines(text)
 
     for i in range(len(lines)):
         if n > 0:
@@ -2274,7 +2256,7 @@ struct Style:
         input_text = self.maybe_convert_tabs(input_text)
 
         var builder = StringBuilder(capacity=int(len(input_text) * 1.5))
-        var lines = split(input_text, NEWLINE)
+        var lines = split_lines(input_text)
 
         for i in range(len(lines)):
             if use_space_styler:
@@ -2320,7 +2302,7 @@ struct Style:
 
         # Truncate according to max_width
         if max_width > 0:
-            var lines = split(styled_text, NEWLINE)
+            var lines = split_lines(styled_text)
 
             for i in range(len(lines)):
                 lines[i] = truncate(lines[i], max_width)
@@ -2329,7 +2311,7 @@ struct Style:
 
         # Truncate according to max_height
         if max_height > 0:
-            var lines = split(styled_text, NEWLINE)
+            var lines = split_lines(styled_text)
             var truncated_lines = lines[0 : min(max_height, len(lines))]
             styled_text = join(NEWLINE, truncated_lines)
 
@@ -2337,10 +2319,7 @@ struct Style:
         #     return transform(styled_text)
 
         # Apply border at the end
-        try:
-            lines = styled_text.split(NEWLINE)
-        except:
-            lines = List[String](styled_text)
+        lines = split_lines(styled_text)
 
         var number_of_lines = len(lines)
         if not (number_of_lines == 0 and width == 0):

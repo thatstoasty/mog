@@ -4,7 +4,7 @@ from gojo.strings import StringBuilder
 import weave.ansi
 from .whitespace import WhitespaceOption, new_whitespace
 import .position
-from .extensions import split
+from .extensions import split_lines
 
 
 # TODO: Cannot handle characters with a printable width of 2 or more. Like east asian characters (Kanji, etc.).
@@ -154,7 +154,7 @@ struct Renderer:
         Returns:
             The string with the text placed in the block.
         """
-        var lines = text.split("\n")
+        var lines = split_lines(text)
         var content_width: Int = 0
         for i in range(len(lines)):
             if ansi.printable_rune_width(lines[i]) > content_width:
@@ -217,7 +217,7 @@ struct Renderer:
         Returns:
             The string with the text placed in the block.
         """
-        var lines = split(text, "\n")
+        var lines = split_lines(text)
         var content_width: Int = 0
         for i in range(len(lines)):
             if ansi.printable_rune_width(lines[i]) > content_width:
@@ -287,7 +287,7 @@ struct Renderer:
             options.append(opt)
         var white_space = new_whitespace(self, options)
 
-        var lines = split(text, "\n")
+        var lines = split_lines(text)
         var width: Int = 0
         for i in range(len(lines)):
             if ansi.printable_rune_width(lines[i]) > width:
@@ -356,7 +356,7 @@ struct Renderer:
 
         var white_space = new_whitespace(self, opts)
 
-        var lines = split(text, "\n")
+        var lines = split_lines(text)
         var width: Int = 0
         for i in range(len(lines)):
             if ansi.printable_rune_width(lines[i]) > width:

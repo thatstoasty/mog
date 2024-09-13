@@ -3,7 +3,7 @@ from weave.ansi import printable_rune_width
 import mist
 from gojo.strings import StringBuilder
 import .position
-from .extensions import split
+from .extensions import get_lines
 
 
 fn align_text_horizontal(text: String, pos: position.Position, width: Int, style: Optional[mist.Style] = None) -> String:

@@ -1,5 +1,5 @@
 import weave.ansi
-from .extensions import split
+from .extensions import split_lines
 
 
 fn get_width(text: String) -> Int:
@@ -15,7 +15,7 @@ fn get_width(text: String) -> Int:
     Returns:
         The width of the string in cells.
     """
-    var strings = split(text, NEWLINE)
+    var strings = split_lines(text)
     var width: Int = 0
     for i in range(len(strings)):
         var l = strings[i]

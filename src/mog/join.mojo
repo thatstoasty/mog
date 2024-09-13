@@ -2,7 +2,7 @@ import math
 from weave.ansi import printable_rune_width
 from gojo.strings import StringBuilder
 from .position import Position, top, bottom, left, right, center
-from .extensions import split
+from .extensions import split_lines
 
 
 fn join_horizontal(pos: Position, *strs: String) -> String:
@@ -41,7 +41,7 @@ fn join_horizontal(pos: Position, *strs: String) -> String:
     # Break text blocks into lines and get max widths for each text block
     for i in range(len(strs)):
         var s = strs[i]
-        var lines = split(s, "\n")
+        var lines = split_lines(s)
         var widest: Int = 0
         for i in range(len(lines)):
             var rune_count = printable_rune_width(lines[i])
@@ -131,7 +131,7 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
     # Break text blocks into lines and get max widths for each text block
     for i in range(len(strs)):
         var s = strs[i]
-        var lines = split(s, "\n")
+        var lines = split_lines(s)
         var widest: Int = 0
         for i in range(len(lines)):
             var rune_count = printable_rune_width(lines[i])
@@ -221,7 +221,7 @@ fn join_vertical(pos: Position, *strs: String) -> String:
 
     for i in range(len(strs)):
         var s = strs[i]
-        var lines = split(s, "\n")
+        var lines = split_lines(s)
         var widest: Int = 0
         for i in range(len(lines)):
             var rune_count = printable_rune_width(lines[i])
@@ -299,7 +299,7 @@ fn join_vertical(pos: Position, strs: List[String]) -> String:
 
     for i in range(len(strs)):
         var s = strs[i]
-        var lines = split(s, "\n")
+        var lines = split_lines(s)
         var widest: Int = 0
         for i in range(len(lines)):
             var rune_count = printable_rune_width(lines[i])

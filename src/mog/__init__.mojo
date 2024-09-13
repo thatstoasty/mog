@@ -1,4 +1,4 @@
-from .style import Style, NO_TAB_CONVERSION, get_lines
+from .style import Style, NO_TAB_CONVERSION
 from .border import (
     Border,
     NORMAL_BORDER,

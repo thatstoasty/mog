@@ -12,10 +12,10 @@ For bugs and todos, see the bottom of the readme. At the moment, characters with
 ## Installation
 
 1. First, you'll need to configure your `mojoproject.toml` file to include my Conda channel. Add `"https://repo.prefix.dev/mojo-community"` to the list of channels.
-2. Next, add `mist` to your project's dependencies by running `magic add mog`.
+2. Next, add `mog` to your project's dependencies by running `magic add mog`.
 3. Finally, run `magic install` to install in `mog` and its dependencies. You should see the `.mojopkg` files in `$CONDA_PREFIX/lib/mojo/`.
 
-![Mog example](https://github.com/thatstoasty/mog/blob/main/demos/tapes/layout.gif)
+![Mog example](https://github.com/thatstoasty/mog/blob/main/doc/tapes/layout.gif)
 
 Mog takes an expressive, declarative approach to terminal rendering.
 Users familiar with CSS will feel at home with Mog.
@@ -410,7 +410,7 @@ print(t)
 
 Here's an example table rendering!
 
-![Mog example](https://github.com/thatstoasty/mog/blob/main/demos/tapes/pokemon.gif)
+![Mog example](https://github.com/thatstoasty/mog/blob/main/doc/tapes/pokemon.gif)
 
 ---
 

@@ -1,6 +1,6 @@
 # Mog
 
-![Mog example](https://github.com/thatstoasty/mog/blob/update-layout/doc/images/mog.png)
+![Mog example](https://github.com/thatstoasty/mog/blob/main/doc/images/mog.png)
 
 Style definitions for nice terminal layouts.
 
@@ -18,7 +18,7 @@ Style definitions for nice terminal layouts.
 2. Next, add `mog` to your project's dependencies by running `magic add mog`.
 3. Finally, run `magic install` to install in `mog` and its dependencies. You should see the `.mojopkg` files in `$CONDA_PREFIX/lib/mojo/`.
 
-![Mog example](https://github.com/thatstoasty/mog/blob/update-layout/doc/images/layout.png)
+![Mog example](https://github.com/thatstoasty/mog/blob/main/doc/images/layout.png)
 
 Mog takes an expressive, declarative approach to terminal rendering.
 Users familiar with CSS will feel at home with Mog.

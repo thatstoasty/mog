@@ -1,13 +1,16 @@
 # Mog
 
-![Mojo 24.4](https://img.shields.io/badge/Mojo%F0%9F%94%A5-24.4-purple)
+![Mog example](https://github.com/thatstoasty/mog/blob/update-layout/doc/images/mog.png)
 
-Style definitions for nice terminal layouts. Built with TUIs in mind.
-Ported from/Inspired by: <https://github.com/charmbracelet/lipgloss/tree/master>
+Style definitions for nice terminal layouts.
 
-If you're a Go developer, please check out their CLI tooling and libraries. They're unmatched!
+* Ported from/Inspired by: <https://github.com/charmbracelet/lipgloss/tree/master>
+* If you're a Go developer, please check out their CLI tooling and libraries. They're unmatched!
 
-For bugs and todos, see the bottom of the readme. At the moment, characters with a printable length greater than 1 ARE NOT supported.
+![Mojo Version](https://img.shields.io/badge/Mojo%F0%9F%94%A5-24.5-orange)
+![Build Status](https://github.com/thatstoasty/mog/actions/workflows/build.yml/badge.svg)
+![Test Status](https://github.com/thatstoasty/mog/actions/workflows/test.yml/badge.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Installation
 
@@ -15,7 +18,7 @@ For bugs and todos, see the bottom of the readme. At the moment, characters with
 2. Next, add `mog` to your project's dependencies by running `magic add mog`.
 3. Finally, run `magic install` to install in `mog` and its dependencies. You should see the `.mojopkg` files in `$CONDA_PREFIX/lib/mojo/`.
 
-![Mog example](https://github.com/thatstoasty/mog/blob/main/doc/tapes/layout.gif)
+![Mog example](https://github.com/thatstoasty/mog/blob/update-layout/doc/images/layout.png)
 
 Mog takes an expressive, declarative approach to terminal rendering.
 Users familiar with CSS will feel at home with Mog.
@@ -419,6 +422,6 @@ Here's an example table rendering!
 - Decompose style render mega function and mega class into smaller ones.
 - It seems like renderer.place_vertical renders whitespace with a width that's too long in the Ubuntu test container. Will need to investigate why this happened. It might be because the execution environment is not necessarily a terminal.
 
-## Notes
+### Check out these other libraries in the Mojo Community!
 
-- ANSI256's support of setting both foreground and background colors is limited. It's possible to set both, but often the foreground color will be ignored.
+- `A Mojo HTTP framework with wings` - [@saviorand/lightbug_http](https://github.com/saviorand/lightbug_http)

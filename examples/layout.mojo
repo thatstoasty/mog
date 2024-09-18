@@ -11,13 +11,41 @@ from mog.whitespace import (
     with_whitespace_foreground,
 )
 import mog
+import hue
 
 
 alias width = 96
 alias column_width = 30
 alias subtle = mog.AdaptiveColor(light=0xD9DCCF, dark=0x383838)
-alias highlight = mog.AdaptiveColor(light=0x874BFD, dark=0x7D56F4)
+alias highlight = mog.AdaptiveColor(light=0x874BFD, dark=0xFF713C)
 alias special = mog.AdaptiveColor(light=0x43BF6D, dark=0x73F59F)
+
+
+fn color_grid(x_steps: Int, y_steps: Int) -> List[List[hue.Color]]:
+    var x0y0 = hue.Color(0xF25D94)
+    var x1y0 = hue.Color(0xEDFF82)
+    var x0y1 = hue.Color(0x643AFF)
+    var x1y1 = hue.Color(0x14F9D5)
+
+    var x0 = List[hue.Color](capacity=y_steps)
+    for i in range(y_steps):
+        x0.append(x0y0.blend_luv(x0y1, Float64(i)/Float64(y_steps)))
+
+    var x1 = List[hue.Color](capacity=y_steps)
+    for i in range(y_steps):
+        x1.append(x1y0.blend_luv(x1y1, Float64(i)/Float64(y_steps)))
+
+    var grid = List[List[hue.Color]](capacity=y_steps)
+    var x = 0
+    while x < y_steps:
+        var y0 = x0[x]
+        grid.append(List[hue.Color](capacity=x_steps))
+        var y = 0
+        while y < x_steps:
+            grid[x].append(y0.blend_luv(x1[x], Float64(y)/Float64(x_steps)))
+            y += 1
+        x += 1
+    return grid
 
 
 fn build_tabs() -> String:
@@ -43,7 +71,8 @@ fn build_tabs() -> String:
         bottom_right="┴",
     )
 
-    var tab_style = mog.Style().border(tab_border).border_foreground(highlight).padding(0, 1)
+    alias tab_color = mog.AdaptiveColor(light=0x874BFD, dark=0xFF713C)
+    var tab_style = mog.Style().border(tab_border).border_foreground(tab_color).padding(0, 1)
     var active_tab = tab_style.border(active_tab_border, True)
     var tab_gap = tab_style.border_top(False).border_left(False).border_right(False).border_bottom(True)
 
@@ -60,22 +89,33 @@ fn build_tabs() -> String:
 
 
 fn build_description() -> String:
-    var divider = mog.Style().padding(0, 1).foreground(subtle).render("•")
+    var colors = color_grid(1, 5)
+    var title = StringBuilder()
+    var title_style = mog.Style(value="Mog").margin_left(1).margin_right(5).padding(0, 1).italic(True).foreground(mog.Color(0xFFFDF5))
 
+    for i in range(len(colors)):
+        var offset = 2
+        var c = mog.Color(colors[i][0].hex())
+        _ = title.write_string(title_style.margin_left(i * offset).background(c).render())
+        if i < len(colors) - 1:
+            _ = title.write_byte(ord('\n'))
+
+    var divider = mog.Style().padding(0, 1).foreground(subtle).render("•")
     var url = mog.Style().foreground(special)
     var desc_style = mog.Style().margin_top(1)
     var info_style = mog.Style().border(NORMAL_BORDER, True, False, False, False).border_foreground(subtle)
 
-    return join_vertical(
+    var description = join_vertical(
         position.left,
         desc_style.render("Style Definitions for Nice Terminal Layouts.\nInspired by charmbracelet/lipgloss"),
         info_style.render("From Mikhail" + divider + url.render("https://github.com/thatstoasty/mog")),
     )
+    return join_horizontal(position.top, str(title), description)
 
 
 fn build_dialog_box() -> String:
     var dialog_box_style = mog.Style().alignment(position.center).border(ROUNDED_BORDER).border_foreground(
-        mog.Color(0x874BFD)
+        mog.Color(0xFF713C)
     ).padding(1, 0)
 
     var button_style = mog.Style().foreground(mog.Color(0xFFF7DB)).background(mog.Color(0x888B7E)).padding(
@@ -87,9 +127,9 @@ fn build_dialog_box() -> String:
     ).underline()
 
     var ok_button = active_button_style.render("Yes")
-    var cancel_button = button_style.render("Maybe")
+    var cancel_button = button_style.render("No")
 
-    var question = mog.Style().width(50).alignment(position.center).render("Are you sure you want to eat marmalade?")
+    var question = mog.Style().width(50).alignment(position.center).render("Are you sure you want to deploy?")
 
     var buttons = join_horizontal(position.top, ok_button, cancel_button)
     var ui = join_vertical(position.center, question, buttons)
@@ -118,6 +158,14 @@ fn build_lists() -> String:
     var check_mark = mog.Style().foreground(special).padding_right(1).render("✔")
     var list_done = mog.Style().crossout().foreground(mog.AdaptiveColor(light=0x969B86, dark=0x696969))
 
+    var colors = color_grid(14, 8)
+    var color_style = mog.Style(value="  ")
+    var builder = StringBuilder()
+    for i in range(len(colors)):
+        for j in range(len(colors[i])):
+            _ = builder.write_string(color_style.background(mog.Color(colors[i][j].hex())).render())
+        _ = builder.write_byte(ord('\n'))
+
     var lists = join_horizontal(
         position.top,
         list_style.render(
@@ -129,17 +177,6 @@ fn build_lists() -> String:
                 list_item.render("Citron"),
                 list_item.render("Kumquat"),
                 list_item.render("Pomelo"),
-            ),
-        ),
-        list_style.width(column_width).render(
-            join_vertical(
-                position.left,
-                list_header.render("Actual Lip Gloss Vendors"),
-                list_item.render("Glossier"),
-                list_item.render("Claire's Boutique"),
-                check_mark + list_done.render("Nyx"),
-                list_item.render("Mac"),
-                check_mark + list_done.render("Milk"),
             ),
         ),
         list_style.width(column_width - 1).render(
@@ -155,7 +192,7 @@ fn build_lists() -> String:
         ),
     )
 
-    return join_horizontal(position.top, lists)
+    return join_horizontal(position.top, lists, str(builder))
 
 
 fn build_history() -> String:
@@ -187,7 +224,7 @@ fn build_status_bar() -> String:
 
     var status_key = status_style.render("STATUS")
     var encoding = encoding_style.render("UTF-8")
-    var fish_cake = fish_cake_style.render("Fish Cake")
+    var fish_cake = fish_cake_style.render("🍥 Fish Cake")
     var status_val = status_text_style.width(
         width - get_width(status_key) - get_width(encoding) - get_width(fish_cake)
     ).render("Ravishing")
@@ -206,7 +243,7 @@ fn build_status_bar() -> String:
 fn main():
     # The page style
     var builder = StringBuilder()
-    var doc_style = mog.Style().padding(1, 2, 1, 2).border(ROUNDED_BORDER).border_foreground(subtle)
+    var doc_style = mog.Style().padding(1, 2, 1, 2)
 
     # Tabs.
     _ = builder.write_string(build_tabs())

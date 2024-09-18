@@ -18,33 +18,19 @@ from mist.color import hex_to_rgb, hex_to_ansi256
 alias width = 96
 alias column_width = 30
 alias subtle = mog.AdaptiveColor(light=0xD9DCCF, dark=0x383838)
-alias highlight = mog.AdaptiveColor(light=0x874BFD, dark=0xFF713C)
+alias highlight = mog.AdaptiveColor(light=0x874BFD, dark=0x7D56F4)
 alias special = mog.AdaptiveColor(light=0x43BF6D, dark=0x73F59F)
-
-
-fn to_hue_color(r: UInt32, g: UInt32, b: UInt32) -> hue.Color:
-    """Converts rgb to a hue.Color.
-
-    Args:
-        r: The red value.
-        g: The green value.
-        b: The blue value.
-
-    Returns:
-        The hue.Color.
-    """
-    return hue.Color(r.cast[DType.float64](), g.cast[DType.float64](), b.cast[DType.float64]())
 
 
 fn color_grid(x_steps: Int, y_steps: Int) -> List[List[hue.Color]]:
     var x0y0_rgb = hex_to_rgb(0xF25D94)
-    var x0y0 = to_hue_color(x0y0_rgb[0], x0y0_rgb[1], x0y0_rgb[2])
+    var x0y0 = hue.Color(x0y0_rgb[0], x0y0_rgb[1], x0y0_rgb[2])
     var x1y0_rgb = hex_to_rgb(0xEDFF82)
-    var x1y0 = to_hue_color(x1y0_rgb[0], x1y0_rgb[1], x1y0_rgb[2])
+    var x1y0 = hue.Color(x1y0_rgb[0], x1y0_rgb[1], x1y0_rgb[2])
     var x0y1_rgb = hex_to_rgb(0x643AFF)
-    var x0y1 = to_hue_color(x0y1_rgb[0], x0y1_rgb[1], x0y1_rgb[2])
+    var x0y1 = hue.Color(x0y1_rgb[0], x0y1_rgb[1], x0y1_rgb[2])
     var x1y1_rgb = hex_to_rgb(0x14F9D5)
-    var x1y1 = to_hue_color(x1y1_rgb[0], x1y1_rgb[1], x1y1_rgb[2])
+    var x1y1 = hue.Color(x1y1_rgb[0], x1y1_rgb[1], x1y1_rgb[2])
 
     var x0 = List[hue.Color](capacity=y_steps)
     for i in range(y_steps):
@@ -90,7 +76,8 @@ fn build_tabs() -> String:
         bottom_right="┴",
     )
 
-    var tab_style = mog.Style().border(tab_border).border_foreground(highlight).padding(0, 1)
+    alias tab_color = mog.AdaptiveColor(light=0x874BFD, dark=0xFF713C)
+    var tab_style = mog.Style().border(tab_border).border_foreground(tab_color).padding(0, 1)
     var active_tab = tab_style.border(active_tab_border, True)
     var tab_gap = tab_style.border_top(False).border_left(False).border_right(False).border_bottom(True)
 
@@ -133,7 +120,7 @@ fn build_description() -> String:
 
 fn build_dialog_box() -> String:
     var dialog_box_style = mog.Style().alignment(position.center).border(ROUNDED_BORDER).border_foreground(
-        mog.Color(0x874BFD)
+        mog.Color(0xFF713C)
     ).padding(1, 0)
 
     var button_style = mog.Style().foreground(mog.Color(0xFFF7DB)).background(mog.Color(0x888B7E)).padding(
@@ -242,7 +229,7 @@ fn build_status_bar() -> String:
 
     var status_key = status_style.render("STATUS")
     var encoding = encoding_style.render("UTF-8")
-    var fish_cake = fish_cake_style.render("Fish Cake")
+    var fish_cake = fish_cake_style.render("🍥 Fish Cake")
     var status_val = status_text_style.width(
         width - get_width(status_key) - get_width(encoding) - get_width(fish_cake)
     ).render("Ravishing")

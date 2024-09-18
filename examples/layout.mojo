@@ -18,7 +18,7 @@ from mist.color import hex_to_rgb, hex_to_ansi256
 alias width = 96
 alias column_width = 30
 alias subtle = mog.AdaptiveColor(light=0xD9DCCF, dark=0x383838)
-alias highlight = mog.AdaptiveColor(light=0x874BFD, dark=0x7D56F4)
+alias highlight = mog.AdaptiveColor(light=0x874BFD, dark=0xFF713C)
 alias special = mog.AdaptiveColor(light=0x43BF6D, dark=0x73F59F)
 
 

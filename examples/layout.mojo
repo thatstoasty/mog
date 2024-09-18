@@ -12,25 +12,20 @@ from mog.whitespace import (
 )
 import mog
 import hue
-from mist.color import hex_to_rgb, hex_to_ansi256
 
 
 alias width = 96
 alias column_width = 30
 alias subtle = mog.AdaptiveColor(light=0xD9DCCF, dark=0x383838)
-alias highlight = mog.AdaptiveColor(light=0x874BFD, dark=0x7D56F4)
+alias highlight = mog.AdaptiveColor(light=0x874BFD, dark=0xFF713C)
 alias special = mog.AdaptiveColor(light=0x43BF6D, dark=0x73F59F)
 
 
 fn color_grid(x_steps: Int, y_steps: Int) -> List[List[hue.Color]]:
-    var x0y0_rgb = hex_to_rgb(0xF25D94)
-    var x0y0 = hue.Color(x0y0_rgb[0], x0y0_rgb[1], x0y0_rgb[2])
-    var x1y0_rgb = hex_to_rgb(0xEDFF82)
-    var x1y0 = hue.Color(x1y0_rgb[0], x1y0_rgb[1], x1y0_rgb[2])
-    var x0y1_rgb = hex_to_rgb(0x643AFF)
-    var x0y1 = hue.Color(x0y1_rgb[0], x0y1_rgb[1], x0y1_rgb[2])
-    var x1y1_rgb = hex_to_rgb(0x14F9D5)
-    var x1y1 = hue.Color(x1y1_rgb[0], x1y1_rgb[1], x1y1_rgb[2])
+    var x0y0 = hue.Color(0xF25D94)
+    var x1y0 = hue.Color(0xEDFF82)
+    var x0y1 = hue.Color(0x643AFF)
+    var x1y1 = hue.Color(0x14F9D5)
 
     var x0 = List[hue.Color](capacity=y_steps)
     for i in range(y_steps):
@@ -132,9 +127,9 @@ fn build_dialog_box() -> String:
     ).underline()
 
     var ok_button = active_button_style.render("Yes")
-    var cancel_button = button_style.render("Maybe")
+    var cancel_button = button_style.render("No")
 
-    var question = mog.Style().width(50).alignment(position.center).render("Are you sure you want to eat marmalade?")
+    var question = mog.Style().width(50).alignment(position.center).render("Are you sure you want to deploy?")
 
     var buttons = join_horizontal(position.top, ok_button, cancel_button)
     var ui = join_vertical(position.center, question, buttons)

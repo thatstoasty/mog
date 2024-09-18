@@ -422,6 +422,6 @@ Here's an example table rendering!
 - Decompose style render mega function and mega class into smaller ones.
 - It seems like renderer.place_vertical renders whitespace with a width that's too long in the Ubuntu test container. Will need to investigate why this happened. It might be because the execution environment is not necessarily a terminal.
 
-## Notes
+### Check out these other libraries in the Mojo Community!
 
-- ANSI256's support of setting both foreground and background colors is limited. It's possible to set both, but often the foreground color will be ignored.
+- `A Mojo HTTP framework with wings` - [@saviorand/lightbug_http](https://github.com/saviorand/lightbug_http)

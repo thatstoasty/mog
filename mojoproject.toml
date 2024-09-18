@@ -4,7 +4,7 @@ channels = ["https://repo.prefix.dev/mojo-community", "conda-forge", "https://co
 description = "Style definitions for nice terminal layouts. Built with TUIs in mind."
 name = "mog"
 platforms = ["osx-arm64", "linux-64"]
-version = "0.1.5"
+version = "0.1.6"
 
 [tasks]
 tests = "bash scripts/tests.sh"

@@ -11,6 +11,8 @@ from mog.whitespace import (
     with_whitespace_foreground,
 )
 import mog
+import hue
+from mist.color import hex_to_rgb, hex_to_ansi256
 
 
 alias width = 96
@@ -18,6 +20,51 @@ alias column_width = 30
 alias subtle = mog.AdaptiveColor(light=0xD9DCCF, dark=0x383838)
 alias highlight = mog.AdaptiveColor(light=0x874BFD, dark=0x7D56F4)
 alias special = mog.AdaptiveColor(light=0x43BF6D, dark=0x73F59F)
+
+
+fn to_hue_color(r: UInt32, g: UInt32, b: UInt32) -> hue.Color:
+    """Converts rgb to a hue.Color.
+
+    Args:
+        r: The red value.
+        g: The green value.
+        b: The blue value.
+
+    Returns:
+        The hue.Color.
+    """
+    return hue.Color(r.cast[DType.float64](), g.cast[DType.float64](), b.cast[DType.float64]())
+
+
+fn color_grid(x_steps: Int, y_steps: Int) -> List[List[hue.Color]]:
+    var x0y0_rgb = hex_to_rgb(0xF25D94)
+    var x0y0 = to_hue_color(x0y0_rgb[0], x0y0_rgb[1], x0y0_rgb[2])
+    var x1y0_rgb = hex_to_rgb(0xEDFF82)
+    var x1y0 = to_hue_color(x1y0_rgb[0], x1y0_rgb[1], x1y0_rgb[2])
+    var x0y1_rgb = hex_to_rgb(0x643AFF)
+    var x0y1 = to_hue_color(x0y1_rgb[0], x0y1_rgb[1], x0y1_rgb[2])
+    var x1y1_rgb = hex_to_rgb(0x14F9D5)
+    var x1y1 = to_hue_color(x1y1_rgb[0], x1y1_rgb[1], x1y1_rgb[2])
+
+    var x0 = List[hue.Color](capacity=y_steps)
+    for i in range(y_steps):
+        x0.append(x0y0.blend_luv(x0y1, Float64(i)/Float64(y_steps)))
+
+    var x1 = List[hue.Color](capacity=y_steps)
+    for i in range(y_steps):
+        x1.append(x1y0.blend_luv(x1y1, Float64(i)/Float64(y_steps)))
+
+    var grid = List[List[hue.Color]](capacity=y_steps)
+    var x = 0
+    while x < y_steps:
+        var y0 = x0[x]
+        grid.append(List[hue.Color](capacity=x_steps))
+        var y = 0
+        while y < x_steps:
+            grid[x].append(y0.blend_luv(x1[x], Float64(y)/Float64(x_steps)))
+            y += 1
+        x += 1
+    return grid
 
 
 fn build_tabs() -> String:
@@ -60,17 +107,28 @@ fn build_tabs() -> String:
 
 
 fn build_description() -> String:
-    var divider = mog.Style().padding(0, 1).foreground(subtle).render("•")
+    var colors = color_grid(1, 5)
+    var title = StringBuilder()
+    var title_style = mog.Style(value="Mog").margin_left(1).margin_right(5).padding(0, 1).italic(True).foreground(mog.Color(0xFFFDF5))
 
+    for i in range(len(colors)):
+        var offset = 2
+        var c = mog.Color(colors[i][0].hex())
+        _ = title.write_string(title_style.margin_left(i * offset).background(c).render())
+        if i < len(colors) - 1:
+            _ = title.write_byte(ord('\n'))
+
+    var divider = mog.Style().padding(0, 1).foreground(subtle).render("•")
     var url = mog.Style().foreground(special)
     var desc_style = mog.Style().margin_top(1)
     var info_style = mog.Style().border(NORMAL_BORDER, True, False, False, False).border_foreground(subtle)
 
-    return join_vertical(
+    var description = join_vertical(
         position.left,
         desc_style.render("Style Definitions for Nice Terminal Layouts.\nInspired by charmbracelet/lipgloss"),
         info_style.render("From Mikhail" + divider + url.render("https://github.com/thatstoasty/mog")),
     )
+    return join_horizontal(position.top, str(title), description)
 
 
 fn build_dialog_box() -> String:
@@ -118,6 +176,14 @@ fn build_lists() -> String:
     var check_mark = mog.Style().foreground(special).padding_right(1).render("✔")
     var list_done = mog.Style().crossout().foreground(mog.AdaptiveColor(light=0x969B86, dark=0x696969))
 
+    var colors = color_grid(14, 8)
+    var color_style = mog.Style(value="  ")
+    var builder = StringBuilder()
+    for i in range(len(colors)):
+        for j in range(len(colors[i])):
+            _ = builder.write_string(color_style.background(mog.Color(colors[i][j].hex())).render())
+        _ = builder.write_byte(ord('\n'))
+
     var lists = join_horizontal(
         position.top,
         list_style.render(
@@ -129,17 +195,6 @@ fn build_lists() -> String:
                 list_item.render("Citron"),
                 list_item.render("Kumquat"),
                 list_item.render("Pomelo"),
-            ),
-        ),
-        list_style.width(column_width).render(
-            join_vertical(
-                position.left,
-                list_header.render("Actual Lip Gloss Vendors"),
-                list_item.render("Glossier"),
-                list_item.render("Claire's Boutique"),
-                check_mark + list_done.render("Nyx"),
-                list_item.render("Mac"),
-                check_mark + list_done.render("Milk"),
             ),
         ),
         list_style.width(column_width - 1).render(
@@ -155,7 +210,7 @@ fn build_lists() -> String:
         ),
     )
 
-    return join_horizontal(position.top, lists)
+    return join_horizontal(position.top, lists, str(builder))
 
 
 fn build_history() -> String:

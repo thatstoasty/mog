@@ -243,7 +243,7 @@ fn build_status_bar() -> String:
 fn main():
     # The page style
     var builder = StringBuilder()
-    var doc_style = mog.Style().padding(1, 2, 1, 2).border(ROUNDED_BORDER).border_foreground(subtle)
+    var doc_style = mog.Style().padding(1, 2, 1, 2)
 
     # Tabs.
     _ = builder.write_string(build_tabs())

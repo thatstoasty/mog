@@ -17,7 +17,7 @@ from .border import (
     STAR_BORDER,
     PLUS_BORDER,
 )
-from .extensions import join, split_lines, get_lines
+from .extensions import split_lines, get_lines
 from .align import align_text_horizontal, align_text_vertical
 from .color import (
     AnyTerminalColor,
@@ -120,7 +120,7 @@ fn pad(text: String, n: Int, style: mist.Style) -> String:
         if i != len(lines) - 1:
             _ = builder.write_string(NEWLINE)
 
-    return str(builder)
+    return builder.consume()
 
 
 fn pad_left(text: String, n: Int, style: mist.Style) -> String:
@@ -2039,7 +2039,7 @@ struct Style:
             _ = builder.write_string(NEWLINE)
             _ = builder.write_string(bottom)
 
-        return str(builder)
+        return builder.consume()
 
     fn apply_margins(self, text: String, inline: Bool) -> String:
         var padded_text: String = text
@@ -2274,7 +2274,7 @@ struct Style:
             if i != len(lines) - 1:
                 _ = builder.write_string(NEWLINE)
 
-        var styled_text = str(builder)
+        var styled_text = builder.consume()
 
         # Padding
         if not inline:
@@ -2307,13 +2307,13 @@ struct Style:
             for i in range(len(lines)):
                 lines[i] = truncate(lines[i], max_width)
 
-            styled_text = join(NEWLINE, lines)
+            styled_text = NEWLINE.join(lines)
 
         # Truncate according to max_height
         if max_height > 0:
             var lines = split_lines(styled_text)
             var truncated_lines = lines[0 : min(max_height, len(lines))]
-            styled_text = join(NEWLINE, truncated_lines)
+            styled_text = NEWLINE.join(truncated_lines)
 
         # if transform:
         #     return transform(styled_text)

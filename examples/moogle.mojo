@@ -1,32 +1,5 @@
 import mog
-import hue
-
-
-fn color_grid(x_steps: Int, y_steps: Int) -> List[List[hue.Color]]:
-    var x0y0 = hue.Color(0xF25D94)
-    var x1y0 = hue.Color(0xEDFF82)
-    var x0y1 = hue.Color(0x643AFF)
-    var x1y1 = hue.Color(0x14F9D5)
-
-    var x0 = List[hue.Color](capacity=y_steps)
-    for i in range(y_steps):
-        x0.append(x0y0.blend_luv(x0y1, Float64(i)/Float64(y_steps)))
-
-    var x1 = List[hue.Color](capacity=y_steps)
-    for i in range(y_steps):
-        x1.append(x1y0.blend_luv(x1y1, Float64(i)/Float64(y_steps)))
-
-    var grid = List[List[hue.Color]](capacity=y_steps)
-    var x = 0
-    while x < y_steps:
-        var y0 = x0[x]
-        grid.append(List[hue.Color](capacity=x_steps))
-        var y = 0
-        while y < x_steps:
-            grid[x].append(y0.blend_luv(x1[x], Float64(y)/Float64(x_steps)))
-            y += 1
-        x += 1
-    return grid
+import mist.hue
 
 
 fn render_pixels(style: mog.Style, width: Int) -> String:

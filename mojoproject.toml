@@ -10,11 +10,13 @@ license-file = "LICENSE"
 homepage = "https://github.com/thatstoasty/weave"
 
 [tasks]
-tests = "bash scripts/tests.sh"
-examples = "bash scripts/examples.sh"
-benchmarks = "bash scripts/benchmarks.sh"
-build = { cmd = "rattler-build build -r src -c https://repo.prefix.dev/mojo-community -c https://conda.modular.com/max -c conda-forge --skip-existing=all", env = {MODULAR_MOJO_NIGHTLY_IMPORT_PATH = "$CONDA_PREFIX/lib/mojo"} }
-publish = { cmd = "bash scripts/publish.sh", env = { PREFIX_API_KEY = "$PREFIX_API_KEY" } }
+tests = "python scripts/util.py run tests"
+benchmarks = "python scripts/util.py run benchmarks"
+examples = "python scripts/util.py run examples"
+template = "python scripts/util.py templater"
+build = { cmd = "python scripts/util.py build", env = { MODULAR_MOJO_IMPORT_PATH = "$CONDA_PREFIX/lib/mojo" } }
+publish = { cmd = "python scripts/util.py publish", env = { PREFIX_API_KEY = "$PREFIX_API_KEY" } }
+bp = { depends_on=["build", "publish"] }
 
 [dependencies]
 max = ">=24.5.0,<25"

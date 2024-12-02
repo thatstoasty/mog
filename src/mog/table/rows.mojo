@@ -14,11 +14,19 @@ trait Data(CollectionElement):
         ...
 
     fn rows(self) -> Int:
-        """Returns the number of rows in the table."""
+        """Returns the number of rows in the table.
+        
+        Returns:
+            The number of rows in the table.
+        """
         ...
 
     fn columns(self) -> Int:
-        """Returns the number of columns in the table."""
+        """Returns the number of columns in the table.
+        
+        Returns:
+            The number of columns in the table.
+        """
         ...
 
 
@@ -43,9 +51,15 @@ struct StringData(Data):
     var _rows: List[List[String]]
     var _columns: Int
 
-    fn __init__(inout self, _rows: List[List[String]] = List[List[String]](), _columns: Int = 0):
-        self._rows = _rows
-        self._columns = _columns
+    fn __init__(out self, rows: List[List[String]] = List[List[String]](), columns: Int = 0):
+        """Initializes a new StringData instance.
+        
+        Args:
+            rows: The rows of the table.
+            columns: The number of columns in the table.
+        """
+        self._rows = rows
+        self._columns = columns
 
     fn at(self, row: Int, cell: Int) -> String:
         """Returns the contents of the cell at the given index.
@@ -63,11 +77,19 @@ struct StringData(Data):
         return self._rows[row][cell]
 
     fn rows(self) -> Int:
-        """Returns the number of rows in the table."""
+        """Returns the number of rows in the table.
+        
+        Returns:
+            The number of rows in the table.
+        """
         return len(self._rows)
 
     fn columns(self) -> Int:
-        """Returns the number of columns in the table."""
+        """Returns the number of columns in the table.
+        
+        Returns:
+            The number of columns in the table.
+        """
         return self._columns
 
     fn append(inout self, row: List[String]):
@@ -84,6 +106,9 @@ struct StringData(Data):
 
         Args:
             rows: The row to append.
+        
+        Returns:
+            The updated table.
         """
         self._columns = max(self._columns, len(rows))
         self._rows.append(rows)
@@ -91,18 +116,31 @@ struct StringData(Data):
 
 
 alias FilterFunction = fn (row: Int) -> Bool
-"""FilterFunction is a function type that filters rows based on a condition."""
+"""Function type that filters rows based on a condition."""
 
 
 @value
 struct Filter[DataType: Data](Data):
-    """Applies a filter function on some data."""
+    """Applies a filter function on some data.
+    
+    Parameters:
+        DataType: The type of data to use for the table.
+    """
 
     var data: DataType
+    """The data of the table."""
     var filter_function: FilterFunction
+    """The filter function to apply."""
 
     fn filter(self, data: Int) -> Bool:
-        """Applies the given filter function to the data."""
+        """Applies the given filter function to the data.
+        
+        Args:
+            data: The data to filter.
+        
+        Returns:
+            The filtered data.
+        """
         return self.filter_function(data)
 
     fn at(self, row: Int, cell: Int) -> String:
@@ -115,8 +153,8 @@ struct Filter[DataType: Data](Data):
         Returns:
             The contents of the cell at the given index.
         """
-        var j: Int = 0
-        var i: Int = 0
+        var j = 0
+        var i = 0
         while i < self.data.rows():
             if self.filter(i):
                 if j == row:
@@ -128,13 +166,21 @@ struct Filter[DataType: Data](Data):
         return ""
 
     fn columns(self) -> Int:
-        """Returns the number of columns in the table."""
+        """Returns the number of columns in the table.
+        
+        Returns:
+            The number of columns in the table.
+        """
         return self.data.columns()
 
     fn rows(self) -> Int:
-        """Returns the number of rows in the table."""
-        var j: Int = 0
-        var i: Int = 0
+        """Returns the number of rows in the table.
+        
+        Returns:
+            The number of rows in the table.
+        """
+        var j = 0
+        var i = 0
         while i < self.data.rows():
             if self.filter(i):
                 j += 1

@@ -41,11 +41,15 @@ fn get_height(text: String) -> Int:
 @value
 @register_passable("trivial")
 struct Dimensions:
+    """The width and height of a string."""
+
     var width: Int
+    """The width of the string."""
     var height: Int
+    """The height of the string."""
 
 
-fn get_dimensions(text: String) raises -> Dimensions:
+fn get_dimensions(text: String) -> Dimensions:
     """Returns the width and height of the string in cells. ANSI sequences are
     ignored and characters wider than one cell (such as Chinese characters and
     emojis) are appropriately measured.

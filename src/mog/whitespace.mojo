@@ -14,7 +14,7 @@ from .position import Position
 
 
 @value
-struct WhiteSpace:
+struct WhitespaceRenderer:
     """Whitespace renderer.
 
     Args:
@@ -24,14 +24,17 @@ struct WhiteSpace:
     """
 
     var renderer: Renderer
+    """The renderer which determines the color profile."""
     var style: mist.Style
+    """Terminal styling for the whitespace."""
     var chars: String
+    """The characters to render for whitespace. Defaults to a space."""
 
     fn __init__(
         inout self,
         renderer: Renderer,
         style: mist.Style,
-        chars: String = "",
+        chars: String = " ",
     ):
         """Initializes a new whitespace renderer.
 
@@ -53,9 +56,6 @@ struct WhiteSpace:
         Returns:
             The rendered whitespace.
         """
-        if self.chars == "":
-            self.chars = " "
-
         var j = 0
         var result = String()
 
@@ -83,40 +83,52 @@ struct WhiteSpace:
         return self.style.render(result)
 
 
-alias WhitespaceOption = fn (inout w: WhiteSpace) -> None
+alias WhitespaceOption = fn (inout w: WhitespaceRenderer) -> None
 """Sets a styling rule for rendering whitespace."""
 
 
-fn new_whitespace(renderer: Renderer, *opts: WhitespaceOption) -> WhiteSpace:
-    """Creates a new whitespace renderer. The order of the options
-    matters, if you're using WithWhitespaceRenderer, make sure it comes first as
-    other options might depend on it."""
-    var w = WhiteSpace(renderer=renderer, style=mist.Style(renderer.color_profile.value))
+fn new_whitespace(renderer: Renderer, *opts: WhitespaceOption) -> WhitespaceRenderer:
+    """Creates a new whitespace renderer. The order of the options matters.
+    
+    Args:
+        renderer: The renderer to use.
+        opts: The options to style the whitespace.
+    
+    Returns:
+        A new whitespace renderer.
+    """
+    return _new_whitespace(renderer, opts)
 
+
+fn _new_whitespace(renderer: Renderer, opts: VariadicList[WhitespaceOption]) -> WhitespaceRenderer:
+    """Creates a new whitespace renderer. The order of the options matters.
+    
+    Args:
+        renderer: The renderer to use.
+        opts: The options to style the whitespace.
+    
+    Returns:
+        A new whitespace renderer.
+    """
+    var w = WhitespaceRenderer(renderer=renderer, style=mist.Style(renderer.color_profile.value))
     for opt in opts:
         opt(w)
 
     return w
 
 
-# TODO: Temporary until until args unpacking is supported.
-fn new_whitespace(renderer: Renderer, opts: List[WhitespaceOption]) -> WhiteSpace:
-    """Creates a new whitespace renderer. The order of the options
-    matters, if you're using WithWhitespaceRenderer, make sure it comes first as
-    other options might depend on it."""
-    var w = WhiteSpace(renderer=renderer, style=mist.Style(renderer.color_profile.value))
-
-    for opt in opts:
-        opt[](w)
-
-    return w
-
-
 # Limited to using param for now due to Mojo crashing when using capturing functions.
 fn with_whitespace_foreground[terminal_color: AnyTerminalColor]() -> WhitespaceOption:
-    """Sets the color of the characters in the whitespace."""
+    """Sets the color of the characters in the whitespace.
+    
+    Parameters:
+        terminal_color: The color to use for the characters in the whitespace.
+    
+    Returns:
+        A function that sets the color of the characters in the whitespace.
+    """
 
-    fn style_foreground(inout w: WhiteSpace) -> None:
+    fn style_foreground(inout w: WhitespaceRenderer) -> None:
         var color: mist.AnyColor = mist.NoColor()
         if terminal_color.isa[NoColor]():
             return None
@@ -138,9 +150,16 @@ fn with_whitespace_foreground[terminal_color: AnyTerminalColor]() -> WhitespaceO
 
 
 fn with_whitespace_background[terminal_color: AnyTerminalColor]() -> WhitespaceOption:
-    """Sets the background color of the whitespace."""
+    """Sets the background color of the whitespace.
+    
+    Parameters:
+        terminal_color: The color to use for the background of the whitespace.
+    
+    Returns:
+        A function that sets the background color of the whitespace.
+    """
 
-    fn style_background(inout w: WhiteSpace) -> None:
+    fn style_background(inout w: WhitespaceRenderer) -> None:
         var color: mist.AnyColor = mist.NoColor()
         if terminal_color.isa[NoColor]():
             return None
@@ -161,11 +180,18 @@ fn with_whitespace_background[terminal_color: AnyTerminalColor]() -> WhitespaceO
     return style_background
 
 
-fn with_whitespace_chars[s: String]() -> WhitespaceOption:
-    """Sets the characters to be rendered in the whitespace."""
+fn with_whitespace_chars[text: String]() -> WhitespaceOption:
+    """Sets the characters to be rendered in the whitespace.
+    
+    Parameters:
+        text: The characters to use for the whitespace rendering.
+    
+    Returns:
+        A function that sets the characters to be rendered in the whitespace.
+    """
 
-    fn whitespace_with_chars(inout w: WhiteSpace) -> None:
-        w.chars = s
+    fn whitespace_with_chars(inout w: WhitespaceRenderer) -> None:
+        w.chars = text
 
     return whitespace_with_chars
 
@@ -177,8 +203,8 @@ fn with_whitespace_chars[s: String]() -> WhitespaceOption:
 fn place(
     width: Int,
     height: Int,
-    hPos: Position,
-    vPos: Position,
+    horizontal_position: Position,
+    vertical_position: Position,
     text: String,
     /,
     *opts: WhitespaceOption,
@@ -189,47 +215,43 @@ fn place(
     Args:
         width: The width of the box.
         height: The height of the box.
-        hPos: The horizontal position of the text.
-        vPos: The vertical position of the text.
+        horizontal_position: The horizontal position of the text.
+        vertical_position: The vertical position of the text.
         text: The text to place.
         opts: The options to style the whitespace.
 
     Returns:
         The text placed in the box.
     """
-    var options = List[WhitespaceOption]()
-    for opt in opts:
-        options.append(opt)
-    return Renderer().place(width, height, hPos, vPos, text, options)
+    return _place(width, height, horizontal_position, vertical_position, text, opts)
 
 
-# TODO: Temp until arg unpacking
-fn place(
+fn _place(
     width: Int,
     height: Int,
-    hPos: Position,
-    vPos: Position,
+    horizontal_position: Position,
+    vertical_position: Position,
     text: String,
-    opts: List[WhitespaceOption],
-) raises -> String:
+    opts: VariadicList[WhitespaceOption],
+) -> String:
     """Places a string or text block vertically in an unstyled box of a given
     width or height.
 
     Args:
         width: The width of the box.
         height: The height of the box.
-        hPos: The horizontal position of the text.
-        vPos: The vertical position of the text.
+        horizontal_position: The horizontal position of the text.
+        vertical_position: The vertical position of the text.
         text: The text to place.
         opts: The options to style the whitespace.
 
     Returns:
         The text placed in the box.
     """
-    return Renderer().place(width, height, hPos, vPos, text, opts)
+    return Renderer()._place(width, height, horizontal_position, vertical_position, text, opts)
 
 
-fn place_horizontal(width: Int, pos: Position, text: String, *opts: WhitespaceOption) raises -> String:
+fn place_horizontal(width: Int, pos: Position, text: String, *opts: WhitespaceOption) -> String:
     """Places a string or text block horizontally in an unstyled
     block of a given width. If the given width is shorter than the max width of
     the string (measured by its longest line) this will be a noop.
@@ -243,14 +265,10 @@ fn place_horizontal(width: Int, pos: Position, text: String, *opts: WhitespaceOp
     Returns:
         The text placed in the box.
     """
-    var options = List[WhitespaceOption]()
-    for opt in opts:
-        options.append(opt)
-    return Renderer().place_horizontal(width, pos, text, options)
+    return _place_horizontal(width, pos, text, opts)
 
 
-# TODO: Temp until arg unpacking
-fn place_horizontal(width: Int, pos: Position, text: String, opts: List[WhitespaceOption]) raises -> String:
+fn _place_horizontal(width: Int, pos: Position, text: String, opts: VariadicList[WhitespaceOption]) -> String:
     """Places a string or text block horizontally in an unstyled
     block of a given width. If the given width is shorter than the max width of
     the string (measured by its longest line) this will be a noop.
@@ -264,10 +282,10 @@ fn place_horizontal(width: Int, pos: Position, text: String, opts: List[Whitespa
     Returns:
         The text placed in the box.
     """
-    return Renderer().place_horizontal(width, pos, text, opts)
+    return Renderer()._place_horizontal(width, pos, text, opts)
 
 
-fn place_vertical(height: Int, pos: Position, text: String, *opts: WhitespaceOption) raises -> String:
+fn place_vertical(height: Int, pos: Position, text: String, *opts: WhitespaceOption) -> String:
     """Places a string or text block vertically in an unstyled block
     of a given height. If the given height is shorter than the height of the
     string (measured by its newlines) then this will be a noop.
@@ -281,14 +299,10 @@ fn place_vertical(height: Int, pos: Position, text: String, *opts: WhitespaceOpt
     Returns:
         The text placed in the box.
     """
-    var options = List[WhitespaceOption]()
-    for opt in opts:
-        options.append(opt)
-    return Renderer().place_vertical(height, pos, text, options)
+    return _place_vertical(height, pos, text, opts)
 
 
-# TODO: Temp until arg unpacking
-fn place_vertical(height: Int, pos: Position, text: String, opts: List[WhitespaceOption]) raises -> String:
+fn _place_vertical(height: Int, pos: Position, text: String, opts: VariadicList[WhitespaceOption]) -> String:
     """Places a string or text block vertically in an unstyled block
     of a given height. If the given height is shorter than the height of the
     string (measured by its newlines) then this will be a noop.
@@ -302,4 +316,4 @@ fn place_vertical(height: Int, pos: Position, text: String, opts: List[Whitespac
     Returns:
         The text placed in the box.
     """
-    return Renderer().place_vertical(height, pos, text, opts)
+    return Renderer()._place_vertical(height, pos, text, opts)

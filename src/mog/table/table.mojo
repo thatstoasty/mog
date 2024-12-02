@@ -5,19 +5,7 @@ from ..position import top, bottom, left, right, center
 from ..join import join_horizontal
 from ..size import get_height, get_width
 from .rows import StringData
-from .util import btoi, median, largest, sum
-
-
-fn trim_right(s: String, cutset: String) -> String:
-    """Returns a slice of the string s, with all trailing
-    Unicode code points contained in cutset removed.
-
-    To remove a suffix, use [TrimSuffix] instead."""
-    var index = s.find(cutset)
-    if index == -1:
-        return s
-
-    return s[:index]
+from .util import median, largest, sum
 
 
 alias StyleFunction = fn (row: Int, col: Int) -> Style
@@ -141,7 +129,7 @@ struct Table:
     """Tracks the height of each row."""
 
     fn __init__(
-        inout self,
+        out self,
         style_function: StyleFunction,
         border_style: Style,
         border: Border = ROUNDED_BORDER,
@@ -194,7 +182,11 @@ struct Table:
         self.heights = List[Int]()
 
     fn clear_rows(self) -> Table:
-        """Clears the table rows."""
+        """Clears the table rows.
+        
+        Returns:
+            The updated table.
+        """
         var new = self
         new.data = StringData()
         return new
@@ -216,6 +208,9 @@ struct Table:
 
         Args:
             rows: The rows to add to the table.
+        
+        Returns:
+            The updated table.
         """
         var new = self
         for i in range(len(rows)):
@@ -227,6 +222,9 @@ struct Table:
 
         Args:
             rows: The rows to add to the table.
+        
+        Returns:
+            The updated table.
         """
         var new = self
         for i in range(len(rows)):
@@ -238,6 +236,9 @@ struct Table:
 
         Args:
             row: The row to append to the table.
+        
+        Returns:
+            The updated table.
         """
         var new = self
         var temp = List[String](capacity=len(row))
@@ -251,6 +252,9 @@ struct Table:
 
         Args:
             row: The row to append to the table.
+        
+        Returns:
+            The updated table.
         """
         var new = self
         new.data.append(row)
@@ -261,6 +265,9 @@ struct Table:
 
         Args:
             headers: The headers to set.
+        
+        Returns:
+            The updated table.
         """
         var new = self
         var temp = List[String]()
@@ -274,13 +281,20 @@ struct Table:
 
         Args:
             headers: The headers to set.
+        
+        Returns:
+            The updated table.
         """
         var new = self
         new.headers = headers
         return new
 
     fn __str__(inout self) -> String:
-        """Returns the table as a String."""
+        """Returns the table as a String.
+        
+        Returns:
+            The table as a string.
+        """
         var has_headers = len(self.headers) > 0
         var has_rows = self.data.rows() > 0
 
@@ -303,7 +317,7 @@ struct Table:
         for _ in range(widths_len):
             self.widths.append(0)
 
-        var heights_len = btoi(has_headers) + self.data.rows()
+        var heights_len = int(has_headers) + self.data.rows()
         self.heights = List[Int](capacity=heights_len)
         for _ in range(heights_len):
             self.heights.append(0)
@@ -320,7 +334,7 @@ struct Table:
             var column_number = 0
             while column_number < self.data.columns():
                 var cell = self.data.at(row_number, column_number)
-                var row_number_with_header_offset = row_number + btoi(has_headers)
+                var row_number_with_header_offset = row_number + int(has_headers)
                 var rendered = self.style(row_number + 1, column_number).render(cell)
 
                 self.heights[row_number_with_header_offset] = max(
@@ -387,8 +401,8 @@ struct Table:
                 var trimmed_width = List[Int](capacity=self.data.rows())
 
                 for r in range(self.data.rows()):
-                    var rendered_cell = self.style(r + btoi(has_headers), i).render(self.data.at(r, i))
-                    var non_whitespace_chars = get_width(trim_right(rendered_cell, " "))
+                    var rendered_cell = self.style(r + int(has_headers), i).render(self.data.at(r, i))
+                    var non_whitespace_chars = get_width(rendered_cell.removesuffix(" "))
                     trimmed_width[r] = non_whitespace_chars + 1
 
                 column_medians[i] = median(trimmed_width)
@@ -445,7 +459,7 @@ struct Table:
         Returns:
             The width of the table.
         """
-        var width = sum(self.widths) + btoi(self.border_left) + btoi(self.border_right)
+        var width = sum(self.widths) + int(self.border_left) + int(self.border_right)
         if self.border_column:
             width += len(self.widths) - 1
 
@@ -461,11 +475,11 @@ struct Table:
         return (
             sum(self.heights)
             - 1
-            + btoi(has_headers)
-            + btoi(self.border_top)
-            + btoi(self.border_bottom)
-            + btoi(self.border_header)
-            + self.data.rows() * btoi(self.border_row)
+            + int(has_headers)
+            + int(self.border_top)
+            + int(self.border_bottom)
+            + int(self.border_header)
+            + self.data.rows() * int(self.border_row)
         )
 
     # render
@@ -581,7 +595,7 @@ struct Table:
         var result = String()
 
         var has_headers = len(self.headers) > 0
-        var height = self.heights[index + btoi(has_headers)]
+        var height = self.heights[index + int(has_headers)]
 
         var cells = List[String]()
         var left = (self.border_style.render(self.border.left) + "\n") * height
@@ -608,7 +622,7 @@ struct Table:
 
         for i in range(len(cells)):
             var cell = cells[i]
-            cells[i] = trim_right(cell, "\n")
+            cells[i] = cell.removesuffix("\n")
 
         result.write(join_horizontal(position.top, cells) + "\n")
 
@@ -630,5 +644,8 @@ fn new_table() -> Table:
     """Returns a new Table, this is to bypass the compiler limitation on these args having default values.
     It seems like argument default values are handled at compile time, and mog Styles are not compile time constants,
     UNLESS a profile is specified ahead of time.
+
+    Returns:
+        A new Table.
     """
     return Table(style_function=default_styles, border_style=mog.Style())

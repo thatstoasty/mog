@@ -99,15 +99,23 @@ alias UNDERLINE_SPACES_KEY: PropertyKey = 41
 alias CROSSOUT_SPACES_KEY: PropertyKey = 42
 
 
-# Apply left padding.
 fn pad(text: String, n: Int, style: mist.Style) -> String:
+    """Pad text with spaces.
+
+    Args:
+        text: The text to pad.
+        n: The number of spaces to pad with.
+        style: The style to use for the spaces.
+    
+    Returns:
+        The padded text.
+    """
     if n == 0:
         return text
 
     var spaces = style.render(WHITESPACE * abs(n))
     var result = String(capacity=int(len(text) * 1.5))
     var lines = text.splitlines()
-
     for i in range(len(lines)):
         if n > 0:
             result.write(lines[i], spaces)
@@ -121,10 +129,30 @@ fn pad(text: String, n: Int, style: mist.Style) -> String:
 
 
 fn pad_left(text: String, n: Int, style: mist.Style) -> String:
+    """Pad text with spaces to the left.
+
+    Args:
+        text: The text to pad.
+        n: The number of spaces to pad with.
+        style: The style to use for the spaces.
+    
+    Returns:
+        The padded text.
+    """
     return pad(text, -n, style)
 
 
 fn pad_right(text: String, n: Int, style: mist.Style) -> String:
+    """Pad text with spaces to the right.
+
+    Args:
+        text: The text to pad.
+        n: The number of spaces to pad with.
+        style: The style to use for the spaces.
+    
+    Returns:
+        The padded text.
+    """
     return pad(text, n, style)
 
 
@@ -133,9 +161,14 @@ struct Properties:
     """Properties for a style."""
 
     var value: SIMD[DType.uint8, 64]
+    """Array of attributes with 1 or 0 values to determine if a property is set."""
 
-    fn __init__(inout self, value: SIMD[DType.uint8, 64] = SIMD[DType.uint8, 64]()):
-        """Initialize a new Properties object."""
+    fn __init__(out self, value: SIMD[DType.uint8, 64] = SIMD[DType.uint8, 64]()):
+        """Initialize a new Properties object.
+        
+        Args:
+            value: The value to set the properties to.
+        """
         self.value = value
 
     fn set(self, key: PropertyKey) -> Properties:
@@ -199,11 +232,13 @@ struct Style:
     More documentation to come."""
 
     var renderer: Renderer
+    """The renderer to use for the style, determines the color profile."""
     var properties: Properties
     """List of attributes with 1 or 0 values to determine if a property is set.
     properties = is it set? attrs = is it set to true or false? (for bool properties).
     """
     var value: String
+    """The string value to apply the style to. All rendered text will start with this value."""
 
     var attrs: Properties
     """Stores the value of set bool properties here.
@@ -212,40 +247,67 @@ struct Style:
 
     # props that have values
     var _fg: AnyTerminalColor
+    """The foreground color."""
     var _bg: AnyTerminalColor
+    """The background color."""
 
     var _width: Int
+    """The desired width of the text."""
     var _height: Int
+    """The desired height of the text."""
 
     var _horizontal_alignment: Position
+    """The horizontal alignment of the text."""
     var _vertical_alignment: Position
+    """The vertical alignment of the text."""
 
     var _padding_top: Int
+    """The padding level at the top of the text."""
     var _padding_right: Int
+    """The padding level to the right of the text."""
     var _padding_bottom: Int
+    """The padding level at the bottom of the text."""
     var _padding_left: Int
+    """The padding level to the left of the text."""
 
     var _margin_top: Int
+    """The margin level at the top of the text."""
     var _margin_right: Int
+    """The margin level to the right of the text."""
     var _margin_bottom: Int
+    """The margin level at the bottom of the text."""
     var _margin_left: Int
+    """The margin level to the left of the text."""
     var _margin_bg: AnyTerminalColor
+    """The background color of the margin."""
 
     var _border: Border
+    """The border style."""
     var _border_top_fg: AnyTerminalColor
+    """The foreground color of the top border."""
     var _border_right_fg: AnyTerminalColor
+    """The foreground color of the right border."""
     var _border_bottom_fg: AnyTerminalColor
+    """The foreground color of the bottom border."""
     var _border_left_fg: AnyTerminalColor
+    """The foreground color of the left border."""
     var _border_top_bg: AnyTerminalColor
+    """The background color of the top border."""
     var _border_right_bg: AnyTerminalColor
+    """The background color of the right border."""
     var _border_bottom_bg: AnyTerminalColor
+    """The background color of the bottom border."""
     var _border_left_bg: AnyTerminalColor
+    """The background color of the left border."""
 
     var _max_width: Int
+    """The maximum width of the text."""
     var _max_height: Int
+    """The maximum height of the text."""
     var _tab_width: Int
+    """The number of spaces that a tab (/t) should be rendered as."""
 
-    fn __init__(inout self, value: String = "", color_profile: Optional[Int] = None):
+    fn __init__(out self, value: String = "", color_profile: Optional[Int] = None):
         """Initialize a new Style object.
 
         Args:
@@ -698,6 +760,11 @@ struct Style:
         return new
 
     fn get_inline(self) -> Bool:
+        """Returns whether or not the inline rule is set.
+
+        Returns:
+            True if set, False otherwise.
+        """
         return self.get_as_bool(INLINE_KEY, False)
 
     fn unset_inline(self) -> Style:
@@ -724,6 +791,11 @@ struct Style:
         return new
 
     fn get_bold(self) -> Bool:
+        """Returns whether or not the bold rule is set.
+
+        Returns:
+            True if set, False otherwise.
+        """
         return self.get_as_bool(BOLD_KEY, False)
 
     fn italic(self, value: Bool = True) -> Style:
@@ -740,6 +812,11 @@ struct Style:
         return new
 
     fn get_italic(self) -> Bool:
+        """Returns whether or not the italic rule is set.
+
+        Returns:
+            True if set, False otherwise.
+        """
         return self.get_as_bool(ITALIC_KEY, False)
 
     fn underline(self, value: Bool = True) -> Style:
@@ -1530,6 +1607,9 @@ struct Style:
 
         Args:
             widths: The padding widths to apply.
+        
+        Returns:
+            A new Style object with the padding rule set.
         """
         var top = 0
         var bottom = 0
@@ -1980,66 +2060,52 @@ struct Style:
             elif not has_right:
                 border.bottom_right = ""
 
-        # TODO: Commenting out for now, later when unicode is supported, this should be limiting corner to 1 rune length
-        # border.top_left = border.top_left[:1]
-        # border.top_right = border.top_right[:1]
-        # border.bottom_right = border.bottom_right[:1]
-        # border.bottom_left = border.bottom_left[:1]
-
         var result = String(capacity=int(len(text) * 1.5))
 
         # Render top
         if has_top:
-            var top = render_horizontal_edge(border.top_left, border.top, border.top_right, width)
-            top = self.style_border(top, top_fg, top_bg)
-            result.write(top)
-            result.write(NEWLINE)
+            top = self.style_border(
+                render_horizontal_edge(border.top_left, border.top, border.top_right, width),
+                top_fg,
+                top_bg
+            )
+            result.write(top, NEWLINE)
 
         # Render sides
-        var left_runes = List[String]()
-        left_runes.append(border.left)
-        var left_index = 0
-
-        var right_runes = List[String]()
-        right_runes.append(border.right)
-        var right_index = 0
-
         for i in range(len(lines)):
             var line = lines[i]
             if has_left:
-                var r = left_runes[left_index]
-                left_index += 1
-
-                if left_index >= len(left_runes):
-                    left_index = 0
-
-                result.write(self.style_border(r, left_fg, left_bg))
+                result.write(self.style_border(border.left, left_fg, left_bg))
 
             result.write(line)
 
             if has_right:
-                var r = right_runes[right_index]
-                right_index += 1
-
-                if right_index >= len(right_runes):
-                    right_index = 0
-
-                result.write(self.style_border(r, right_fg, right_bg))
+                result.write(self.style_border(border.right, right_fg, right_bg))
 
             if i < len(lines) - 1:
                 result.write(NEWLINE)
 
         # Render bottom
         if has_bottom:
-            var bottom = render_horizontal_edge(border.bottom_left, border.bottom, border.bottom_right, width)
-            bottom = self.style_border(bottom, bottom_fg, bottom_bg)
-            result.write(NEWLINE)
-            result.write(bottom)
+            bottom = self.style_border(
+                render_horizontal_edge(border.bottom_left, border.bottom, border.bottom_right, width),
+                bottom_fg,
+                bottom_bg
+            )
+            result.write(NEWLINE, bottom)
 
         return result
 
-    fn apply_margins(self, text: String, inline: Bool) -> String:
-        var padded_text: String = text
+    fn apply_margins(self, owned text: String, inline: Bool) -> String:
+        """Apply margins to the text.
+
+        Args:
+            text: The text to apply the margins to.
+            inline: Whether the text is inline or not.
+        
+        Returns:
+            The text with the margins applied.
+        """
         var top_margin = self.get_as_int(MARGIN_TOP_KEY)
         var right_margin = self.get_as_int(MARGIN_RIGHT_KEY)
         var bottom_margin = self.get_as_int(MARGIN_BOTTOM_KEY)
@@ -2062,23 +2128,18 @@ struct Style:
             styler = styler.background(color=bgc[CompleteAdaptiveColor].color(self.renderer))
 
         # Add left and right margin
-        padded_text = pad_left(padded_text, left_margin, styler)
-        padded_text = pad_right(padded_text, right_margin, styler)
+        text = pad_left(text, left_margin, styler)
+        text = pad_right(text, right_margin, styler)
 
         # Top/bottom margin
         if not inline:
-            var lines: List[String]
-            var width: Int
-            lines, width = get_lines(text)
-
-            var spaces = WHITESPACE * width
-
+            _, width = get_lines(text)
             if top_margin > 0:
-                padded_text = ((spaces + NEWLINE) * top_margin) + padded_text
+                text = ((WHITESPACE * width + NEWLINE) * top_margin) + text
             if bottom_margin > 0:
-                padded_text += (NEWLINE + spaces) * bottom_margin
+                text.write((NEWLINE + WHITESPACE * width) * bottom_margin)
 
-        return padded_text
+        return text
 
     fn render(self, *texts: String) -> String:
         """Render the text with the style.
@@ -2090,14 +2151,14 @@ struct Style:
             The rendered text.
         """
         # If style has internal string, add it first. Join arbitrary list of texts into a single string.
-        var input_text: String = ""
+        var input_text = String()
         if self.value != "":
-            input_text += self.value
+            input_text.write(self.value)
 
         for i in range(len(texts)):
-            input_text += texts[i]
+            input_text.write(texts[i])
             if i != len(texts) - 1:
-                input_text += " "
+                input_text.write(" ")
 
         var term_style = mist.Style(self.renderer.color_profile.value)
         var term_style_space = term_style
@@ -2298,7 +2359,6 @@ struct Style:
         # Truncate according to max_width
         if max_width > 0:
             var lines = result.splitlines()
-
             for i in range(len(lines)):
                 lines[i] = truncate(lines[i], max_width)
 

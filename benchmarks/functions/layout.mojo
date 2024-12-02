@@ -191,7 +191,7 @@ fn build_lists() -> String:
         ),
     )
 
-    return join_horizontal(position.top, lists, str(builder))
+    return join_horizontal(position.top, lists, builder)
 
 
 fn build_history() -> String:

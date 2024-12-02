@@ -6,7 +6,7 @@ from .extensions import get_lines
 
 
 fn align_text_horizontal(text: String, pos: position.Position, width: Int, style: Optional[mist.Style] = None) -> String:
-    """Perform text alignment. If the string is multi-lined, we also make all lines
+    """Aligns the text on the horizontal axis. If the string is multi-lined, we also make all lines
     the same width by padding them with spaces. If a termenv style is passed,
     use that to style the spaces added.
 
@@ -51,7 +51,7 @@ fn align_text_horizontal(text: String, pos: position.Position, width: Int, style
                 var spaces = WHITESPACE * int(short_amount)
                 if style:
                     spaces = style.value().render(spaces)
-                line += spaces
+                line.write(spaces)
 
         aligned_text.write(line)
         if i < len(lines) - 1:
@@ -61,6 +61,18 @@ fn align_text_horizontal(text: String, pos: position.Position, width: Int, style
 
 
 fn align_text_vertical(text: String, pos: position.Position, height: Int) -> String:
+    """Aligns the text on the vertical axis. If the string is shorter than the height, it's padded
+    with newlines. If the string is taller than the height, return the original
+    string.
+
+    Args:
+        text: The text to align.
+        pos: The position to align the text to.
+        height: The height to align the text to.
+    
+    Returns:
+        The aligned text.
+    """
     var text_height = text.count(NEWLINE) + 1
     if height < text_height:
         return text

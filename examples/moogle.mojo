@@ -281,7 +281,7 @@ fn main():
     var name_style = mog.Style().foreground(mog.Color(0xF25D94)).padding_left(2)
     var content = mog.join_horizontal(
         mog.center,
-        str(builder),
+        builder,
         name_style.render(NAME)
     )
 

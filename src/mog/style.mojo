@@ -17,7 +17,7 @@ from .border import (
     STAR_BORDER,
     PLUS_BORDER,
 )
-from .extensions import join, split_lines, get_lines
+from .extensions import get_lines
 from .align import align_text_horizontal, align_text_vertical
 from .color import (
     AnyTerminalColor,
@@ -29,10 +29,9 @@ from .color import (
     CompleteColor,
     CompleteAdaptiveColor,
 )
-from weave import wrap, wordwrap, truncate
+from weave import wrap, word_wrap, truncate
 from weave.ansi import printable_rune_width
 import mist
-from gojo.strings import StringBuilder, Reader
 
 
 alias TAB_WIDTH: Int = 4
@@ -105,22 +104,20 @@ fn pad(text: String, n: Int, style: mist.Style) -> String:
     if n == 0:
         return text
 
-    var sp = style.render(WHITESPACE * abs(n))
-    var builder = StringBuilder(capacity=int(len(text) * 1.5))
-    var lines = split_lines(text)
+    var spaces = style.render(WHITESPACE * abs(n))
+    var result = String(capacity=int(len(text) * 1.5))
+    var lines = text.splitlines()
 
     for i in range(len(lines)):
         if n > 0:
-            _ = builder.write_string(lines[i])
-            _ = builder.write_string(sp)
+            result.write(lines[i], spaces)
         else:
-            _ = builder.write_string(sp)
-            _ = builder.write_string(lines[i])
+            result.write(spaces, lines[i])
 
         if i != len(lines) - 1:
-            _ = builder.write_string(NEWLINE)
+            result.write(NEWLINE)
 
-    return str(builder)
+    return result
 
 
 fn pad_left(text: String, n: Int, style: mist.Style) -> String:
@@ -1989,14 +1986,14 @@ struct Style:
         # border.bottom_right = border.bottom_right[:1]
         # border.bottom_left = border.bottom_left[:1]
 
-        var builder = StringBuilder(capacity=int(len(text) * 1.5))
+        var result = String(capacity=int(len(text) * 1.5))
 
         # Render top
         if has_top:
             var top = render_horizontal_edge(border.top_left, border.top, border.top_right, width)
             top = self.style_border(top, top_fg, top_bg)
-            _ = builder.write_string(top)
-            _ = builder.write_string(NEWLINE)
+            result.write(top)
+            result.write(NEWLINE)
 
         # Render sides
         var left_runes = List[String]()
@@ -2016,9 +2013,9 @@ struct Style:
                 if left_index >= len(left_runes):
                     left_index = 0
 
-                _ = builder.write_string(self.style_border(r, left_fg, left_bg))
+                result.write(self.style_border(r, left_fg, left_bg))
 
-            _ = builder.write_string(line)
+            result.write(line)
 
             if has_right:
                 var r = right_runes[right_index]
@@ -2027,19 +2024,19 @@ struct Style:
                 if right_index >= len(right_runes):
                     right_index = 0
 
-                _ = builder.write_string(self.style_border(r, right_fg, right_bg))
+                result.write(self.style_border(r, right_fg, right_bg))
 
             if i < len(lines) - 1:
-                _ = builder.write_string(NEWLINE)
+                result.write(NEWLINE)
 
         # Render bottom
         if has_bottom:
             var bottom = render_horizontal_edge(border.bottom_left, border.bottom, border.bottom_right, width)
             bottom = self.style_border(bottom, bottom_fg, bottom_bg)
-            _ = builder.write_string(NEWLINE)
-            _ = builder.write_string(bottom)
+            result.write(NEWLINE)
+            result.write(bottom)
 
-        return str(builder)
+        return result
 
     fn apply_margins(self, text: String, inline: Bool) -> String:
         var padded_text: String = text
@@ -2250,13 +2247,13 @@ struct Style:
         # Word wrap
         if (not inline) and (width > 0):
             var wrap_at = width - left_padding - right_padding
-            input_text = wordwrap(input_text, wrap_at)
+            input_text = word_wrap(input_text, wrap_at)
             input_text = wrap(input_text, wrap_at)  # force-wrap long strings
 
         input_text = self.maybe_convert_tabs(input_text)
 
-        var builder = StringBuilder(capacity=int(len(input_text) * 1.5))
-        var lines = split_lines(input_text)
+        var result = String(capacity=int(len(input_text) * 1.5))
+        var lines = input_text.splitlines()
 
         for i in range(len(lines)):
             if use_space_styler:
@@ -2264,17 +2261,15 @@ struct Style:
                 for char in lines[i]:
                     # for j in range(printable_rune_width(lines[i])):
                     if char == " ":
-                        _ = builder.write_string(term_style_space.render(char))
+                        result.write(term_style_space.render(char))
                     else:
-                        _ = builder.write_string(term_style.render(char))
+                        result.write(term_style.render(char))
             else:
-                _ = builder.write_string(term_style.render(lines[i]))
+                result.write(term_style.render(lines[i]))
 
             # Readd the newlines
             if i != len(lines) - 1:
-                _ = builder.write_string(NEWLINE)
-
-        var styled_text = str(builder)
+                result.write(NEWLINE)
 
         # Padding
         if not inline:
@@ -2282,54 +2277,54 @@ struct Style:
                 var style = mist.Style(self.renderer.color_profile.value)
                 if color_whitespace or use_whitespace_styler:
                     style = term_style_whitespace
-                styled_text = pad_left(styled_text, left_padding, style)
+                result = pad_left(result, left_padding, style)
 
             if right_padding > 0:
                 var style = mist.Style(self.renderer.color_profile.value)
                 if color_whitespace or use_whitespace_styler:
                     style = term_style_whitespace
-                styled_text = pad_right(styled_text, right_padding, style)
+                result = pad_right(result, right_padding, style)
 
             if top_padding > 0:
-                styled_text = (NEWLINE * top_padding) + styled_text
+                result = (NEWLINE * top_padding) + result
 
             if bottom_padding > 0:
-                styled_text += NEWLINE * bottom_padding
+                result += NEWLINE * bottom_padding
 
         # Alignment
         if height > 0:
-            styled_text = align_text_vertical(styled_text, vertical_align, height)
+            result = align_text_vertical(result, vertical_align, height)
 
         # Truncate according to max_width
         if max_width > 0:
-            var lines = split_lines(styled_text)
+            var lines = result.splitlines()
 
             for i in range(len(lines)):
                 lines[i] = truncate(lines[i], max_width)
 
-            styled_text = join(NEWLINE, lines)
+            result = NEWLINE.join(lines)
 
         # Truncate according to max_height
         if max_height > 0:
-            var lines = split_lines(styled_text)
+            var lines = result.splitlines()
             var truncated_lines = lines[0 : min(max_height, len(lines))]
-            styled_text = join(NEWLINE, truncated_lines)
+            result = NEWLINE.join(truncated_lines)
 
         # if transform:
-        #     return transform(styled_text)
+        #     return transform(result)
 
         # Apply border at the end
-        lines = split_lines(styled_text)
+        lines = result.splitlines()
 
         var number_of_lines = len(lines)
         if not (number_of_lines == 0 and width == 0):
             var style = mist.Style(self.renderer.color_profile.value)
             if color_whitespace or use_whitespace_styler:
                 style = term_style_whitespace
-            styled_text = align_text_horizontal(styled_text, horizontal_align, width, style)
+            result = align_text_horizontal(result, horizontal_align, width, style)
 
         if not inline:
-            styled_text = self.apply_border(styled_text)
-            styled_text = self.apply_margins(styled_text, inline)
+            result = self.apply_border(result)
+            result = self.apply_margins(result, inline)
 
-        return styled_text
+        return result

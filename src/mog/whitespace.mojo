@@ -1,6 +1,5 @@
 import mist
 import weave.ansi
-from gojo.strings import StringBuilder
 from .renderer import Renderer
 from .color import (
     TerminalColor,
@@ -58,14 +57,14 @@ struct WhiteSpace:
             self.chars = " "
 
         var j = 0
-        var b = StringBuilder()
+        var result = String()
 
         # Cycle through runes and print them into the whitespace.
         var i = 0
 
         while i < width:
             for char in self.chars:
-                _ = b.write_string(char)
+                result.write_bytes(char.as_bytes())
                 var printable_width = ansi.printable_rune_width(char)
                 if j >= printable_width:
                     j = 0
@@ -77,15 +76,15 @@ struct WhiteSpace:
 
         #  Fill any extra gaps white spaces. This might be necessary if any runes
         #  are more than one cell wide, which could leave a one-rune gap.
-        var short = width - ansi.printable_rune_width(str(b))
+        var short = width - ansi.printable_rune_width(result)
         if short > 0:
-            _ = b.write_string(WHITESPACE * short)
+            result.write(WHITESPACE * short)
 
-        return self.style.render(str(b))
+        return self.style.render(result)
 
 
-#  WhitespaceOption sets a styling rule for rendering whitespace.
 alias WhitespaceOption = fn (inout w: WhiteSpace) -> None
+"""Sets a styling rule for rendering whitespace."""
 
 
 fn new_whitespace(renderer: Renderer, *opts: WhitespaceOption) -> WhiteSpace:

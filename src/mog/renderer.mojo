@@ -1,10 +1,8 @@
 from collections import Optional
 import mist
-from gojo.strings import StringBuilder
 import weave.ansi
 from .whitespace import WhitespaceOption, new_whitespace
 import .position
-from .extensions import split_lines
 
 
 # TODO: Cannot handle characters with a printable width of 2 or more. Like east asian characters (Kanji, etc.).
@@ -154,8 +152,8 @@ struct Renderer:
         Returns:
             The string with the text placed in the block.
         """
-        var lines = split_lines(text)
-        var content_width: Int = 0
+        var lines = text.splitlines()
+        var content_width = 0
         for i in range(len(lines)):
             if ansi.printable_rune_width(lines[i]) > content_width:
                 content_width = ansi.printable_rune_width(lines[i])
@@ -169,30 +167,30 @@ struct Renderer:
             options.append(opt)
 
         var white_space = new_whitespace(self, options)
-        var builder = StringBuilder()
+        var result = String()
         for i in range(len(lines)):
             # Is this line shorter than the longest line?
             var short = max(0, content_width - ansi.printable_rune_width(lines[i]))
             if pos == position.left:
-                _ = builder.write_string(lines[i])
-                _ = builder.write_string(white_space.render(gap + short))
+                result.write(lines[i])
+                result.write(white_space.render(gap + short))
             elif pos == position.right:
-                _ = builder.write_string(white_space.render(gap + short))
-                _ = builder.write_string(lines[i])
+                result.write(white_space.render(gap + short))
+                result.write(lines[i])
             else:
                 # somewhere in the middle
                 var total_gap = gap + short
                 var split = int(round(Float64(total_gap) * pos))
                 var left = total_gap - split
                 var right = total_gap - left
-                _ = builder.write_string(white_space.render(left))
-                _ = builder.write_string(lines[i])
-                _ = builder.write_string(white_space.render(right))
+                result.write(white_space.render(left))
+                result.write(lines[i])
+                result.write(white_space.render(right))
 
             if i < len(lines) - 1:
-                _ = builder.write_byte(ord("\n"))
+                result.write(NEWLINE)
 
-        return str(builder)
+        return result
 
     # TODO: Temporary until arg unpacking is supported.
     fn place_horizontal(
@@ -217,7 +215,7 @@ struct Renderer:
         Returns:
             The string with the text placed in the block.
         """
-        var lines = split_lines(text)
+        var lines = text.splitlines()
         var content_width: Int = 0
         for i in range(len(lines)):
             if ansi.printable_rune_width(lines[i]) > content_width:
@@ -228,30 +226,30 @@ struct Renderer:
             return text
 
         var white_space = new_whitespace(self, opts)
-        var builder = StringBuilder()
+        var result = String()
         for i in range(len(lines)):
             # Is this line shorter than the longest line?
             var short = max(0, content_width - ansi.printable_rune_width(lines[i]))
             if pos == position.left:
-                _ = builder.write_string(lines[i])
-                _ = builder.write_string(white_space.render(gap + short))
+                result.write(lines[i])
+                result.write(white_space.render(gap + short))
             elif pos == position.right:
-                _ = builder.write_string(white_space.render(gap + short))
-                _ = builder.write_string(lines[i])
+                result.write(white_space.render(gap + short))
+                result.write(lines[i])
             else:
                 # somewhere in the middle
                 var total_gap = gap + short
                 var split = int(round(Float64(total_gap) * pos))
                 var left = total_gap - split
                 var right = total_gap - left
-                _ = builder.write_string(white_space.render(left))
-                _ = builder.write_string(lines[i])
-                _ = builder.write_string(white_space.render(right))
+                result.write(white_space.render(left))
+                result.write(lines[i])
+                result.write(white_space.render(right))
 
             if i < len(lines) - 1:
-                _ = builder.write_byte(ord("\n"))
+                result.write(NEWLINE)
 
-        return str(builder)
+        return result
 
     fn place_vertical(
         self,
@@ -276,7 +274,7 @@ struct Renderer:
         Returns:
             The string with the text placed in the block.
         """
-        var content_height = text.count("\n") + 1
+        var content_height = text.count(NEWLINE) + 1
         var gap = height - content_height
 
         if gap <= 0:
@@ -287,44 +285,41 @@ struct Renderer:
             options.append(opt)
         var white_space = new_whitespace(self, options)
 
-        var lines = split_lines(text)
+        var lines = text.splitlines()
         var width: Int = 0
         for i in range(len(lines)):
             if ansi.printable_rune_width(lines[i]) > width:
                 width = ansi.printable_rune_width(lines[i])
 
         var empty_line = white_space.render(width)
-        var builder = StringBuilder()
+        var result = String()
 
         if pos == position.top:
-            _ = builder.write_string(text)
-            _ = builder.write_byte(ord("\n"))
+            result.write(text, NEWLINE)
 
             var i = 0
             while i < gap:
-                _ = builder.write_string(empty_line)
+                result.write(empty_line)
                 if i < gap - 1:
-                    _ = builder.write_byte(ord("\n"))
+                    result.write(NEWLINE)
                 i += 1
 
         elif pos == position.bottom:
-            _ = builder.write_string((empty_line + "\n") * gap)
-            _ = builder.write_string(text)
+            result.write((empty_line + NEWLINE) * gap)
+            result.write(text)
         else:
             # somewhere in the middle
             var split = int(round(Float64(gap) * pos))
             var top = gap - split
             var bottom = gap - top
-            _ = builder.write_string((empty_line + "\n") * top)
-            _ = builder.write_string(text)
+            result.write((empty_line + NEWLINE) * top, text)
 
             var i = 0
             while i < bottom:
-                _ = builder.write_byte(ord("\n"))
-                _ = builder.write_string(empty_line)
+                result.write(NEWLINE, empty_line)
                 i += 1
 
-        return str(builder)
+        return result
 
     fn place_vertical(
         self,
@@ -348,7 +343,7 @@ struct Renderer:
         Returns:
             The string with the text placed in the block.
         """
-        var content_height = text.count("\n") + 1
+        var content_height = text.count(NEWLINE) + 1
         var gap = height - content_height
 
         if gap <= 0:
@@ -356,41 +351,38 @@ struct Renderer:
 
         var white_space = new_whitespace(self, opts)
 
-        var lines = split_lines(text)
-        var width: Int = 0
+        var lines = text.splitlines()
+        var width = 0
         for i in range(len(lines)):
             if ansi.printable_rune_width(lines[i]) > width:
                 width = ansi.printable_rune_width(lines[i])
 
         var empty_line = white_space.render(width)
-        var builder = StringBuilder()
+        var result = String()
 
         if pos == position.top:
-            _ = builder.write_string(text)
-            _ = builder.write_byte(ord("\n"))
+            result.write(text, NEWLINE)
 
             var i = 0
             while i < gap:
-                _ = builder.write_string(empty_line)
+                result.write(empty_line)
                 if i < gap - 1:
-                    _ = builder.write_byte(ord("\n"))
+                    result.write(NEWLINE)
                 i += 1
         elif pos == position.bottom:
-            _ = builder.write_string((empty_line + "\n") * gap)
-            _ = builder.write_string(text)
+            result.write((empty_line + NEWLINE) * gap, text)
         else:
             # somewhere in the middle
             var split = int(round(Float64(gap) * pos))
             var top = gap - split
             var bottom = gap - top
 
-            _ = builder.write_string((empty_line + "\n") * top)
-            _ = builder.write_string(text)
+            result.write((empty_line + NEWLINE) * top)
+            result.write(text)
 
             var i = 0
             while i < bottom:
-                _ = builder.write_byte(ord("\n"))
-                _ = builder.write_string(empty_line)
+                result.write(NEWLINE, empty_line)
                 i += 1
 
-        return str(builder)
+        return result

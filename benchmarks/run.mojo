@@ -19,7 +19,7 @@ fn table_styling(row: Int, col: Int) -> mog.Style:
         return style
 
 
-fn main():
+fn main() raises:
     var results = mog.new_table()
     results.style_function = table_styling
     results = results.set_headers(
@@ -28,7 +28,6 @@ fn main():
         "Total (ms)",
         "Iterations",
         "Warmup Total",
-        "Warmup Iterations",
     )
 
     var report = benchmark.run[render_layout](max_iters=10)
@@ -38,7 +37,6 @@ fn main():
         str(report.duration(benchmark.Unit.ms)),
         str(report.iters()),
         str(report.warmup_duration / 1e6),
-        str(report.warmup_iters),
     )
 
     var bs_report = benchmark.run[basic_styling](max_iters=50)
@@ -48,7 +46,6 @@ fn main():
         str(bs_report.duration(benchmark.Unit.ms)),
         str(bs_report.iters()),
         str(bs_report.warmup_duration / 1e6),
-        str(bs_report.warmup_iters),
     )
 
     var bcs_report = benchmark.run[basic_comptime_styling](max_iters=50)
@@ -58,7 +55,6 @@ fn main():
         str(bcs_report.duration(benchmark.Unit.ms)),
         str(bcs_report.iters()),
         str(bcs_report.warmup_duration / 1e6),
-        str(bcs_report.warmup_iters),
     )
 
     # var bs_big_report = benchmark.run[basic_styling_big_file](max_iters=10)

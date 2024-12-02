@@ -1,7 +1,6 @@
 from collections import Optional
 from weave.ansi import printable_rune_width
 import mist
-from gojo.strings import StringBuilder
 import .position
 from .extensions import get_lines
 
@@ -20,11 +19,9 @@ fn align_text_horizontal(text: String, pos: position.Position, width: Int, style
     Returns:
         The aligned text.
     """
-    var lines: List[String]
-    var widest_line: Int
     lines, widest_line = get_lines(text)
 
-    var aligned_text = StringBuilder(capacity=len(text))
+    var aligned_text = String(capacity=len(text))
     for i in range(len(lines)):
         var line = lines[i]
         var line_width = printable_rune_width(lines[i])
@@ -56,11 +53,11 @@ fn align_text_horizontal(text: String, pos: position.Position, width: Int, style
                     spaces = style.value().render(spaces)
                 line += spaces
 
-        _ = aligned_text.write_string(line)
+        aligned_text.write(line)
         if i < len(lines) - 1:
-            _ = aligned_text.write_string(NEWLINE)
+            aligned_text.write(NEWLINE)
 
-    return str(aligned_text)
+    return aligned_text
 
 
 fn align_text_vertical(text: String, pos: position.Position, height: Int) -> String:

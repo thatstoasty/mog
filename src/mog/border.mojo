@@ -261,7 +261,7 @@ alias HIDDEN_BORDER = Border(
 alias NO_BORDER = Border()
 
 
-fn render_horizontal_edge(left: String, middle: String, right: String, width: Int) -> String:
+fn render_horizontal_edge(left: String, owned middle: String, right: String, width: Int) -> String:
     """Render the horizontal (top or bottom) portion of a border.
 
     Args:
@@ -273,19 +273,17 @@ fn render_horizontal_edge(left: String, middle: String, right: String, width: In
     Returns:
         The rendered horizontal edge.
     """
-    var middle_copy = middle
-
     if width < 1:
         return ""
 
     if middle == "":
-        middle_copy = " "
+        middle = " "
 
     var left_width = printable_rune_width(left)
     var right_width = printable_rune_width(right)
 
-    var runes = List[String](middle_copy)
-    var output: String = left
+    var runes = List[String](middle)
+    var output = left
 
     var i = left_width + right_width
     var j = 0

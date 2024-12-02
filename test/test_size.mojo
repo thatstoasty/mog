@@ -1,21 +1,19 @@
 import testing
-from mog.size import get_height, get_width, get_size
+from mog.size import get_height, get_width, get_dimensions
+
+
+alias test_string = "This\nis\na\ntest\nstring"
 
 
 def test_get_height():
-    var text = "This\nis\na\ntest\nstring"
-    testing.assert_equal(get_height(text), 5)
+    testing.assert_equal(get_height(test_string), 5)
 
 
 def test_get_width():
-    var text = "This\nis\na\ntest\nstring"
-    testing.assert_equal(get_width(text), 6)
+    testing.assert_equal(get_width(test_string), 6)
 
 
 def test_get_size():
-    var text = "This\nis\na\ntest\nstring"
-    var height: Int
-    var width: Int
-    width, height = get_size(text)
-    testing.assert_equal(width, 6)
-    testing.assert_equal(height, 5)
+    var dim = get_dimensions(test_string)
+    testing.assert_equal(dim.width, 6)
+    testing.assert_equal(dim.height, 5)

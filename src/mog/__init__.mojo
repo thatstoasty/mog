@@ -16,7 +16,7 @@ from .border import (
 )
 from .table import Table, default_styles, StringData, new_table, Data, Filter
 from .position import top, bottom, center, left, right
-from .size import get_height, get_width, get_size
+from .size import get_height, get_width, get_dimensions
 from .color import (
     NoColor,
     Color,

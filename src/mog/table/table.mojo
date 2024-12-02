@@ -1,5 +1,4 @@
-from weave import truncate_with_tail
-from gojo.strings import StringBuilder
+from weave import truncate
 from ..style import Style
 from ..border import ROUNDED_BORDER, Border
 from ..position import top, bottom, left, right, center
@@ -21,7 +20,7 @@ fn trim_right(s: String, cutset: String) -> String:
     return s[:index]
 
 
-alias StyleFunction = fn (row: Int, col: Int) escaping -> Style
+alias StyleFunction = fn (row: Int, col: Int) -> Style
 """
 StyleFunction is the style fntion that determines the style of a Cell.
 
@@ -77,7 +76,7 @@ fn default_styles(row: Int, col: Int) -> Style:
 struct Table:
     """Used to model and render tabular data as a table.
 
-    Example Usage:
+    Examples:
     ```
     import mog
 
@@ -288,7 +287,7 @@ struct Table:
         if not has_headers and not has_rows:
             return ""
 
-        var builder = StringBuilder()
+        var result = String()
 
         # Add empty cells to the headers, until it's the same length as the longest
         # row (only if there are at headers in the first place).
@@ -316,9 +315,9 @@ struct Table:
             self.widths[i] = get_width(self.style(0, i).render(self.headers[i]))
             self.heights[0] = get_height(self.style(0, i).render(self.headers[i]))
 
-        var row_number: Int = 0
+        var row_number = 0
         while row_number < self.data.rows():
-            var column_number: Int = 0
+            var column_number = 0
             while column_number < self.data.columns():
                 var cell = self.data.at(row_number, column_number)
                 var row_number_with_header_offset = row_number + btoi(has_headers)
@@ -425,22 +424,20 @@ struct Table:
                 width -= 1
 
         if self.border_top:
-            _ = builder.write_string(self.construct_top_border())
-            _ = builder.write_string("\n")
+            result.write(self.construct_top_border(), NEWLINE)
 
         if has_headers:
-            _ = builder.write_string(self.construct_headers())
-            _ = builder.write_string("\n")
+            result.write(self.construct_headers(), NEWLINE)
 
         var r = self.offset
         while r < self.data.rows():
-            _ = builder.write_string(self.construct_row(r))
+            result.write(self.construct_row(r))
             r += 1
 
         if self.border_bottom:
-            _ = builder.write_string(self.construct_bottom_border())
+            result.write(self.construct_bottom_border())
 
-        return mog.Style().max_height(self.compute_height()).max_width(self.width).render(str(builder))
+        return mog.Style().max_height(self.compute_height()).max_width(self.width).render(result)
 
     fn compute_width(self) -> Int:
         """Computes the width of the table in it's current configuration.
@@ -487,21 +484,21 @@ struct Table:
         Returns:
             The constructed top border as a string.
         """
-        var builder = StringBuilder()
+        var result = String()
         if self.border_left:
-            _ = builder.write_string(self.border_style.render(self.border.top_left))
+            result.write(self.border_style.render(self.border.top_left))
 
         var i: Int = 0
         while i < len(self.widths):
-            _ = builder.write_string(self.border_style.render(self.border.top * self.widths[i]))
+            result.write(self.border_style.render(self.border.top * self.widths[i]))
             if i < len(self.widths) - 1 and self.border_column:
-                _ = builder.write_string(self.border_style.render(self.border.middle_top))
+                result.write(self.border_style.render(self.border.middle_top))
             i += 1
 
         if self.border_right:
-            _ = builder.write_string(self.border_style.render(self.border.top_right))
+            result.write(self.border_style.render(self.border.top_right))
 
-        return str(builder)
+        return result
 
     fn construct_bottom_border(self) -> String:
         """Constructs the bottom border for the table given it's current
@@ -510,22 +507,22 @@ struct Table:
         Returns:
             The constructed bottom border as a string.
         """
-        var builder = StringBuilder()
+        var result = String()
         if self.border_left:
-            _ = builder.write_string(self.border_style.render(self.border.bottom_left))
+            result.write(self.border_style.render(self.border.bottom_left))
 
         var i: Int = 0
         while i < len(self.widths):
-            _ = builder.write_string(self.border_style.render(self.border.bottom * self.widths[i]))
+            result.write(self.border_style.render(self.border.bottom * self.widths[i]))
             if i < len(self.widths) - 1 and self.border_column:
-                _ = builder.write_string(self.border_style.render(self.border.middle_bottom))
+                result.write(self.border_style.render(self.border.middle_bottom))
 
             i += 1
 
         if self.border_right:
-            _ = builder.write_string(self.border_style.render(self.border.bottom_right))
+            result.write(self.border_style.render(self.border.bottom_right))
 
-        return str(builder)
+        return result
 
     fn construct_headers(self) -> String:
         """Constructs the headers for the table given it's current
@@ -534,42 +531,42 @@ struct Table:
         Returns:
             The constructed headers as a string.
         """
-        var builder = StringBuilder()
+        var result = String()
         if self.border_left:
-            _ = builder.write_string(self.border_style.render(self.border.left))
+            result.write(self.border_style.render(self.border.left))
 
         for i in range(len(self.headers)):
             var header = self.headers[i]
             var style = self.style(0, i).max_height(1).width(self.widths[i]).max_width(self.widths[i])
 
-            _ = builder.write_string(style.render(truncate_with_tail(header, self.widths[i], "…")))
+            result.write(style.render(truncate(header, self.widths[i], "…")))
 
             if (i < len(self.headers) - 1) and (self.border_column):
-                _ = builder.write_string(self.border_style.render(self.border.left))
+                result.write(self.border_style.render(self.border.left))
 
         if self.border_header:
             if self.border_right:
-                _ = builder.write_string(self.border_style.render(self.border.right))
+                result.write(self.border_style.render(self.border.right))
 
-            _ = builder.write_string("\n")
+            result.write("\n")
             if self.border_left:
-                _ = builder.write_string(self.border_style.render(self.border.middle_left))
+                result.write(self.border_style.render(self.border.middle_left))
 
             var i: Int = 0
             while i < len(self.headers):
-                _ = builder.write_string(self.border_style.render(self.border.bottom * self.widths[i]))
+                result.write(self.border_style.render(self.border.bottom * self.widths[i]))
                 if i < len(self.headers) - 1 and self.border_column:
-                    _ = builder.write_string(self.border_style.render(self.border.middle))
+                    result.write(self.border_style.render(self.border.middle))
 
                 i += 1
 
             if self.border_right:
-                _ = builder.write_string(self.border_style.render(self.border.middle_right))
+                result.write(self.border_style.render(self.border.middle_right))
 
         if self.border_right and not self.border_header:
-            _ = builder.write_string(self.border_style.render(self.border.right))
+            result.write(self.border_style.render(self.border.right))
 
-        return str(builder)
+        return result
 
     fn construct_row(self, index: Int) -> String:
         """Constructs the row for the table given an index and row data
@@ -581,7 +578,7 @@ struct Table:
         Returns:
             The constructed row as a string.
         """
-        var builder = StringBuilder()
+        var result = String()
 
         var has_headers = len(self.headers) > 0
         var height = self.heights[index + btoi(has_headers)]
@@ -598,7 +595,7 @@ struct Table:
                 self.widths[c]
             )
 
-            cells.append(style.render(truncate_with_tail(cell, UInt8(self.widths[c] * height), "…")))
+            cells.append(style.render(truncate(cell, self.widths[c] * height, "…")))
 
             if c < self.data.columns() - 1 and self.border_column:
                 cells.append(left)
@@ -613,20 +610,20 @@ struct Table:
             var cell = cells[i]
             cells[i] = trim_right(cell, "\n")
 
-        _ = builder.write_string(join_horizontal(position.top, cells) + "\n")
+        result.write(join_horizontal(position.top, cells) + "\n")
 
         if self.border_row and index < self.data.rows() - 1:
-            _ = builder.write_string(self.border_style.render(self.border.middle_left))
+            result.write(self.border_style.render(self.border.middle_left))
             var i: Int = 0
             while i < len(self.widths):
-                _ = builder.write_string(self.border_style.render(self.border.middle * self.widths[i]))
+                result.write(self.border_style.render(self.border.middle * self.widths[i]))
                 if i < len(self.widths) - 1 and self.border_column:
-                    _ = builder.write_string(self.border_style.render(self.border.middle))
+                    result.write(self.border_style.render(self.border.middle))
 
                 i += 1
-            _ = builder.write_string(self.border_style.render(self.border.middle_right) + "\n")
+            result.write(self.border_style.render(self.border.middle_right) + "\n")
 
-        return str(builder)
+        return result
 
 
 fn new_table() -> Table:

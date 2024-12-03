@@ -15,7 +15,7 @@ fn get_width(text: String) -> Int:
         The width of the string in cells.
     """
     var width = 0
-    for line in text.splitlines():
+    for line in text.as_string_slice().splitlines():
         var w = ansi.printable_rune_width(line[])
         if w > width:
             width = w

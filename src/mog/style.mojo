@@ -115,7 +115,7 @@ fn pad(text: String, n: Int, style: mist.Style) -> String:
 
     var spaces = style.render(WHITESPACE * abs(n))
     var result = String(capacity=int(len(text) * 1.5))
-    var lines = text.splitlines()
+    var lines = text.as_string_slice().splitlines()
     for i in range(len(lines)):
         if n > 0:
             result.write(lines[i], spaces)
@@ -2320,7 +2320,6 @@ struct Style:
             if use_space_styler:
                 # Look for spaces and apply a different styler
                 for char in lines[i]:
-                    # for j in range(printable_rune_width(lines[i])):
                     if char == " ":
                         result.write(term_style_space.render(char))
                     else:
@@ -2373,16 +2372,14 @@ struct Style:
         # if transform:
         #     return transform(result)
 
-        # Apply border at the end
         lines = result.splitlines()
-
-        var number_of_lines = len(lines)
-        if not (number_of_lines == 0 and width == 0):
+        if width != 0:
             var style = mist.Style(self.renderer.color_profile.value)
             if color_whitespace or use_whitespace_styler:
                 style = term_style_whitespace
             result = align_text_horizontal(result, horizontal_align, width, style)
 
+        # Apply border at the end
         if not inline:
             result = self.apply_border(result)
             result = self.apply_margins(result, inline)

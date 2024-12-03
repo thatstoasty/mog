@@ -136,7 +136,7 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
 
     # Max line widths for the above text blocks
     var max_widths = List[Int](capacity=len(strs))
-    var max_height: Int = 0
+    var max_height = 0
 
     # Break text blocks into lines and get max widths for each text block
     for s in strs:

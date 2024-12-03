@@ -10,6 +10,9 @@ fn get_lines(text: String) -> Tuple[List[String], Int]:
     Returns:
         A tuple containing the lines and the width of the widest line.
     """
+    if text == "":
+        return List[String](""), 0
+    
     var lines = text.splitlines()
     var widest_line = 0
     for line in lines:

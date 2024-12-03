@@ -218,7 +218,7 @@ struct Table:
         return new
 
     fn rows(self, rows: List[List[String]]) -> Table:
-        """Returns the style for a cell based on it's position (row, column).
+        """Appends the data from `rows` to the table.
 
         Args:
             rows: The rows to add to the table.
@@ -227,8 +227,8 @@ struct Table:
             The updated table.
         """
         var new = self
-        for i in range(len(rows)):
-            new.data.append(rows[i])
+        for row in rows:
+            new.data.append(row[])
         return new
 
     fn row(self, *row: String) -> Table:
@@ -602,12 +602,14 @@ struct Table:
         if self.border_left:
             cells.append(left)
 
-        var c: Int = 0
+        var c = 0
         while c < self.data.columns():
             var cell = self.data.at(index, c)
-            var style = self.style(index + 1, c).height(height).max_height(height).width(self.widths[c]).max_width(
-                self.widths[c]
-            )
+            var style = self.style(index + 1, c).
+            height(height).
+            max_height(height).
+            width(self.widths[c]).
+            max_width(self.widths[c])
 
             cells.append(style.render(truncate(cell, self.widths[c] * height, "…")))
 
@@ -628,7 +630,7 @@ struct Table:
 
         if self.border_row and index < self.data.rows() - 1:
             result.write(self.border_style.render(self.border.middle_left))
-            var i: Int = 0
+            var i = 0
             while i < len(self.widths):
                 result.write(self.border_style.render(self.border.middle * self.widths[i]))
                 if i < len(self.widths) - 1 and self.border_column:

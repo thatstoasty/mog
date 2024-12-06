@@ -160,10 +160,10 @@ fn pad_right(text: String, n: Int, style: mist.Style) -> String:
 struct Properties:
     """Properties for a style."""
 
-    var value: SIMD[DType.uint8, 64]
+    var value: SIMD[DType.bool, 64]
     """Array of attributes with 1 or 0 values to determine if a property is set."""
 
-    fn __init__(out self, value: SIMD[DType.uint8, 64] = SIMD[DType.uint8, 64]()):
+    fn __init__(out self, value: SIMD[DType.bool, 64] = SIMD[DType.bool, 64]()):
         """Initialize a new Properties object.
         
         Args:
@@ -181,7 +181,7 @@ struct Properties:
             A new Properties object with the property set.
         """
         var new = self
-        new.value[key] = 1
+        new.value[key] = True
         return new
 
     fn unset(self, key: PropertyKey) -> Properties:
@@ -194,7 +194,7 @@ struct Properties:
             A new Properties object with the property unset.
         """
         var new = self
-        new.value[key] = 0
+        new.value[key] = False
         return new
 
     fn has(self, key: PropertyKey) -> Bool:
@@ -206,7 +206,7 @@ struct Properties:
         Returns:
             True if the property is set, False otherwise.
         """
-        return self.value[key] == 1
+        return self.value[key]
 
 
 @value

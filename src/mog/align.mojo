@@ -19,7 +19,6 @@ fn align_text_horizontal(text: String, pos: position.Position, width: Int, style
     Returns:
         The aligned text.
     """
-    # TODO: Seems to be a bug with padding empty cells to the length needed.
     lines, widest_line = get_lines(text)
     var aligned_text = String(capacity=len(text))
     for i in range(len(lines)):

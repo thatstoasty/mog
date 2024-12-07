@@ -45,7 +45,7 @@ struct Renderer:
         self.explicit_color_profile = explicit_color_profile
         self.explicit_background_color = explicit_background_color
 
-    fn set_color_profile(inout self, value: Int):
+    fn set_color_profile(mut self, value: Int):
         """Sets the color profile on the renderer. This function exists
         mostly for testing purposes so that you can assure you're testing against
         a specific profile.
@@ -77,7 +77,7 @@ struct Renderer:
         """
         return self.dark_background
 
-    fn set_dark_background(inout self, value: Bool):
+    fn set_dark_background(mut self, value: Bool):
         """Sets the background color detection value for the
         default renderer. This function exists mostly for testing purposes so that
         you can assure you're testing against a specific background color setting.

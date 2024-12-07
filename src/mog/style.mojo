@@ -2068,14 +2068,12 @@ struct Style:
         # Word wrap
         if (not inline) and (width > 0):
             var wrap_at = width - left_padding - right_padding
-            input_text = word_wrap(input_text, wrap_at)
-            input_text = wrap(input_text, wrap_at)  # force-wrap long strings
+            input_text = wrap(word_wrap(input_text, wrap_at), wrap_at)  # force-wrap long strings
 
         input_text = self.maybe_convert_tabs(input_text)
 
         var result = String(capacity=int(len(input_text) * 1.5))
         var lines = input_text.splitlines()
-
         for i in range(len(lines)):
             if use_space_styler:
                 # Look for spaces and apply a different styler
@@ -2109,7 +2107,7 @@ struct Style:
                 result = (NEWLINE * top_padding) + result
 
             if bottom_padding > 0:
-                result += NEWLINE * bottom_padding
+                result.write(NEWLINE * bottom_padding)
 
         # Alignment
         if height > 0:
@@ -2126,8 +2124,7 @@ struct Style:
         # Truncate according to max_height
         if max_height > 0:
             var lines = result.splitlines()
-            var truncated_lines = lines[0 : min(max_height, len(lines))]
-            result = NEWLINE.join(truncated_lines)
+            result = NEWLINE.join(lines[0 : min(max_height, len(lines))])
 
         # if transform:
         #     return transform(result)
@@ -2141,7 +2138,6 @@ struct Style:
 
         # Apply border at the end
         if not inline:
-            result = self.apply_border(result)
-            result = self.apply_margins(result, inline)
+            result = self.apply_margins(self.apply_border(result), inline)
 
         return result

@@ -10,14 +10,14 @@ from .util import median, largest, sum
 
 alias StyleFunction = fn (row: Int, col: Int) -> Style
 """
-StyleFunction is the style fntion that determines the style of a Cell.
+Styling function that determines the style of a Cell.
 
 It takes the row and column of the cell as an input and determines the
 lipgloss Style to use for that cell position.
 
-Example Usage:
+Examples:
 
-```
+```mojo
 import mog
 
 fn main():
@@ -289,7 +289,7 @@ struct Table:
         new.headers = headers
         return new
 
-    fn __str__(inout self) -> String:
+    fn __str__(mut self) -> String:
         """Returns the table as a String.
         
         Returns:
@@ -333,10 +333,9 @@ struct Table:
         while row_number < self.data.rows():
             var column_number = 0
             while column_number < self.data.columns():
-                var cell = self.data.at(row_number, column_number)
-                var row_number_with_header_offset = row_number + int(has_headers)
-                var rendered = self.style(row_number + 1, column_number).render(cell)
+                var rendered = self.style(row_number + 1, column_number).render(self.data[row_number, column_number])
 
+                var row_number_with_header_offset = row_number + int(has_headers)
                 self.heights[row_number_with_header_offset] = max(
                     self.heights[row_number_with_header_offset],
                     get_height(rendered),
@@ -383,11 +382,10 @@ struct Table:
         # The biggest difference is 15 - 2, so we can shrink the 2nd column by 13.
 
         var width = self.compute_width()
-
         if width < self.width and self.width > 0:
             # Table is too narrow, expand the columns evenly until it reaches the
             # desired width.
-            var i: Int = 0
+            var i = 0
             while width < self.width:
                 self.widths[i] += 1
                 width += 1
@@ -401,7 +399,7 @@ struct Table:
                 var trimmed_width = List[Int](capacity=self.data.rows())
 
                 for r in range(self.data.rows()):
-                    var rendered_cell = self.style(r + int(has_headers), i).render(self.data.at(r, i))
+                    var rendered_cell = self.style(r + int(has_headers), i).render(self.data[r, i])
                     var non_whitespace_chars = get_width(rendered_cell.removesuffix(" "))
                     trimmed_width[r] = non_whitespace_chars + 1
 
@@ -414,9 +412,7 @@ struct Table:
                 differences[i] = self.widths[i] - column_medians[i]
 
             while width > self.width:
-                var index: Int = 0
-                var val: Int = 0
-                index, val = largest(differences)
+                index, _ = largest(differences)
                 if differences[index] < 1:
                     break
 
@@ -428,9 +424,7 @@ struct Table:
             # Table is still too wide, begin shrinking the columns based on the
             # largest column.
             while width > self.width:
-                var index: Int = 0
-                var val: Int = 0
-                index, val = largest(self.widths)
+                index, _ = largest(self.widths)
                 if self.widths[index] < 1:
                     break
 
@@ -471,11 +465,10 @@ struct Table:
         Returns:
             The height of the table.
         """
-        var has_headers = len(self.headers) > 0
         return (
             sum(self.heights)
             - 1
-            + int(has_headers)
+            + int(len(self.headers) > 0)
             + int(self.border_top)
             + int(self.border_bottom)
             + int(self.border_header)
@@ -483,7 +476,7 @@ struct Table:
         )
 
     # render
-    fn render(inout self) -> String:
+    fn render(mut self) -> String:
         """Returns the table as a String.
 
         Returns:
@@ -502,7 +495,7 @@ struct Table:
         if self.border_left:
             result.write(self.border_style.render(self.border.top_left))
 
-        var i: Int = 0
+        var i = 0
         while i < len(self.widths):
             result.write(self.border_style.render(self.border.top * self.widths[i]))
             if i < len(self.widths) - 1 and self.border_column:
@@ -525,12 +518,11 @@ struct Table:
         if self.border_left:
             result.write(self.border_style.render(self.border.bottom_left))
 
-        var i: Int = 0
+        var i = 0
         while i < len(self.widths):
             result.write(self.border_style.render(self.border.bottom * self.widths[i]))
             if i < len(self.widths) - 1 and self.border_column:
                 result.write(self.border_style.render(self.border.middle_bottom))
-
             i += 1
 
         if self.border_right:
@@ -550,11 +542,9 @@ struct Table:
             result.write(self.border_style.render(self.border.left))
 
         for i in range(len(self.headers)):
-            var header = self.headers[i]
             var style = self.style(0, i).max_height(1).width(self.widths[i]).max_width(self.widths[i])
 
-            result.write(style.render(truncate(header, self.widths[i], "…")))
-
+            result.write(style.render(truncate(self.headers[i], self.widths[i], "…")))
             if (i < len(self.headers) - 1) and (self.border_column):
                 result.write(self.border_style.render(self.border.left))
 
@@ -566,7 +556,7 @@ struct Table:
             if self.border_left:
                 result.write(self.border_style.render(self.border.middle_left))
 
-            var i: Int = 0
+            var i = 0
             while i < len(self.headers):
                 result.write(self.border_style.render(self.border.bottom * self.widths[i]))
                 if i < len(self.headers) - 1 and self.border_column:
@@ -604,14 +594,13 @@ struct Table:
 
         var c = 0
         while c < self.data.columns():
-            var cell = self.data.at(index, c)
             var style = self.style(index + 1, c).
             height(height).
             max_height(height).
             width(self.widths[c]).
             max_width(self.widths[c])
 
-            cells.append(style.render(truncate(cell, self.widths[c] * height, "…")))
+            cells.append(style.render(truncate(self.data[index, c], self.widths[c] * height, "…")))
 
             if c < self.data.columns() - 1 and self.border_column:
                 cells.append(left)
@@ -623,8 +612,7 @@ struct Table:
             cells.append(right)
 
         for i in range(len(cells)):
-            var cell = cells[i]
-            cells[i] = cell.removesuffix("\n")
+            cells[i] = cells[i].removesuffix("\n")
 
         result.write(join_horizontal(position.top, cells) + "\n")
 

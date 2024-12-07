@@ -24,7 +24,6 @@ fn median(owned numbers: List[Int]) -> Int:
         The median of the list.
     """
     sort(numbers)
-
     if len(numbers) <= 0:
         return 0
 

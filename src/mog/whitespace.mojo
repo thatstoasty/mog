@@ -31,7 +31,7 @@ struct WhitespaceRenderer:
     """The characters to render for whitespace. Defaults to a space."""
 
     fn __init__(
-        inout self,
+        mut self,
         renderer: Renderer,
         style: mist.Style,
         chars: String = " ",
@@ -47,7 +47,7 @@ struct WhitespaceRenderer:
         self.style = style
         self.chars = chars
 
-    fn render(inout self, width: Int) -> String:
+    fn render(mut self, width: Int) -> String:
         """Render whitespaces.
 
         Args:
@@ -83,7 +83,7 @@ struct WhitespaceRenderer:
         return self.style.render(result)
 
 
-alias WhitespaceOption = fn (inout w: WhitespaceRenderer) -> None
+alias WhitespaceOption = fn (mut w: WhitespaceRenderer) -> None
 """Sets a styling rule for rendering whitespace."""
 
 
@@ -128,7 +128,7 @@ fn with_whitespace_foreground[terminal_color: AnyTerminalColor]() -> WhitespaceO
         A function that sets the color of the characters in the whitespace.
     """
 
-    fn style_foreground(inout w: WhitespaceRenderer) -> None:
+    fn style_foreground(mut w: WhitespaceRenderer) -> None:
         var color: mist.AnyColor = mist.NoColor()
         if terminal_color.isa[NoColor]():
             return None
@@ -159,7 +159,7 @@ fn with_whitespace_background[terminal_color: AnyTerminalColor]() -> WhitespaceO
         A function that sets the background color of the whitespace.
     """
 
-    fn style_background(inout w: WhitespaceRenderer) -> None:
+    fn style_background(mut w: WhitespaceRenderer) -> None:
         var color: mist.AnyColor = mist.NoColor()
         if terminal_color.isa[NoColor]():
             return None
@@ -190,7 +190,7 @@ fn with_whitespace_chars[text: String]() -> WhitespaceOption:
         A function that sets the characters to be rendered in the whitespace.
     """
 
-    fn whitespace_with_chars(inout w: WhitespaceRenderer) -> None:
+    fn whitespace_with_chars(mut w: WhitespaceRenderer) -> None:
         w.chars = text
 
     return whitespace_with_chars

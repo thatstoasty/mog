@@ -1,4 +1,5 @@
 import weave.ansi
+from .properties import Dimensions
 
 
 fn get_width(text: String) -> Int:
@@ -36,17 +37,6 @@ fn get_height(text: String) -> Int:
         The height of the string in cells.
     """
     return text.count(NEWLINE) + 1
-
-
-@value
-@register_passable("trivial")
-struct Dimensions:
-    """The width and height of a string."""
-
-    var width: Int
-    """The width of the string."""
-    var height: Int
-    """The height of the string."""
 
 
 fn get_dimensions(text: String) -> Dimensions:

@@ -15,7 +15,7 @@ trait Data(CollectionElement):
 
     fn rows(self) -> Int:
         """Returns the number of rows in the table.
-        
+
         Returns:
             The number of rows in the table.
         """
@@ -23,7 +23,7 @@ trait Data(CollectionElement):
 
     fn columns(self) -> Int:
         """Returns the number of columns in the table.
-        
+
         Returns:
             The number of columns in the table.
         """
@@ -53,7 +53,7 @@ struct StringData(Data):
 
     fn __init__(out self, rows: List[List[String]] = List[List[String]](), columns: Int = 0):
         """Initializes a new StringData instance.
-        
+
         Args:
             rows: The rows of the table.
             columns: The number of columns in the table.
@@ -78,7 +78,7 @@ struct StringData(Data):
 
     fn rows(self) -> Int:
         """Returns the number of rows in the table.
-        
+
         Returns:
             The number of rows in the table.
         """
@@ -86,7 +86,7 @@ struct StringData(Data):
 
     fn columns(self) -> Int:
         """Returns the number of columns in the table.
-        
+
         Returns:
             The number of columns in the table.
         """
@@ -106,7 +106,7 @@ struct StringData(Data):
 
         Args:
             rows: The row to append.
-        
+
         Returns:
             The updated table.
         """
@@ -122,7 +122,7 @@ alias FilterFunction = fn (row: Int) -> Bool
 @value
 struct Filter[DataType: Data](Data):
     """Applies a filter function on some data.
-    
+
     Parameters:
         DataType: The type of data to use for the table.
     """
@@ -134,10 +134,10 @@ struct Filter[DataType: Data](Data):
 
     fn filter(self, data: Int) -> Bool:
         """Applies the given filter function to the data.
-        
+
         Args:
             data: The data to filter.
-        
+
         Returns:
             The filtered data.
         """
@@ -167,7 +167,7 @@ struct Filter[DataType: Data](Data):
 
     fn columns(self) -> Int:
         """Returns the number of columns in the table.
-        
+
         Returns:
             The number of columns in the table.
         """
@@ -175,7 +175,7 @@ struct Filter[DataType: Data](Data):
 
     fn rows(self) -> Int:
         """Returns the number of rows in the table.
-        
+
         Returns:
             The number of rows in the table.
         """

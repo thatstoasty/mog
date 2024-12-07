@@ -11,7 +11,7 @@ trait TerminalColor(CollectionElement):
 
         Args:
             renderer: The renderer to use for color selection.
-        
+
         Returns:
             The color value based on the terminal color profile.
         """
@@ -45,7 +45,7 @@ struct NoColor(TerminalColor):
 
         Args:
             renderer: The renderer to use for color selection.
-        
+
         Returns:
             A `NoColor` object.
         """
@@ -74,7 +74,7 @@ struct Color(TerminalColor):
 
         Args:
             renderer: The renderer to use for color selection.
-        
+
         Returns:
             The color value based on the terminal color profile.
         """
@@ -106,7 +106,7 @@ struct ANSIColor(TerminalColor):
 
         Args:
             renderer: The renderer to use for color selection.
-        
+
         Returns:
             The color value based on the terminal color profile.
         """
@@ -136,10 +136,10 @@ struct AdaptiveColor(TerminalColor):
 
     fn color(self, renderer: Renderer) -> mist.AnyColor:
         """Returns the appropriate color based on the terminal background color.
-        
+
         Args:
             renderer: The renderer to use for color selection.
-        
+
         Returns:
             The appropriate color based on the terminal background color.
         """
@@ -177,7 +177,7 @@ struct CompleteColor(TerminalColor):
 
         Args:
             renderer: The renderer to use for color selection.
-        
+
         Returns:
             The appropriate color based on the terminal color profile.
         """
@@ -218,10 +218,10 @@ struct CompleteAdaptiveColor(TerminalColor):
 
     fn color(self, renderer: Renderer) -> mist.AnyColor:
         """Returns the appropriate color based on the terminal background color.
-        
+
         Args:
             renderer: The renderer to use for color selection.
-        
+
         Returns:
             The appropriate color based on the terminal background color.
         """

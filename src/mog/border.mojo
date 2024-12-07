@@ -84,7 +84,7 @@ struct Border:
 
         Args:
             other: The other border to compare.
-        
+
         Returns:
             Whether the two borders are equal.
         """
@@ -109,7 +109,7 @@ struct Border:
 
         Args:
             other: The other border to compare.
-        
+
         Returns:
             Whether the two borders are not equal.
         """

@@ -89,11 +89,11 @@ alias WhitespaceOption = fn (inout w: WhitespaceRenderer) -> None
 
 fn new_whitespace(renderer: Renderer, *opts: WhitespaceOption) -> WhitespaceRenderer:
     """Creates a new whitespace renderer. The order of the options matters.
-    
+
     Args:
         renderer: The renderer to use.
         opts: The options to style the whitespace.
-    
+
     Returns:
         A new whitespace renderer.
     """
@@ -102,11 +102,11 @@ fn new_whitespace(renderer: Renderer, *opts: WhitespaceOption) -> WhitespaceRend
 
 fn _new_whitespace(renderer: Renderer, opts: VariadicList[WhitespaceOption]) -> WhitespaceRenderer:
     """Creates a new whitespace renderer. The order of the options matters.
-    
+
     Args:
         renderer: The renderer to use.
         opts: The options to style the whitespace.
-    
+
     Returns:
         A new whitespace renderer.
     """
@@ -120,10 +120,10 @@ fn _new_whitespace(renderer: Renderer, opts: VariadicList[WhitespaceOption]) -> 
 # Limited to using param for now due to Mojo crashing when using capturing functions.
 fn with_whitespace_foreground[terminal_color: AnyTerminalColor]() -> WhitespaceOption:
     """Sets the color of the characters in the whitespace.
-    
+
     Parameters:
         terminal_color: The color to use for the characters in the whitespace.
-    
+
     Returns:
         A function that sets the color of the characters in the whitespace.
     """
@@ -151,10 +151,10 @@ fn with_whitespace_foreground[terminal_color: AnyTerminalColor]() -> WhitespaceO
 
 fn with_whitespace_background[terminal_color: AnyTerminalColor]() -> WhitespaceOption:
     """Sets the background color of the whitespace.
-    
+
     Parameters:
         terminal_color: The color to use for the background of the whitespace.
-    
+
     Returns:
         A function that sets the background color of the whitespace.
     """
@@ -182,10 +182,10 @@ fn with_whitespace_background[terminal_color: AnyTerminalColor]() -> WhitespaceO
 
 fn with_whitespace_chars[text: String]() -> WhitespaceOption:
     """Sets the characters to be rendered in the whitespace.
-    
+
     Parameters:
         text: The characters to use for the whitespace rendering.
-    
+
     Returns:
         A function that sets the characters to be rendered in the whitespace.
     """

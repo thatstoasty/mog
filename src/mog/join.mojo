@@ -30,7 +30,7 @@ fn join_horizontal(pos: Position, *strs: String) -> String:
     Args:
         pos: The position to join the strings.
         strs: The strings to join.
-    
+
     Returns:
         The joined string.
     """
@@ -121,7 +121,7 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
     Args:
         pos: The position to join the strings.
         strs: The strings to join.
-    
+
     Returns:
         The joined string.
     """
@@ -212,7 +212,7 @@ fn join_vertical(pos: Position, *strs: String) -> String:
     Args:
         pos: The position to join the strings.
         strs: The strings to join.
-    
+
     Returns:
         The joined string.
     """
@@ -226,8 +226,7 @@ fn join_vertical(pos: Position, *strs: String) -> String:
     var blocks = List[List[String]](capacity=len(strs))
 
     # Max line widths for the above text blocks
-    var max_width: Int = 0
-
+    var max_width = 0
     for s in strs:
         lines, widest = get_lines(s[])
         blocks.append(lines)
@@ -237,9 +236,8 @@ fn join_vertical(pos: Position, *strs: String) -> String:
     var result = String()
     var w = 0
     for i in range(len(blocks)):
-        var block = blocks[i]
-        for j in range(len(block)):
-            var line = block[j]
+        for j in range(len(blocks[i])):
+            var line = blocks[i][j]
             w = max_width - printable_rune_width(line)
 
             if pos == left:
@@ -256,7 +254,7 @@ fn join_vertical(pos: Position, *strs: String) -> String:
 
                     result.write(WHITESPACE * left, line, WHITESPACE * right)
 
-            if not (i == len(blocks) - 1 and j == len(block) - 1):
+            if not (i == len(blocks) - 1 and j == len(blocks[i]) - 1):
                 result.write("\n")
 
     return result
@@ -286,7 +284,7 @@ fn join_vertical(pos: Position, strs: List[String]) -> String:
     Args:
         pos: The position to join the strings.
         strs: The strings to join.
-    
+
     Returns:
         The joined string.
     """
@@ -300,8 +298,7 @@ fn join_vertical(pos: Position, strs: List[String]) -> String:
     var blocks = List[List[String]](capacity=len(strs))
 
     # Max line widths for the above text blocks
-    var max_width: Int = 0
-
+    var max_width = 0
     for s in strs:
         lines, widest = get_lines(s[])
         blocks.append(lines)
@@ -311,9 +308,8 @@ fn join_vertical(pos: Position, strs: List[String]) -> String:
     var result = String()
     var w = 0
     for i in range(len(blocks)):
-        var block = blocks[i]
-        for j in range(len(block)):
-            var line = block[j]
+        for j in range(len(blocks[i])):
+            var line = blocks[i][j]
             w = max_width - printable_rune_width(line)
 
             if pos == left:
@@ -330,7 +326,7 @@ fn join_vertical(pos: Position, strs: List[String]) -> String:
 
                     result.write(WHITESPACE * left, line, WHITESPACE * right)
 
-            if not (i == len(blocks) - 1 and j == len(block) - 1):
+            if not (i == len(blocks) - 1 and j == len(blocks[i]) - 1):
                 result.write("\n")
 
     return result

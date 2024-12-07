@@ -5,6 +5,7 @@ from .extensions import get_lines
 from .whitespace import WhitespaceOption, new_whitespace, _new_whitespace
 import .position
 
+
 # Working on terminal background querying, for now it defaults to dark background terminal.
 # If you need to set it to light, you can do so manually via the `set_dark_background` method.
 @value
@@ -59,7 +60,7 @@ struct Renderer:
             mist.ANSI      16 colors, 4-bit
             mist.ANSI256    256 colors, 8-bit
             mist.TRUE_COLOR  16,777,216 colors, 24-bit
-        
+
         Args:
             value: The color profile to set on the renderer.
         """
@@ -153,7 +154,9 @@ struct Renderer:
         Returns:
             The string with the text placed in the block.
         """
-        return self._place_vertical(height, vertical_position, self._place_horizontal(width, horizontal_position, text, opts), opts)
+        return self._place_vertical(
+            height, vertical_position, self._place_horizontal(width, horizontal_position, text, opts), opts
+        )
 
     fn place_horizontal(self, width: Int, pos: Float64, text: String, /, *opts: WhitespaceOption) -> String:
         """Places a string or text block horizontally in an unstyled
@@ -246,7 +249,7 @@ struct Renderer:
             The string with the text placed in the block.
         """
         return self._place_vertical(height, pos, text, opts)
-    
+
     fn _place_vertical(
         self,
         height: Int,

@@ -15,7 +15,6 @@ from .border import (
     NO_BORDER,
 )
 from .table import Table, default_styles, StringData, new_table, Data, Filter
-from .position import top, bottom, center, left, right
 from .size import get_height, get_width, get_dimensions
 from .color import (
     NoColor,
@@ -28,23 +27,19 @@ from .color import (
 )
 from .renderer import Renderer
 from .join import join_horizontal, join_vertical
+from .position import (
+    center,
+    left,
+    right,
+    top,
+    bottom,
+)
 
 
-alias WHITESPACE = String(" ")
-alias NEWLINE = String("\n")
+alias WHITESPACE = " "
+alias NEWLINE = "\n"
 
 alias TRUE_COLOR = mist.TRUE_COLOR
 alias ANSI256 = mist.ANSI256
 alias ANSI = mist.ANSI
 alias ASCII = mist.ASCII
-
-fn raw_print(text: String) -> None:
-    """Prints text without any formatting.
-
-    Args:
-        text: The text to print.
-    """
-    try:
-        print(text.split("@").__str__())
-    except:
-        print(text)

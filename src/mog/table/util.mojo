@@ -1,9 +1,9 @@
 fn sum(numbers: List[Int]) -> Int:
     """Returns the sum of all integers in a list.
-    
+
     Args:
         numbers: The list of integers.
-    
+
     Returns:
         The sum of all integers in the list.
     """
@@ -16,10 +16,10 @@ fn sum(numbers: List[Int]) -> Int:
 
 fn median(owned numbers: List[Int]) -> Int:
     """Returns the median of a list of integers.
-    
+
     Args:
         numbers: The list of integers.
-    
+
     Returns:
         The median of the list.
     """
@@ -38,10 +38,10 @@ fn median(owned numbers: List[Int]) -> Int:
 
 fn largest(numbers: List[Int]) -> (Int, Int):
     """Returns the largest element and it's index from a list of integers.
-    
+
     Args:
         numbers: The list of integers.
-    
+
     Returns:
         A tuple containing the index and the largest element.
     """

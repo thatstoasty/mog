@@ -1,9 +1,9 @@
 from weave import truncate
 from ..style import Style
 from ..border import ROUNDED_BORDER, Border
-from ..position import top, bottom, left, right, center
 from ..join import join_horizontal
 from ..size import get_height, get_width
+from ..position import Position
 from .rows import StringData
 from .util import median, largest, sum
 

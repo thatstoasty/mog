@@ -47,7 +47,7 @@ struct WhitespaceRenderer:
         self.style = style
         self.chars = chars
 
-    fn render(mut self, width: Int) -> String:
+    fn render(self, width: Int) -> String:
         """Render whitespaces.
 
         Args:
@@ -64,7 +64,7 @@ struct WhitespaceRenderer:
 
         while i < width:
             for char in self.chars:
-                result.write_bytes(char.as_bytes())
+                result.write(char)
                 var printable_width = ansi.printable_rune_width(char)
                 if j >= printable_width:
                     j = 0

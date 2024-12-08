@@ -1833,11 +1833,10 @@ struct Style:
 
         # Render sides
         for i in range(len(lines)):
-            var line = lines[i]
             if has_left:
                 result.write(self.style_border(border.left, left_fg, left_bg))
 
-            result.write(line)
+            result.write(lines[i])
 
             if has_right:
                 result.write(self.style_border(border.right, right_fg, right_bg))
@@ -2129,8 +2128,8 @@ struct Style:
         # if transform:
         #     return transform(result)
 
-        lines = result.splitlines()
-        if width != 0:
+        lines, widest = get_lines(result)
+        if width != 0 or widest != 0:
             var style = mist.Style(self.renderer.color_profile.value)
             if color_whitespace or use_whitespace_styler:
                 style = term_style_whitespace

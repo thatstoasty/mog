@@ -1,4 +1,5 @@
 from collections import Optional
+from utils import StringSlice
 from .renderer import Renderer
 from .position import Position
 from .border import (
@@ -17,7 +18,7 @@ from .border import (
     STAR_BORDER,
     PLUS_BORDER,
 )
-from .extensions import get_lines, pad_left, pad_right
+from .extensions import get_lines_view, get_widest_line, pad_left, pad_right
 from .properties import Properties, PropKey, Dimensions, Padding, Margin, Coloring, BorderColor, Alignment
 from .align import align_text_horizontal, align_text_vertical
 from .color import (
@@ -29,6 +30,7 @@ from .color import (
     AdaptiveColor,
     CompleteColor,
     CompleteAdaptiveColor,
+    any_terminal_color_to_any_color,
 )
 from weave import wrap, word_wrap, truncate
 from weave.ansi import printable_rune_width
@@ -111,7 +113,6 @@ struct Style:
         self.properties = Properties()
         self.value = value
         self.attrs = Properties()
-
         self._color = Coloring()
         self._dimensions = Dimensions()
         self._max_dimensions = Dimensions()
@@ -120,10 +121,9 @@ struct Style:
         self._margin = Margin()
         self._border = NO_BORDER
         self._border_color = BorderColor()
-
         self._tab_width = 0
 
-    fn get_as_bool(self, key: Int, default: Bool = False) -> Bool:
+    fn _get_as_bool(self, key: Int, default: Bool = False) -> Bool:
         """Get a rule as a boolean value.
 
         Args:
@@ -133,12 +133,12 @@ struct Style:
         Returns:
             The boolean value.
         """
-        if not self.is_set(key):
+        if not self._is_set(key):
             return default
 
         return self.attrs.has(key)
 
-    fn get_as_color(self, key: Int) -> AnyTerminalColor:
+    fn _get_as_color(self, key: Int) -> AnyTerminalColor:
         """Get a rule as an AnyTerminalColor value.
 
         Args:
@@ -147,7 +147,7 @@ struct Style:
         Returns:
             The color value.
         """
-        if not self.is_set(key):
+        if not self._is_set(key):
             return NoColor()
 
         if key == PropKey.FOREGROUND:
@@ -175,7 +175,7 @@ struct Style:
         else:
             return NoColor()
 
-    fn get_as_int(self, key: Int) -> Int:
+    fn _get_as_int(self, key: Int) -> Int:
         """Get a rule as an integer value.
 
         Args:
@@ -184,7 +184,7 @@ struct Style:
         Returns:
             The integer value.
         """
-        if not self.is_set(key):
+        if not self._is_set(key):
             return 0
 
         if key == PropKey.WIDTH:
@@ -216,7 +216,7 @@ struct Style:
         else:
             return 0
 
-    fn get_as_position(self, key: Int) -> Position:
+    fn _get_as_position(self, key: Int) -> Position:
         """Get a rule as a Position value.
 
         Args:
@@ -225,7 +225,7 @@ struct Style:
         Returns:
             The Position value.
         """
-        if not self.is_set(key):
+        if not self._is_set(key):
             return 0
 
         if key == PropKey.HORIZONTAL_ALIGNMENT:
@@ -235,18 +235,18 @@ struct Style:
         else:
             return 0
 
-    fn get_border_style(self) -> Border:
+    fn _get_border_style(self) -> Border:
         """Get the Border style rule.
 
         Returns:
             The Border style.
         """
-        if not self.is_set(PropKey.BORDER_STYLE):
+        if not self._is_set(PropKey.BORDER_STYLE):
             return Border()
 
         return self._border
 
-    fn is_set(self, key: Int) -> Bool:
+    fn _is_set(self, key: Int) -> Bool:
         """Check if a rule is set on the style.
 
         Args:
@@ -530,7 +530,7 @@ struct Style:
         Returns:
             True if set, False otherwise.
         """
-        return self.get_as_bool(PropKey.INLINE, False)
+        return self._get_as_bool(PropKey.INLINE, False)
 
     fn unset_inline(self) -> Style:
         """Unset the inline rule.
@@ -561,7 +561,7 @@ struct Style:
         Returns:
             True if set, False otherwise.
         """
-        return self.get_as_bool(PropKey.BOLD, False)
+        return self._get_as_bool(PropKey.BOLD, False)
 
     fn italic(self, value: Bool = True) -> Style:
         """Set the text to be italic.
@@ -582,7 +582,7 @@ struct Style:
         Returns:
             True if set, False otherwise.
         """
-        return self.get_as_bool(PropKey.ITALIC, False)
+        return self._get_as_bool(PropKey.ITALIC, False)
 
     fn underline(self, value: Bool = True) -> Style:
         """Set the text to be underline.
@@ -1685,8 +1685,8 @@ struct Style:
             The text with tabs converted to spaces.
         """
         var DEFAULT_TAB_WIDTH = TAB_WIDTH
-        if self.is_set(PropKey.TAB_WIDTH):
-            DEFAULT_TAB_WIDTH = self.get_as_int(PropKey.TAB_WIDTH)
+        if self._is_set(PropKey.TAB_WIDTH):
+            DEFAULT_TAB_WIDTH = self._get_as_int(PropKey.TAB_WIDTH)
 
         if DEFAULT_TAB_WIDTH == -1:
             return text
@@ -1709,32 +1709,9 @@ struct Style:
         if fg.isa[NoColor]() and bg.isa[NoColor]():
             return border
 
-        var styler = mist.Style()
-
-        # Sooooo verbose compared to just passing the string value. But this is closer to the lipgloss API.
-        # It's more verbose because we can't pass around args with trait as the arg type.
-        if fg.isa[Color]():
-            styler = styler.foreground(color=fg[Color].color(self.renderer))
-        elif fg.isa[ANSIColor]():
-            styler = styler.foreground(color=fg[ANSIColor].color(self.renderer))
-        elif fg.isa[AdaptiveColor]():
-            styler = styler.foreground(color=fg[AdaptiveColor].color(self.renderer))
-        elif fg.isa[CompleteColor]():
-            styler = styler.foreground(color=fg[CompleteColor].color(self.renderer))
-        elif fg.isa[CompleteAdaptiveColor]():
-            styler = styler.foreground(color=fg[CompleteAdaptiveColor].color(self.renderer))
-
-        if bg.isa[Color]():
-            styler = styler.background(color=bg[Color].color(self.renderer))
-        elif bg.isa[ANSIColor]():
-            styler = styler.background(color=bg[ANSIColor].color(self.renderer))
-        elif bg.isa[AdaptiveColor]():
-            styler = styler.background(color=bg[AdaptiveColor].color(self.renderer))
-        elif bg.isa[CompleteColor]():
-            styler = styler.background(color=bg[CompleteColor].color(self.renderer))
-        elif bg.isa[CompleteAdaptiveColor]():
-            styler = styler.background(color=bg[CompleteAdaptiveColor].color(self.renderer))
-
+        var styler = mist.Style().foreground(color=any_terminal_color_to_any_color(fg, self.renderer)).background(
+            color=any_terminal_color_to_any_color(bg, self.renderer)
+        )
         return styler.render(border)
 
     fn apply_border(self, text: String) -> String:
@@ -1746,28 +1723,28 @@ struct Style:
         Returns:
             The text with the border applied.
         """
-        var top_set = self.is_set(PropKey.BORDER_TOP)
-        var right_set = self.is_set(PropKey.BORDER_RIGHT)
-        var bottom_set = self.is_set(PropKey.BORDER_BOTTOM)
-        var left_set = self.is_set(PropKey.BORDER_LEFT)
+        var top_set = self._is_set(PropKey.BORDER_TOP)
+        var right_set = self._is_set(PropKey.BORDER_RIGHT)
+        var bottom_set = self._is_set(PropKey.BORDER_BOTTOM)
+        var left_set = self._is_set(PropKey.BORDER_LEFT)
 
-        var border = self.get_border_style()
-        var has_top = self.get_as_bool(PropKey.BORDER_TOP)
-        var has_right = self.get_as_bool(PropKey.BORDER_RIGHT)
-        var has_bottom = self.get_as_bool(PropKey.BORDER_BOTTOM)
-        var has_left = self.get_as_bool(PropKey.BORDER_LEFT)
+        var border = self._get_border_style()
+        var has_top = self._get_as_bool(PropKey.BORDER_TOP)
+        var has_right = self._get_as_bool(PropKey.BORDER_RIGHT)
+        var has_bottom = self._get_as_bool(PropKey.BORDER_BOTTOM)
+        var has_left = self._get_as_bool(PropKey.BORDER_LEFT)
 
         # FG Colors
-        var top_fg = self.get_as_color(PropKey.BORDER_TOP_FOREGROUND)
-        var right_fg = self.get_as_color(PropKey.BORDER_RIGHT_FOREGROUND)
-        var bottom_fg = self.get_as_color(PropKey.BORDER_BOTTOM_FOREGROUND)
-        var left_fg = self.get_as_color(PropKey.BORDER_LEFT_FOREGROUND)
+        var top_fg = self._get_as_color(PropKey.BORDER_TOP_FOREGROUND)
+        var right_fg = self._get_as_color(PropKey.BORDER_RIGHT_FOREGROUND)
+        var bottom_fg = self._get_as_color(PropKey.BORDER_BOTTOM_FOREGROUND)
+        var left_fg = self._get_as_color(PropKey.BORDER_LEFT_FOREGROUND)
 
         # BG Colors
-        var top_bg = self.get_as_color(PropKey.BORDER_TOP_BACKGROUND)
-        var right_bg = self.get_as_color(PropKey.BORDER_RIGHT_BACKGROUND)
-        var bottom_bg = self.get_as_color(PropKey.BORDER_BOTTOM_BACKGROUND)
-        var left_bg = self.get_as_color(PropKey.BORDER_LEFT_BACKGROUND)
+        var top_bg = self._get_as_color(PropKey.BORDER_TOP_BACKGROUND)
+        var right_bg = self._get_as_color(PropKey.BORDER_RIGHT_BACKGROUND)
+        var bottom_bg = self._get_as_color(PropKey.BORDER_BOTTOM_BACKGROUND)
+        var left_bg = self._get_as_color(PropKey.BORDER_LEFT_BACKGROUND)
 
         # If a border is set and no sides have been specifically turned on or off
         # render borders on all sides.
@@ -1782,7 +1759,7 @@ struct Style:
         if border == borderless or (not has_top and not has_right and not has_bottom and not has_left):
             return text
 
-        lines, width = get_lines(text)
+        lines, width = get_lines_view(text)
         if has_left:
             if border.left == "":
                 border.left = " "
@@ -1831,15 +1808,22 @@ struct Style:
             )
             result.write(top, NEWLINE)
 
-        # Render sides
+        # Render sides once, and reuse for each line.
+        var left_border: String = ""
+        var right_border: String = ""
+        if has_left:
+            left_border = self.style_border(border.left, left_fg, left_bg)
+        if has_right:
+            right_border = self.style_border(border.right, right_fg, right_bg)
+
         for i in range(len(lines)):
             if has_left:
-                result.write(self.style_border(border.left, left_fg, left_bg))
+                result.write(left_border)
 
             result.write(lines[i])
 
             if has_right:
-                result.write(self.style_border(border.right, right_fg, right_bg))
+                result.write(right_border)
 
             if i < len(lines) - 1:
                 result.write(NEWLINE)
@@ -1865,26 +1849,13 @@ struct Style:
         Returns:
             The text with the margins applied.
         """
-        var top_margin = self.get_as_int(PropKey.MARGIN_TOP)
-        var right_margin = self.get_as_int(PropKey.MARGIN_RIGHT)
-        var bottom_margin = self.get_as_int(PropKey.MARGIN_BOTTOM)
-        var left_margin = self.get_as_int(PropKey.MARGIN_LEFT)
+        var top_margin = self._get_as_int(PropKey.MARGIN_TOP)
+        var right_margin = self._get_as_int(PropKey.MARGIN_RIGHT)
+        var bottom_margin = self._get_as_int(PropKey.MARGIN_BOTTOM)
+        var left_margin = self._get_as_int(PropKey.MARGIN_LEFT)
 
-        var styler = mist.Style(self.renderer.color_profile.value)
-
-        var bgc = self.get_as_color(PropKey.MARGIN_BACKGROUND)
-
-        # TODO: Dealing with variants is verbose :(
-        if bgc.isa[Color]():
-            styler = styler.background(color=bgc[Color].color(self.renderer))
-        elif bgc.isa[ANSIColor]():
-            styler = styler.background(color=bgc[ANSIColor].color(self.renderer))
-        elif bgc.isa[AdaptiveColor]():
-            styler = styler.background(color=bgc[AdaptiveColor].color(self.renderer))
-        elif bgc.isa[CompleteColor]():
-            styler = styler.background(color=bgc[CompleteColor].color(self.renderer))
-        elif bgc.isa[CompleteAdaptiveColor]():
-            styler = styler.background(color=bgc[CompleteAdaptiveColor].color(self.renderer))
+        var bgc = self._get_as_color(PropKey.MARGIN_BACKGROUND)
+        var styler = mist.Style(self.renderer.color_profile.value).background(color=any_terminal_color_to_any_color(bgc, self.renderer))
 
         # Add left and right margin
         text = pad_left(text, left_margin, styler)
@@ -1892,7 +1863,7 @@ struct Style:
 
         # Top/bottom margin
         if not inline:
-            _, width = get_lines(text)
+            width = get_widest_line(text)
             if top_margin > 0:
                 text = ((WHITESPACE * width + NEWLINE) * top_margin) + text
             if bottom_margin > 0:
@@ -1923,37 +1894,37 @@ struct Style:
         var term_style_space = term_style
         var term_style_whitespace = term_style
 
-        var bold = self.get_as_bool(PropKey.BOLD, False)
-        var italic = self.get_as_bool(PropKey.ITALIC, False)
-        var underline = self.get_as_bool(PropKey.UNDERLINE, False)
-        var crossout = self.get_as_bool(PropKey.CROSSOUT, False)
-        var reverse = self.get_as_bool(PropKey.REVERSE, False)
-        var blink = self.get_as_bool(PropKey.BLINK, False)
-        var faint = self.get_as_bool(PropKey.FAINT, False)
+        var bold = self._get_as_bool(PropKey.BOLD, False)
+        var italic = self._get_as_bool(PropKey.ITALIC, False)
+        var underline = self._get_as_bool(PropKey.UNDERLINE, False)
+        var crossout = self._get_as_bool(PropKey.CROSSOUT, False)
+        var reverse = self._get_as_bool(PropKey.REVERSE, False)
+        var blink = self._get_as_bool(PropKey.BLINK, False)
+        var faint = self._get_as_bool(PropKey.FAINT, False)
 
-        var fg = self.get_as_color(PropKey.FOREGROUND)
-        var bg = self.get_as_color(PropKey.BACKGROUND)
+        var fg = self._get_as_color(PropKey.FOREGROUND)
+        var bg = self._get_as_color(PropKey.BACKGROUND)
 
-        var width = self.get_as_int(PropKey.WIDTH)
-        var height = self.get_as_int(PropKey.HEIGHT)
-        var top_padding = self.get_as_int(PropKey.PADDING_TOP)
-        var right_padding = self.get_as_int(PropKey.PADDING_RIGHT)
-        var bottom_padding = self.get_as_int(PropKey.PADDING_BOTTOM)
-        var left_padding = self.get_as_int(PropKey.PADDING_LEFT)
+        var width = self._get_as_int(PropKey.WIDTH)
+        var height = self._get_as_int(PropKey.HEIGHT)
+        var top_padding = self._get_as_int(PropKey.PADDING_TOP)
+        var right_padding = self._get_as_int(PropKey.PADDING_RIGHT)
+        var bottom_padding = self._get_as_int(PropKey.PADDING_BOTTOM)
+        var left_padding = self._get_as_int(PropKey.PADDING_LEFT)
 
-        var horizontal_align = self.get_as_position(PropKey.HORIZONTAL_ALIGNMENT)
-        var vertical_align = self.get_as_position(PropKey.VERTICAL_ALIGNMENT)
+        var horizontal_align = self._get_as_position(PropKey.HORIZONTAL_ALIGNMENT)
+        var vertical_align = self._get_as_position(PropKey.VERTICAL_ALIGNMENT)
 
-        var color_whitespace = self.get_as_bool(PropKey.COLOR_WHITESPACE, True)
-        var inline = self.get_as_bool(PropKey.INLINE, False)
-        var max_width = self.get_as_int(PropKey.MAX_WIDTH)
-        var max_height = self.get_as_int(PropKey.MAX_HEIGHT)
+        var color_whitespace = self._get_as_bool(PropKey.COLOR_WHITESPACE, True)
+        var inline = self._get_as_bool(PropKey.INLINE, False)
+        var max_width = self._get_as_int(PropKey.MAX_WIDTH)
+        var max_height = self._get_as_int(PropKey.MAX_HEIGHT)
 
-        var underline_spaces = self.get_as_bool(PropKey.UNDERLINE_SPACES, False) or (
-            underline and self.get_as_bool(PropKey.UNDERLINE_SPACES, True)
+        var underline_spaces = self._get_as_bool(PropKey.UNDERLINE_SPACES, False) or (
+            underline and self._get_as_bool(PropKey.UNDERLINE_SPACES, True)
         )
-        var crossout_spaces = self.get_as_bool(PropKey.CROSSOUT_SPACES, False) or (
-            crossout and self.get_as_bool(PropKey.CROSSOUT_SPACES, True)
+        var crossout_spaces = self._get_as_bool(PropKey.CROSSOUT_SPACES, False) or (
+            crossout and self._get_as_bool(PropKey.CROSSOUT_SPACES, True)
         )
 
         # Do we need to style whitespace (padding and space outside paragraphs) separately?
@@ -1983,78 +1954,13 @@ struct Style:
         if crossout:
             term_style = term_style.crossout()
 
-        # TODO: Again super verbose and repetitive bc of Variant
-        if fg.isa[Color]():
-            var terminal_color = fg[Color].color(self.renderer)
-            term_style = term_style.foreground(color=terminal_color)
-            if use_space_styler:
-                term_style_space = term_style_space.foreground(color=terminal_color)
-            if use_whitespace_styler:
-                term_style_whitespace = term_style_whitespace.foreground(color=terminal_color)
-        elif fg.isa[ANSIColor]():
-            var terminal_color = fg[ANSIColor].color(self.renderer)
-            term_style = term_style.foreground(color=terminal_color)
-            if use_space_styler:
-                term_style_space = term_style_space.foreground(color=terminal_color)
-            if use_whitespace_styler:
-                term_style_whitespace = term_style_whitespace.foreground(color=terminal_color)
-        elif fg.isa[AdaptiveColor]():
-            var terminal_color = fg[AdaptiveColor].color(self.renderer)
-            term_style = term_style.foreground(color=terminal_color)
-            if use_space_styler:
-                term_style_space = term_style_space.foreground(color=terminal_color)
-            if use_whitespace_styler:
-                term_style_whitespace = term_style_whitespace.foreground(color=terminal_color)
-        elif fg.isa[CompleteColor]():
-            var terminal_color = fg[CompleteColor].color(self.renderer)
-            term_style = term_style.foreground(color=terminal_color)
-            if use_space_styler:
-                term_style_space = term_style_space.foreground(color=terminal_color)
-            if use_whitespace_styler:
-                term_style_whitespace = term_style_whitespace.foreground(color=terminal_color)
-        elif fg.isa[CompleteAdaptiveColor]():
-            var terminal_color = fg[CompleteAdaptiveColor].color(self.renderer)
-            term_style = term_style.foreground(color=terminal_color)
-            if use_space_styler:
-                term_style_space = term_style_space.foreground(color=terminal_color)
-            if use_whitespace_styler:
-                term_style_whitespace = term_style_whitespace.foreground(color=terminal_color)
-
-        if bg.isa[Color]():
-            var terminal_color = bg[Color].color(self.renderer)
-            term_style = term_style.background(color=terminal_color)
-            if use_space_styler:
-                term_style_space = term_style_space.background(color=terminal_color)
-            if color_whitespace:
-                term_style_whitespace = term_style_whitespace.background(color=terminal_color)
-        elif bg.isa[ANSIColor]():
-            var terminal_color = bg[ANSIColor].color(self.renderer)
-            term_style = term_style.background(color=terminal_color)
-            if use_space_styler:
-                term_style_space = term_style_space.background(color=terminal_color)
-            if color_whitespace:
-                term_style_whitespace = term_style_whitespace.background(color=terminal_color)
-        elif bg.isa[AdaptiveColor]():
-            var terminal_color = bg[AdaptiveColor].color(self.renderer)
-            term_style = term_style.background(color=terminal_color)
-            if use_space_styler:
-                term_style_space = term_style_space.background(color=terminal_color)
-            if color_whitespace:
-                term_style_whitespace = term_style_whitespace.background(color=terminal_color)
-        elif bg.isa[CompleteColor]():
-            var terminal_color = bg[CompleteColor].color(self.renderer)
-            term_style = term_style.background(color=terminal_color)
-            if use_space_styler:
-                term_style_space = term_style_space.background(color=terminal_color)
-            if color_whitespace:
-                term_style_whitespace = term_style_whitespace.background(color=terminal_color)
-        elif bg.isa[CompleteAdaptiveColor]():
-            var terminal_color = bg[CompleteAdaptiveColor].color(self.renderer)
-            term_style = term_style.background(color=terminal_color)
-            if use_space_styler:
-                term_style_space = term_style_space.background(color=terminal_color)
-            if color_whitespace:
-                term_style_whitespace = term_style_whitespace.background(color=terminal_color)
+        var fg_color = any_terminal_color_to_any_color(fg, self.renderer)
+        var bg_color = any_terminal_color_to_any_color(bg, self.renderer)
+        term_style = term_style.foreground(color=fg_color).background(color=bg_color)
+        if use_space_styler:
+            term_style_space = term_style_space.foreground(color=fg_color).background(color=bg_color)
+        if color_whitespace:
+            term_style_whitespace = term_style_whitespace.foreground(color=fg_color).background(color=bg_color)
 
         if underline_spaces:
             term_style = term_style_space.underline()
@@ -2071,8 +1977,11 @@ struct Style:
 
         input_text = self.maybe_convert_tabs(input_text)
 
+        fn split_lines[origin: ImmutableOrigin](text: StringSlice[origin]) -> List[StringSlice[origin]]:
+            return text.splitlines()
+
         var result = String(capacity=int(len(input_text) * 1.5))
-        var lines = input_text.splitlines()
+        var lines = split_lines(StringSlice(unsafe_from_utf8=input_text.as_bytes().get_immutable()))
         for i in range(len(lines)):
             if use_space_styler:
                 # Look for spaces and apply a different styler
@@ -2103,7 +2012,9 @@ struct Style:
                 result = pad_right(result, right_padding, style)
 
             if top_padding > 0:
-                result = (NEWLINE * top_padding) + result
+                var new = String(capacity=len(result) + top_padding + 1)
+                new.write(NEWLINE * top_padding, result)
+                result = new
 
             if bottom_padding > 0:
                 result.write(NEWLINE * bottom_padding)
@@ -2114,22 +2025,24 @@ struct Style:
 
         # Truncate according to max_width
         if max_width > 0:
-            var lines = result.splitlines()
+            var lines = split_lines(result)
+            truncated = String(capacity=int(len(result) * 1.5))
             for i in range(len(lines)):
-                lines[i] = truncate(lines[i], max_width)
+                truncated.write(truncate(lines[i], max_width))
+                if i < len(lines):
+                    truncated.write(NEWLINE)
 
-            result = NEWLINE.join(lines)
+            result = truncated
 
         # Truncate according to max_height
         if max_height > 0:
-            var lines = result.splitlines()
+            var lines = split_lines(result)
             result = NEWLINE.join(lines[0 : min(max_height, len(lines))])
 
         # if transform:
         #     return transform(result)
 
-        lines, widest = get_lines(result)
-        if width != 0 or widest != 0:
+        if width != 0 or get_widest_line(result) != 0:
             var style = mist.Style(self.renderer.color_profile.value)
             if color_whitespace or use_whitespace_styler:
                 style = term_style_whitespace

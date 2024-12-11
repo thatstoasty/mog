@@ -183,7 +183,7 @@ struct Table:
 
     fn clear_rows(self) -> Table:
         """Clears the table rows.
-        
+
         Returns:
             The updated table.
         """
@@ -208,7 +208,7 @@ struct Table:
 
         Args:
             rows: The rows to add to the table.
-        
+
         Returns:
             The updated table.
         """
@@ -222,7 +222,7 @@ struct Table:
 
         Args:
             rows: The rows to add to the table.
-        
+
         Returns:
             The updated table.
         """
@@ -236,7 +236,7 @@ struct Table:
 
         Args:
             row: The row to append to the table.
-        
+
         Returns:
             The updated table.
         """
@@ -252,7 +252,7 @@ struct Table:
 
         Args:
             row: The row to append to the table.
-        
+
         Returns:
             The updated table.
         """
@@ -265,7 +265,7 @@ struct Table:
 
         Args:
             headers: The headers to set.
-        
+
         Returns:
             The updated table.
         """
@@ -281,7 +281,7 @@ struct Table:
 
         Args:
             headers: The headers to set.
-        
+
         Returns:
             The updated table.
         """
@@ -291,7 +291,7 @@ struct Table:
 
     fn __str__(mut self) -> String:
         """Returns the table as a String.
-        
+
         Returns:
             The table as a string.
         """
@@ -594,11 +594,9 @@ struct Table:
 
         var c = 0
         while c < self.data.columns():
-            var style = self.style(index + 1, c).
-            height(height).
-            max_height(height).
-            width(self.widths[c]).
-            max_width(self.widths[c])
+            var style = self.style(index + 1, c).height(height).max_height(height).width(self.widths[c]).max_width(
+                self.widths[c]
+            )
 
             cells.append(style.render(truncate(self.data[index, c], self.widths[c] * height, "…")))
 

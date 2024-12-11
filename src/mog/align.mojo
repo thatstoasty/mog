@@ -22,7 +22,7 @@ fn align_text_horizontal(
         The aligned text.
     """
     lines, widest_line = get_lines(text)
-    var aligned_text = String(capacity=len(text))
+    var aligned_text = String(capacity=int(len(text) * 1.25))
     for i in range(len(lines)):
         var line = lines[i]
         var line_width = printable_rune_width(line)
@@ -31,22 +31,25 @@ fn align_text_horizontal(
         if short_amount > 0:
             if pos == position.right:
                 var spaces = WHITESPACE * short_amount
-
                 if style:
                     spaces = style.value().render(spaces)
-                line = spaces + line
+                
+                var new = String(capacity=len(line) + len(spaces) + 1)
+                new.write(spaces, line)
+                line = new
             elif pos == position.center:
                 # Note: remainder goes on the right.
                 var left = short_amount / 2
                 var right = left + short_amount % 2
-
                 var left_spaces = WHITESPACE * int(left)
                 var right_spaces = WHITESPACE * int(right)
-
                 if style:
                     left_spaces = style.value().render(left_spaces)
                     right_spaces = style.value().render(right_spaces)
-                line = left_spaces + line + right_spaces
+
+                var new = String(capacity=len(line) + len(left_spaces) + len(right_spaces) + 1)
+                new.write(left_spaces, line, right_spaces)
+                line = new
             elif pos == position.left:
                 var spaces = WHITESPACE * int(short_amount)
                 if style:
@@ -78,7 +81,9 @@ fn align_text_vertical(text: String, pos: position.Position, height: Int) -> Str
         return text
 
     if pos == position.top:
-        return text + (NEWLINE * (height - text_height))
+        var new = String(capacity=len(text) + (height - text_height) + 1)
+        new.write(text, NEWLINE * (height - text_height))
+        return new
 
     elif pos == position.center:
         var top_padding = (height - text_height) / 2
@@ -88,9 +93,13 @@ fn align_text_vertical(text: String, pos: position.Position, height: Int) -> Str
         elif text_height + top_padding + bottom_padding < height:
             bottom_padding += 1
 
-        return (NEWLINE * int(top_padding)) + text + (NEWLINE * int(bottom_padding))
+        var new = String(capacity=len(text) + len(NEWLINE * int(top_padding)) + len(NEWLINE * int(bottom_padding)) + 1)
+        new.write(NEWLINE * int(top_padding), text, NEWLINE * int(bottom_padding))
+        return new
 
     elif pos == position.bottom:
-        return (NEWLINE * (height - text_height)) + text
+        var new = String(capacity=len(text) + (height - text_height) + 1)
+        new.write(NEWLINE * (height - text_height), text)
+        return new
 
     return text

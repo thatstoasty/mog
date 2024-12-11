@@ -1,3 +1,4 @@
+from utils import StringSlice
 from weave.ansi import printable_rune_width
 import mist
 
@@ -21,6 +22,46 @@ fn get_lines(text: String) -> Tuple[List[String], Int]:
             widest_line = printable_rune_width(line[])
 
     return lines, widest_line
+
+
+fn get_lines_view(text: String) -> Tuple[List[StringSlice[__origin_of(text)]], Int]:
+    """Split a string into lines.
+
+    Args:
+        text: The string to split.
+
+    Returns:
+        A tuple containing the lines and the width of the widest line.
+    """
+    var lines = text.as_string_slice().splitlines()
+    var widest_line = 0
+    for line in lines:
+        if printable_rune_width(line[]) > widest_line:
+            widest_line = printable_rune_width(line[])
+
+    return lines, widest_line
+
+
+
+fn get_widest_line[immutable: ImmutableOrigin](text: StringSlice[immutable]) -> Int:
+    """Split a string into lines.
+
+    Args:
+        text: The string to split.
+
+    Returns:
+        The width of the widest line.
+    """
+    if text == "":
+        return 0
+
+    var lines = text.splitlines()
+    var widest = 0
+    for i in range(len(lines)):
+        if printable_rune_width(lines[i]) > widest:
+            widest = printable_rune_width(lines[i])
+
+    return widest
 
 
 fn pad(text: String, n: Int, style: mist.Style) -> String:

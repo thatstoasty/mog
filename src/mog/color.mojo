@@ -229,3 +229,30 @@ struct CompleteAdaptiveColor(TerminalColor):
             return self.dark.color(renderer)
 
         return self.light.color(renderer)
+
+
+fn any_terminal_color_to_any_color(terminal_color: AnyTerminalColor, renderer: Renderer) -> mist.AnyColor:
+    """Converts an `AnyTerminalColor` to an `AnyColor`.
+
+    Args:
+        terminal_color: The terminal color to convert.
+        renderer: The renderer to use for color selection.
+    
+    Returns:
+        The converted color.
+
+    Notes:
+        Useful for converting a `mog.TerminalColor` to a `mist.Color` for use in a `mist.Style`.
+    """
+    if terminal_color.isa[Color]():
+        return terminal_color[Color].color(renderer)
+    elif terminal_color.isa[ANSIColor]():
+        return terminal_color[ANSIColor].color(renderer)
+    elif terminal_color.isa[AdaptiveColor]():
+        return terminal_color[AdaptiveColor].color(renderer)
+    elif terminal_color.isa[CompleteColor]():
+        return terminal_color[CompleteColor].color(renderer)
+    elif terminal_color.isa[CompleteAdaptiveColor]():
+        return terminal_color[CompleteAdaptiveColor].color(renderer)
+
+    return mist.NoColor()

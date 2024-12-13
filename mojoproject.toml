@@ -8,6 +8,8 @@ version = "0.1.7.nightly3"
 license = "MIT"
 license-file = "LICENSE"
 homepage = "https://github.com/thatstoasty/mog"
+repository = "https://github.com/thatstoasty/mog"
+
 
 [tasks]
 tests = "python scripts/util.py run tests"

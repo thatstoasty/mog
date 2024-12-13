@@ -14,7 +14,7 @@ def main():
         "--diagnose-missing-doc-strings",
         "-o",
         "/dev/null",
-        "./src/mist",
+        "./src/mog",
     ]
     result = subprocess.run(command, capture_output=True)
     if result.stderr or result.returncode != 0:

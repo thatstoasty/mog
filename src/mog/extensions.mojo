@@ -3,6 +3,43 @@ from weave.ansi import printable_rune_width
 import mist
 
 
+# TODO: I'll see if I can get `count` on `StringSlice` upstream in Mojo and add `AsStringSlice`.
+trait AsStringSlice:
+    fn as_string_slice(ref self) -> StringSlice[__origin_of(self)]:
+        ...
+
+
+fn count(text: StringSlice, substr: String) -> Int:
+    """Return the number of non-overlapping occurrences of substring
+    `substr` in the string.
+
+    If sub is empty, returns the number of empty strings between characters
+    which is the length of the string plus one.
+
+    Args:
+        text: The string to search.
+        substr: The substring to count.
+
+    Returns:
+        The number of occurrences of `substr`.
+    """
+    if not substr:
+        return len(text) + 1
+
+    var res = 0
+    var offset = 0
+
+    while True:
+        var pos = text.find(substr, offset)
+        if pos == -1:
+            break
+        res += 1
+
+        offset = pos + substr.byte_length()
+
+    return res
+
+
 fn get_lines(text: String) -> Tuple[List[String], Int]:
     """Split a string into lines.
 
@@ -12,15 +49,11 @@ fn get_lines(text: String) -> Tuple[List[String], Int]:
     Returns:
         A tuple containing the lines and the width of the widest line.
     """
-    if text == "":
-        return List[String](""), 0
-
     var lines = text.splitlines()
     var widest_line = 0
     for line in lines:
         if printable_rune_width(line[]) > widest_line:
             widest_line = printable_rune_width(line[])
-
     return lines, widest_line
 
 
@@ -38,9 +71,7 @@ fn get_lines_view(text: String) -> Tuple[List[StringSlice[__origin_of(text)]], I
     for line in lines:
         if printable_rune_width(line[]) > widest_line:
             widest_line = printable_rune_width(line[])
-
     return lines, widest_line
-
 
 
 fn get_widest_line[immutable: ImmutableOrigin](text: StringSlice[immutable]) -> Int:

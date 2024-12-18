@@ -2,7 +2,8 @@ import testing
 from mog.size import get_height, get_width, get_dimensions
 
 
-alias test_string = "This\nis\na\ntest\nstring"
+# TODO: 24.6 StringLiteral's function signature for as_string_slice() is different than usual.
+alias test_string = String("This\nis\na\ntest\nstring")
 
 
 def test_get_height():

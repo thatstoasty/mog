@@ -2,7 +2,7 @@ from collections import Optional
 from weave.ansi import printable_rune_width
 import mist
 import .position
-from .extensions import get_lines
+from .extensions import get_lines, get_lines_view
 
 
 fn align_text_horizontal(
@@ -21,10 +21,18 @@ fn align_text_horizontal(
     Returns:
         The aligned text.
     """
-    lines, widest_line = get_lines(text)
+    lines, widest_line = get_lines_view(text)
+    
+    # If the text is empty, just return (styled) padding up to the width passed.
+    if len(lines) == 0:
+        var spaces = WHITESPACE * width
+        if style:
+            spaces = style.value().render(spaces)
+        return spaces
+
     var aligned_text = String(capacity=int(len(text) * 1.25))
     for i in range(len(lines)):
-        var line = lines[i]
+        var line = String.write(lines[i])
         var line_width = printable_rune_width(line)
         var short_amount = widest_line - line_width  # difference from the widest line
         short_amount += max(0, width - (short_amount + line_width))  # difference from the total width, if set

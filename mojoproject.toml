@@ -4,7 +4,7 @@ channels = ["https://repo.prefix.dev/mojo-community", "conda-forge", "https://co
 description = "Style definitions for nice terminal layouts. Built with TUIs in mind."
 name = "mog"
 platforms = ["osx-arm64", "linux-64"]
-version = "0.1.7.nightly3"
+version = "0.1.7"
 license = "MIT"
 license-file = "LICENSE"
 homepage = "https://github.com/thatstoasty/mog"
@@ -21,10 +21,9 @@ publish = { cmd = "python scripts/util.py publish", env = { PREFIX_API_KEY = "$P
 bp = { depends_on=["build", "publish"] }
 
 [dependencies]
-max = ">=24.5.0"
-# gojo = ">=0.1.9,<0.2"
-# weave = ">=0.1.1,<0.2"
-# mist = ">=0.1.6,<0.2"
+max = ">=24.6.0"
+weave = ">=0.1.1"
+mist = ">=0.1.6"
 
 [feature.nightly]
 channels = ["https://repo.prefix.dev/mojo-community-nightly", "conda-forge", "https://conda.modular.com/max-nightly"]

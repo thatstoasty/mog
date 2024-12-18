@@ -1,8 +1,10 @@
+from utils import StringSlice
 import weave.ansi
+from .extensions import AsStringSlice, count
 from .properties import Dimensions
 
 
-fn get_width(text: String) -> Int:
+fn get_width[T: AsStringSlice](text: T) -> Int:
     """Returns the cell width of characters in the string. ANSI sequences are
     ignored and characters wider than one cell (such as Chinese characters and
     emojis) are appropriately measured.
@@ -24,7 +26,7 @@ fn get_width(text: String) -> Int:
     return width
 
 
-fn get_height(text: String) -> Int:
+fn get_height[T: AsStringSlice](text: T) -> Int:
     """Returns height of a string in cells. This is done simply by
     counting \\n characters. If your strings use \\r\\n for newlines you should
     convert them to \\n first, or simply write a separate function for measuring
@@ -36,10 +38,10 @@ fn get_height(text: String) -> Int:
     Returns:
         The height of the string in cells.
     """
-    return text.count(NEWLINE) + 1
+    return count(text.as_string_slice(), "\n") + 1
 
 
-fn get_dimensions(text: String) -> Dimensions:
+fn get_dimensions[T: AsStringSlice](text: T) -> Dimensions:
     """Returns the width and height of the string in cells. ANSI sequences are
     ignored and characters wider than one cell (such as Chinese characters and
     emojis) are appropriately measured.
@@ -50,4 +52,4 @@ fn get_dimensions(text: String) -> Dimensions:
     Returns:
         The width and height of the string in cells.
     """
-    return Dimensions(get_width(text), get_height(text))
+    return Dimensions(width=get_width(text), height=get_height(text))

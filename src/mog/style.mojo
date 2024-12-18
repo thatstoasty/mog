@@ -1675,7 +1675,7 @@ struct Style:
         new._unset_attribute(PropKey.MARGIN_BACKGROUND)
         return new
 
-    fn maybe_convert_tabs(self, text: String) -> String:
+    fn _maybe_convert_tabs(self, text: String) -> String:
         """Convert tabs to spaces if the tab width is set.
 
         Args:
@@ -1695,7 +1695,7 @@ struct Style:
         else:
             return text.replace("\t", (WHITESPACE * DEFAULT_TAB_WIDTH))
 
-    fn style_border(self, border: String, fg: AnyTerminalColor, bg: AnyTerminalColor) -> String:
+    fn _style_border(self, border: String, fg: AnyTerminalColor, bg: AnyTerminalColor) -> String:
         """Style a border with foreground and background colors.
 
         Args:
@@ -1714,7 +1714,7 @@ struct Style:
         )
         return styler.render(border)
 
-    fn apply_border(self, text: String) -> String:
+    fn _apply_border(self, text: String) -> String:
         """Apply a border to the text.
 
         Args:
@@ -1803,7 +1803,7 @@ struct Style:
 
         # Render top
         if has_top:
-            top = self.style_border(
+            top = self._style_border(
                 render_horizontal_edge(border.top_left, border.top, border.top_right, width), top_fg, top_bg
             )
             result.write(top, NEWLINE)
@@ -1812,9 +1812,9 @@ struct Style:
         var left_border: String = ""
         var right_border: String = ""
         if has_left:
-            left_border = self.style_border(border.left, left_fg, left_bg)
+            left_border = self._style_border(border.left, left_fg, left_bg)
         if has_right:
-            right_border = self.style_border(border.right, right_fg, right_bg)
+            right_border = self._style_border(border.right, right_fg, right_bg)
 
         for i in range(len(lines)):
             if has_left:
@@ -1830,7 +1830,7 @@ struct Style:
 
         # Render bottom
         if has_bottom:
-            bottom = self.style_border(
+            bottom = self._style_border(
                 render_horizontal_edge(border.bottom_left, border.bottom, border.bottom_right, width),
                 bottom_fg,
                 bottom_bg,
@@ -1839,7 +1839,7 @@ struct Style:
 
         return result
 
-    fn apply_margins(self, owned text: String, inline: Bool) -> String:
+    fn _apply_margins(self, owned text: String, inline: Bool) -> String:
         """Apply margins to the text.
 
         Args:
@@ -1858,8 +1858,7 @@ struct Style:
         var styler = mist.Style(self.renderer.color_profile.value).background(color=any_terminal_color_to_any_color(bgc, self.renderer))
 
         # Add left and right margin
-        text = pad_left(text, left_margin, styler)
-        text = pad_right(text, right_margin, styler)
+        text = pad_right(pad_left(text, left_margin, styler), right_margin, styler)
 
         # Top/bottom margin
         if not inline:
@@ -1871,7 +1870,7 @@ struct Style:
 
         return text
 
-    fn render(self, *texts: String) -> String:
+    fn render[*Ts: Writable](self, *texts: *Ts) -> String:
         """Render the text with the style.
 
         Args:
@@ -1885,10 +1884,13 @@ struct Style:
         if self.value != "":
             input_text.write(self.value)
 
-        for i in range(len(texts)):
-            input_text.write(texts[i])
+        @parameter
+        fn write_text[i: Int, T: Writable](text: T) -> None:
+            input_text.write(text)
             if i != len(texts) - 1:
                 input_text.write(" ")
+
+        texts.each_idx[write_text]()
 
         var term_style = mist.Style(self.renderer.color_profile.value)
         var term_style_space = term_style
@@ -1936,7 +1938,7 @@ struct Style:
         # transform = self.get_as_transform("transform")
         # If no style properties are set, return the input text as is with tabs maybe converted.
         if not any(self.properties.value):
-            return self.maybe_convert_tabs(input_text)
+            return self._maybe_convert_tabs(input_text)
 
         if bold:
             term_style = term_style.bold()
@@ -1975,7 +1977,7 @@ struct Style:
             var wrap_at = width - left_padding - right_padding
             input_text = wrap(word_wrap(input_text, wrap_at), wrap_at)  # force-wrap long strings
 
-        input_text = self.maybe_convert_tabs(input_text)
+        input_text = self._maybe_convert_tabs(input_text)
 
         fn split_lines[origin: ImmutableOrigin](text: StringSlice[origin]) -> List[StringSlice[origin]]:
             return text.splitlines()
@@ -2050,6 +2052,6 @@ struct Style:
 
         # Apply border at the end
         if not inline:
-            result = self.apply_margins(self.apply_border(result), inline)
+            result = self._apply_margins(self._apply_border(result^), inline)
 
         return result

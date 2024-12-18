@@ -1,7 +1,7 @@
 from collections import Optional
 import mist
 import weave.ansi
-from .extensions import get_lines
+from .extensions import get_lines_view
 from .whitespace import WhitespaceOption, new_whitespace, _new_whitespace
 import .position
 
@@ -198,7 +198,7 @@ struct Renderer:
         Returns:
             The string with the text placed in the block.
         """
-        lines, content_width = get_lines(text)
+        lines, content_width = get_lines_view(text)
         var gap = width - content_width
         if gap <= 0:
             return text
@@ -280,7 +280,7 @@ struct Renderer:
 
         var white_space = _new_whitespace(self, opts)
 
-        _, width = get_lines(text)
+        _, width = get_lines_view(text)
         var empty_line = white_space.render(width)
         var result = String()
         if pos == position.top:

@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-
-# on: ["push"]
+    paths:
+      - src/**
 
 jobs:
   build:

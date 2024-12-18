@@ -1,46 +1,79 @@
 import testing
-from mog.align import align_text_horizontal, align_text_vertical
-import mog.mist
+import mist
 import mog.position
+from mog.align import align_text_horizontal, align_text_vertical
 
 
-def test_align_text_horizontal():
-    var style = mist.Style()
-
-    # Test center alignment
-    var centered = align_text_horizontal("hello", position.center, 10)
-    # print(centered)
-
-    testing.assert_equal(centered, "  hello   ")
-
-    # Test left alignment
-    var left = align_text_horizontal("hello", position.left, 10, style)
-    # print(left)
-
-    testing.assert_equal(left, "hello     ")
-
-    # Test right alignment
-    var right = align_text_horizontal("hello", position.right, 10)
-    # print(right)
-
-    testing.assert_equal(right, "     hello")
+alias text = "hello"
+alias multiline_text = "hello\nhello\nhello"
 
 
-def test_align_text_vertical():
-    # Test center alignment
-    var centered = align_text_vertical("hello", position.center, 3)
-    # print(centered)
+def test_centered_align_text_horizontal():
+    testing.assert_equal(align_text_horizontal(text, position.center, 10), "  hello   ")
+    
+    # Multi line alignment
+    testing.assert_equal(align_text_horizontal(multiline_text, position.center, 10), "  hello   \n  hello   \n  hello   ")
 
-    testing.assert_equal(centered, "\nhello\n")
 
-    # Test top alignment
-    var top = align_text_vertical("hello", position.top, 3)
-    # print(top)
+def test_styled_centered_align_text_horizontal():
+    var style = mist.Style(mist.ANSI).background(0xFFFFFF)
+    testing.assert_equal(align_text_horizontal(text, position.center, 10, style), "\x1b[;47m  \x1b[0mhello\x1b[;47m   \x1b[0m")
 
-    testing.assert_equal(top, "hello\n\n")
+    # Multi line alignment
+    testing.assert_equal(align_text_horizontal(multiline_text, position.center, 10, style), "\x1b[;47m  \x1b[0mhello\x1b[;47m   \x1b[0m\n\x1b[;47m  \x1b[0mhello\x1b[;47m   \x1b[0m\n\x1b[;47m  \x1b[0mhello\x1b[;47m   \x1b[0m")
 
-    # Test bottom alignment
-    var bottom = align_text_vertical("hello", position.bottom, 5)
-    # print(bottom)
 
-    testing.assert_equal(bottom, "\n\n\n\nhello")
+def test_left_align_text_horizontal():
+    testing.assert_equal(align_text_horizontal(text, position.left, 10), "hello     ")
+
+    # Multi line alignment
+    testing.assert_equal(align_text_horizontal(multiline_text, position.left, 10), "hello     \nhello     \nhello     ")
+
+
+def test_styled_left_align_text_horizontal():
+    var style = mist.Style(mist.ANSI).background(0xFFFFFF)
+    testing.assert_equal(align_text_horizontal(text, position.left, 10, style), "hello\x1b[;47m     \x1b[0m")
+
+    # Multi line alignment
+    testing.assert_equal(align_text_horizontal(multiline_text, position.left, 10, style), "hello\x1b[;47m     \x1b[0m\nhello\x1b[;47m     \x1b[0m\nhello\x1b[;47m     \x1b[0m")
+
+
+def test_right_align_text_horizontal():
+    testing.assert_equal(align_text_horizontal(text, position.right, 10), "     hello")
+
+    # Multi line alignment
+    testing.assert_equal(align_text_horizontal(multiline_text, position.left, 10), "hello     \nhello     \nhello     ")
+
+
+def test_styled_right_align_text_horizontal():
+    var style = mist.Style(mist.ANSI).background(0xFFFFFF)
+    testing.assert_equal(align_text_horizontal(text, position.right, 10, style), "\x1b[;47m     \x1b[0mhello")
+
+    # Multi line alignment
+    testing.assert_equal(align_text_horizontal(multiline_text, position.right, 10, style), "\x1b[;47m     \x1b[0mhello\n\x1b[;47m     \x1b[0mhello\n\x1b[;47m     \x1b[0mhello")
+
+
+def test_empty_align_text_horizontal():
+    """Test that a padded string is returned if the text is empty."""
+    var style = mist.Style(mist.ANSI).background(0xFFFFFF)
+    testing.assert_equal(align_text_horizontal("", position.left, 10), "          ")
+    testing.assert_equal(align_text_horizontal("", position.right, 10), "          ")
+    testing.assert_equal(align_text_horizontal("", position.center, 10), "          ")
+    testing.assert_equal(align_text_horizontal("", position.center, 10, style), "\x1b[;47m          \x1b[0m")
+
+
+def test_centered_align_text_vertical():
+    testing.assert_equal(align_text_vertical(text, position.center, 3), "\nhello\n")
+
+
+def test_top_align_text_vertical():
+    testing.assert_equal(align_text_vertical(text, position.top, 3), "hello\n\n")
+
+
+def test_bottom_align_text_vertical():
+    testing.assert_equal(align_text_vertical(text, position.bottom, 5), "\n\n\n\nhello")
+
+
+def test_tall_text_align_text_vertical():
+    """Test that the original text is returned if the text is taller than the height."""
+    testing.assert_equal(align_text_vertical(multiline_text, position.center, 1), multiline_text)

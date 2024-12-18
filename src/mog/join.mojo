@@ -1,4 +1,5 @@
 import math
+from utils import StringSlice
 from .extensions import get_lines
 from weave.ansi import printable_rune_width
 from .position import Position, top, bottom, left, right, center

@@ -59,7 +59,7 @@ def test_empty_align_text_horizontal():
     testing.assert_equal(align_text_horizontal("", position.left, 10), "          ")
     testing.assert_equal(align_text_horizontal("", position.right, 10), "          ")
     testing.assert_equal(align_text_horizontal("", position.center, 10), "          ")
-    testing.assert_equal(align_text_horizontal("", position.center, 10, style), "\x1b[;47m          \x1b[0m")
+    testing.assert_equal(align_text_horizontal("", position.left, 10, style), "\x1b[;47m          \x1b[0m")
 
 
 def test_centered_align_text_vertical():

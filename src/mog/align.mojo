@@ -21,7 +21,7 @@ fn align_text_horizontal(
     Returns:
         The aligned text.
     """
-    lines, widest_line = get_lines_view(text)
+    lines, widest_line = get_lines(text)
     
     # If the text is empty, just return (styled) padding up to the width passed.
     if len(lines) == 0:
@@ -88,14 +88,15 @@ fn align_text_vertical(text: String, pos: position.Position, height: Int) -> Str
     if height < text_height:
         return text
 
+    var remaining_height = height - text_height
     if pos == position.top:
-        var new = String(capacity=len(text) + (height - text_height) + 1)
-        new.write(text, NEWLINE * (height - text_height))
+        var new = String(capacity=len(text) + remaining_height + 1)
+        new.write(text, NEWLINE * remaining_height)
         return new
 
     elif pos == position.center:
-        var top_padding = (height - text_height) / 2
-        var bottom_padding = (height - text_height) / 2
+        var top_padding = (remaining_height) / 2
+        var bottom_padding = (remaining_height) / 2
         if text_height + top_padding + bottom_padding > height:
             top_padding -= 1
         elif text_height + top_padding + bottom_padding < height:
@@ -106,8 +107,8 @@ fn align_text_vertical(text: String, pos: position.Position, height: Int) -> Str
         return new
 
     elif pos == position.bottom:
-        var new = String(capacity=len(text) + (height - text_height) + 1)
-        new.write(NEWLINE * (height - text_height), text)
+        var new = String(capacity=len(text) + remaining_height + 1)
+        new.write(NEWLINE * remaining_height, text)
         return new
 
     return text

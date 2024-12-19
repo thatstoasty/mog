@@ -1,7 +1,7 @@
 from collections import Optional
 import mist
 import weave.ansi
-from .extensions import get_lines_view, get_widest_line
+from .extensions import get_lines, get_widest_line
 from .whitespace import WhitespaceOption, new_whitespace, _new_whitespace
 import .position
 
@@ -13,31 +13,31 @@ struct Renderer:
     """Contains context for the color profile of the terminal and it's background.
     
     ### Attributes:
-    * `color_profile`: The color profile to use for the renderer.
+    * `profile`: The color profile to use for the renderer.
     * `dark_background`: Whether or not the renderer will render to a dark background.
     """
 
-    var color_profile: mist.Profile
+    var profile: mist.Profile
     """The color profile to use for the renderer."""
     var dark_background: Bool
     """Whether or not the renderer will render to a dark background."""
 
     fn __init__(
         out self,
-        color_profile: Int = -1,
+        profile: Int = -1,
         *,
         dark_background: Bool = True,
     ):
         """Initializes a new renderer instance.
 
         Args:
-            color_profile: The color profile to use for the renderer. Defaults to None.
+            profile: The color profile to use for the renderer. Defaults to None.
             dark_background: Whether or not the renderer will render to a dark background. Defaults to True.
         """
-        if color_profile != -1:
-            self.color_profile = mist.Profile(color_profile)
+        if profile != -1:
+            self.profile = mist.Profile(profile)
         else:
-            self.color_profile = mist.Profile()
+            self.profile = mist.Profile()
         self.dark_background = dark_background
 
     fn has_dark_background(self) -> Bool:
@@ -156,7 +156,7 @@ struct Renderer:
         Returns:
             The string with the text placed in the block.
         """
-        lines, content_width = get_lines_view(text)
+        lines, content_width = get_lines(text)
         var gap = width - content_width
         if gap <= 0:
             return text

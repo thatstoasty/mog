@@ -110,7 +110,7 @@ fn _new_whitespace(renderer: Renderer, opts: VariadicList[WhitespaceOption]) -> 
     Returns:
         A new whitespace renderer.
     """
-    var w = WhitespaceRenderer(renderer=renderer, style=mist.Style(renderer.color_profile.value))
+    var w = WhitespaceRenderer(renderer=renderer, style=mist.Style(renderer.profile))
     for opt in opts:
         opt(w)
 

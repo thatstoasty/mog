@@ -10,11 +10,13 @@ alias white_space_style = mist.Style(mist.ANSI).background(15)
 def test_pad_left():
     testing.assert_equal(pad_left("hello", 10, ascii_style), "          hello")
     testing.assert_equal(pad_left("hello", 10, white_space_style), "\x1b[;107m          \x1b[0mhello")
+    testing.assert_equal(pad_left("\n\n\n\n\n", 3, ascii_style), "   \n   \n   \n   \n   ")
 
 
 def test_pad_right():
     testing.assert_equal(pad_right("hello", 10, ascii_style), "hello          ")
     testing.assert_equal(pad_right("hello", 10, white_space_style), "hello\x1b[;107m          \x1b[0m")
+    testing.assert_equal(pad_right("\n\n\n\n\n", 3, ascii_style), "   \n   \n   \n   \n   ")
 
 
 def test_get_lines():
@@ -25,7 +27,7 @@ def test_get_lines():
 
 def test_get_lines_empty_string():
     lines, widest_line = get_lines("")
-    testing.assert_equal(lines, List[String]())
+    testing.assert_equal(lines, List[String](""))
     testing.assert_equal(widest_line, 0)
 
 

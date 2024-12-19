@@ -1,6 +1,7 @@
 from utils import StringSlice
 from weave.ansi import printable_rune_width
 import mist
+from .size import get_height
 
 
 # TODO: I'll see if I can get `count` on `StringSlice` upstream in Mojo and add `AsStringSlice`.
@@ -54,6 +55,13 @@ fn get_lines(text: String) -> Tuple[List[String], Int]:
     for line in lines:
         if printable_rune_width(line[]) > widest_line:
             widest_line = printable_rune_width(line[])
+    
+    # TODO: splitlines strips trailing newlines, if they're missing after the split, re-add them.
+    var height = get_height(text)
+    var missing_lines = height - len(lines)
+    if missing_lines != 0:
+        for _ in range(missing_lines):
+            lines.append("")
     return lines, widest_line
 
 
@@ -65,12 +73,16 @@ fn get_lines_view(text: String) -> Tuple[List[StringSlice[__origin_of(text)]], I
 
     Returns:
         A tuple containing the lines and the width of the widest line.
+    
+    #### Notes:
+    Reminder that splitlines strips any trailing newlines. If you need to preserve them, you'll need to add them back.
     """
     var lines = text.as_string_slice().splitlines()
     var widest_line = 0
     for line in lines:
         if printable_rune_width(line[]) > widest_line:
             widest_line = printable_rune_width(line[])
+    
     return lines, widest_line
 
 

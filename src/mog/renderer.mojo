@@ -10,7 +10,14 @@ import .position
 # If you need to set it to light, you can do so manually via the `set_dark_background` method.
 @value
 struct Renderer:
-    """Contains context for the color profile of the terminal and it's background."""
+    """Contains context for the color profile of the terminal and it's background.
+    
+    ### Attributes:
+    * `color_profile`: The color profile to use for the renderer.
+    * `dark_background`: Whether or not the renderer will render to a dark background.
+    * `explicit_color_profile`: Whether the color profile was explicitly set.
+    * `explicit_background_color`: Whether the background color was explicitly set.
+    """
 
     var color_profile: mist.Profile
     """The color profile to use for the renderer."""

@@ -14,6 +14,12 @@ trait TerminalColor(CollectionElement):
 
         Returns:
             The color value based on the terminal color profile.
+        
+        The type of color returned depends on the value of the integer. Unless it's an ASCII renderer, otherwise it's always `mist.NoColor`.
+        * 0 - 15: `mist.ANSIColor`
+        * 16 - 255: `mist.ANSI256Color`
+        * 256 - 0xffffff: `mist.RGBColor`
+        .
         """
         ...
 
@@ -34,20 +40,20 @@ struct NoColor(TerminalColor):
     foreground colors will be rendered with the terminal's default text color,
     and background colors will not be drawn at all.
 
-    Examples:
+    ### Examples:
     ```mojo
     var style = mog.Style().background(mog.NoColor())
     ```
     """
 
     fn color(self, renderer: Renderer) -> mist.AnyColor:
-        """Returns a `NoColor` object.
+        """Returns a `mist.NoColor`.
 
         Args:
             renderer: The renderer to use for color selection.
 
         Returns:
-            A `NoColor` object.
+            A `mist.NoColor`.
         """
         return mist.NoColor()
 
@@ -56,10 +62,10 @@ struct NoColor(TerminalColor):
 struct Color(TerminalColor):
     """Specifies a color by hex or ANSI value. For example.
 
-    Args:
-        value: The color value to use. This can be an ANSI color value or a hex color value.
+    ### Args:
+    * value: The color value to use. This can be an ANSI color value or a hex color value.
 
-    Examples:
+    ### Examples:
     ```mojo
     var ansi_color = mog.Color(21)
     var hex_color = mog.Color(0x0000ff)
@@ -77,20 +83,26 @@ struct Color(TerminalColor):
 
         Returns:
             The color value based on the terminal color profile.
+        
+        The type of color returned depends on the value of the integer. Unless it's an ASCII renderer, otherwise it's always `mist.NoColor`.
+        * 0 - 15: `mist.ANSIColor`
+        * 16 - 255: `mist.ANSI256Color`
+        * 256 - 0xffffff: `mist.RGBColor`
+        .
         """
         return renderer.color_profile.color(self.value)
 
 
 @value
 struct ANSIColor(TerminalColor):
-    """ANSIColor is a color specified by an ANSI color value. It's merely syntactic
+    """Color specified by an ANSI color value. It's merely syntactic
     sugar for the more general Color function. Invalid colors will render as
     black.
 
-    Args:
-        value: The color value to use. This is an ANSI color value.
+    ### Attributes:
+    * value: The color value to use. This is an ANSI color value.
 
-    Examples:
+    ### Examples:
     ```mojo
     # These two statements are equivalent.
     var color_a = mog.ANSIColor(21)
@@ -109,21 +121,27 @@ struct ANSIColor(TerminalColor):
 
         Returns:
             The color value based on the terminal color profile.
+        
+        The type of color returned depends on the value of the integer. Unless it's an ASCII renderer, otherwise it's always `mist.NoColor`.
+        * 0 - 15: `mist.ANSIColor`
+        * 16 - 255: `mist.ANSI256Color`
+        * 256 - 0xffffff: `mist.RGBColor`
+        .
         """
         return Color(self.value).color(renderer)
 
 
 @value
 struct AdaptiveColor(TerminalColor):
-    """AdaptiveColor provides color options for light and dark backgrounds. The
+    """Provides color options for light and dark backgrounds. The
     appropriate color will be returned at runtime based on the darkness of the
     terminal background color.
+    
+    ### Attributes:
+    * light: The color to use when the terminal background is light.
+    * dark: The color to use when the terminal background is dark.
 
-    Args:
-        light: The color to use when the terminal background is light.
-        dark: The color to use when the terminal background is dark.
-
-    Examples:
+    ### Examples:
     ```mojo
     var color = mog.AdaptiveColor(light=0x0000ff, dark=0x000099)
     ```
@@ -142,6 +160,12 @@ struct AdaptiveColor(TerminalColor):
 
         Returns:
             The appropriate color based on the terminal background color.
+        
+        The type of color returned depends on the value of the integer. Unless it's an ASCII renderer, otherwise it's always `mist.NoColor`.
+        * 0 - 15: `mist.ANSIColor`
+        * 16 - 255: `mist.ANSI256Color`
+        * 256 - 0xffffff: `mist.RGBColor`
+        .
         """
         if renderer.has_dark_background():
             return Color(self.dark).color(renderer)
@@ -154,12 +178,12 @@ struct CompleteColor(TerminalColor):
     """Specifies exact values for truecolor, ANSI256, and ANSI color
     profiles. Automatic color degradation will not be performed.
 
-    Args:
-        true_color: The color to use when the terminal supports true color.
-        ansi256: The color to use when the terminal supports 256 colors.
-        ansi: The color to use when the terminal supports 16 colors.
+    ### Attributes:
+    * `true_color`: The color to use when the terminal supports true color.
+    * `ansi256`: The color to use when the terminal supports 256 colors.
+    * `ansi`: The color to use when the terminal supports 16 colors.
 
-    Examples:
+    ### Examples:
     ```mojo
     var color = mog.CompleteColor(true_color=0x0000ff, ansi256=21, ansi=4)
     ```
@@ -180,6 +204,12 @@ struct CompleteColor(TerminalColor):
 
         Returns:
             The appropriate color based on the terminal color profile.
+        
+        The type of color returned depends on the value of the integer. Unless it's an ASCII renderer, otherwise it's always `mist.NoColor`.
+        * 0 - 15: `mist.ANSIColor`
+        * 16 - 255: `mist.ANSI256Color`
+        * 256 - 0xffffff: `mist.RGBColor`
+        .
         """
         var p = renderer.color_profile
         if p.value == mist.TRUE_COLOR:
@@ -198,11 +228,11 @@ struct CompleteAdaptiveColor(TerminalColor):
     profiles, with separate options for light and dark backgrounds. Automatic
     color degradation will not be performed.
 
-    Args:
-        light: The `CompleteColor` to use when the terminal background is light.
-        dark: The `CompleteColor` to use when the terminal background is dark.
+    ### Attributes:
+    * light: The `CompleteColor` to use when the terminal background is light.
+    * dark: The `CompleteColor` to use when the terminal background is dark.
 
-    Examples:
+    ### Examples:
     ```mojo
     var color = mog.CompleteAdaptiveColor(
         light=mog.CompleteColor(true_color=0x0000ff, ansi256=21, ansi=4),
@@ -224,6 +254,12 @@ struct CompleteAdaptiveColor(TerminalColor):
 
         Returns:
             The appropriate color based on the terminal background color.
+        
+        The type of color returned depends on the value of the integer. Unless it's an ASCII renderer, otherwise it's always `mist.NoColor`.
+        * 0 - 15: `mist.ANSIColor`
+        * 16 - 255: `mist.ANSI256Color`
+        * 256 - 0xffffff: `mist.RGBColor`
+        .
         """
         if renderer.has_dark_background():
             return self.dark.color(renderer)

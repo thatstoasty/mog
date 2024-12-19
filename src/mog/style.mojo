@@ -102,7 +102,7 @@ struct Style:
     var _tab_width: Int
     """The number of spaces that a tab (/t) should be rendered as."""
 
-    fn __init__(out self, value: String = "", color_profile: Optional[Int] = None):
+    fn __init__(out self, value: String = "", color_profile: Int = -1):
         """Initialize a new Style object.
 
         Args:

@@ -612,7 +612,7 @@ struct Table:
         for i in range(len(cells)):
             cells[i] = cells[i].removesuffix("\n")
 
-        result.write(join_horizontal(position.top, cells) + "\n")
+        result.write(join_horizontal(position.top, cells), "\n")
 
         if self.border_row and index < self.data.rows() - 1:
             result.write(self.border_style.render(self.border.middle_left))

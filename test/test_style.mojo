@@ -244,3 +244,302 @@ def test_max_height():
 def test_unset_max_height():
     alias style = ansi_style.max_height(3).unset_max_height()
     testing.assert_equal(style.render("hello"), "hello")
+
+
+def test_horizontal_alignment():
+    alias style = ansi_style.width(9)
+    testing.assert_equal(style.horizontal_alignment(mog.left).render("hello"), "hello    ")
+    testing.assert_equal(style.horizontal_alignment(mog.right).render("hello"), "    hello")
+    testing.assert_equal(style.horizontal_alignment(mog.center).render("hello"), "  hello  ")
+
+
+def test_unset_horizontal_alignment():
+    alias style = ansi_style.width(9).horizontal_alignment(mog.center).unset_horizontal_alignment()
+    testing.assert_equal(style.render("hello"), "hello    ")
+
+
+def test_vertical_alignment():
+    alias style = ansi_style.height(3)
+    testing.assert_equal(style.vertical_alignment(mog.top).render("hello"), "hello\n     \n     ")
+    testing.assert_equal(style.vertical_alignment(mog.bottom).render("hello"), "     \n     \nhello")
+    testing.assert_equal(style.vertical_alignment(mog.center).render("hello"), "     \nhello\n     ")
+
+
+def test_unset_vertical_alignment():
+    alias style = ansi_style.height(3).vertical_alignment(mog.center).unset_vertical_alignment()
+    testing.assert_equal(style.render("hello"), "hello\n     \n     ")
+
+
+def test_alignment():
+    alias style = ansi_style.width(9)
+    testing.assert_equal(style.alignment(mog.left).render("hello"), "hello    ")
+    testing.assert_equal(style.alignment(mog.right).render("hello"), "    hello")
+    testing.assert_equal(style.alignment(mog.center).render("hello"), "  hello  ")
+
+    alias height_style = style.height(3)
+    testing.assert_equal(height_style.alignment(mog.left, mog.top).render("hello"), "hello    \n         \n         ")
+    testing.assert_equal(height_style.alignment(mog.left, mog.bottom).render("hello"), "         \n         \nhello    ")
+    testing.assert_equal(height_style.alignment(mog.left, mog.center).render("hello"), "         \nhello    \n         ")
+
+
+def test_foreground():
+    alias style = ansi_style.foreground(mog.Color(12))
+    testing.assert_equal(style.render("hello"), "\x1b[;94mhello\x1b[0m")
+
+
+def test_unset_foreground():
+    alias style = ansi_style.foreground(mog.Color(12)).unset_foreground()
+    testing.assert_equal(style.render("hello"), "hello")
+
+
+def test_background():
+    alias style = ansi_style.background(mog.Color(12))
+    testing.assert_equal(style.render("hello"), "\x1b[;104mhello\x1b[0m")
+
+
+def test_unset_background():
+    alias style = ansi_style.background(mog.Color(12)).unset_background()
+    testing.assert_equal(style.render("hello"), "hello")
+
+
+def test_border():
+    alias style = ansi_style.border(mog.PLUS_BORDER)
+    testing.assert_equal(style.render("hello"), "+++++++\n+hello+\n+++++++")
+
+
+def test_border_top():
+    alias style = ansi_style.border(mog.PLUS_BORDER, False, False, False, False)
+    testing.assert_equal(style.border_top().render("hello"), "+++++\nhello")
+
+    # Turn on border top (flag has a value set), but then set it to False (flag has value set, value is False).
+    # testing.assert_equal(style.border_top(False).render("hello"), "hello")
+
+
+# def test_unset_border_top():
+#     alias style = ansi_style.border(mog.PLUS_BORDER, False, False, False, False).border_top().unset_border_top()
+#     testing.assert_equal(style.render("hello"), "hello")
+
+
+def test_border_left():
+    alias style = ansi_style.border(mog.PLUS_BORDER, False, False, False, False)
+    testing.assert_equal(style.border_left().render("hello"), "+hello")
+
+    # Turn on border left (flag has a value set), but then set it to False (flag has value set, value is False).
+    # testing.assert_equal(style.border_left(False).render("hello"), "      \nhello\n      ")
+
+
+# def test_unset_border_left():
+#     alias style = ansi_style.border(mog.PLUS_BORDER, False, False, False, False).border_left().unset_border_left()
+#     testing.assert_equal(style.render("hello"), "hello")
+
+
+def test_border_right():
+    alias style = ansi_style.border(mog.PLUS_BORDER, False, False, False, False)
+    testing.assert_equal(style.border_right().render("hello"), "hello+")
+
+    # Turn on border right (flag has a value set), but then set it to False (flag has value set, value is False).
+    # testing.assert_equal(style.border_right(False).render("hello"), "hello")
+
+
+# def test_unset_border_right():
+#     alias style = ansi_style.border(mog.PLUS_BORDER, False, False, False, False).border_right().unset_border_right()
+#     testing.assert_equal(style.render("hello"), "hello")
+
+
+def test_border_bottom():
+    alias style = ansi_style.border(mog.PLUS_BORDER, False, False, False, False)
+    testing.assert_equal(style.border_bottom().render("hello"), "hello\n+++++")
+
+    # Turn on border bottom (flag has a value set), but then set it to False (flag has value set, value is False).
+    # testing.assert_equal(style.border_bottom(False).render("hello"), "     \nhello\n     ")
+
+
+# def test_unset_border_bottom():
+#     alias style = ansi_style.border(mog.PLUS_BORDER, False, False, False, False).border_bottom().unset_border_bottom()
+#     testing.assert_equal(style.render("hello"), "hello")
+
+
+def test_border_foreground():
+    alias style = ansi_style.border(mog.PLUS_BORDER)
+
+    # One for all sides
+    testing.assert_equal(style.border_foreground(mog.Color(12)).render("hello"), "\x1b[;94m+++++++\x1b[0m\n\x1b[;94m+\x1b[0mhello\x1b[;94m+\x1b[0m\n\x1b[;94m+++++++\x1b[0m")
+
+    # Two colors for top/bottom and left/right
+    testing.assert_equal(style.border_foreground(mog.Color(12), mog.Color(13)).render("hello"), "\x1b[;94m+++++++\x1b[0m\n\x1b[;95m+\x1b[0mhello\x1b[;95m+\x1b[0m\n\x1b[;94m+++++++\x1b[0m")
+
+    # Three colors for top, left/right, and bottom
+    testing.assert_equal(style.border_foreground(mog.Color(12), mog.Color(13), mog.Color(14)).render("hello"), "\x1b[;94m+++++++\x1b[0m\n\x1b[;95m+\x1b[0mhello\x1b[;95m+\x1b[0m\n\x1b[;96m+++++++\x1b[0m")
+
+    # Four colors for top, right, bottom, left
+    testing.assert_equal(style.border_foreground(mog.Color(12), mog.Color(13), mog.Color(14), mog.Color(15)).render("hello"), "\x1b[;94m+++++++\x1b[0m\n\x1b[;97m+\x1b[0mhello\x1b[;95m+\x1b[0m\n\x1b[;96m+++++++\x1b[0m")
+
+
+def test_border_top_foreground():
+    pass
+
+
+def test_unset_border_top_foreground():
+    pass
+
+
+def test_border_left_foreground():
+    pass
+
+
+def test_unset_border_left_foreground():
+    pass
+
+
+def test_border_right_foreground():
+    pass
+
+
+def test_unset_border_right_foreground():
+    pass
+
+
+def test_border_bottom_foreground():
+    pass
+
+
+def test_unset_border_bottom_foreground():
+    pass
+
+
+def test_border_background():
+    pass
+
+
+def test_border_top_background():
+    pass
+
+
+def test_unset_border_top_background():
+    pass
+
+
+def test_border_left_background():
+    pass
+
+
+def test_unset_border_left_background():
+    pass
+
+
+def test_border_right_background():
+    pass
+
+
+def test_unset_border_right_background():
+    pass
+
+
+def test_border_bottom_background():
+    pass
+
+
+def test_unset_border_bottom_background():
+    pass
+
+
+def test_padding():
+    # Padding on all sides
+    testing.assert_equal(ansi_style.padding(1).render("hello"), "       \n hello \n       ")
+
+    # Top/bottom and left/right
+    testing.assert_equal(ansi_style.padding(1, 2).render("hello"), "         \n  hello  \n         ")
+
+    # Top, left/right, bottom
+    testing.assert_equal(ansi_style.padding(1, 2, 3).render("hello"), "         \n  hello  \n         \n         \n         ")
+
+    # All sides
+    testing.assert_equal(ansi_style.padding(1, 2, 3, 4).render("hello"), "           \n    hello  \n           \n           \n           ")
+
+
+def test_padding_top():
+    pass
+
+
+def test_unset_padding_top():
+    pass
+
+
+def test_padding_left():
+    pass
+
+
+def test_unset_padding_left():
+    pass
+
+
+def test_padding_right():
+    pass
+
+
+def test_unset_padding_right():
+    pass
+
+
+def test_padding_bottom():
+    pass
+
+
+def test_unset_padding_bottom():
+    pass
+
+
+def test_margin():
+    pass
+
+
+def test_margin_top():
+    pass
+
+
+def test_unset_margin_top():
+    pass
+
+
+def test_margin_left():
+    pass
+
+
+def test_unset_margin_left():
+    pass
+
+
+def test_margin_right():
+    pass
+
+
+def test_unset_margin_right():
+    pass
+
+
+def test_margin_bottom():
+    pass
+
+
+def test_unset_margin_bottom():
+    pass
+
+
+def test_maybe_convert_tabs():
+    pass
+
+
+def test_style_border():
+    pass
+
+
+def test_apply_border():
+    pass
+
+
+def test_apply_margin():
+    pass
+
+
+def test_render():
+    pass

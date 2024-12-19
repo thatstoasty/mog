@@ -1058,7 +1058,7 @@ struct Style:
         new._set_attribute(PropKey.BORDER_LEFT, left)
         return new
 
-    fn border_top(self, top: Bool) -> Style:
+    fn border_top(self, /, top: Bool = True) -> Style:
         """Sets the top border to be rendered or not.
 
         Args:
@@ -1081,7 +1081,7 @@ struct Style:
         new._unset_attribute(PropKey.BORDER_TOP)
         return new
 
-    fn border_bottom(self, bottom: Bool) -> Style:
+    fn border_bottom(self, /, bottom: Bool = True) -> Style:
         """Sets the bottom border to be rendered or not.
 
         Args:
@@ -1104,7 +1104,7 @@ struct Style:
         new._unset_attribute(PropKey.BORDER_BOTTOM)
         return new
 
-    fn border_left(self, left: Bool) -> Style:
+    fn border_left(self, /, left: Bool = True) -> Style:
         """Sets the left border to be rendered or not.
 
         Args:
@@ -1127,7 +1127,7 @@ struct Style:
         new._unset_attribute(PropKey.BORDER_LEFT)
         return new
 
-    fn border_right(self, right: Bool) -> Style:
+    fn border_right(self, /, right: Bool = True) -> Style:
         """Sets the right border to be rendered or not.
 
         Args:
@@ -1158,6 +1158,13 @@ struct Style:
 
         Returns:
             A new Style with the border foreground color rule set.
+        
+        #### Notes:
+        The colors are applied in the order of top, right, bottom, left.
+        * If one color is passed, it is applied to all sides.
+        * If two colors are passed, the first is applied to the top and bottom, and the second to the left and right.
+        * If three colors are passed, the first is applied to the top, the second to the left and right, and the third to the bottom.
+        * If four colors are passed, the first is applied to the top, the second to the right, the third to the bottom, and the fourth to the left.
         """
         var top: AnyTerminalColor = NoColor()
         var bottom: AnyTerminalColor = NoColor()
@@ -1194,7 +1201,7 @@ struct Style:
         new._set_attribute(PropKey.BORDER_LEFT_FOREGROUND, left)
         return new
 
-    fn border_top_foreground(self, color: AnyTerminalColor) -> Style:
+    fn border_top_foreground(self, /, color: AnyTerminalColor) -> Style:
         """Set the top border foreground color.
 
         Args:
@@ -1218,7 +1225,7 @@ struct Style:
         new._unset_attribute(PropKey.BORDER_TOP_FOREGROUND)
         return new
 
-    fn border_right_foreground(self, color: AnyTerminalColor) -> Style:
+    fn border_right_foreground(self, /, color: AnyTerminalColor) -> Style:
         """Set the right border foreground color.
 
         Args:
@@ -1242,7 +1249,7 @@ struct Style:
         new._unset_attribute(PropKey.BORDER_RIGHT_FOREGROUND)
         return new
 
-    fn border_left_foreground(self, color: AnyTerminalColor) -> Style:
+    fn border_left_foreground(self, /, color: AnyTerminalColor) -> Style:
         """Set the left border foreground color.
 
         Args:
@@ -1266,7 +1273,7 @@ struct Style:
         new._unset_attribute(PropKey.BORDER_LEFT_FOREGROUND)
         return new
 
-    fn border_bottom_foreground(self, color: AnyTerminalColor) -> Style:
+    fn border_bottom_foreground(self, /, color: AnyTerminalColor) -> Style:
         """Set the bottom border foreground color.
 
         Args:
@@ -1334,7 +1341,7 @@ struct Style:
         new._set_attribute(PropKey.BORDER_LEFT_BACKGROUND, left)
         return new
 
-    fn border_top_background(self, color: AnyTerminalColor) -> Style:
+    fn border_top_background(self, /, color: AnyTerminalColor) -> Style:
         """Set the top border background color.
 
         Args:
@@ -1358,7 +1365,7 @@ struct Style:
         new._unset_attribute(PropKey.BORDER_TOP_BACKGROUND)
         return new
 
-    fn border_right_background(self, color: AnyTerminalColor) -> Style:
+    fn border_right_background(self, /, color: AnyTerminalColor) -> Style:
         """Set the right border background color.
 
         Args:
@@ -1382,7 +1389,7 @@ struct Style:
         new._unset_attribute(PropKey.BORDER_RIGHT_BACKGROUND)
         return new
 
-    fn border_left_background(self, color: AnyTerminalColor) -> Style:
+    fn border_left_background(self, /, color: AnyTerminalColor) -> Style:
         """Set the left border background color.
 
         Args:
@@ -1406,7 +1413,7 @@ struct Style:
         new._unset_attribute(PropKey.BORDER_LEFT_BACKGROUND)
         return new
 
-    fn border_bottom_background(self, color: AnyTerminalColor) -> Style:
+    fn border_bottom_background(self, /, color: AnyTerminalColor) -> Style:
         """Set the bottom border background color.
 
         Args:
@@ -1433,24 +1440,21 @@ struct Style:
     fn padding(self, *widths: Int) -> Style:
         """Shorthand method for setting padding on all sides at once.
 
-        With one argument, the value is applied to all sides.
-
-        With two arguments, the value is applied to the vertical and horizontal
-        sides, in that order.
-
-        With three arguments, the value is applied to the top side, the horizontal
-        sides, and the bottom side, in that order.
-
-        With four arguments, the value is applied clockwise starting from the top
-        side, followed by the right side, then the bottom, and finally the left.
-
-        With more than four arguments no padding will be added.
-
         Args:
             widths: The padding widths to apply.
 
         Returns:
             A new Style with the padding rule set.
+        
+        #### Notes:
+        * With one argument, the value is applied to all sides.
+        * With two arguments, the value is applied to the vertical and horizontal
+        sides, in that order.
+        * With three arguments, the value is applied to the top side, the horizontal
+        sides, and the bottom side, in that order.
+        * With four arguments, the value is applied clockwise starting from the top
+        side, followed by the right side, then the bottom, and finally the left.
+        * With more than four arguments no padding will be added.
         """
         var top = 0
         var bottom = 0
@@ -1487,7 +1491,7 @@ struct Style:
         new._set_attribute(PropKey.PADDING_LEFT, left)
         return new
 
-    fn padding_top(self, width: Int) -> Style:
+    fn padding_top(self, /, width: Int) -> Style:
         """Set the padding on the top side.
 
         Args:
@@ -1510,7 +1514,7 @@ struct Style:
         new._unset_attribute(PropKey.PADDING_TOP)
         return new
 
-    fn padding_right(self, width: Int) -> Style:
+    fn padding_right(self, /, width: Int) -> Style:
         """Set the padding on the right side.
 
         Args:
@@ -1533,7 +1537,7 @@ struct Style:
         new._unset_attribute(PropKey.PADDING_RIGHT)
         return new
 
-    fn padding_bottom(self, width: Int) -> Style:
+    fn padding_bottom(self, /, width: Int) -> Style:
         """Set the padding on the bottom side.
 
         Args:
@@ -1556,7 +1560,7 @@ struct Style:
         new._unset_attribute(PropKey.PADDING_BOTTOM)
         return new
 
-    fn padding_left(self, width: Int) -> Style:
+    fn padding_left(self, /, width: Int) -> Style:
         """Set the padding on the left side.
 
         Args:
@@ -1636,7 +1640,7 @@ struct Style:
         new._set_attribute(PropKey.MARGIN_LEFT, left)
         return new
 
-    fn margin_top(self, width: Int) -> Style:
+    fn margin_top(self, /, width: Int) -> Style:
         """Set the margin on the top side.
 
         Args:
@@ -1659,7 +1663,7 @@ struct Style:
         new._unset_attribute(PropKey.MARGIN_TOP)
         return new
 
-    fn margin_right(self, width: Int) -> Style:
+    fn margin_right(self, /, width: Int) -> Style:
         """Set the margin on the right side.
 
         Args:
@@ -1682,7 +1686,7 @@ struct Style:
         new._unset_attribute(PropKey.MARGIN_RIGHT)
         return new
 
-    fn margin_bottom(self, width: Int) -> Style:
+    fn margin_bottom(self, /, width: Int) -> Style:
         """Set the margin on the bottom side.
 
         Args:
@@ -1705,7 +1709,7 @@ struct Style:
         new._unset_attribute(PropKey.MARGIN_BOTTOM)
         return new
 
-    fn margin_left(self, width: Int) -> Style:
+    fn margin_left(self, /, width: Int) -> Style:
         """Set the margin on the left side.
 
         Args:
@@ -1728,7 +1732,7 @@ struct Style:
         new._unset_attribute(PropKey.MARGIN_LEFT)
         return new
 
-    fn margin_background(self, color: AnyTerminalColor) -> Style:
+    fn margin_background(self, /, color: AnyTerminalColor) -> Style:
         """Set the margin on the background color.
 
         Args:

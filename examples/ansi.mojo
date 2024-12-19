@@ -11,4 +11,5 @@ fn main():
         .row("Milk Tea", s.render("Also milky"))
         .row("Actual milk", s.render("Milky as well"))
     )
+    print(repr(table.render()))
     print(table.render())

@@ -35,7 +35,6 @@ jobs:
       - name: Run tests
         run: |
           source $HOME/.bash_profile
-          printenv
           magic run tests
           magic run benchmarks
           magic run examples

@@ -130,7 +130,6 @@ def test_inline():
     testing.assert_equal(style.render("hello"), "hello")
 
     # Turn on inline (flag has a value set), but then set it to False (flag has value set, value is False).
-    print(repr(style.inline(False).render("hello")))
     testing.assert_equal(style.inline(False).render("hello"), "           \n +++++++++ \n +       + \n + hello + \n +       + \n +++++++++ \n           ")
 
 
@@ -360,7 +359,8 @@ def test_border_bottom():
 
 
 def test_border_foreground():
-    var style = mog.Style(mog.ANSI).border(mog.PLUS_BORDER)
+    alias style = ansi_style.border(mog.PLUS_BORDER)
+    print(style.renderer.profile.value)
 
     # One for all sides
     testing.assert_equal(style.border_foreground(mog.Color(12)).render("hello"), "\x1b[;94m+++++++\x1b[0m\n\x1b[;94m+\x1b[0mhello\x1b[;94m+\x1b[0m\n\x1b[;94m+++++++\x1b[0m")
@@ -376,7 +376,6 @@ def test_border_foreground():
 
 
 def test_border_top_foreground():
-    print(repr(ansi_style.border(mog.PLUS_BORDER).border_top_foreground(mog.Color(12)).render("hello")))
     testing.assert_equal(ansi_style.border(mog.PLUS_BORDER).border_top_foreground(mog.Color(12)).render("hello"), "\x1b[;94m+++++++\x1b[0m\n+hello+\n+++++++")
 
 
@@ -385,7 +384,6 @@ def test_unset_border_top_foreground():
 
 
 def test_border_left_foreground():
-    print(repr(ansi_style.border(mog.PLUS_BORDER).border_left_foreground(mog.Color(12)).render("hello")))
     testing.assert_equal(ansi_style.border(mog.PLUS_BORDER).border_left_foreground(mog.Color(12)).render("hello"), "+++++++\n\x1b[;94m+\x1b[0mhello+\n+++++++")
 
 
@@ -394,7 +392,6 @@ def test_unset_border_left_foreground():
 
 
 def test_border_right_foreground():
-    print(repr(ansi_style.border(mog.PLUS_BORDER).border_right_foreground(mog.Color(12)).render("hello")))
     testing.assert_equal(ansi_style.border(mog.PLUS_BORDER).border_right_foreground(mog.Color(12)).render("hello"), "+++++++\n+hello\x1b[;94m+\x1b[0m\n+++++++")
 
 

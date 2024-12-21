@@ -340,7 +340,7 @@ def test_border_right():
     # Turn on border right (flag has a value set), but then set it to False (flag has value set, value is False).
     # testing.assert_equal(style.border_right(False).render("hello"), "hello")
 
-
+# TODO: All border unsets not working correctly! At least it seems like it. All sides set to false, then activating one and deactivating it makes all sides render!?
 # def test_unset_border_right():
 #     alias style = ansi_style.border(mog.PLUS_BORDER, False, False, False, False).border_right().unset_border_right()
 #     testing.assert_equal(style.render("hello"), "hello")
@@ -376,7 +376,8 @@ def test_border_foreground():
 
 
 def test_border_top_foreground():
-    pass
+    print(repr(ansi_style.border(mog.PLUS_BORDER).border_top_foreground(mog.Color(12)).render("hello")))
+    testing.assert_equal(ansi_style.border(mog.PLUS_BORDER).border_top_foreground(mog.Color(12)).render("hello"), "\x1b[;94m+++++++\x1b[0m\n+hello+\n+++++++")
 
 
 def test_unset_border_top_foreground():
@@ -384,7 +385,8 @@ def test_unset_border_top_foreground():
 
 
 def test_border_left_foreground():
-    pass
+    print(repr(ansi_style.border(mog.PLUS_BORDER).border_left_foreground(mog.Color(12)).render("hello")))
+    testing.assert_equal(ansi_style.border(mog.PLUS_BORDER).border_left_foreground(mog.Color(12)).render("hello"), "+++++++\n\x1b[;94m+\x1b[0mhello+\n+++++++")
 
 
 def test_unset_border_left_foreground():
@@ -392,7 +394,8 @@ def test_unset_border_left_foreground():
 
 
 def test_border_right_foreground():
-    pass
+    print(repr(ansi_style.border(mog.PLUS_BORDER).border_right_foreground(mog.Color(12)).render("hello")))
+    testing.assert_equal(ansi_style.border(mog.PLUS_BORDER).border_right_foreground(mog.Color(12)).render("hello"), "+++++++\n+hello\x1b[;94m+\x1b[0m\n+++++++")
 
 
 def test_unset_border_right_foreground():
@@ -400,7 +403,8 @@ def test_unset_border_right_foreground():
 
 
 def test_border_bottom_foreground():
-    pass
+    print(repr(ansi_style.border(mog.PLUS_BORDER).border_bottom_foreground(mog.Color(12)).render("hello")))
+    testing.assert_equal(ansi_style.border(mog.PLUS_BORDER).border_bottom_foreground(mog.Color(12)).render("hello"), "+++++++\n+hello+\n\x1b[;94m+++++++\x1b[0m")
 
 
 def test_unset_border_bottom_foreground():
@@ -408,11 +412,24 @@ def test_unset_border_bottom_foreground():
 
 
 def test_border_background():
-    pass
+    alias style = ansi_style.border(mog.PLUS_BORDER)
+
+    # One for all sides
+    testing.assert_equal(style.border_background(mog.Color(12)).render("hello"), "\x1b[;104m+++++++\x1b[0m\n\x1b[;104m+\x1b[0mhello\x1b[;104m+\x1b[0m\n\x1b[;104m+++++++\x1b[0m")
+
+    # Two colors for top/bottom and left/right
+    testing.assert_equal(style.border_background(mog.Color(12), mog.Color(13)).render("hello"), "\x1b[;104m+++++++\x1b[0m\n\x1b[;105m+\x1b[0mhello\x1b[;105m+\x1b[0m\n\x1b[;104m+++++++\x1b[0m")
+
+    # Three colors for top, left/right, and bottom
+    testing.assert_equal(style.border_background(mog.Color(12), mog.Color(13), mog.Color(14)).render("hello"), "\x1b[;104m+++++++\x1b[0m\n\x1b[;105m+\x1b[0mhello\x1b[;105m+\x1b[0m\n\x1b[;106m+++++++\x1b[0m")
+
+    # Four colors for top, right, bottom, left
+    testing.assert_equal(style.border_background(mog.Color(12), mog.Color(13), mog.Color(14), mog.Color(15)).render("hello"), "\x1b[;104m+++++++\x1b[0m\n\x1b[;107m+\x1b[0mhello\x1b[;105m+\x1b[0m\n\x1b[;106m+++++++\x1b[0m")
 
 
 def test_border_top_background():
-    pass
+    alias style = ansi_style.border(mog.PLUS_BORDER).border_top_background(mog.Color(12))
+    testing.assert_equal(style.render("hello"), "\x1b[;104m+++++++\x1b[0m\n+hello+\n+++++++")
 
 
 def test_unset_border_top_background():
@@ -420,7 +437,8 @@ def test_unset_border_top_background():
 
 
 def test_border_left_background():
-    pass
+    alias style = ansi_style.border(mog.PLUS_BORDER).border_left_background(mog.Color(12))
+    testing.assert_equal(style.render("hello"), "+++++++\n\x1b[;104m+\x1b[0mhello+\n+++++++")
 
 
 def test_unset_border_left_background():
@@ -428,7 +446,8 @@ def test_unset_border_left_background():
 
 
 def test_border_right_background():
-    pass
+    alias style = ansi_style.border(mog.PLUS_BORDER).border_right_background(mog.Color(12))
+    testing.assert_equal(style.render("hello"), "+++++++\n+hello\x1b[;104m+\x1b[0m\n+++++++")
 
 
 def test_unset_border_right_background():
@@ -436,7 +455,8 @@ def test_unset_border_right_background():
 
 
 def test_border_bottom_background():
-    pass
+    alias style = ansi_style.border(mog.PLUS_BORDER).border_bottom_background(mog.Color(12))
+    testing.assert_equal(style.render("hello"), "+++++++\n+hello+\n\x1b[;104m+++++++\x1b[0m")
 
 
 def test_unset_border_bottom_background():
@@ -444,21 +464,32 @@ def test_unset_border_bottom_background():
 
 
 def test_padding():
+    """Test padding on all sides, top/bottom and left/right, top, left/right, bottom, and all sides.
+    Note: padding is applied inside of the text area. As opposed to margin which is applied outside the text area.
+    """
+    alias border_style = ansi_style.border(mog.PLUS_BORDER)
+
     # Padding on all sides
     testing.assert_equal(ansi_style.padding(1).render("hello"), "       \n hello \n       ")
+    testing.assert_equal(border_style.padding(1).render("hello"), "+++++++++\n+       +\n+ hello +\n+       +\n+++++++++")
 
     # Top/bottom and left/right
     testing.assert_equal(ansi_style.padding(1, 2).render("hello"), "         \n  hello  \n         ")
+    testing.assert_equal(border_style.padding(1, 2).render("hello"), "+++++++++++\n+         +\n+  hello  +\n+         +\n+++++++++++")
 
     # Top, left/right, bottom
     testing.assert_equal(ansi_style.padding(1, 2, 3).render("hello"), "         \n  hello  \n         \n         \n         ")
+    testing.assert_equal(border_style.padding(1, 2, 3).render("hello"), "+++++++++++\n+         +\n+  hello  +\n+         +\n+         +\n+         +\n+++++++++++")
 
     # All sides
     testing.assert_equal(ansi_style.padding(1, 2, 3, 4).render("hello"), "           \n    hello  \n           \n           \n           ")
+    testing.assert_equal(border_style.padding(1, 2, 3, 4).render("hello"), "+++++++++++++\n+           +\n+    hello  +\n+           +\n+           +\n+           +\n+++++++++++++")
 
 
 def test_padding_top():
-    pass
+    alias border_style = ansi_style.border(mog.PLUS_BORDER)
+    testing.assert_equal(ansi_style.padding_top(1).render("hello"), "     \nhello")
+    testing.assert_equal(border_style.padding_top(1).render("hello"), "+++++++\n+     +\n+hello+\n+++++++")
 
 
 def test_unset_padding_top():
@@ -466,7 +497,9 @@ def test_unset_padding_top():
 
 
 def test_padding_left():
-    pass
+    alias border_style = ansi_style.border(mog.PLUS_BORDER)
+    testing.assert_equal(ansi_style.padding_left(1).render("hello"), " hello")
+    testing.assert_equal(border_style.padding_left(1).render("hello"), "++++++++\n+ hello+\n++++++++")
 
 
 def test_unset_padding_left():
@@ -474,7 +507,9 @@ def test_unset_padding_left():
 
 
 def test_padding_right():
-    pass
+    alias border_style = ansi_style.border(mog.PLUS_BORDER)
+    testing.assert_equal(ansi_style.padding_right(1).render("hello"), "hello ")
+    testing.assert_equal(border_style.padding_right(1).render("hello"), "++++++++\n+hello +\n++++++++")
 
 
 def test_unset_padding_right():
@@ -482,7 +517,9 @@ def test_unset_padding_right():
 
 
 def test_padding_bottom():
-    pass
+    alias border_style = ansi_style.border(mog.PLUS_BORDER)
+    testing.assert_equal(ansi_style.padding_bottom(1).render("hello"), "hello\n     ")
+    testing.assert_equal(border_style.padding_bottom(1).render("hello"), "+++++++\n+hello+\n+     +\n+++++++")
 
 
 def test_unset_padding_bottom():
@@ -490,11 +527,32 @@ def test_unset_padding_bottom():
 
 
 def test_margin():
-    pass
+    """Test margin on all sides, top/bottom and left/right, top, left/right, bottom, and all sides.
+    Note: margins are applied outside of the text area. As opposed to padding which is applied inside the text area.
+    """
+    alias border_style = ansi_style.border(mog.PLUS_BORDER)
+
+    # Margin on all sides
+    testing.assert_equal(ansi_style.margin(1).render("hello"), "       \n hello \n       ")
+    testing.assert_equal(border_style.margin(1).render("hello"), "         \n +++++++ \n +hello+ \n +++++++ \n         ")
+
+    # Top/bottom and left/right
+    testing.assert_equal(ansi_style.margin(1, 2).render("hello"), "         \n  hello  \n         ")
+    testing.assert_equal(border_style.margin(1, 2).render("hello"), "           \n  +++++++  \n  +hello+  \n  +++++++  \n           ")
+
+    # Top, left/right, bottom
+    testing.assert_equal(ansi_style.margin(1, 2, 3).render("hello"), "         \n  hello  \n         \n         \n         ")
+    testing.assert_equal(border_style.margin(1, 2, 3).render("hello"), "           \n  +++++++  \n  +hello+  \n  +++++++  \n           \n           \n           ")
+
+    # All sides
+    testing.assert_equal(ansi_style.margin(1, 2, 3, 4).render("hello"), "           \n    hello  \n           \n           \n           ")
+    testing.assert_equal(border_style.margin(1, 2, 3, 4).render("hello"), "             \n    +++++++  \n    +hello+  \n    +++++++  \n             \n             \n             ")
 
 
 def test_margin_top():
-    pass
+    alias border_style = ansi_style.border(mog.PLUS_BORDER)
+    testing.assert_equal(ansi_style.margin_top(1).render("hello"), "     \nhello")
+    testing.assert_equal(border_style.margin_top(1).render("hello"), "       \n+++++++\n+hello+\n+++++++")
 
 
 def test_unset_margin_top():
@@ -502,7 +560,9 @@ def test_unset_margin_top():
 
 
 def test_margin_left():
-    pass
+    alias border_style = ansi_style.border(mog.PLUS_BORDER)
+    testing.assert_equal(ansi_style.margin_left(1).render("hello"), " hello")
+    testing.assert_equal(border_style.margin_left(1).render("hello"), " +++++++\n +hello+\n +++++++")
 
 
 def test_unset_margin_left():
@@ -510,7 +570,9 @@ def test_unset_margin_left():
 
 
 def test_margin_right():
-    pass
+    alias border_style = ansi_style.border(mog.PLUS_BORDER)
+    testing.assert_equal(ansi_style.margin_right(1).render("hello"), "hello ")
+    testing.assert_equal(border_style.margin_right(1).render("hello"), "+++++++ \n+hello+ \n+++++++ ")
 
 
 def test_unset_margin_right():
@@ -518,7 +580,9 @@ def test_unset_margin_right():
 
 
 def test_margin_bottom():
-    pass
+    alias border_style = ansi_style.border(mog.PLUS_BORDER)
+    testing.assert_equal(ansi_style.margin_bottom(1).render("hello"), "hello\n     ")
+    testing.assert_equal(border_style.margin_bottom(1).render("hello"), "+++++++\n+hello+\n+++++++\n       ")
 
 
 def test_unset_margin_bottom():
@@ -526,7 +590,14 @@ def test_unset_margin_bottom():
 
 
 def test_maybe_convert_tabs():
-    pass
+    # Default tab width of 4
+    testing.assert_equal(ansi_style._maybe_convert_tabs("\tHello world!"), "    Hello world!")
+
+    # Set tab width to 1
+    testing.assert_equal(ansi_style.tab_width(1)._maybe_convert_tabs("\tHello world!"), " Hello world!")
+
+    # Set tab width to -1, which disables `\t` conversion to spaces.
+    testing.assert_equal(ansi_style.tab_width(-1)._maybe_convert_tabs("\tHello world!"), "\tHello world!")
 
 
 def test_style_border():
@@ -534,7 +605,22 @@ def test_style_border():
 
 
 def test_apply_border():
-    pass
+    # Uses no border by default
+    testing.assert_equal(ansi_style._apply_border("hello"), "hello")
+
+    # Standard pathway for applying a border with no other styling.
+    alias border_style = ansi_style.border(mog.PLUS_BORDER)
+    testing.assert_equal(border_style._apply_border("hello"), "+++++++\n+hello+\n+++++++")
+
+    # Render with individual border sides disabled.
+    testing.assert_equal(border_style.unset_border_top()._apply_border("hello"), "+hello+\n+++++++")
+    testing.assert_equal(border_style.unset_border_left()._apply_border("hello"), "++++++\nhello+\n++++++")
+    testing.assert_equal(border_style.unset_border_right()._apply_border("hello"), "++++++\n+hello\n++++++")
+    testing.assert_equal(border_style.unset_border_bottom()._apply_border("hello"), "+++++++\n+hello+")
+
+    # If the border sides are set, but the character used is an empty string "", then it should be replaced with a whitespace " ".
+    # testing.assert_equal(ansi_style.border(mog.NO_BORDER).unset_border_top().unset_border_bottom()._apply_border("hello"), " hello ")
+
 
 
 def test_apply_margin():

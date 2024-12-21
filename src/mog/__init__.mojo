@@ -14,7 +14,7 @@ from .border import (
     HIDDEN_BORDER,
     NO_BORDER,
 )
-from .table import Table, default_styles, StringData, new_table, Data, Filter
+from .table import Table, default_styles, StringData, Data, Filter
 from .size import get_height, get_width, get_dimensions
 from .color import (
     NoColor,

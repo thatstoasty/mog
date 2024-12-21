@@ -105,7 +105,7 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
     If you just want to align to the left, right or center you may as well just
     use the helper constants Top, Center, and Bottom.
 
-    Examples:
+    #### Examples:
     ```mojo
     import mog
 
@@ -152,7 +152,7 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
         if len(blocks[i]) >= max_height:
             continue
 
-        var extra_lines = List[String]()
+        var extra_lines = List[String](capacity=max_height - len(blocks[i]))
         extra_lines.resize(max_height - len(blocks[i]), "")
 
         if pos == top:
@@ -176,11 +176,10 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
     # remember, all blocks have the same number of members now
     for i in range(len(blocks[0])):
         for j in range(len(blocks)):
-            var block = blocks[j]
-            result.write(block[i])
+            result.write(blocks[j][i])
 
             # Also make lines the same length by padding with whitespace
-            var spaces = WHITESPACE * (max_widths[j] - printable_rune_width(block[i]))
+            var spaces = WHITESPACE * (max_widths[j] - printable_rune_width(blocks[j][i]))
             result.write(spaces)
 
         if i < len(blocks[0]) - 1:

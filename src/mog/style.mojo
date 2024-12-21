@@ -1147,7 +1147,7 @@ struct Style:
             A new Style with the border rule unset.
         """
         var new = self
-        new._unset_attribute(PropKey.TAB_WIDTH)
+        new._unset_attribute(PropKey.BORDER_RIGHT)
         return new
 
     fn border_foreground(self, *colors: AnyTerminalColor) -> Style:
@@ -1447,6 +1447,8 @@ struct Style:
             A new Style with the padding rule set.
         
         #### Notes:
+        Padding is applied inside the text area, inside of the border if there is one.
+        Margin is applied outside the text area, outside of the border if there is one.
         * With one argument, the value is applied to all sides.
         * With two arguments, the value is applied to the vertical and horizontal
         sides, in that order.
@@ -1499,6 +1501,9 @@ struct Style:
 
         Returns:
             A new Style with the padding top rule set.
+        
+        #### Notes:
+        Padding is applied inside the text area, inside of the border if there is one.
         """
         var new = self
         new._set_attribute(PropKey.PADDING_TOP, width)
@@ -1522,6 +1527,9 @@ struct Style:
 
         Returns:
             A new Style with the padding right rule set.
+        
+        #### Notes:
+        Padding is applied inside the text area, inside of the border if there is one.
         """
         var new = self
         new._set_attribute(PropKey.PADDING_RIGHT, width)
@@ -1545,6 +1553,9 @@ struct Style:
 
         Returns:
             A new Style with the padding bottom rule set.
+        
+        #### Notes:
+        Padding is applied inside the text area, inside of the border if there is one.
         """
         var new = self
         new._set_attribute(PropKey.PADDING_BOTTOM, width)
@@ -1568,6 +1579,9 @@ struct Style:
 
         Returns:
             A new Style with the padding left rule set.
+        
+        #### Notes:
+        Padding is applied inside the text area, inside of the border if there is one.
         """
         var new = self
         new._set_attribute(PropKey.PADDING_LEFT, width)
@@ -1584,26 +1598,25 @@ struct Style:
         return new
 
     fn margin(self, *widths: Int) -> Style:
-        """Shorthand method for setting padding on all sides at once.
-
-        With one argument, the value is applied to all sides.
-
-        With two arguments, the value is applied to the vertical and horizontal
-        sides, in that order.
-
-        With three arguments, the value is applied to the top side, the horizontal
-        sides, and the bottom side, in that order.
-
-        With four arguments, the value is applied clockwise starting from the top
-        side, followed by the right side, then the bottom, and finally the left.
-
-        With more than four arguments no padding will be added.
+        """Shorthand method for setting margin on all sides at once.
 
         Args:
             widths: The padding widths to apply.
 
         Returns:
             A new Style with the margin rule set.
+        
+        #### Notes:
+        Padding is applied inside the text area, inside of the border if there is one.
+        Margin is applied outside the text area, outside of the border if there is one.
+        * With one argument, the value is applied to all sides.
+        * With two arguments, the value is applied to the vertical and horizontal
+        sides, in that order.
+        * With three arguments, the value is applied to the top side, the horizontal
+        sides, and the bottom side, in that order.
+        * With four arguments, the value is applied clockwise starting from the top
+        side, followed by the right side, then the bottom, and finally the left.
+        * With more than four arguments no margin will be added.
         """
         var top = 0
         var bottom = 0
@@ -1648,6 +1661,9 @@ struct Style:
 
         Returns:
             A new Style with the margin top rule set.
+        
+        #### Notes:
+        Margin is applied uotside the text area, outside of the border if there is one.
         """
         var new = self
         new._set_attribute(PropKey.MARGIN_TOP, width)
@@ -1671,6 +1687,9 @@ struct Style:
 
         Returns:
             A new Style with the margin right rule set.
+        
+        #### Notes:
+        Margin is applied uotside the text area, outside of the border if there is one.
         """
         var new = self
         new._set_attribute(PropKey.MARGIN_RIGHT, width)
@@ -1694,6 +1713,9 @@ struct Style:
 
         Returns:
             A new Style with the margin bottom rule set.
+        
+        #### Notes:
+        Margin is applied uotside the text area, outside of the border if there is one.
         """
         var new = self
         new._set_attribute(PropKey.MARGIN_BOTTOM, width)
@@ -1717,6 +1739,9 @@ struct Style:
 
         Returns:
             A new Style with the margin left rule set.
+        
+        #### Notes:
+        Margin is applied uotside the text area, outside of the border if there is one.
         """
         var new = self
         new._set_attribute(PropKey.MARGIN_LEFT, width)

@@ -58,15 +58,28 @@ struct StringData(Data):
     var _columns: Int
     """The number of columns in the table."""
 
-    fn __init__(out self, rows: List[List[String]] = List[List[String]](), columns: Int = 0):
+    fn __init__(out self, rows: List[List[String]] = List[List[String]]()):
         """Initializes a new StringData instance.
 
         Args:
             rows: The rows of the table.
-            columns: The number of columns in the table.
         """
         self._rows = rows
-        self._columns = columns
+        self._columns = len(rows)
+    
+    fn __init__(out self, *rows: List[String]):
+        """Initializes a new StringData instance.
+
+        Args:
+            rows: The rows of the table.
+        """
+        var widest = 0
+        var r = List[List[String]](capacity=len(rows))
+        for row in rows:
+            widest = max(widest, len(row[]))
+            r.append(row[])
+        self._rows = r
+        self._columns = widest
 
     # TODO: Can't return ref String because it depends on the origin of a struct attribute
     # and Traits do not support variables yet.
@@ -106,19 +119,38 @@ struct StringData(Data):
         """
         self._columns = max(self._columns, len(row))
         self._rows.append(row)
-
-    fn item(mut self, rows: List[String]) -> Self:
+    
+    fn append(mut self, *elements: String):
         """Appends the given row to the table.
 
         Args:
-            rows: The row to append.
+            elements: The row to append.
+        """
+        self._columns = max(self._columns, len(elements))
+        var row = List[String](capacity=len(elements))
+        for element in elements:
+            row.append(element[])
+        self._rows.append(row)
+    
+    fn __add__(self, other: Self) -> Self:
+        """Concatenates two StringData instances.
+
+        Args:
+            other: The other StringData instance to concatenate.
 
         Returns:
-            The updated table.
+            The concatenated StringData instance.
         """
-        self._columns = max(self._columns, len(rows))
-        self._rows.append(rows)
-        return self
+        return StringData(self._rows + other._rows, max(self.columns(), other.columns()))
+    
+    fn __iadd__(mut self, other: Self):
+        """Concatenates two StringData instances in place.
+
+        Args:
+            other: The other StringData instance to concatenate.
+        """
+        self._rows.extend(other._rows)
+        self._columns = max(self.columns(), other.columns())
 
 
 alias FilterFunction = fn (row: Int) -> Bool
@@ -126,7 +158,7 @@ alias FilterFunction = fn (row: Int) -> Bool
 
 
 @value
-struct Filter[DataType: Data](Data):
+struct Filter[DataType: Data, //](Data):
     """Applies a filter function on some data.
 
     Parameters:
@@ -135,19 +167,8 @@ struct Filter[DataType: Data](Data):
 
     var data: DataType
     """The data of the table."""
-    var filter_function: FilterFunction
+    var filter: FilterFunction
     """The filter function to apply."""
-
-    fn filter(self, data: Int) -> Bool:
-        """Applies the given filter function to the data.
-
-        Args:
-            data: The data to filter.
-
-        Returns:
-            The filtered data.
-        """
-        return self.filter_function(data)
 
     fn __getitem__(self, row: Int, column: Int) -> String:
         """Returns the contents of the cell at the given index.

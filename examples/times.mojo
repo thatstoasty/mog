@@ -1,5 +1,5 @@
 from mog.join import join_vertical, join_horizontal
-from mog.table import new_table, Table, StringData
+from mog.table import Table, StringData
 from mog.table.table import default_styles
 from mog.border import (
     STAR_BORDER,
@@ -41,9 +41,7 @@ def test_table():
         border_top=True,
         data=StringData(),
         width=50,
-    )
-    table.style_function = dummy_style_func
-    table = table.row("French", "Bonjour", "Salut").row("Russian", "Zdravstvuyte", "Privet")
+    ).set_style(dummy_style_func).row("French", "Bonjour", "Salut").row("Russian", "Zdravstvuyte", "Privet")
 
     var headerless_start_time = perf_counter_ns()
     print(table.render())

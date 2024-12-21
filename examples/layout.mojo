@@ -135,7 +135,7 @@ fn build_dialog_box() -> String:
 
     return place(
         width,
-        8,
+        9,
         position.center,
         position.center,
         dialog_box_style.render(ui),

@@ -373,6 +373,14 @@ struct Style:
             key: The key to set.
         """
         self._properties.set(key, False)
+    
+    fn _get_mist_style(self) -> mist.Style:
+        """Returns a the `mist.Style` using the same profile as the `mog.Style` for the style.
+
+        Returns:
+            The mist profile.
+        """
+        return mist.Style(self._renderer.profile)
 
     fn renderer(self, /, renderer: Renderer) -> Style:
         """Set the renderer for the style.
@@ -1814,7 +1822,7 @@ struct Style:
         if fg.isa[NoColor]() and bg.isa[NoColor]():
             return border
 
-        var styler = mist.Style().foreground(color=any_terminal_color_to_any_color(fg, self._renderer)).background(
+        var styler = self._get_mist_style().foreground(color=any_terminal_color_to_any_color(fg, self._renderer)).background(
             color=any_terminal_color_to_any_color(bg, self._renderer)
         )
         return styler.render(border)
@@ -1960,7 +1968,7 @@ struct Style:
         var left_margin = self._get_as_int(PropKey.MARGIN_LEFT)
 
         var bgc = self._get_as_color(PropKey.MARGIN_BACKGROUND)
-        var styler = mist.Style(self._renderer.profile).background(color=any_terminal_color_to_any_color(bgc, self._renderer))
+        var styler = self._get_mist_style().background(color=any_terminal_color_to_any_color(bgc, self._renderer))
 
         # Add left and right margin
         text = pad_right(pad_left(text, left_margin, styler), right_margin, styler)
@@ -1997,7 +2005,7 @@ struct Style:
 
         texts.each_idx[write_text]()
 
-        var term_style = mist.Style(self._renderer.profile)
+        var term_style = self._get_mist_style()
         var term_style_space = term_style
         var term_style_whitespace = term_style
 
@@ -2108,13 +2116,13 @@ struct Style:
         # Padding
         if not inline:
             if left_padding > 0:
-                var style = mist.Style(self._renderer.profile)
+                var style = self._get_mist_style()
                 if color_whitespace or use_whitespace_styler:
                     style = term_style_whitespace
                 result = pad_left(result, left_padding, style)
 
             if right_padding > 0:
-                var style = mist.Style(self._renderer.profile)
+                var style = self._get_mist_style()
                 if color_whitespace or use_whitespace_styler:
                     style = term_style_whitespace
                 result = pad_right(result, right_padding, style)
@@ -2132,7 +2140,7 @@ struct Style:
             result = align_text_vertical(result, vertical_align, height)
         
         if width != 0 or get_widest_line(result) != 0:
-            var style = mist.Style(self._renderer.profile)
+            var style = self._get_mist_style()
             if color_whitespace or use_whitespace_styler:
                 style = term_style_whitespace
             result = align_text_horizontal(result, horizontal_align, width, style)
@@ -2161,7 +2169,7 @@ struct Style:
         #     return transform(result)
 
         # if width != 0 or get_widest_line(result) != 0:
-        #     var style = mist.Style(self._renderer.profile)
+        #     var style = self._get_mist_style()
         #     if color_whitespace or use_whitespace_styler:
         #         style = term_style_whitespace
         #     result = align_text_horizontal(result, horizontal_align, width, style)

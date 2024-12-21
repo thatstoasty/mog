@@ -472,7 +472,7 @@ struct Table(Writable, Stringable, CollectionElement):
             result.write(self._construct_bottom_border(widths))
 
         # TODO: mog.Style() without a specific profile type makes this not compile time friendly.
-        writer.write(mog.Style().max_height(self._compute_height(heights)).max_width(self.width).render(result))
+        writer.write(mog.Style(mog.ASCII).max_height(self._compute_height(heights)).max_width(self.width).render(result))
 
     fn __str__(self) -> String:
         """Returns the table as a String.

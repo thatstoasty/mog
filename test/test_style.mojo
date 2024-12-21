@@ -360,7 +360,7 @@ def test_border_bottom():
 
 def test_border_foreground():
     alias style = ansi_style.border(mog.PLUS_BORDER)
-    print(style.renderer.profile.value)
+    print(style._renderer.profile.value)
 
     # One for all sides
     testing.assert_equal(style.border_foreground(mog.Color(12)).render("hello"), "\x1b[;94m+++++++\x1b[0m\n\x1b[;94m+\x1b[0mhello\x1b[;94m+\x1b[0m\n\x1b[;94m+++++++\x1b[0m")

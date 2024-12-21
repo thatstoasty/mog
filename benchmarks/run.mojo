@@ -20,9 +20,7 @@ fn table_styling(row: Int, col: Int) -> mog.Style:
 
 
 fn main() raises:
-    var results = mog.new_table()
-    results.style_function = table_styling
-    results = results.set_headers(
+    var results = mog.Table.new().set_style(table_styling).set_headers(
         "Name",
         "Mean (ms)",
         "Total (ms)",
@@ -67,4 +65,4 @@ fn main() raises:
     #     str(bs_big_report.warmup_iters),
     # )
 
-    print(results.render())
+    print(results)

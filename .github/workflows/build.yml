@@ -48,6 +48,5 @@ jobs:
           export PATH="$PATH:$(pwd)"
 
           # Build and push
-          printenv
           magic run build
           magic run publish

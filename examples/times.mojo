@@ -1,5 +1,5 @@
 from mog.join import join_vertical, join_horizontal
-from mog.table import new_table, Table, StringData
+from mog.table import Table, StringData
 from mog.table.table import default_styles
 from mog.border import (
     STAR_BORDER,
@@ -11,7 +11,7 @@ from mog.border import (
 from mog.style import Style
 from mog import position
 import mog
-from time import now
+from time import perf_counter_ns
 
 
 fn dummy_style_func(row: Int, col: Int) -> Style:
@@ -41,18 +41,16 @@ def test_table():
         border_top=True,
         data=StringData(),
         width=50,
-    )
-    table.style_function = dummy_style_func
-    table = table.row("French", "Bonjour", "Salut").row("Russian", "Zdravstvuyte", "Privet")
+    ).set_style(dummy_style_func).row("French", "Bonjour", "Salut").row("Russian", "Zdravstvuyte", "Privet")
 
-    var headerless_start_time = now()
+    var headerless_start_time = perf_counter_ns()
     print(table.render())
-    var headerless_execution_time = now() - headerless_start_time
+    var headerless_execution_time = perf_counter_ns() - headerless_start_time
 
     table = table.set_headers("LANGUAGE", "FORMAL", "INFORMAL")
-    var headered_start_time = now()
+    var headered_start_time = perf_counter_ns()
     print(table.render())
-    var headered_execution_time = now() - headerless_start_time
+    var headered_execution_time = perf_counter_ns() - headerless_start_time
 
     print(
         "Headerless Execution Time: ",
@@ -67,13 +65,13 @@ def test_table():
 
 
 def test_horizontal_joined_paragraphs():
-    var style_build_start = now()
+    var style_build_start = perf_counter_ns()
     var style = mog.Style().bold().width(50).padding(1, 1, 1, 1).horizontal_alignment(position.center).border(
         ROUNDED_BORDER
     ).foreground(mog.Color(0xC9A0DC)).border_foreground(mog.Color(0x39E506))
-    var style_build_duration = now() - style_build_start
+    var style_build_duration = perf_counter_ns() - style_build_start
     print("Style build duration: ", style_build_duration, style_build_duration / 1e9)
-    var start_time = now()
+    var start_time = perf_counter_ns()
 
     print(style.render("You should be able to join blocks of different heights"))
     print(
@@ -121,7 +119,7 @@ def test_horizontal_joined_paragraphs():
             ),
         )
     )
-    var execution_time = now() - start_time
+    var execution_time = perf_counter_ns() - start_time
     print("Block execution time: ", execution_time, execution_time / 1e9)
 
 
@@ -145,3 +143,8 @@ def test_borderless_paragraph():
             ),
         )
     )
+
+def main():
+    test_table()
+    test_horizontal_joined_paragraphs()
+    test_borderless_paragraph()

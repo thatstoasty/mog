@@ -4,8 +4,8 @@ import mog.position
 
 
 def test_horizontal_join():
-    var a = "Hello World!\nThis is an example."
-    var b = "I could be more creative.\nBut, I'm out of ideas."
+    alias a = "Hello World!\nThis is an example."
+    alias b = "I could be more creative.\nBut, I'm out of ideas."
 
     # Test horizontally joining three paragraphs along their bottom edges
     var bottom_aligned = join_horizontal(position.bottom, a, b)
@@ -34,8 +34,8 @@ def test_horizontal_join():
 
 
 def test_vertical_join():
-    var a = "Hello World!\nThis is an example."
-    var b = "I could be more creative.\nBut, I'm out of ideas."
+    alias a = "Hello World!\nThis is an example."
+    alias b = "I could be more creative.\nBut, I'm out of ideas."
 
     # Test vertically joining two paragraphs along their right border
     var right_aligned = join_vertical(position.right, a, b)

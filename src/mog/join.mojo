@@ -1,8 +1,8 @@
 import math
+from utils import StringSlice
+from .extensions import get_lines
 from weave.ansi import printable_rune_width
-from gojo.strings import StringBuilder
 from .position import Position, top, bottom, left, right, center
-from .extensions import split_lines
 
 
 fn join_horizontal(pos: Position, *strs: String) -> String:
@@ -14,16 +14,26 @@ fn join_horizontal(pos: Position, *strs: String) -> String:
     If you just want to align to the left, right or center you may as well just
     use the helper constants Top, Center, and Bottom.
 
-    Example:
+    Examples:
+    ```mojo
+    import mog
 
-        blockB := "...\n...\n..."
-        blockA := "...\n...\n...\n...\n..."
+    var block_b = "...\\n...\\n..."
+    var block_a = "...\\n...\\n...\\n...\\n..."
 
-        # Join 20% from the top
-        str := mog.join_horizontal(0.2, blockA, blockB)
+    # Join 20% from the top
+    var text = mog.join_horizontal(0.2, block_a, block_b)
 
-        # Join on the top edge
-        str := mog.join_horizontal(mog.Top, blockA, blockB)
+    # Join on the top edge
+    text = mog.join_horizontal(mog.top, block_a, block_b)
+    ```
+
+    Args:
+        pos: The position to join the strings.
+        strs: The strings to join.
+
+    Returns:
+        The joined string.
     """
     if len(strs) == 0:
         return ""
@@ -36,18 +46,11 @@ fn join_horizontal(pos: Position, *strs: String) -> String:
 
     # Max line widths for the above text blocks
     var max_widths = List[Int](capacity=len(strs))
-    var max_height: Int = 0
+    var max_height = 0
 
     # Break text blocks into lines and get max widths for each text block
-    for i in range(len(strs)):
-        var s = strs[i]
-        var lines = split_lines(s)
-        var widest: Int = 0
-        for i in range(len(lines)):
-            var rune_count = printable_rune_width(lines[i])
-            if rune_count > widest:
-                widest = rune_count
-
+    for s in strs:
+        lines, widest = get_lines(s[])
         blocks.append(lines)
         max_widths.append(widest)
         if len(lines) > max_height:
@@ -67,32 +70,30 @@ fn join_horizontal(pos: Position, *strs: String) -> String:
             blocks[i] = extra_lines
         else:
             var n = len(extra_lines)
-            var split = int(n * pos)
-            var top_point = n - split
+            var top_point = n - int(n * pos)
             var bottom_point = n - top_point
 
-            var top_lines = extra_lines[int(top_point) : len(extra_lines)]
-            var bottom_lines = extra_lines[int(bottom_point) : len(extra_lines)]
+            var top_lines = extra_lines[top_point : len(extra_lines)]
+            var bottom_lines = extra_lines[bottom_point : len(extra_lines)]
             top_lines.extend(blocks[i])
             blocks[i] = top_lines
             blocks[i].extend(bottom_lines)
 
     # Merge lines
-    var builder = StringBuilder()
+    var result = String()
     # remember, all blocks have the same number of members now
     for i in range(len(blocks[0])):
         for j in range(len(blocks)):
             var block = blocks[j]
-            _ = builder.write_string(block[i])
+            result.write(block[i])
 
-            # Also make lines the same length
-            var spaces = WHITESPACE * (max_widths[j] - printable_rune_width(block[i]))
-            _ = builder.write_string(spaces)
+            # Also make lines the same length by padding with whitespaces.
+            result.write(WHITESPACE * (max_widths[j] - printable_rune_width(block[i])))
 
         if i < len(blocks[0]) - 1:
-            _ = builder.write_string("\n")
+            result.write("\n")
 
-    return str(builder)
+    return result
 
 
 fn join_horizontal(pos: Position, strs: List[String]) -> String:
@@ -104,16 +105,26 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
     If you just want to align to the left, right or center you may as well just
     use the helper constants Top, Center, and Bottom.
 
-    Example:
+    #### Examples:
+    ```mojo
+    import mog
 
-        blockB := "...\n...\n..."
-        blockA := "...\n...\n...\n...\n..."
+    var block_b = "...\\n...\\n..."
+    var block_a = "...\\n...\\n...\\n...\\n..."
 
-        # Join 20% from the top
-        str := mog.join_horizontal(0.2, blockA, blockB)
+    # Join 20% from the top
+    var text = mog.join_horizontal(0.2, block_a, block_b)
 
-        # Join on the top edge
-        str := mog.join_horizontal(mog.Top, blockA, blockB)
+    # Join on the top edge
+    text = mog.join_horizontal(mog.top, block_a, block_b)
+    ```
+
+    Args:
+        pos: The position to join the strings.
+        strs: The strings to join.
+
+    Returns:
+        The joined string.
     """
     if len(strs) == 0:
         return ""
@@ -126,18 +137,11 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
 
     # Max line widths for the above text blocks
     var max_widths = List[Int](capacity=len(strs))
-    var max_height: Int = 0
+    var max_height = 0
 
     # Break text blocks into lines and get max widths for each text block
-    for i in range(len(strs)):
-        var s = strs[i]
-        var lines = split_lines(s)
-        var widest: Int = 0
-        for i in range(len(lines)):
-            var rune_count = printable_rune_width(lines[i])
-            if rune_count > widest:
-                widest = rune_count
-
+    for s in strs:
+        lines, widest = get_lines(s[])
         blocks.append(lines)
         max_widths.append(widest)
         if len(lines) > max_height:
@@ -148,7 +152,7 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
         if len(blocks[i]) >= max_height:
             continue
 
-        var extra_lines = List[String]()
+        var extra_lines = List[String](capacity=max_height - len(blocks[i]))
         extra_lines.resize(max_height - len(blocks[i]), "")
 
         if pos == top:
@@ -158,33 +162,30 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
             blocks[i] = extra_lines
         else:
             var n = len(extra_lines)
-            var split = int(n * pos)
-            var top_point = n - split
+            var top_point = n - int(n * pos)
             var bottom_point = n - top_point
 
-            var top_lines = extra_lines[int(top_point) : len(extra_lines)]
-            var bottom_lines = extra_lines[int(bottom_point) : len(extra_lines)]
+            var top_lines = extra_lines[top_point : len(extra_lines)]
+            var bottom_lines = extra_lines[bottom_point : len(extra_lines)]
             top_lines.extend(blocks[i])
             blocks[i] = top_lines
             blocks[i].extend(bottom_lines)
 
     # Merge lines
-    var builder = StringBuilder()
+    var result = String()
     # remember, all blocks have the same number of members now
     for i in range(len(blocks[0])):
         for j in range(len(blocks)):
-            var block = blocks[j]
-            _ = builder.write_string(block[i])
+            result.write(blocks[j][i])
 
-            # Also make lines the same length
-            # TODO: Is this doing nothing??
-            var spaces = String("") * (max_widths[j] - printable_rune_width(block[i]))
-            _ = builder.write_string(spaces)
+            # Also make lines the same length by padding with whitespace
+            var spaces = WHITESPACE * (max_widths[j] - printable_rune_width(blocks[j][i]))
+            result.write(spaces)
 
         if i < len(blocks[0]) - 1:
-            _ = builder.write_string("\n")
+            result.write(NEWLINE)
 
-    return str(builder)
+    return result
 
 
 fn join_vertical(pos: Position, *strs: String) -> String:
@@ -196,16 +197,24 @@ fn join_vertical(pos: Position, *strs: String) -> String:
     If you just want to align to the left, right or center you may as well just
     use the helper constants Left, Center, and Right.
 
-    Example:
+    Examples:
+    ```mojo
+    var block_b = "...\\n...\\n..."
+    var block_a = "...\\n...\\n...\\n...\\n..."
 
-        blockB := "...\n...\n..."
-        blockA := "...\n...\n...\n...\n..."
+    # Join 20% from the top
+    var text = mog.join_vertical(0.2, block_a, block_b)
 
-        # Join 20% from the top
-        str := mog.join_vertical(0.2, blockA, blockB)
+    # Join on the right edge
+    text = mog.join_vertical(mog.right, block_a, block_b)
+    ```
 
-        # Join on the right edge
-        str := mog.join_vertical(mog.Right, blockA, blockB)
+    Args:
+        pos: The position to join the strings.
+        strs: The strings to join.
+
+    Returns:
+        The joined string.
     """
     if len(strs) == 0:
         return ""
@@ -217,52 +226,38 @@ fn join_vertical(pos: Position, *strs: String) -> String:
     var blocks = List[List[String]](capacity=len(strs))
 
     # Max line widths for the above text blocks
-    var max_width: Int = 0
-
-    for i in range(len(strs)):
-        var s = strs[i]
-        var lines = split_lines(s)
-        var widest: Int = 0
-        for i in range(len(lines)):
-            var rune_count = printable_rune_width(lines[i])
-            if rune_count > widest:
-                widest = rune_count
-
+    var max_width = 0
+    for s in strs:
+        lines, widest = get_lines(s[])
         blocks.append(lines)
-
         if widest > max_width:
             max_width = widest
 
-    var builder = StringBuilder()
-    var w: Int = 0
+    var result = String()
+    var w = 0
     for i in range(len(blocks)):
-        var block = blocks[i]
-        for j in range(len(block)):
-            var line = block[j]
+        for j in range(len(blocks[i])):
+            var line = blocks[i][j]
             w = max_width - printable_rune_width(line)
 
             if pos == left:
-                _ = builder.write_string(line)
-                _ = builder.write_string(WHITESPACE * w)
+                result.write(line, WHITESPACE * w)
             elif pos == right:
-                _ = builder.write_string(WHITESPACE * w)
-                _ = builder.write_string(line)
+                result.write(WHITESPACE * w, line)
             else:
                 if w < 1:
-                    _ = builder.write_string(line)
+                    result.write(line)
                 else:
                     var split = int(w * pos)
                     var right = w - split
                     var left = w - right
 
-                    _ = builder.write_string(WHITESPACE * left)
-                    _ = builder.write_string(line)
-                    _ = builder.write_string(WHITESPACE * right)
+                    result.write(WHITESPACE * left, line, WHITESPACE * right)
 
-            if not (i == len(blocks) - 1 and j == len(block) - 1):
-                _ = builder.write_string("\n")
+            if not (i == len(blocks) - 1 and j == len(blocks[i]) - 1):
+                result.write("\n")
 
-    return str(builder)
+    return result
 
 
 fn join_vertical(pos: Position, strs: List[String]) -> String:
@@ -274,16 +269,24 @@ fn join_vertical(pos: Position, strs: List[String]) -> String:
     If you just want to align to the left, right or center you may as well just
     use the helper constants Left, Center, and Right.
 
-    Example:
+    Examples:
+    ```mojo
+    var block_b = "...\\n...\\n..."
+    var block_a = "...\\n...\\n...\\n...\\n..."
 
-        blockB := "...\n...\n..."
-        blockA := "...\n...\n...\n...\n..."
+    # Join 20% from the top
+    var text = mog.join_vertical(0.2, block_a, block_b)
 
-        # Join 20% from the top
-        str := mog.join_vertical(0.2, blockA, blockB)
+    # Join on the right edge
+    text = mog.join_vertical(mog.right, block_a, block_b)
+    ```
 
-        # Join on the right edge
-        str := mog.join_vertical(mog.Right, blockA, blockB)
+    Args:
+        pos: The position to join the strings.
+        strs: The strings to join.
+
+    Returns:
+        The joined string.
     """
     if len(strs) == 0:
         return ""
@@ -295,49 +298,35 @@ fn join_vertical(pos: Position, strs: List[String]) -> String:
     var blocks = List[List[String]](capacity=len(strs))
 
     # Max line widths for the above text blocks
-    var max_width: Int = 0
-
-    for i in range(len(strs)):
-        var s = strs[i]
-        var lines = split_lines(s)
-        var widest: Int = 0
-        for i in range(len(lines)):
-            var rune_count = printable_rune_width(lines[i])
-            if rune_count > widest:
-                widest = rune_count
-
+    var max_width = 0
+    for s in strs:
+        lines, widest = get_lines(s[])
         blocks.append(lines)
-
         if widest > max_width:
             max_width = widest
 
-    var builder = StringBuilder()
-    var w: Int = 0
+    var result = String()
+    var w = 0
     for i in range(len(blocks)):
-        var block = blocks[i]
-        for j in range(len(block)):
-            var line = block[j]
+        for j in range(len(blocks[i])):
+            var line = blocks[i][j]
             w = max_width - printable_rune_width(line)
 
             if pos == left:
-                _ = builder.write_string(line)
-                _ = builder.write_string(WHITESPACE * w)
+                result.write(line, WHITESPACE * w)
             elif pos == right:
-                _ = builder.write_string(WHITESPACE * w)
-                _ = builder.write_string(line)
+                result.write(WHITESPACE * w, line)
             else:
                 if w < 1:
-                    _ = builder.write_string(line)
+                    result.write(line)
                 else:
                     var split = int(w * pos)
                     var right = w - split
                     var left = w - right
 
-                    _ = builder.write_string(WHITESPACE * left)
-                    _ = builder.write_string(line)
-                    _ = builder.write_string(WHITESPACE * right)
+                    result.write(WHITESPACE * left, line, WHITESPACE * right)
 
-            if not (i == len(blocks) - 1 and j == len(block) - 1):
-                _ = builder.write_string("\n")
+            if not (i == len(blocks) - 1 and j == len(blocks[i]) - 1):
+                result.write("\n")
 
-    return str(builder)
+    return result

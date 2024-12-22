@@ -3,22 +3,37 @@ from weave.ansi import printable_rune_width
 
 @value
 struct Border:
+    """A border to use to wrap around text."""
+
     var top: String
+    """The character to use for the top edge."""
     var bottom: String
+    """The character to use for the bottom edge."""
     var left: String
+    """The character to use for the left edge."""
     var right: String
+    """The character to use for the right edge."""
     var top_left: String
+    """The character to use for the top left corner."""
     var top_right: String
+    """The character to use for the top right corner."""
     var bottom_left: String
+    """The character to use for the bottom left corner."""
     var bottom_right: String
+    """The character to use for the bottom right corner."""
     var middle_left: String
+    """The character to use for the left edge of the middle."""
     var middle_right: String
+    """The character to use for the right edge of the middle."""
     var middle: String
+    """The character to use for the middle."""
     var middle_top: String
+    """The character to use for the top edge of the middle."""
     var middle_bottom: String
+    """The character to use for the bottom edge of the middle."""
 
     fn __init__(
-        inout self,
+        out self,
         top: String = "",
         bottom: String = "",
         left: String = "",
@@ -33,6 +48,23 @@ struct Border:
         middle_top: String = "",
         middle_bottom: String = "",
     ):
+        """Initialize a new border.
+
+        Args:
+            top: The character to use for the top edge.
+            bottom: The character to use for the bottom edge.
+            left: The character to use for the left edge.
+            right: The character to use for the right edge.
+            top_left: The character to use for the top left corner.
+            top_right: The character to use for the top right corner.
+            bottom_left: The character to use for the bottom left corner.
+            bottom_right: The character to use for the bottom right corner.
+            middle_left: The character to use for the left edge of the middle.
+            middle_right: The character to use for the right edge of the middle.
+            middle: The character to use for the middle.
+            middle_top: The character to use for the top edge of the middle.
+            middle_bottom: The character to use for the bottom edge of the middle.
+        """
         self.top = top
         self.bottom = bottom
         self.left = left
@@ -48,6 +80,14 @@ struct Border:
         self.middle_bottom = middle_bottom
 
     fn __eq__(self, other: Border) -> Bool:
+        """Check if two borders are equal.
+
+        Args:
+            other: The other border to compare.
+
+        Returns:
+            Whether the two borders are equal.
+        """
         return (
             self.top == other.top
             and self.bottom == other.bottom
@@ -65,6 +105,14 @@ struct Border:
         )
 
     fn __ne__(self, other: Border) -> Bool:
+        """Check if two borders are not equal.
+
+        Args:
+            other: The other border to compare.
+
+        Returns:
+            Whether the two borders are not equal.
+        """
         return (
             self.top != other.top
             or self.bottom != other.bottom
@@ -261,7 +309,7 @@ alias HIDDEN_BORDER = Border(
 alias NO_BORDER = Border()
 
 
-fn render_horizontal_edge(left: String, middle: String, right: String, width: Int) -> String:
+fn render_horizontal_edge(left: String, owned middle: String, right: String, width: Int) -> String:
     """Render the horizontal (top or bottom) portion of a border.
 
     Args:
@@ -273,31 +321,26 @@ fn render_horizontal_edge(left: String, middle: String, right: String, width: In
     Returns:
         The rendered horizontal edge.
     """
-    var middle_copy = middle
-
     if width < 1:
         return ""
 
     if middle == "":
-        middle_copy = " "
+        middle = " "
 
     var left_width = printable_rune_width(left)
     var right_width = printable_rune_width(right)
 
-    var runes = List[String](middle_copy)
-    var output: String = left
-
+    var output = left
     var i = left_width + right_width
     var j = 0
     while i < width + right_width:
-        output += runes[j]
+        output.write(middle[j])
         j += 1
 
-        if j >= len(runes):
+        if j >= len(middle):
             j = 0
 
-        i += printable_rune_width(runes[j])
+        i += printable_rune_width(middle[j])
 
-    output += right
-
+    output.write(right)
     return output

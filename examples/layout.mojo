@@ -1,4 +1,3 @@
-from gojo.strings import StringBuilder
 from weave.ansi import printable_rune_width
 from mog.join import join_vertical, join_horizontal
 from mog.border import HIDDEN_BORDER, NORMAL_BORDER, ROUNDED_BORDER, Border
@@ -11,7 +10,7 @@ from mog.whitespace import (
     with_whitespace_foreground,
 )
 import mog
-import hue
+import mist.hue
 
 
 alias width = 96
@@ -90,15 +89,15 @@ fn build_tabs() -> String:
 
 fn build_description() -> String:
     var colors = color_grid(1, 5)
-    var title = StringBuilder()
+    var title = String()
     var title_style = mog.Style(value="Mog").margin_left(1).margin_right(5).padding(0, 1).italic(True).foreground(mog.Color(0xFFFDF5))
 
     for i in range(len(colors)):
         var offset = 2
         var c = mog.Color(colors[i][0].hex())
-        _ = title.write_string(title_style.margin_left(i * offset).background(c).render())
+        title.write(title_style.margin_left(i * offset).background(c).render())
         if i < len(colors) - 1:
-            _ = title.write_byte(ord('\n'))
+            title.write("\n")
 
     var divider = mog.Style().padding(0, 1).foreground(subtle).render("•")
     var url = mog.Style().foreground(special)
@@ -160,11 +159,11 @@ fn build_lists() -> String:
 
     var colors = color_grid(14, 8)
     var color_style = mog.Style(value="  ")
-    var builder = StringBuilder()
+    var builder = String()
     for i in range(len(colors)):
         for j in range(len(colors[i])):
-            _ = builder.write_string(color_style.background(mog.Color(colors[i][j].hex())).render())
-        _ = builder.write_byte(ord('\n'))
+            builder.write(color_style.background(mog.Color(colors[i][j].hex())).render())
+        builder.write("\n")
 
     var lists = join_horizontal(
         position.top,
@@ -192,7 +191,7 @@ fn build_lists() -> String:
         ),
     )
 
-    return join_horizontal(position.top, lists, str(builder))
+    return join_horizontal(position.top, lists, builder)
 
 
 fn build_history() -> String:
@@ -242,31 +241,31 @@ fn build_status_bar() -> String:
 
 fn main():
     # The page style
-    var builder = StringBuilder()
+    var builder = String(capacity=4096)
     var doc_style = mog.Style().padding(1, 2, 1, 2)
 
     # Tabs.
-    _ = builder.write_string(build_tabs())
-    _ = builder.write_string("\n\n")
+    builder.write(build_tabs())
+    builder.write("\n\n")
 
     # Title
-    _ = builder.write_string(build_description())
-    _ = builder.write_string("\n\n")
+    builder.write(build_description())
+    builder.write("\n\n")
 
     # Dialog box
-    _ = builder.write_string(build_dialog_box())
-    _ = builder.write_string("\n\n")
+    builder.write(build_dialog_box())
+    builder.write("\n\n")
 
     # List
-    _ = builder.write_string(build_lists())
-    _ = builder.write_string("\n")
+    builder.write(build_lists())
+    builder.write("\n")
 
     # History
-    _ = builder.write_string(build_history())
-    _ = builder.write_string("\n\n")
+    builder.write(build_history())
+    builder.write("\n\n")
 
     # Status bar
-    _ = builder.write_string(build_status_bar())
+    builder.write(build_status_bar())
 
     # Render the final document with doc_style
-    print(doc_style.render(str(builder)))
+    print(doc_style.render(builder))

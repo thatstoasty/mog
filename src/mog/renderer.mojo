@@ -6,7 +6,7 @@ from .whitespace import WhitespaceOption, new_whitespace, _new_whitespace
 import .position
 
 
-# Working on terminal background querying, for now it defaults to dark background terminal.
+# Working on terminal background querying, currently it defaults to dark background terminal.
 # If you need to set it to light, you can do so manually via the `set_dark_background` method.
 @value
 struct Renderer:

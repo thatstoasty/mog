@@ -25,13 +25,13 @@ max = ">=24.6.0"
 weave = ">=0.1.3"
 mist = ">=0.1.10"
 
-[feature.nightly]
-channels = ["https://repo.prefix.dev/mojo-community-nightly", "conda-forge", "https://conda.modular.com/max-nightly"]
+# [feature.nightly]
+# channels = ["https://repo.prefix.dev/mojo-community-nightly", "conda-forge", "https://conda.modular.com/max-nightly"]
 
-[feature.nightly.dependencies]
-max = ">=25.1.0.dev2024121305"
-weave = ">=0.1.3.nightly5"
-mist = ">=0.1.9.nightly3"
+# [feature.nightly.dependencies]
+# max = ">=25.1.0.dev2024121305"
+# weave = ">=0.1.3.nightly5"
+# mist = ">=0.1.9.nightly3"
 
-[environments]
-nightly = {features = ["nightly"]}
+# [environments]
+# nightly = {features = ["nightly"]}

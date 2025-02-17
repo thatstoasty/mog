@@ -70,7 +70,7 @@ fn join_horizontal(pos: Position, *strs: String) -> String:
             blocks[i] = extra_lines
         else:
             var n = len(extra_lines)
-            var top_point = n - int(n * pos)
+            var top_point = n - Int(n * pos)
             var bottom_point = n - top_point
 
             var top_lines = extra_lines[top_point : len(extra_lines)]
@@ -93,7 +93,7 @@ fn join_horizontal(pos: Position, *strs: String) -> String:
         if i < len(blocks[0]) - 1:
             result.write("\n")
 
-    return result
+    return result^
 
 
 fn join_horizontal(pos: Position, strs: List[String]) -> String:
@@ -162,7 +162,7 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
             blocks[i] = extra_lines
         else:
             var n = len(extra_lines)
-            var top_point = n - int(n * pos)
+            var top_point = n - Int(n * pos)
             var bottom_point = n - top_point
 
             var top_lines = extra_lines[top_point : len(extra_lines)]
@@ -185,7 +185,7 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
         if i < len(blocks[0]) - 1:
             result.write(NEWLINE)
 
-    return result
+    return result^
 
 
 fn join_vertical(pos: Position, *strs: String) -> String:
@@ -248,7 +248,7 @@ fn join_vertical(pos: Position, *strs: String) -> String:
                 if w < 1:
                     result.write(line)
                 else:
-                    var split = int(w * pos)
+                    var split = Int(w * pos)
                     var right = w - split
                     var left = w - right
 
@@ -257,7 +257,7 @@ fn join_vertical(pos: Position, *strs: String) -> String:
             if not (i == len(blocks) - 1 and j == len(blocks[i]) - 1):
                 result.write("\n")
 
-    return result
+    return result^
 
 
 fn join_vertical(pos: Position, strs: List[String]) -> String:
@@ -320,7 +320,7 @@ fn join_vertical(pos: Position, strs: List[String]) -> String:
                 if w < 1:
                     result.write(line)
                 else:
-                    var split = int(w * pos)
+                    var split = Int(w * pos)
                     var right = w - split
                     var left = w - right
 
@@ -329,4 +329,4 @@ fn join_vertical(pos: Position, strs: List[String]) -> String:
             if not (i == len(blocks) - 1 and j == len(blocks[i]) - 1):
                 result.write("\n")
 
-    return result
+    return result^

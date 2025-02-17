@@ -343,4 +343,4 @@ fn render_horizontal_edge(left: String, owned middle: String, right: String, wid
         i += printable_rune_width(middle[j])
 
     output.write(right)
-    return output
+    return output^

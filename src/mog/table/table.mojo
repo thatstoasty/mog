@@ -25,18 +25,18 @@ fn main():
 
     fn styler(row: Int, col: Int) -> mog.Style:
         if row == 0:
-            return header_style
+            return header_style.copy()
         elif row%2 == 0:
-            return even_row_style
+            return even_row_style.copy()
         else:
-            return odd_row_style
+            return odd_row_style.copy()
 
     var t = mog.Table.new().
     set_headers("Name", "Age").
     row("Kini", "4").
     row("Eli", "1").
     row("Iris", "102").
-    _styler(styler)
+    set_style(styler)
 
     print(t)
 ```
@@ -58,8 +58,7 @@ fn default_styles(row: Int, col: Int) -> Style:
 
 
 # TODO: Parametrize on data field, so other structs that implement `Data` can be used. For now it only support `StringData`.
-@value
-struct Table(Writable, Stringable, CollectionElement):
+struct Table(Writable, Stringable, Movable, ExplicitlyCopyable):
     """Used to model and render tabular data as a table.
 
     #### Examples:
@@ -73,11 +72,11 @@ struct Table(Writable, Stringable, CollectionElement):
 
         fn styler(row: Int, col: Int) -> mog.Style:
             if row == 0:
-                return header_style
+                return header_style.copy()
             elif row%2 == 0:
-                return even_row_style
+                return even_row_style.copy()
             else:
-                return odd_row_style
+                return odd_row_style.copy()
 
         var t = mog.Table.new().
         set_headers("Name", "Age").
@@ -164,7 +163,7 @@ struct Table(Writable, Stringable, CollectionElement):
         """
         self._styler = style_function
         self._border = border
-        self._border_style = border_style
+        self._border_style = border_style.copy()
         self._border_top = border_top
         self._border_bottom = border_bottom
         self._border_left = border_left
@@ -177,8 +176,51 @@ struct Table(Writable, Stringable, CollectionElement):
         self.width = width
         self.height = height
         self._offset = 0
-        # self.widths = List[Int]()
-        # self.heights = List[Int]()
+    
+    fn __moveinit__(out self, owned other: Self):
+        """Initializes a new Table by moving the data from another Table.
+
+        Args:
+            other: The other Table to move the data from.
+        """
+        self._styler = other._styler
+        self._border = other._border^
+        self._border_style = other._border_style^
+        self._border_top = other._border_top
+        self._border_bottom = other._border_bottom
+        self._border_left = other._border_left
+        self._border_right = other._border_right
+        self._border_header = other._border_header
+        self._border_column = other._border_column
+        self._border_row = other._border_row
+        self._headers = other._headers^
+        self._data = other._data^
+        self.width = other.width
+        self.height = other.height
+        self._offset = other._offset
+
+    fn copy(self) -> Self:
+        """Returns a copy of the Table.
+
+        Returns:
+            A copy of the Table.
+        """
+        return Self(
+            style_function=self._styler,
+            border_style=self._border_style.copy(),
+            border=self._border,
+            border_top=self._border_top,
+            border_bottom=self._border_bottom,
+            border_left=self._border_left,
+            border_right=self._border_right,
+            border_header=self._border_header,
+            border_column=self._border_column,
+            border_row=self._border_row,
+            headers=self._headers,
+            data=self._data,
+            width=self.width,
+            height=self.height,
+        )
     
     @staticmethod
     fn new() -> Self:
@@ -197,9 +239,9 @@ struct Table(Writable, Stringable, CollectionElement):
         Returns:
             The updated table.
         """
-        var new = self
+        var new = self.copy()
         new._data = StringData()
-        return new
+        return new^
 
     fn style(self, row: Int, col: Int) -> Style:
         """Returns the style for a cell based on it's position (row, column).
@@ -222,10 +264,10 @@ struct Table(Writable, Stringable, CollectionElement):
         Returns:
             The updated table.
         """
-        var new = self
+        var new = self.copy()
         for i in range(len(rows)):
             new._data.append(rows[i])
-        return new
+        return new^
 
     fn rows(self, rows: List[List[String]]) -> Table:
         """Appends the data from `rows` to the table.
@@ -236,10 +278,10 @@ struct Table(Writable, Stringable, CollectionElement):
         Returns:
             The updated table.
         """
-        var new = self
+        var new = self.copy()
         for row in rows:
             new._data.append(row[])
-        return new
+        return new^
 
     fn row(self, *row: String) -> Table:
         """Appends a row to the table data.
@@ -250,12 +292,12 @@ struct Table(Writable, Stringable, CollectionElement):
         Returns:
             The updated table.
         """
-        var new = self
+        var new = self.copy()
         var temp = List[String](capacity=len(row))
         for element in row:
             temp.append(element[])
         new._data.append(temp)
-        return new
+        return new^
 
     fn row(self, row: List[String]) -> Table:
         """Appends a row to the table data.
@@ -266,9 +308,9 @@ struct Table(Writable, Stringable, CollectionElement):
         Returns:
             The updated table.
         """
-        var new = self
+        var new = self.copy()
         new._data.append(row)
-        return new
+        return new^
 
     fn set_headers(self, *headers: String) -> Table:
         """Sets the table headers.
@@ -279,12 +321,12 @@ struct Table(Writable, Stringable, CollectionElement):
         Returns:
             The updated table.
         """
-        var new = self
+        var new = self.copy()
         var temp = List[String](capacity=len(headers))
         for element in headers:
             temp.append(element[])
         new._headers = temp
-        return new
+        return new^
 
     fn set_headers(self, headers: List[String]) -> Table:
         """Sets the table headers.
@@ -295,9 +337,9 @@ struct Table(Writable, Stringable, CollectionElement):
         Returns:
             The updated table.
         """
-        var new = self
+        var new = self.copy()
         new._headers = headers
-        return new
+        return new^
     
     fn set_style(self, styler: StyleFunction) -> Table:
         """Sets the table headers.
@@ -308,9 +350,9 @@ struct Table(Writable, Stringable, CollectionElement):
         Returns:
             The updated table.
         """
-        var new = self
+        var new = self.copy()
         new._styler = styler
-        return new
+        return new^
     
     fn write_to[W: Writer, //](self, mut writer: W):
         """Writes the table to the writer.
@@ -343,7 +385,7 @@ struct Table(Writable, Stringable, CollectionElement):
             widths.append(0)
 
         # Initialize the heights.
-        var heights_len = int(has_headers) + self._data.rows()
+        var heights_len = Int(has_headers) + self._data.rows()
         var heights = List[Int](capacity=heights_len)
         for _ in range(heights_len):
             heights.append(0)
@@ -361,7 +403,7 @@ struct Table(Writable, Stringable, CollectionElement):
             while column_number < self._data.columns():
                 var rendered = self.style(row_number + 1, column_number).render(self._data[row_number, column_number])
 
-                var row_number_with_header_offset = row_number + int(has_headers)
+                var row_number_with_header_offset = row_number + Int(has_headers)
                 heights[row_number_with_header_offset] = max(
                     heights[row_number_with_header_offset],
                     get_height(rendered),
@@ -425,7 +467,7 @@ struct Table(Writable, Stringable, CollectionElement):
                 var trimmed_width = List[Int](capacity=self._data.rows())
 
                 for r in range(self._data.rows()):
-                    var rendered_cell = self.style(r + int(has_headers), i).render(self._data[r, i])
+                    var rendered_cell = self.style(r + Int(has_headers), i).render(self._data[r, i])
                     var non_whitespace_chars = get_width(rendered_cell.removesuffix(" "))
                     trimmed_width[r] = non_whitespace_chars + 1
 
@@ -499,7 +541,7 @@ struct Table(Writable, Stringable, CollectionElement):
         Returns:
             The width of the table.
         """
-        var width = sum(widths) + int(self._border_left) + int(self._border_right)
+        var width = sum(widths) + Int(self._border_left) + Int(self._border_right)
         if self._border_column:
             width += len(widths) - 1
 
@@ -517,11 +559,11 @@ struct Table(Writable, Stringable, CollectionElement):
         return (
             sum(heights)
             - 1
-            + int(len(self._headers) > 0)
-            + int(self._border_top)
-            + int(self._border_bottom)
-            + int(self._border_header)
-            + self._data.rows() * int(self._border_row)
+            + Int(len(self._headers) > 0)
+            + Int(self._border_top)
+            + Int(self._border_bottom)
+            + Int(self._border_header)
+            + self._data.rows() * Int(self._border_row)
         )
 
     fn _construct_top_border(self, widths: List[Int]) -> String:
@@ -638,7 +680,7 @@ struct Table(Writable, Stringable, CollectionElement):
         var result = String()
 
         var has_headers = len(headers) > 0
-        var height = heights[index + int(has_headers)]
+        var height = heights[index + Int(has_headers)]
 
         var cells = List[String]()
         var left = (self._border_style.render(self._border.left) + "\n") * height

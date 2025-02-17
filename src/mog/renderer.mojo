@@ -9,6 +9,7 @@ import .position
 # Working on terminal background querying, currently it defaults to dark background terminal.
 # If you need to set it to light, you can do so manually via the `set_dark_background` method.
 @value
+@register_passable("trivial")
 struct Renderer:
     """Contains context for the color profile of the terminal and it's background.
     
@@ -173,7 +174,7 @@ struct Renderer:
             else:
                 # somewhere in the middle
                 var total_gap = gap + short
-                var split = int(round(total_gap * alignment))
+                var split = Int(round(total_gap * alignment))
                 var right = total_gap - split
                 var left = total_gap - right
                 result.write(white_space.render(left), lines[i], white_space.render(right))
@@ -181,7 +182,7 @@ struct Renderer:
             if i < len(lines) - 1:
                 result.write(NEWLINE)
 
-        return result
+        return result^
 
     fn place_vertical(
         self,
@@ -252,7 +253,7 @@ struct Renderer:
             result.write((empty_line + NEWLINE) * gap, text)
         else:
             # somewhere in the middle
-            var split = int(round(Float64(gap) * alignment))
+            var split = Int(round(Float64(gap) * alignment))
             var bottom = gap - split
             var top = gap - bottom
 
@@ -260,4 +261,4 @@ struct Renderer:
             for _ in range(bottom):
                 result.write(NEWLINE, empty_line)
 
-        return result
+        return result^

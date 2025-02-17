@@ -10,7 +10,7 @@ struct PropKey:
     """Italicize text."""
     alias UNDERLINE = 3
     """Underline text."""
-    alias CROSSOUT = 4
+    alias STRIKETHROUGH = 4
     """Crossout text."""
     alias REVERSE = 5
     """Reverse text foreground/background coloring."""
@@ -100,7 +100,7 @@ struct PropKey:
     """Tab width."""
     alias UNDERLINE_SPACES = 41
     """Underline spaces between words."""
-    alias CROSSOUT_SPACES = 42
+    alias STRIKETHROUGH_SPACES = 42
     """Crossout spaces between words."""
 
 

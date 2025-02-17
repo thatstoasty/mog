@@ -13,8 +13,7 @@ from .color import (
 from .position import Position
 
 
-@value
-struct WhitespaceRenderer:
+struct WhitespaceRenderer(Movable, ExplicitlyCopyable):
     """Whitespace renderer.
 
     Args:
@@ -44,8 +43,25 @@ struct WhitespaceRenderer:
             chars: The characters to render.
         """
         self.renderer = renderer
-        self.style = style
+        self.style = style.copy()
         self.chars = chars
+    
+    fn __moveinit__(mut self, owned other: Self):
+        self.renderer = other.renderer
+        self.style = other.style^
+        self.chars = other.chars^
+    
+    fn copy(self) -> Self:
+        """Copies the whitespace renderer.
+
+        Returns:
+            A copy of the whitespace renderer.
+        """
+        return Self(
+            renderer=self.renderer,
+            style=self.style.copy(),
+            chars=self.chars,
+        )
 
     fn render(self, width: Int) -> String:
         """Render whitespaces.
@@ -63,7 +79,7 @@ struct WhitespaceRenderer:
         var i = 0
 
         while i < width:
-            for char in self.chars:
+            for char in self.chars.char_slices():
                 result.write(char)
                 var printable_width = ansi.printable_rune_width(char)
                 if j >= printable_width:
@@ -114,7 +130,7 @@ fn _new_whitespace(renderer: Renderer, opts: VariadicList[WhitespaceOption]) -> 
     for opt in opts:
         opt(w)
 
-    return w
+    return w^
 
 
 # Limited to using param for now due to Mojo crashing when using capturing functions.

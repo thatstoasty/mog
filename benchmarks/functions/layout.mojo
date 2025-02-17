@@ -155,7 +155,7 @@ fn build_lists() -> String:
 
     var list_item = mog.Style().padding_left(2)
     var check_mark = mog.Style().foreground(special).padding_right(1).render("✔")
-    var list_done = mog.Style().crossout().foreground(mog.AdaptiveColor(light=0x969B86, dark=0x696969))
+    var list_done = mog.Style().strikethrough().foreground(mog.AdaptiveColor(light=0x969B86, dark=0x696969))
 
     var colors = color_grid(14, 8)
     var color_style = mog.Style(value="  ")

@@ -1,44 +1,8 @@
 from utils import StringSlice
 from weave.ansi import printable_rune_width
+from weave.traits import AsStringSlice
 import mist
-from .size import get_height
-
-
-# TODO: I'll see if I can get `count` on `StringSlice` upstream in Mojo and add `AsStringSlice`.
-trait AsStringSlice:
-    fn as_string_slice(ref self) -> StringSlice[__origin_of(self)]:
-        ...
-
-
-fn count(text: StringSlice, substr: String) -> Int:
-    """Return the number of non-overlapping occurrences of substring
-    `substr` in the string.
-
-    If sub is empty, returns the number of empty strings between characters
-    which is the length of the string plus one.
-
-    Args:
-        text: The string to search.
-        substr: The substring to count.
-
-    Returns:
-        The number of occurrences of `substr`.
-    """
-    if not substr:
-        return len(text) + 1
-
-    var res = 0
-    var offset = 0
-
-    while True:
-        var pos = text.find(substr, offset)
-        if pos == -1:
-            break
-        res += 1
-
-        offset = pos + substr.byte_length()
-
-    return res
+from mog.size import get_height
 
 
 fn get_lines(text: String) -> Tuple[List[String], Int]:
@@ -62,7 +26,7 @@ fn get_lines(text: String) -> Tuple[List[String], Int]:
     if missing_lines != 0:
         for _ in range(missing_lines):
             lines.append("")
-    return lines, widest_line
+    return lines^, widest_line
 
 
 fn get_lines_view(text: String) -> Tuple[List[StringSlice[__origin_of(text)]], Int]:
@@ -83,7 +47,7 @@ fn get_lines_view(text: String) -> Tuple[List[StringSlice[__origin_of(text)]], I
         if printable_rune_width(line[]) > widest_line:
             widest_line = printable_rune_width(line[])
     
-    return lines, widest_line
+    return lines^, widest_line
 
 
 fn get_widest_line[immutable: ImmutableOrigin](text: StringSlice[immutable]) -> Int:
@@ -122,7 +86,7 @@ fn pad(text: String, n: Int, style: mist.Style) -> String:
         return text
 
     var spaces = style.render(WHITESPACE * abs(n))
-    var result = String(capacity=int(len(text) * 1.5))
+    var result = String(capacity=Int(len(text) * 1.5))
     var lines = text.as_string_slice().splitlines()
     for i in range(len(lines)):
         if n > 0:
@@ -133,7 +97,7 @@ fn pad(text: String, n: Int, style: mist.Style) -> String:
         if i != len(lines) - 1:
             result.write(NEWLINE)
 
-    return result
+    return result^
 
 
 fn pad_left(text: String, n: Int, style: mist.Style) -> String:

@@ -1,6 +1,6 @@
 from utils.variant import Variant
-from .renderer import Renderer
 import mist
+from mog.renderer import Renderer
 
 
 trait TerminalColor(CollectionElement):
@@ -211,11 +211,11 @@ struct CompleteColor(TerminalColor):
         * 256 - 0xffffff: `mist.RGBColor`
         .
         """
-        if renderer.profile.value == mist.TRUE_COLOR:
+        if renderer.profile._value == mist.profile.TRUE_COLOR:
             return Color(self.true_color).color(renderer)
-        elif renderer.profile.value == mist.ANSI256:
+        elif renderer.profile._value == mist.profile.ANSI256:
             return Color(self.ansi256).color(renderer)
-        elif renderer.profile.value == mist.ANSI:
+        elif renderer.profile._value == mist.profile.ANSI:
             return Color(self.ansi).color(renderer)
         else:
             return mist.NoColor()

@@ -1,5 +1,5 @@
-from .style import Style, NO_TAB_CONVERSION
-from .border import (
+from mog.style import Style, NO_TAB_CONVERSION
+from mog.border import (
     Border,
     NORMAL_BORDER,
     ROUNDED_BORDER,
@@ -14,9 +14,9 @@ from .border import (
     HIDDEN_BORDER,
     NO_BORDER,
 )
-from .table import Table, default_styles, StringData, Data, Filter
-from .size import get_height, get_width, get_dimensions
-from .color import (
+from mog.table import Table, default_styles, StringData, Data, Filter
+from mog.size import get_height, get_width, get_dimensions
+from mog.color import (
     NoColor,
     Color,
     ANSIColor,
@@ -25,21 +25,18 @@ from .color import (
     CompleteAdaptiveColor,
     AnyTerminalColor,
 )
-from .renderer import Renderer
-from .join import join_horizontal, join_vertical
-from .position import (
+from mog.renderer import Renderer
+from mog.join import join_horizontal, join_vertical
+from mog.position import (
     center,
     left,
     right,
     top,
     bottom,
 )
+from mist import TRUE_COLOR, ANSI256, ANSI, ASCII
 
 
 alias WHITESPACE = " "
 alias NEWLINE = "\n"
 
-alias TRUE_COLOR = mist.TRUE_COLOR
-alias ANSI256 = mist.ANSI256
-alias ANSI = mist.ANSI
-alias ASCII = mist.ASCII

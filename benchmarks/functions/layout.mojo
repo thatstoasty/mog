@@ -109,7 +109,7 @@ fn build_description() -> String:
         desc_style.render("Style Definitions for Nice Terminal Layouts.\nInspired by charmbracelet/lipgloss"),
         info_style.render("From Mikhail" + divider + url.render("https://github.com/thatstoasty/mog")),
     )
-    return join_horizontal(position.top, str(title), description)
+    return join_horizontal(position.top, String(title), description)
 
 
 fn build_dialog_box() -> String:

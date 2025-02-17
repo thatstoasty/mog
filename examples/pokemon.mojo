@@ -114,4 +114,4 @@ fn main():
         style_function=style_func,
     ).rows(data)
 
-    print(table)
+    _ = String(table.width)

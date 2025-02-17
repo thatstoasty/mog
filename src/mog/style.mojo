@@ -1929,15 +1929,14 @@ struct Style(Movable, ExplicitlyCopyable):
 
         # If a border is set and no sides have been specifically turned on or off
         # render borders on all sides.
-        var borderless = NO_BORDER
-        if border != borderless and not (top_set or right_set or bottom_set or left_set):
+        if border != NO_BORDER and not (top_set or right_set or bottom_set or left_set):
             has_top = True
             has_right = True
             has_bottom = True
             has_left = True
 
         # If no border is set or all borders are been disabled, abort.
-        if border == borderless or (not has_top and not has_right and not has_bottom and not has_left):
+        if border == NO_BORDER or (not has_top and not has_right and not has_bottom and not has_left):
             return text
 
         lines, width = get_lines(text)
@@ -1984,18 +1983,27 @@ struct Style(Movable, ExplicitlyCopyable):
 
         # Render top
         if has_top:
-            top = self._style_border(
-                render_horizontal_edge(border.top_left, border.top, border.top_right, width), top_fg, top_bg
+            result.write(
+                self._style_border(
+                    render_horizontal_edge(border.top_left, border.top, border.top_right, width),
+                    top_fg,
+                    top_bg
+                ),
+                NEWLINE
             )
-            result.write(top, NEWLINE)
 
         # Render sides once, and reuse for each line.
-        var left_border: String = ""
-        var right_border: String = ""
+        var left_border: String
         if has_left:
             left_border = self._style_border(border.left, left_fg, left_bg)
+        else:
+            left_border = ""
+        
+        var right_border: String
         if has_right:
             right_border = self._style_border(border.right, right_fg, right_bg)
+        else:
+            right_border = ""
 
         for i in range(len(lines)):
             if has_left:
@@ -2011,12 +2019,12 @@ struct Style(Movable, ExplicitlyCopyable):
 
         # Render bottom
         if has_bottom:
-            bottom = self._style_border(
-                render_horizontal_edge(border.bottom_left, border.bottom, border.bottom_right, width),
-                bottom_fg,
-                bottom_bg,
+            result.write(NEWLINE, self._style_border(
+                    render_horizontal_edge(border.bottom_left, border.bottom, border.bottom_right, width),
+                    bottom_fg,
+                    bottom_bg,
+                )
             )
-            result.write(NEWLINE, bottom)
 
         return result
 

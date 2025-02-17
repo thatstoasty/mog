@@ -18,12 +18,12 @@ fn dummy_style_func(row: Int, col: Int) -> Style:
     var style = mog.Style().horizontal_alignment(position.center).vertical_alignment(position.center).padding(0, 1)
     if row == 0:
         style = style.foreground(mog.Color(0xC9A0DC))
-        return style
+        return style.copy()
     elif row % 2 == 0:
         style = style.foreground(mog.Color(0xE58006))
-        return style
+        return style.copy()
     else:
-        return style
+        return style.copy()
 
 
 def test_table():
@@ -50,7 +50,7 @@ def test_table():
     table = table.set_headers("LANGUAGE", "FORMAL", "INFORMAL")
     var headered_start_time = perf_counter_ns()
     print(table.render())
-    var headered_execution_time = perf_counter_ns() - headerless_start_time
+    var headered_execution_time = perf_counter_ns() - headered_start_time
 
     print(
         "Headerless Execution Time: ",

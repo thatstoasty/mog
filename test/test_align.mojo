@@ -6,13 +6,13 @@ from mog.align import align_text_horizontal, align_text_vertical
 
 alias text = "hello"
 alias multiline_text = "hello\nhello\nhello"
-
+alias style = mist.Style(mist.ANSI)
 
 def test_centered_align_text_horizontal():
-    testing.assert_equal(align_text_horizontal(text, position.center, 10), "  hello   ")
+    testing.assert_equal(align_text_horizontal(text, position.center, 10, style), "  hello   ")
     
     # Multi line alignment
-    testing.assert_equal(align_text_horizontal(multiline_text, position.center, 10), "  hello   \n  hello   \n  hello   ")
+    testing.assert_equal(align_text_horizontal(multiline_text, position.center, 10, style), "  hello   \n  hello   \n  hello   ")
 
 
 def test_styled_centered_align_text_horizontal():
@@ -24,10 +24,10 @@ def test_styled_centered_align_text_horizontal():
 
 
 def test_left_align_text_horizontal():
-    testing.assert_equal(align_text_horizontal(text, position.left, 10), "hello     ")
+    testing.assert_equal(align_text_horizontal(text, position.left, 10, style), "hello     ")
 
     # Multi line alignment
-    testing.assert_equal(align_text_horizontal(multiline_text, position.left, 10), "hello     \nhello     \nhello     ")
+    testing.assert_equal(align_text_horizontal(multiline_text, position.left, 10, style), "hello     \nhello     \nhello     ")
 
 
 def test_styled_left_align_text_horizontal():
@@ -39,10 +39,10 @@ def test_styled_left_align_text_horizontal():
 
 
 def test_right_align_text_horizontal():
-    testing.assert_equal(align_text_horizontal(text, position.right, 10), "     hello")
+    testing.assert_equal(align_text_horizontal(text, position.right, 10, style), "     hello")
 
     # Multi line alignment
-    testing.assert_equal(align_text_horizontal(multiline_text, position.left, 10), "hello     \nhello     \nhello     ")
+    testing.assert_equal(align_text_horizontal(multiline_text, position.left, 10, style), "hello     \nhello     \nhello     ")
 
 
 def test_styled_right_align_text_horizontal():
@@ -55,11 +55,11 @@ def test_styled_right_align_text_horizontal():
 
 def test_empty_align_text_horizontal():
     """Test that a padded string is returned if the text is empty."""
-    var style = mist.Style(mist.ANSI).background(0xFFFFFF)
-    testing.assert_equal(align_text_horizontal("", position.left, 10), "          ")
-    testing.assert_equal(align_text_horizontal("", position.right, 10), "          ")
-    testing.assert_equal(align_text_horizontal("", position.center, 10), "          ")
-    testing.assert_equal(align_text_horizontal("", position.left, 10, style), "\x1b[;47m          \x1b[0m")
+    var bg_style = mist.Style(mist.ANSI).background(0xFFFFFF)
+    testing.assert_equal(align_text_horizontal("", position.left, 10, style), "          ")
+    testing.assert_equal(align_text_horizontal("", position.right, 10, style), "          ")
+    testing.assert_equal(align_text_horizontal("", position.center, 10, style), "          ")
+    testing.assert_equal(align_text_horizontal("", position.left, 10, bg_style), "\x1b[;47m          \x1b[0m")
 
 
 def test_centered_align_text_vertical():

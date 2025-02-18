@@ -1,107 +1,114 @@
 from .position import Position
 
-
+@value
+@register_passable("trivial")
 struct PropKey:
     """Property keys for the style."""
-
-    alias BOLD = 1
+    var _value: UInt8
+    alias BOLD = Self(1)
     """Bold text."""
-    alias ITALIC = 2
+    alias ITALIC = Self(2)
     """Italicize text."""
-    alias UNDERLINE = 3
+    alias UNDERLINE = Self(3)
     """Underline text."""
-    alias STRIKETHROUGH = 4
+    alias STRIKETHROUGH = Self(4)
     """Crossout text."""
-    alias REVERSE = 5
+    alias REVERSE = Self(5)
     """Reverse text foreground/background coloring."""
-    alias BLINK = 6
+    alias BLINK = Self(6)
     """Blink text."""
-    alias FAINT = 7
+    alias FAINT = Self(7)
     """Faint text."""
-    alias FOREGROUND = 8
+    alias FOREGROUND = Self(8)
     """Foreground color."""
-    alias BACKGROUND = 9
+    alias BACKGROUND = Self(9)
     """Background color."""
-    alias WIDTH = 10
+    alias WIDTH = Self(10)
     """Text width."""
-    alias HEIGHT = 11
+    alias HEIGHT = Self(11)
     """Text height."""
-    alias HORIZONTAL_ALIGNMENT = 12
+    alias HORIZONTAL_ALIGNMENT = Self(12)
     """Horizontal alignment."""
-    alias VERTICAL_ALIGNMENT = 13
+    alias VERTICAL_ALIGNMENT = Self(13)
     """Vertical alignment."""
 
     # Padding.
-    alias PADDING_TOP = 14
+    alias PADDING_TOP = Self(14)
     """Padding level at the top of the text."""
-    alias PADDING_RIGHT = 15
+    alias PADDING_RIGHT = Self(15)
     """Padding level to the right of the text."""
-    alias PADDING_BOTTOM = 16
+    alias PADDING_BOTTOM = Self(16)
     """Padding level at the bottom of the text."""
-    alias PADDING_LEFT = 17
+    alias PADDING_LEFT = Self(17)
     """Padding level to the left of the text."""
 
-    alias COLOR_WHITESPACE = 18
+    alias COLOR_WHITESPACE = Self(18)
     """Color of whitespace background."""
 
     # Margins.
-    alias MARGIN_TOP = 19
+    alias MARGIN_TOP = Self(19)
     """Margin level at the top of the text."""
-    alias MARGIN_RIGHT = 20
+    alias MARGIN_RIGHT = Self(20)
     """Margin level to the right of the text."""
-    alias MARGIN_BOTTOM = 21
+    alias MARGIN_BOTTOM = Self(21)
     """Margin level at the bottom of the text."""
-    alias MARGIN_LEFT = 22
+    alias MARGIN_LEFT = Self(22)
     """Margin level to the left of the text."""
-    alias MARGIN_BACKGROUND = 23
+    alias MARGIN_BACKGROUND = Self(23)
     """Margin background color."""
 
     # Border style.
-    alias BORDER_STYLE = 24
+    alias BORDER_STYLE = Self(24)
     """Border style."""
 
     # Border edges.
-    alias BORDER_TOP = 25
+    alias BORDER_TOP = Self(25)
     """Border top."""
-    alias BORDER_RIGHT = 26
+    alias BORDER_RIGHT = Self(26)
     """Border right."""
-    alias BORDER_BOTTOM = 27
+    alias BORDER_BOTTOM = Self(27)
     """Border bottom."""
-    alias BORDER_LEFT = 28
+    alias BORDER_LEFT = Self(28)
     """Border left."""
 
     # Border foreground colors.
-    alias BORDER_TOP_FOREGROUND = 29
+    alias BORDER_TOP_FOREGROUND = Self(29)
     """Border top foreground color."""
-    alias BORDER_RIGHT_FOREGROUND = 30
+    alias BORDER_RIGHT_FOREGROUND = Self(30)
     """Border right foreground color."""
-    alias BORDER_BOTTOM_FOREGROUND = 31
+    alias BORDER_BOTTOM_FOREGROUND = Self(31)
     """Border bottom foreground color."""
-    alias BORDER_LEFT_FOREGROUND = 32
+    alias BORDER_LEFT_FOREGROUND = Self(32)
     """Border left foreground color."""
 
     # Border background colors.
-    alias BORDER_TOP_BACKGROUND = 33
+    alias BORDER_TOP_BACKGROUND = Self(33)
     """Border top background color."""
-    alias BORDER_RIGHT_BACKGROUND = 34
+    alias BORDER_RIGHT_BACKGROUND = Self(34)
     """Border right background color."""
-    alias BORDER_BOTTOM_BACKGROUND = 35
+    alias BORDER_BOTTOM_BACKGROUND = Self(35)
     """Border bottom background color."""
-    alias BORDER_LEFT_BACKGROUND = 36
+    alias BORDER_LEFT_BACKGROUND = Self(36)
     """Border left background color."""
 
-    alias INLINE = 37
+    alias INLINE = Self(37)
     """Inline rendering."""
-    alias MAX_WIDTH = 38
+    alias MAX_WIDTH = Self(38)
     """Maximum width of the text."""
-    alias MAX_HEIGHT = 39
+    alias MAX_HEIGHT = Self(39)
     """Maximum height of the text."""
-    alias TAB_WIDTH = 40
+    alias TAB_WIDTH = Self(40)
     """Tab width."""
-    alias UNDERLINE_SPACES = 41
+    alias UNDERLINE_SPACES = Self(41)
     """Underline spaces between words."""
-    alias STRIKETHROUGH_SPACES = 42
+    alias STRIKETHROUGH_SPACES = Self(42)
     """Crossout spaces between words."""
+
+    fn __eq__(self, other: PropKey) -> Bool:
+        return self._value == other._value
+    
+    fn __ne__(self, other: PropKey) -> Bool:
+        return self._value != other._value
 
 
 @register_passable("trivial")
@@ -119,40 +126,42 @@ struct Properties:
         """
         self.value = value
 
-    fn set(mut self, key: Int, value: Bool) -> None:
+    fn set[key: PropKey](mut self, value: Bool) -> None:
         """Set a property.
 
+        Parameters:
+            key: The key to check.
+
         Args:
-            key: The key to set.
             value: The value to set the property to.
         """
-        self.value[key] = value
+        self.value[Int(key._value)] = value
 
-    fn has(self, key: Int) -> Bool:
+    fn has[key: PropKey](self) -> Bool:
         """Check if a property is set.
 
-        Args:
+        Parameters:
             key: The key to check.
 
         Returns:
             True if the property is set, False otherwise.
         """
-        return self.value[key]
+        return self.value[Int(key._value)]
 
 
 @value
 @register_passable("trivial")
 struct Padding:
-    var top: Int
+    var top: UInt16
     """The padding level at the top of the text."""
-    var right: Int
+    var right: UInt16
     """The padding level to the right of the text."""
-    var bottom: Int
+    var bottom: UInt16
     """The padding level at the bottom of the text."""
-    var left: Int
+    var left: UInt16
     """The padding level to the left of the text."""
 
-    fn __init__(out self, top: Int = 0, right: Int = 0, bottom: Int = 0, left: Int = 0):
+    fn __init__(out self, top: UInt16 = 0, right: UInt16 = 0, bottom: UInt16 = 0, left: UInt16 = 0):
         self.top = top
         self.right = right
         self.bottom = bottom
@@ -161,13 +170,13 @@ struct Padding:
 
 @value
 struct Margin:
-    var top: Int
+    var top: UInt16
     """The margin level at the top of the text."""
-    var right: Int
+    var right: UInt16
     """The margin level to the right of the text."""
-    var bottom: Int
+    var bottom: UInt16
     """The margin level at the bottom of the text."""
-    var left: Int
+    var left: UInt16
     """The margin level to the left of the text."""
     var background: AnyTerminalColor
     """The background color of the margin."""
@@ -190,12 +199,12 @@ struct Margin:
 @value
 @register_passable("trivial")
 struct Dimensions:
-    var height: Int
+    var height: UInt16
     """The height of the text."""
-    var width: Int
+    var width: UInt16
     """The width of the text."""
 
-    fn __init__(out self, height: Int = 0, width: Int = 0):
+    fn __init__(out self, height: UInt16 = 0, width: UInt16 = 0):
         self.height = height
         self.width = width
 

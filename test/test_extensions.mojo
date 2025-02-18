@@ -33,14 +33,14 @@ def test_get_lines_empty_string():
 
 def test_get_lines_view():
     lines, widest_line = get_lines_view("hello\nworld")
-    testing.assert_equal(lines[0], "hello")
-    testing.assert_equal(lines[1], "world")
+    testing.assert_equal(String(lines[0]), "hello")
+    testing.assert_equal(String(lines[1]), "world")
     testing.assert_equal(widest_line, 5)
 
 
 def test_get_lines_view_empty_string():
     lines, widest_line = get_lines_view("")
-    testing.assert_equal(lines[0], "")
+    testing.assert_equal(String(lines[0]), "")
     testing.assert_equal(widest_line, 0)
 
 

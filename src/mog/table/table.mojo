@@ -513,7 +513,6 @@ struct Table(Writable, Stringable, Movable, ExplicitlyCopyable):
         if self._border_bottom:
             result.write(self._construct_bottom_border(widths))
 
-        # TODO: mog.Style() without a specific profile type makes this not compile time friendly.
         writer.write(mog.Style(mog.ASCII).max_height(self._compute_height(heights)).max_width(self.width).render(result))
 
     fn __str__(self) -> String:
@@ -522,15 +521,7 @@ struct Table(Writable, Stringable, Movable, ExplicitlyCopyable):
         Returns:
             The table as a string.
         """
-        return String.write(self)
-    
-    fn render(self) -> String:
-        """Returns the table as a String.
-
-        Returns:
-            The table as a string.
-        """
-        return self.__str__()
+        return String(self)
 
     fn _compute_width(self, widths: List[Int]) -> Int:
         """Computes the width of the table in it's current configuration.

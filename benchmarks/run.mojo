@@ -61,7 +61,7 @@ fn main() raises:
     # with open(path, "r") as file:
     #     data = file.read()
 
-    # run[test_render_layout, "Layout"](bench)
+    run[test_render_layout, "Layout"](bench)
     run[test_basic_styling, "BasicStyle"](bench)
     run[test_basic_comptime_styling, "CompTimeBasicStyle"](bench)
 

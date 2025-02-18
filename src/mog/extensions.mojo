@@ -29,6 +29,26 @@ fn get_lines(text: String) -> Tuple[List[String], Int]:
     return lines^, widest_line
 
 
+fn get_lines_only(text: String) -> List[String]:
+    """Split a string into lines.
+
+    Args:
+        text: The string to split.
+
+    Returns:
+        A tuple containing the lines and the width of the widest line.
+    """
+    var lines = text.splitlines()
+    
+    # TODO: splitlines strips trailing newlines, if they're missing after the split, re-add them.
+    var height = get_height(text)
+    var missing_lines = height - len(lines)
+    if missing_lines != 0:
+        for _ in range(missing_lines):
+            lines.append("")
+    return lines^
+
+
 fn get_lines_view(text: String) -> Tuple[List[StringSlice[__origin_of(text)]], Int]:
     """Split a string into lines.
 

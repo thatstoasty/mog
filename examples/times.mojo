@@ -44,12 +44,12 @@ def test_table():
     ).set_style(dummy_style_func).row("French", "Bonjour", "Salut").row("Russian", "Zdravstvuyte", "Privet")
 
     var headerless_start_time = perf_counter_ns()
-    print(table.render())
+    print(table)
     var headerless_execution_time = perf_counter_ns() - headerless_start_time
 
     table = table.set_headers("LANGUAGE", "FORMAL", "INFORMAL")
     var headered_start_time = perf_counter_ns()
-    print(table.render())
+    print(table)
     var headered_execution_time = perf_counter_ns() - headered_start_time
 
     print(

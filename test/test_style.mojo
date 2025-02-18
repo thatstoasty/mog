@@ -7,7 +7,7 @@ alias ansi_style = mog.Style(mog.ANSI)
 
 def test_renderer():
     alias style = ansi_style.renderer(mog.Renderer(mog.TRUE_COLOR))
-    testing.assert_equal(style._renderer.profile.value, mog.TRUE_COLOR)
+    testing.assert_equal(style._renderer.profile._value, mog.TRUE_COLOR)
 
 
 def test_value():
@@ -47,21 +47,21 @@ def test_unset_underline_spaces():
     testing.assert_equal(style.render("hello"), "hello")
 
 
-def test_crossout_spaces():
-    alias style = ansi_style.crossout_spaces()
+def test_strikethrough_spaces():
+    alias style = ansi_style.strikethrough_spaces()
     testing.assert_equal(style.render("  Hello world!  "), "\x1b[;9m \x1b[0m\x1b[;9m \x1b[0mHello\x1b[;9m \x1b[0mworld!\x1b[;9m \x1b[0m\x1b[;9m \x1b[0m")
 
-    # Turn on crossout spaces (flag has a value set), but then set it to False (flag has value set, value is False).
-    testing.assert_equal(style.crossout_spaces(False).render("  Hello world!  "), "  Hello world!  ")
+    # Turn on strikethrough spaces (flag has a value set), but then set it to False (flag has value set, value is False).
+    testing.assert_equal(style.strikethrough_spaces(False).render("  Hello world!  "), "  Hello world!  ")
 
 
-def test_get_crossout_spaces():
-    alias style = ansi_style.crossout_spaces()
-    testing.assert_true(style.get_crossout_spaces())
+def test_get_strikethrough_spaces():
+    alias style = ansi_style.strikethrough_spaces()
+    testing.assert_true(style.get_strikethrough_spaces())
 
 
-def test_unset_crossout_spaces():
-    alias style = ansi_style.crossout_spaces().unset_crossout_spaces()
+def test_unset_strikethrough_spaces():
+    alias style = ansi_style.strikethrough_spaces().unset_strikethrough_spaces()
     testing.assert_equal(style.render("hello"), "hello")
 
 
@@ -469,6 +469,7 @@ def test_padding():
     testing.assert_equal(border_style.padding(1).render("hello"), "+++++++++\n+       +\n+ hello +\n+       +\n+++++++++")
 
     # Top/bottom and left/right
+    print(repr(ansi_style.padding(1, 2).render("hello")))
     testing.assert_equal(ansi_style.padding(1, 2).render("hello"), "         \n  hello  \n         ")
     testing.assert_equal(border_style.padding(1, 2).render("hello"), "+++++++++++\n+         +\n+  hello  +\n+         +\n+++++++++++")
 

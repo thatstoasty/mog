@@ -24,16 +24,6 @@ trait TerminalColor(CollectionElement):
         ...
 
 
-alias AnyTerminalColor = Variant[
-    NoColor,
-    Color,
-    ANSIColor,
-    AdaptiveColor,
-    CompleteColor,
-    CompleteAdaptiveColor,
-]
-
-
 @value
 struct NoColor(TerminalColor):
     """Used to specify the absence of color styling. When this is active
@@ -266,28 +256,100 @@ struct CompleteAdaptiveColor(TerminalColor):
         return self.light.color(renderer)
 
 
-fn any_terminal_color_to_any_color(terminal_color: AnyTerminalColor, renderer: Renderer) -> mist.AnyColor:
-    """Converts an `AnyTerminalColor` to an `AnyColor`.
+struct AnyTerminalColor:
+    var value: Variant[
+        NoColor,
+        Color,
+        ANSIColor,
+        AdaptiveColor,
+        CompleteColor,
+        CompleteAdaptiveColor,
+    ]
 
-    Args:
-        terminal_color: The terminal color to convert.
-        renderer: The renderer to use for color selection.
+    @implicit
+    fn __init__(out self, color: Variant[
+            NoColor,
+            Color,
+            ANSIColor,
+            AdaptiveColor,
+            CompleteColor,
+            CompleteAdaptiveColor,
+        ]):
+        self.value = color
+
+    @implicit
+    fn __init__(out self, color: NoColor):
+        self.value = color
     
-    Returns:
-        The converted color.
+    @implicit
+    fn __init__(out self, color: Color):
+        self.value = color
+    
+    @implicit
+    fn __init__(out self, color: ANSIColor):
+        self.value = color
+    
+    @implicit
+    fn __init__(out self, color: AdaptiveColor):
+        self.value = color
+    
+    @implicit
+    fn __init__(out self, color: CompleteColor):
+        self.value = color
+    
+    @implicit
+    fn __init__(out self, color: CompleteAdaptiveColor):
+        self.value = color
+    
+    fn __moveinit__(out self, owned other: Self):
+        self.value = other.value^
+    
+    fn copy(self) -> Self:
+        return Self(self.value)
 
-    Notes:
-        Useful for converting a `mog.TerminalColor` to a `mist.Color` for use in a `mist.Style`.
-    """
-    if terminal_color.isa[Color]():
-        return terminal_color[Color].color(renderer)
-    elif terminal_color.isa[ANSIColor]():
-        return terminal_color[ANSIColor].color(renderer)
-    elif terminal_color.isa[AdaptiveColor]():
-        return terminal_color[AdaptiveColor].color(renderer)
-    elif terminal_color.isa[CompleteColor]():
-        return terminal_color[CompleteColor].color(renderer)
-    elif terminal_color.isa[CompleteAdaptiveColor]():
-        return terminal_color[CompleteAdaptiveColor].color(renderer)
+    fn to_mist_color(self, renderer: Renderer) -> mist.AnyColor:
+        """Converts an `AnyTerminalColor` to an `AnyColor`.
 
-    return mist.NoColor()
+        Args:
+            renderer: The renderer to use for color selection.
+        
+        Returns:
+            The converted color.
+
+        Notes:
+            Useful for converting a `mog.TerminalColor` to a `mist.Color` for use in a `mist.Style`.
+        """
+        if self.value.isa[Color]():
+            return self.value[Color].color(renderer)
+        elif self.value.isa[ANSIColor]():
+            return self.value[ANSIColor].color(renderer)
+        elif self.value.isa[AdaptiveColor]():
+            return self.value[AdaptiveColor].color(renderer)
+        elif self.value.isa[CompleteColor]():
+            return self.value[CompleteColor].color(renderer)
+        elif self.value.isa[CompleteAdaptiveColor]():
+            return self.value[CompleteAdaptiveColor].color(renderer)
+
+        return mist.NoColor()
+    
+    fn isa[T: CollectionElement](self) -> Bool:
+        """Checks if the value is of the given type.
+
+        Parameters:
+            T: The type to check against.
+
+        Returns:
+            True if the value is of the given type, False otherwise.
+        """
+        return self.value.isa[T]()
+
+    fn __getitem__[T: CollectionElement](ref self) -> ref [self.value] T:
+        """Gets the value as the given type.
+
+        Parameters:
+            T: The type to get the value as.
+
+        Returns:
+            The value as the given type.
+        """
+        return self.value[T]

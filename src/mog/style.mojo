@@ -30,7 +30,6 @@ from .color import (
     AdaptiveColor,
     CompleteColor,
     CompleteAdaptiveColor,
-    any_terminal_color_to_any_color,
 )
 from weave import wrap, word_wrap, truncate
 from weave.ansi import printable_rune_width
@@ -155,7 +154,22 @@ struct Style(Movable, ExplicitlyCopyable):
     var _tab_width: UInt16
     """The number of spaces that a tab (/t) should be rendered as."""
 
-    fn __init__(out self, renderer: Renderer, properties: Properties, value: String, attrs: Properties, color: Coloring, dimensions: Dimensions, max_dimensions: Dimensions, alignment: Alignment, padding: Padding, margin: Margin, border: Border, border_color: BorderColor, tab_width: UInt16):
+    fn __init__(
+        out self,
+        renderer: Renderer,
+        properties: Properties,
+        value: String,
+        attrs: Properties,
+        owned color: Coloring,
+        dimensions: Dimensions,
+        max_dimensions: Dimensions,
+        alignment: Alignment,
+        padding: Padding,
+        owned margin: Margin,
+        border: Border,
+        owned border_color: BorderColor,
+        tab_width: UInt16
+    ):
         """Initialize A new Style.
 
         Args:
@@ -177,14 +191,14 @@ struct Style(Movable, ExplicitlyCopyable):
         self._properties = properties
         self._value = value
         self._attrs = attrs
-        self._color = color
+        self._color = color^
         self._dimensions = dimensions
         self._max_dimensions = max_dimensions
         self._alignment = alignment
         self._padding = padding
-        self._margin = margin
+        self._margin = margin^
         self._border = border
-        self._border_color = border_color
+        self._border_color = border_color^
         self._tab_width = tab_width
 
     fn __init__(out self, color_profile: Int = -1, *, value: String = ""):
@@ -234,14 +248,14 @@ struct Style(Movable, ExplicitlyCopyable):
             properties=self._properties,
             value=self._value,
             attrs=self._attrs,
-            color=self._color,
+            color=self._color.copy(),
             dimensions=self._dimensions,
             max_dimensions=self._max_dimensions,
             alignment=self._alignment,
             padding=self._padding,
-            margin=self._margin,
+            margin=self._margin.copy(),
             border=self._border,
-            border_color=self._border_color,
+            border_color=self._border_color.copy(),
             tab_width=self._tab_width
         )
 
@@ -292,27 +306,27 @@ struct Style(Movable, ExplicitlyCopyable):
 
         @parameter
         if key == PropKey.FOREGROUND:
-            return self._color.foreground
+            return self._color.foreground.copy()
         elif key == PropKey.BACKGROUND:
-            return self._color.background
+            return self._color.background.copy()
         elif key == PropKey.BORDER_TOP_FOREGROUND:
-            return self._border_color.foreground_top
+            return self._border_color.foreground_top.copy()
         elif key == PropKey.BORDER_RIGHT_FOREGROUND:
-            return self._border_color.foreground_right
+            return self._border_color.foreground_right.copy()
         elif key == PropKey.BORDER_BOTTOM_FOREGROUND:
-            return self._border_color.foreground_bottom
+            return self._border_color.foreground_bottom.copy()
         elif key == PropKey.BORDER_LEFT_FOREGROUND:
-            return self._border_color.foreground_left
+            return self._border_color.foreground_left.copy()
         elif key == PropKey.BORDER_TOP_BACKGROUND:
-            return self._border_color.background_top
+            return self._border_color.background_top.copy()
         elif key == PropKey.BORDER_RIGHT_BACKGROUND:
-            return self._border_color.background_right
+            return self._border_color.background_right.copy()
         elif key == PropKey.BORDER_BOTTOM_BACKGROUND:
-            return self._border_color.background_bottom
+            return self._border_color.background_bottom.copy()
         elif key == PropKey.BORDER_LEFT_BACKGROUND:
-            return self._border_color.background_left
+            return self._border_color.background_left.copy()
         elif key == PropKey.MARGIN_BACKGROUND:
-            return self._margin.background
+            return self._margin.background.copy()
         else:
             return NoColor()
 
@@ -519,27 +533,27 @@ struct Style(Movable, ExplicitlyCopyable):
         """
         @parameter
         if key == PropKey.FOREGROUND:
-            self._color.foreground = value
+            self._color.foreground = value.copy()
         elif key == PropKey.BACKGROUND:
-            self._color.background = value
+            self._color.background = value.copy()
         elif key == PropKey.MARGIN_BACKGROUND:
-            self._margin.background = value
+            self._margin.background = value.copy()
         elif key == PropKey.BORDER_TOP_FOREGROUND:
-            self._border_color.foreground_top = value
+            self._border_color.foreground_top = value.copy()
         elif key == PropKey.BORDER_RIGHT_FOREGROUND:
-            self._border_color.foreground_right = value
+            self._border_color.foreground_right = value.copy()
         elif key == PropKey.BORDER_BOTTOM_FOREGROUND:
-            self._border_color.foreground_bottom = value
+            self._border_color.foreground_bottom = value.copy()
         elif key == PropKey.BORDER_LEFT_FOREGROUND:
-            self._border_color.foreground_left = value
+            self._border_color.foreground_left = value.copy()
         elif key == PropKey.BORDER_TOP_BACKGROUND:
-            self._border_color.background_top = value
+            self._border_color.background_top = value.copy()
         elif key == PropKey.BORDER_RIGHT_BACKGROUND:
-            self._border_color.background_right = value
+            self._border_color.background_right = value.copy()
         elif key == PropKey.BORDER_BOTTOM_BACKGROUND:
-            self._border_color.background_bottom = value
+            self._border_color.background_bottom = value.copy()
         elif key == PropKey.BORDER_LEFT_BACKGROUND:
-            self._border_color.background_left = value
+            self._border_color.background_left = value.copy()
 
         # Set the prop
         self._properties.set[key](True)
@@ -1479,25 +1493,25 @@ struct Style(Movable, ExplicitlyCopyable):
         var new = self.copy()
         var widths_specified = len(colors)
         if widths_specified == 1:
-            top = colors[0]
-            bottom = colors[0]
-            left = colors[0]
-            right = colors[0]
+            top = colors[0].copy()
+            bottom = colors[0].copy()
+            left = colors[0].copy()
+            right = colors[0].copy()
         elif widths_specified == 2:
-            top = colors[0]
-            bottom = colors[0]
-            left = colors[1]
-            right = colors[1]
+            top = colors[0].copy()
+            bottom = colors[0].copy()
+            left = colors[1].copy()
+            right = colors[1].copy()
         elif widths_specified == 3:
-            top = colors[0]
-            left = colors[1]
-            right = colors[1]
-            bottom = colors[2]
+            top = colors[0].copy()
+            left = colors[1].copy()
+            right = colors[1].copy()
+            bottom = colors[2].copy()
         elif widths_specified == 4:
-            top = colors[0]
-            right = colors[1]
-            bottom = colors[2]
-            left = colors[3]
+            top = colors[0].copy()
+            right = colors[1].copy()
+            bottom = colors[2].copy()
+            left = colors[3].copy()
         else:
             return new^
 
@@ -1518,7 +1532,7 @@ struct Style(Movable, ExplicitlyCopyable):
         """
         var new = self.copy()
         new._properties.set[PropKey.BORDER_TOP_FOREGROUND](True)
-        new._border_color.foreground_top = color
+        new._border_color.foreground_top = color.copy()
         return new^
 
     fn unset_border_top_foreground(self) -> Style:
@@ -1542,7 +1556,7 @@ struct Style(Movable, ExplicitlyCopyable):
         """
         var new = self.copy()
         new._properties.set[PropKey.BORDER_RIGHT_FOREGROUND](True)
-        new._border_color.foreground_right = color
+        new._border_color.foreground_right = color.copy()
         return new^
 
     fn unset_border_right_foreground(self) -> Style:
@@ -1566,7 +1580,7 @@ struct Style(Movable, ExplicitlyCopyable):
         """
         var new = self.copy()
         new._properties.set[PropKey.BORDER_LEFT_FOREGROUND](True)
-        new._border_color.foreground_left = color
+        new._border_color.foreground_left = color.copy()
         return new^
 
     fn unset_border_left_foreground(self) -> Style:
@@ -1590,7 +1604,7 @@ struct Style(Movable, ExplicitlyCopyable):
         """
         var new = self.copy()
         new._properties.set[PropKey.BORDER_BOTTOM_FOREGROUND](True)
-        new._border_color.foreground_bottom = color
+        new._border_color.foreground_bottom = color.copy()
         return new^
 
     fn unset_border_bottom_foreground(self) -> Style:
@@ -1619,25 +1633,25 @@ struct Style(Movable, ExplicitlyCopyable):
         var new = self.copy()
         var widths_specified = len(colors)
         if widths_specified == 1:
-            top = colors[0]
-            bottom = colors[0]
-            left = colors[0]
-            right = colors[0]
+            top = colors[0].copy()
+            bottom = colors[0].copy()
+            left = colors[0].copy()
+            right = colors[0].copy()
         elif widths_specified == 2:
-            top = colors[0]
-            bottom = colors[0]
-            left = colors[1]
-            right = colors[1]
+            top = colors[0].copy()
+            bottom = colors[0].copy()
+            left = colors[1].copy()
+            right = colors[1].copy()
         elif widths_specified == 3:
-            top = colors[0]
-            left = colors[1]
-            right = colors[1]
-            bottom = colors[2]
+            top = colors[0].copy()
+            left = colors[1].copy()
+            right = colors[1].copy()
+            bottom = colors[2].copy()
         elif widths_specified == 4:
-            top = colors[0]
-            right = colors[1]
-            bottom = colors[2]
-            left = colors[3]
+            top = colors[0].copy()
+            right = colors[1].copy()
+            bottom = colors[2].copy()
+            left = colors[3].copy()
         else:
             return new^
 
@@ -1658,7 +1672,7 @@ struct Style(Movable, ExplicitlyCopyable):
         """
         var new = self.copy()
         new._properties.set[PropKey.BORDER_TOP_BACKGROUND](True)
-        new._border_color.background_top = color
+        new._border_color.background_top = color.copy()
         return new^
 
     fn unset_border_top_background(self) -> Style:
@@ -1682,7 +1696,7 @@ struct Style(Movable, ExplicitlyCopyable):
         """
         var new = self.copy()
         new._properties.set[PropKey.BORDER_RIGHT_BACKGROUND](True)
-        new._border_color.background_right = color
+        new._border_color.background_right = color.copy()
         return new^
 
     fn unset_border_right_background(self) -> Style:
@@ -1706,7 +1720,7 @@ struct Style(Movable, ExplicitlyCopyable):
         """
         var new = self.copy()
         new._properties.set[PropKey.BORDER_LEFT_BACKGROUND](True)
-        new._border_color.background_left = color
+        new._border_color.background_left = color.copy()
         return new^
 
     fn unset_border_left_background(self) -> Style:
@@ -1730,7 +1744,7 @@ struct Style(Movable, ExplicitlyCopyable):
         """
         var new = self.copy()
         new._properties.set[PropKey.BORDER_BOTTOM_BACKGROUND](True)
-        new._border_color.background_bottom = color
+        new._border_color.background_bottom = color.copy()
         return new^
 
     fn unset_border_bottom_background(self) -> Style:
@@ -2180,8 +2194,8 @@ struct Style(Movable, ExplicitlyCopyable):
             return border
 
         return self._get_mist_style()
-            .foreground(color=any_terminal_color_to_any_color(fg, self._renderer))
-            .background(color=any_terminal_color_to_any_color(bg, self._renderer))
+            .foreground(color=fg.to_mist_color(self._renderer))
+            .background(color=bg.to_mist_color(self._renderer))
             .render(border)
 
     fn _apply_border(self, text: String) -> String:
@@ -2332,7 +2346,7 @@ struct Style(Movable, ExplicitlyCopyable):
         var left_margin = self._get_as_uint16[PropKey.MARGIN_LEFT]()
 
         var bgc = self.get_margin_background()
-        var styler = self._get_mist_style().background(color=any_terminal_color_to_any_color(bgc, self._renderer))
+        var styler = self._get_mist_style().background(color=bgc.to_mist_color(self._renderer))
 
         # Add left and right margin
         text = pad_right(pad_left(text, Int(left_margin), styler), Int(right_margin), styler)
@@ -2367,8 +2381,8 @@ struct Style(Movable, ExplicitlyCopyable):
         if self.get_strikethrough():
             stylers.common = stylers.common.strikethrough()
 
-        var fg_color = any_terminal_color_to_any_color(self.get_foreground(), self._renderer)
-        var bg_color = any_terminal_color_to_any_color(self.get_background(), self._renderer)
+        var fg_color = self.get_foreground().to_mist_color(self._renderer)
+        var bg_color = self.get_background().to_mist_color(self._renderer)
         stylers.common = stylers.common.foreground(color=fg_color).background(color=bg_color)
 
         # Do we need to style spaces separately?
@@ -2439,10 +2453,10 @@ struct Style(Movable, ExplicitlyCopyable):
 
         # force-wrap long strings
         if (not inline) and (width > 0):
-            input_text = _wrap_words(input_text, width, left_padding, right_padding)
+            input_text = _wrap_words(input_text^, width, left_padding, right_padding)
 
         # Even though String.splitlines allocates new strings, we need to add the newlines back in. Can't do it for a list of stringslice unfortunately.
-        var result = _apply_styles(self._maybe_convert_tabs(input_text), self.uses_space_styler(), stylers)
+        var result = _apply_styles(self._maybe_convert_tabs(input_text^), self.uses_space_styler(), stylers)
 
         # Do we need to style whitespace (padding and space outside paragraphs) separately?
         var use_whitespace_styler = reverse
@@ -2453,16 +2467,16 @@ struct Style(Movable, ExplicitlyCopyable):
                 var style = self._get_mist_style()
                 if color_whitespace or use_whitespace_styler:
                     style = stylers.whitespace.copy()
-                result = pad_left(result, Int(left_padding), style)
+                result = pad_left(result^, Int(left_padding), style)
 
             if right_padding > 0:
                 var style = self._get_mist_style()
                 if color_whitespace or use_whitespace_styler:
                     style = stylers.whitespace.copy()
-                result = pad_right(result, Int(right_padding), style)
+                result = pad_right(result^, Int(right_padding), style)
 
             if top_padding > 0:
-                result = String(NEWLINE * Int(top_padding), result)
+                result = String(NEWLINE * Int(top_padding), result^)
 
             if bottom_padding > 0:
                 result.write(NEWLINE * Int(bottom_padding))
@@ -2470,7 +2484,7 @@ struct Style(Movable, ExplicitlyCopyable):
         # Alignment
         var height = self.get_height()
         if height > 0:
-            result = align_text_vertical(result, self.get_vertical_alignment(), Int(height))
+            result = align_text_vertical(result^, self.get_vertical_alignment(), Int(height))
         
         if width != 0 or get_widest_line(result) != 0:
             var style: mist.Style
@@ -2478,7 +2492,7 @@ struct Style(Movable, ExplicitlyCopyable):
                 style = stylers.whitespace.copy()
             else:
                 style = self._get_mist_style()
-            result = align_text_horizontal(result, self.get_horizontal_alignment(), Int(width), style)
+            result = align_text_horizontal(result^, self.get_horizontal_alignment(), Int(width), style)
         
         # Apply border at the end
         if not inline:
@@ -2493,11 +2507,11 @@ struct Style(Movable, ExplicitlyCopyable):
                     truncated.write(NEWLINE)
                 truncated.write(truncate(lines[i], Int(max_width)))
 
-            result = truncated
+            result = truncated^
 
         # Truncate according to max_height
         if max_height > 0:
-            lines = get_lines_only(result)
+            lines = get_lines_only(result^)
             result = NEWLINE.join(lines[0 : min(Int(max_height), len(lines))])
 
         return result^

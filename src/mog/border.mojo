@@ -330,7 +330,7 @@ fn render_horizontal_edge(left: String, owned middle: String, right: String, wid
     var left_width = printable_rune_width(left)
     var right_width = printable_rune_width(right)
 
-    var output = left
+    var output = left.copy()
     var i = left_width + right_width
     var j = 0
     while i < width + right_width:

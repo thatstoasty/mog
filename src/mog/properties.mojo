@@ -168,8 +168,7 @@ struct Padding:
         self.left = left
 
 
-@value
-struct Margin:
+struct Margin(Movable, ExplicitlyCopyable):
     var top: UInt16
     """The margin level at the top of the text."""
     var right: UInt16
@@ -183,17 +182,33 @@ struct Margin:
 
     fn __init__(
         out self,
-        top: Int = 0,
-        right: Int = 0,
-        bottom: Int = 0,
-        left: Int = 0,
-        background: AnyTerminalColor = NoColor(),
+        top: UInt16 = 0,
+        right: UInt16 = 0,
+        bottom: UInt16 = 0,
+        left: UInt16 = 0,
+        owned background: AnyTerminalColor = NoColor(),
     ):
         self.top = top
         self.right = right
         self.bottom = bottom
         self.left = left
-        self.background = background
+        self.background = background^
+    
+    fn __moveinit__(out self, owned other: Self):
+        self.top = other.top
+        self.right = other.right
+        self.bottom = other.bottom
+        self.left = other.left
+        self.background = other.background^
+    
+    fn copy(self) -> Self:
+        return Self(
+            top=self.top,
+            right=self.right,
+            bottom=self.bottom,
+            left=self.left,
+            background=self.background.copy()
+        )
 
 
 @value
@@ -222,20 +237,28 @@ struct Alignment:
         self.vertical = vertical
 
 
-@value
-struct Coloring:
+struct Coloring(Movable, ExplicitlyCopyable):
     var foreground: AnyTerminalColor
     """The foreground color."""
     var background: AnyTerminalColor
     """The background color."""
 
-    fn __init__(out self, foreground: AnyTerminalColor = NoColor(), background: AnyTerminalColor = NoColor()):
-        self.foreground = foreground
-        self.background = background
+    fn __init__(out self, owned foreground: AnyTerminalColor = NoColor(), owned background: AnyTerminalColor = NoColor()):
+        self.foreground = foreground^
+        self.background = background^
+    
+    fn __moveinit__(out self, owned other: Self):
+        self.foreground = other.foreground^
+        self.background = other.background^
+    
+    fn copy(self) -> Self:
+        return Self(
+            foreground=self.foreground.copy(),
+            background=self.background.copy()
+        )
 
 
-@value
-struct BorderColor:
+struct BorderColor(Movable, ExplicitlyCopyable):
     var foreground_top: AnyTerminalColor
     """The foreground color of the top border."""
     var foreground_right: AnyTerminalColor
@@ -255,20 +278,42 @@ struct BorderColor:
 
     fn __init__(
         out self,
-        foreground_top: AnyTerminalColor = NoColor(),
-        foreground_right: AnyTerminalColor = NoColor(),
-        foreground_bottom: AnyTerminalColor = NoColor(),
-        foreground_left: AnyTerminalColor = NoColor(),
-        background_top: AnyTerminalColor = NoColor(),
-        background_right: AnyTerminalColor = NoColor(),
-        background_bottom: AnyTerminalColor = NoColor(),
-        background_left: AnyTerminalColor = NoColor(),
+        owned foreground_top: AnyTerminalColor = NoColor(),
+        owned foreground_right: AnyTerminalColor = NoColor(),
+        owned foreground_bottom: AnyTerminalColor = NoColor(),
+        owned foreground_left: AnyTerminalColor = NoColor(),
+        owned background_top: AnyTerminalColor = NoColor(),
+        owned background_right: AnyTerminalColor = NoColor(),
+        owned background_bottom: AnyTerminalColor = NoColor(),
+        owned background_left: AnyTerminalColor = NoColor(),
     ):
-        self.foreground_top = foreground_top
-        self.foreground_right = foreground_right
-        self.foreground_bottom = foreground_bottom
-        self.foreground_left = foreground_left
-        self.background_top = background_top
-        self.background_right = background_right
-        self.background_bottom = background_bottom
-        self.background_left = background_left
+        self.foreground_top = foreground_top^
+        self.foreground_right = foreground_right^
+        self.foreground_bottom = foreground_bottom^
+        self.foreground_left = foreground_left^
+        self.background_top = background_top^
+        self.background_right = background_right^
+        self.background_bottom = background_bottom^
+        self.background_left = background_left^
+    
+    fn __moveinit__(out self, owned other: Self):
+        self.foreground_top = other.foreground_top^
+        self.foreground_right = other.foreground_right^
+        self.foreground_bottom = other.foreground_bottom^
+        self.foreground_left = other.foreground_left^
+        self.background_top = other.background_top^
+        self.background_right = other.background_right^
+        self.background_bottom = other.background_bottom^
+        self.background_left = other.background_left^
+    
+    fn copy(self) -> Self:
+        return Self(
+            foreground_top=self.foreground_top.copy(),
+            foreground_right=self.foreground_right.copy(),
+            foreground_bottom=self.foreground_bottom.copy(),
+            foreground_left=self.foreground_left.copy(),
+            background_top=self.background_top.copy(),
+            background_right=self.background_right.copy(),
+            background_bottom=self.background_bottom.copy(),
+            background_left=self.background_left.copy()
+        )

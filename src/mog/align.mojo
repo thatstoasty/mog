@@ -35,8 +35,7 @@ fn align_text_horizontal(
         short_amount += max(0, width - (short_amount + line_width))  # difference from the total width, if set
         if short_amount > 0:
             if pos == position.right:
-                var spaces = style.render(WHITESPACE * short_amount)                
-                line = String(spaces, line)
+                line = String(style.render(WHITESPACE * short_amount), line)
             elif pos == position.center:
                 # Note: remainder goes on the right.
                 var left = short_amount / 2
@@ -51,7 +50,7 @@ fn align_text_horizontal(
         if i < len(lines) - 1:
             aligned_text.write(NEWLINE)
 
-    return aligned_text
+    return aligned_text^
 
 
 fn align_text_vertical(text: String, pos: position.Position, height: Int) -> String:

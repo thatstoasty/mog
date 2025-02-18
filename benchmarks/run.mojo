@@ -54,26 +54,12 @@ fn main() raises:
     config.flush_denormals = True
     config.show_progress = True
     var bench = Bench(config)
-    # test_render_layout()
-
-    # var path = String(pathlib._dir_of_current_file()) + "/data/big.txt"
-    # var data: String
-    # with open(path, "r") as file:
-    #     data = file.read()
 
     run[test_render_layout, "Layout"](bench)
     run[test_basic_styling, "BasicStyle"](bench)
     run[test_basic_comptime_styling, "CompTimeBasicStyle"](bench)
 
-    # run[test_dedent, "Dedent"](bench_config, data)
-    # run[test_margin, "Margin"](bench_config, data)
-    # run[test_word_wrap, "WordWrap"](bench_config, data)
-    # run[test_wrap, "Wrap"](bench_config, data)
-    # run[test_truncate, "Truncate"](bench_config, data)
-    # run[test_padding, "Padding"](bench_config, data)
-
     bench.dump_report()
-    # report.print()
 
 
 # fn main() raises:

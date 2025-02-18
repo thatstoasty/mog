@@ -145,22 +145,9 @@ fn with_whitespace_foreground[terminal_color: AnyTerminalColor]() -> WhitespaceO
     """
 
     fn style_foreground(mut w: WhitespaceRenderer) -> None:
-        var color: mist.AnyColor = mist.NoColor()
         if terminal_color.isa[NoColor]():
             return None
-
-        if terminal_color.isa[Color]():
-            color = terminal_color[Color].color(w.renderer)
-        elif terminal_color.isa[ANSIColor]():
-            color = terminal_color[ANSIColor].color(w.renderer)
-        elif terminal_color.isa[AdaptiveColor]():
-            color = terminal_color[AdaptiveColor].color(w.renderer)
-        elif terminal_color.isa[CompleteColor]():
-            color = terminal_color[CompleteColor].color(w.renderer)
-        elif terminal_color.isa[CompleteAdaptiveColor]():
-            color = terminal_color[CompleteAdaptiveColor].color(w.renderer)
-
-        w.style = w.style.foreground(color=color)
+        w.style = w.style.foreground(color=terminal_color.to_mist_color(w.renderer))
 
     return style_foreground
 
@@ -176,22 +163,9 @@ fn with_whitespace_background[terminal_color: AnyTerminalColor]() -> WhitespaceO
     """
 
     fn style_background(mut w: WhitespaceRenderer) -> None:
-        var color: mist.AnyColor = mist.NoColor()
         if terminal_color.isa[NoColor]():
             return None
-
-        if terminal_color.isa[Color]():
-            color = terminal_color[Color].color(w.renderer)
-        elif terminal_color.isa[ANSIColor]():
-            color = terminal_color[ANSIColor].color(w.renderer)
-        elif terminal_color.isa[AdaptiveColor]():
-            color = terminal_color[AdaptiveColor].color(w.renderer)
-        elif terminal_color.isa[CompleteColor]():
-            color = terminal_color[CompleteColor].color(w.renderer)
-        elif terminal_color.isa[CompleteAdaptiveColor]():
-            color = terminal_color[CompleteAdaptiveColor].color(w.renderer)
-
-        w.style = w.style.background(color=color)
+        w.style = w.style.background(color=terminal_color.to_mist_color(w.renderer))
 
     return style_background
 

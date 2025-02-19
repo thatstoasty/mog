@@ -1,8 +1,8 @@
 import math
 from utils import StringSlice
-from .extensions import get_lines
 from weave.ansi import printable_rune_width
-from .position import Position, top, bottom, left, right, center
+from mog.extensions import get_lines
+from mog.position import Position
 
 
 fn join_horizontal(pos: Position, *strs: String) -> String:
@@ -60,21 +60,21 @@ fn join_horizontal(pos: Position, *strs: String) -> String:
     for i in range(len(blocks)):
         if len(blocks[i]) >= max_height:
             continue
-        var extra_lines = List[String]()
+        var extra_lines = List[String](capacity=max_height - len(blocks[i]))
         extra_lines.resize(max_height - len(blocks[i]), "")
 
-        if pos == top:
+        if pos == Position.TOP:
             blocks[i].extend(extra_lines)
-        elif pos == bottom:
+        elif pos == Position.BOTTOM:
             extra_lines.extend(blocks[i])
             blocks[i] = extra_lines
         else:
-            var n = len(extra_lines)
-            var top_point = n - Int(n * pos)
-            var bottom_point = n - top_point
+            var end = len(extra_lines)
+            var top_point = end - Int(end * pos.value)
+            var bottom_point = end - top_point
 
-            var top_lines = extra_lines[top_point : len(extra_lines)]
-            var bottom_lines = extra_lines[bottom_point : len(extra_lines)]
+            var top_lines = extra_lines[top_point : end]
+            var bottom_lines = extra_lines[bottom_point : end]
             top_lines.extend(blocks[i])
             blocks[i] = top_lines
             blocks[i].extend(bottom_lines)
@@ -84,14 +84,13 @@ fn join_horizontal(pos: Position, *strs: String) -> String:
     # remember, all blocks have the same number of members now
     for i in range(len(blocks[0])):
         for j in range(len(blocks)):
-            var block = blocks[j]
-            result.write(block[i])
+            result.write(blocks[j][i])
 
-            # Also make lines the same length by padding with whitespaces.
-            result.write(WHITESPACE * (max_widths[j] - printable_rune_width(block[i])))
+            # Also make lines the same length by padding with whitespace
+            result.write(WHITESPACE * (max_widths[j] - printable_rune_width(blocks[j][i])))
 
         if i < len(blocks[0]) - 1:
-            result.write("\n")
+            result.write(NEWLINE)
 
     return result^
 
@@ -151,26 +150,25 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
     for i in range(len(blocks)):
         if len(blocks[i]) >= max_height:
             continue
-
         var extra_lines = List[String](capacity=max_height - len(blocks[i]))
         extra_lines.resize(max_height - len(blocks[i]), "")
 
-        if pos == top:
+        if pos == Position.TOP:
             blocks[i].extend(extra_lines)
-        elif pos == bottom:
+        elif pos == Position.BOTTOM:
             extra_lines.extend(blocks[i])
             blocks[i] = extra_lines
         else:
-            var n = len(extra_lines)
-            var top_point = n - Int(n * pos)
-            var bottom_point = n - top_point
+            var end = len(extra_lines)
+            var top_point = end - Int(end * pos.value)
+            var bottom_point = end - top_point
 
-            var top_lines = extra_lines[top_point : len(extra_lines)]
-            var bottom_lines = extra_lines[bottom_point : len(extra_lines)]
+            var top_lines = extra_lines[top_point : end]
+            var bottom_lines = extra_lines[bottom_point : end]
             top_lines.extend(blocks[i])
             blocks[i] = top_lines
             blocks[i].extend(bottom_lines)
-
+    
     # Merge lines
     var result = String()
     # remember, all blocks have the same number of members now
@@ -179,8 +177,7 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
             result.write(blocks[j][i])
 
             # Also make lines the same length by padding with whitespace
-            var spaces = WHITESPACE * (max_widths[j] - printable_rune_width(blocks[j][i]))
-            result.write(spaces)
+            result.write(WHITESPACE * (max_widths[j] - printable_rune_width(blocks[j][i])))
 
         if i < len(blocks[0]) - 1:
             result.write(NEWLINE)
@@ -240,15 +237,15 @@ fn join_vertical(pos: Position, *strs: String) -> String:
             var line = blocks[i][j]
             w = max_width - printable_rune_width(line)
 
-            if pos == left:
+            if pos == Position.LEFT:
                 result.write(line, WHITESPACE * w)
-            elif pos == right:
+            elif pos == Position.RIGHT:
                 result.write(WHITESPACE * w, line)
             else:
                 if w < 1:
                     result.write(line)
                 else:
-                    var split = Int(w * pos)
+                    var split = Int(w * pos.value)
                     var right = w - split
                     var left = w - right
 
@@ -306,25 +303,24 @@ fn join_vertical(pos: Position, strs: List[String]) -> String:
             max_width = widest
 
     var result = String()
-    var w = 0
     for i in range(len(blocks)):
         for j in range(len(blocks[i])):
-            var line = blocks[i][j]
-            w = max_width - printable_rune_width(line)
+            # blocks[i][j] is equivalent to a line
+            var w = max_width - printable_rune_width(blocks[i][j])
 
-            if pos == left:
-                result.write(line, WHITESPACE * w)
-            elif pos == right:
-                result.write(WHITESPACE * w, line)
+            if pos == Position.LEFT:
+                result.write(blocks[i][j], WHITESPACE * w)
+            elif pos == Position.RIGHT:
+                result.write(WHITESPACE * w, blocks[i][j])
             else:
                 if w < 1:
-                    result.write(line)
+                    result.write(blocks[i][j])
                 else:
-                    var split = Int(w * pos)
+                    var split = Int(w * pos.value)
                     var right = w - split
                     var left = w - right
 
-                    result.write(WHITESPACE * left, line, WHITESPACE * right)
+                    result.write(WHITESPACE * left, blocks[i][j], WHITESPACE * right)
 
             if not (i == len(blocks) - 1 and j == len(blocks[i]) - 1):
                 result.write("\n")

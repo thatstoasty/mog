@@ -1,6 +1,6 @@
 from utils import StringSlice
 import weave.ansi
-from .extensions import AsStringSlice
+from weave.traits import AsStringSlice
 from .properties import Dimensions
 
 

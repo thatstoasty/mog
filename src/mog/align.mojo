@@ -21,36 +21,35 @@ fn align_text_horizontal(
     Returns:
         The aligned text.
     """
-    lines, widest_line = get_lines(text)
+    lines, widest_line = get_lines_view(text)
     
     # If the text is empty, just return (styled) padding up to the width passed.
     if len(lines) == 0:
         return style.render(WHITESPACE * width)
 
-    var aligned_text = String(capacity=Int(len(text) * 1.25))
+    var aligned = String(capacity=Int(len(text) * 1.25))
     for i in range(len(lines)):
-        var line = String.write(lines[i])
+        if i != 0:
+            aligned.write(NEWLINE)
+
+        var line = String(lines[i])
         var line_width = printable_rune_width(line)
         var short_amount = widest_line - line_width  # difference from the widest line
         short_amount += max(0, width - (short_amount + line_width))  # difference from the total width, if set
         if short_amount > 0:
-            if pos == position.right:
+            if pos == Position.RIGHT:
                 line = String(style.render(WHITESPACE * short_amount), line)
-            elif pos == position.center:
+            elif pos == Position.CENTER:
                 # Note: remainder goes on the right.
-                var left = short_amount / 2
-                var right = left + short_amount % 2
-                var left_spaces = style.render(WHITESPACE * Int(left))
-                var right_spaces = style.render(WHITESPACE * Int(right))
-                line = String(left_spaces, line, right_spaces)
-            elif pos == position.left:
-                line.write(style.render(WHITESPACE * Int(short_amount)))
+                var left = Int(short_amount / 2)
+                var right = Int(left + short_amount % 2)
+                line = String(style.render(WHITESPACE * left), line, style.render(WHITESPACE * right))
+            elif pos == Position.LEFT:
+                line.write(style.render(WHITESPACE * short_amount))
 
-        aligned_text.write(line)
-        if i < len(lines) - 1:
-            aligned_text.write(NEWLINE)
-
-    return aligned_text^
+        aligned.write(line)
+        
+    return aligned^
 
 
 fn align_text_vertical(text: String, pos: position.Position, height: Int) -> String:
@@ -71,10 +70,10 @@ fn align_text_vertical(text: String, pos: position.Position, height: Int) -> Str
         return text
 
     var remaining_height = height - text_height
-    if pos == position.top:
+    if pos == Position.TOP:
         return String(text, NEWLINE * remaining_height)
 
-    elif pos == position.center:
+    elif pos == Position.CENTER:
         var top_padding = (remaining_height) / 2
         var bottom_padding = (remaining_height) / 2
         if text_height + top_padding + bottom_padding > height:
@@ -84,7 +83,7 @@ fn align_text_vertical(text: String, pos: position.Position, height: Int) -> Str
 
         return String(NEWLINE * Int(top_padding), text, NEWLINE * Int(bottom_padding))
 
-    elif pos == position.bottom:
+    elif pos == Position.BOTTOM:
         return String(NEWLINE * remaining_height, text)
 
     return text

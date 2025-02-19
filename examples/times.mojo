@@ -9,21 +9,19 @@ from mog.border import (
     HIDDEN_BORDER,
 )
 from mog.style import Style
-from mog import position
+from mog import Position
 import mog
 from time import perf_counter_ns
 
 
 fn dummy_style_func(row: Int, col: Int) -> Style:
-    var style = mog.Style().horizontal_alignment(position.center).vertical_alignment(position.center).padding(0, 1)
+    var style = mog.Style().horizontal_alignment(Position.CENTER).vertical_alignment(Position.CENTER).padding(0, 1)
     if row == 0:
-        style = style.foreground(mog.Color(0xC9A0DC))
-        return style.copy()
+        return style.foreground(mog.Color(0xC9A0DC))
     elif row % 2 == 0:
-        style = style.foreground(mog.Color(0xE58006))
-        return style.copy()
+        return style.foreground(mog.Color(0xE58006))
     else:
-        return style.copy()
+        return style^
 
 
 def test_table():
@@ -66,7 +64,7 @@ def test_table():
 
 def test_horizontal_joined_paragraphs():
     var style_build_start = perf_counter_ns()
-    var style = mog.Style().bold().width(50).padding(1, 1, 1, 1).horizontal_alignment(position.center).border(
+    var style = mog.Style().bold().width(50).padding(1, 1, 1, 1).horizontal_alignment(Position.CENTER).border(
         ROUNDED_BORDER
     ).foreground(mog.Color(0xC9A0DC)).border_foreground(mog.Color(0x39E506))
     var style_build_duration = perf_counter_ns() - style_build_start
@@ -76,7 +74,7 @@ def test_horizontal_joined_paragraphs():
     print(style.render("You should be able to join blocks of different heights"))
     print(
         join_horizontal(
-            position.top,
+            Position.TOP,
             style.render("You should be able to join blocks of different heights"),
             style.render(
                 "Hello World!\nThis is a test of the mog style system. Which"
@@ -91,7 +89,7 @@ def test_horizontal_joined_paragraphs():
     )
     print(
         join_horizontal(
-            position.bottom,
+            Position.BOTTOM,
             style.render("You should be able to join blocks of different heights"),
             style.render(
                 "Hello World!\nThis is a test of the mog style system. Which"
@@ -106,7 +104,7 @@ def test_horizontal_joined_paragraphs():
     )
     print(
         join_horizontal(
-            position.center,
+            Position.CENTER,
             style.render("You should be able to join blocks of different heights"),
             style.render(
                 "Hello World!\nThis is a test of the mog style system. Which"
@@ -124,13 +122,13 @@ def test_horizontal_joined_paragraphs():
 
 
 def test_borderless_paragraph():
-    var borderless_style = mog.Style().width(50).padding(1, 2).horizontal_alignment(position.center).border(
+    var borderless_style = mog.Style().width(50).padding(1, 2).horizontal_alignment(Position.CENTER).border(
         HIDDEN_BORDER
     ).background(mog.Color(0xC9A0DC))
 
     print(
         join_horizontal(
-            position.center,
+            Position.CENTER,
             borderless_style.render("You should be able to join blocks of different heights"),
             borderless_style.render(
                 "Hello World!\nThis is a test of the mog style system. Which"

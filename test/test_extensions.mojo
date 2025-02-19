@@ -21,12 +21,14 @@ def test_pad_right():
 
 def test_get_lines():
     lines, widest_line = get_lines("hello\nworld")
+    testing.assert_equal(len(lines), 2)
     testing.assert_equal(lines, List[String]("hello", "world"))
     testing.assert_equal(widest_line, 5)
 
 
 def test_get_lines_empty_string():
     lines, widest_line = get_lines("")
+    testing.assert_equal(len(lines), 0)
     testing.assert_equal(lines, List[String](""))
     testing.assert_equal(widest_line, 0)
 
@@ -38,8 +40,17 @@ def test_get_lines_view():
     testing.assert_equal(widest_line, 5)
 
 
+def test_get_lines_view_trailing_newlines():
+    lines, widest_line = get_lines_view("hello\nworld\n\n\n\n\n")
+    testing.assert_equal(len(lines), 6)
+    testing.assert_equal(String(lines[0]), "hello")
+    testing.assert_equal(String(lines[1]), "world")
+    testing.assert_equal(widest_line, 5)
+
+
 def test_get_lines_view_empty_string():
     lines, widest_line = get_lines_view("")
+    testing.assert_equal(len(lines), 0)
     testing.assert_equal(String(lines[0]), "")
     testing.assert_equal(widest_line, 0)
 

@@ -232,7 +232,7 @@ struct Alignment:
     var vertical: Position
     """The vertical alignment of the text."""
 
-    fn __init__(out self, horizontal: Position = 0, vertical: Position = 0):
+    fn __init__(out self, horizontal: Position = Position(0), vertical: Position = Position(0)):
         self.horizontal = horizontal
         self.vertical = vertical
 

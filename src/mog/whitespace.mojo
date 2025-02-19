@@ -46,6 +46,32 @@ struct WhitespaceRenderer(Movable, ExplicitlyCopyable):
         self.style = style.copy()
         self.chars = chars
     
+    fn __init__(out self, renderer: Renderer, opts: VariadicList[WhitespaceOption]):
+        """Initializes a new whitespace renderer. The order of the options matters.
+
+        Args:
+            renderer: The renderer to use.
+            opts: The options to style the whitespace.
+        """
+        self.renderer = renderer
+        self.style = mist.Style(renderer.profile)
+        self.chars = " "
+        for opt in opts:
+            opt(self)
+    
+    fn __init__(out self, renderer: Renderer, *opts: WhitespaceOption):
+        """Initializes a new whitespace renderer. The order of the options matters.
+
+        Args:
+            renderer: The renderer to use.
+            opts: The options to style the whitespace.
+        """
+        self.renderer = renderer
+        self.style = mist.Style(renderer.profile)
+        self.chars = " "
+        for opt in opts:
+            opt(self)
+    
     fn __moveinit__(mut self, owned other: Self):
         self.renderer = other.renderer
         self.style = other.style^
@@ -101,36 +127,6 @@ struct WhitespaceRenderer(Movable, ExplicitlyCopyable):
 
 alias WhitespaceOption = fn (mut w: WhitespaceRenderer) -> None
 """Sets a styling rule for rendering whitespace."""
-
-
-fn new_whitespace(renderer: Renderer, *opts: WhitespaceOption) -> WhitespaceRenderer:
-    """Creates a new whitespace renderer. The order of the options matters.
-
-    Args:
-        renderer: The renderer to use.
-        opts: The options to style the whitespace.
-
-    Returns:
-        A new whitespace renderer.
-    """
-    return _new_whitespace(renderer, opts)
-
-
-fn _new_whitespace(renderer: Renderer, opts: VariadicList[WhitespaceOption]) -> WhitespaceRenderer:
-    """Creates a new whitespace renderer. The order of the options matters.
-
-    Args:
-        renderer: The renderer to use.
-        opts: The options to style the whitespace.
-
-    Returns:
-        A new whitespace renderer.
-    """
-    var w = WhitespaceRenderer(renderer=renderer, style=mist.Style(renderer.profile))
-    for opt in opts:
-        opt(w)
-
-    return w^
 
 
 # Limited to using param for now due to Mojo crashing when using capturing functions.

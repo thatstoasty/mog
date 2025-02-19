@@ -698,7 +698,7 @@ struct Table(Writable, Stringable, Movable, ExplicitlyCopyable):
             if cell[][-1] == "\n":
                 cell[] = cell[][:-1]
         
-        result.write(join_horizontal(position.top, cells), "\n")
+        result.write(join_horizontal(Position.TOP, cells), "\n")
 
         if self._border_row and index < self._data.rows() - 1:
             result.write(self._border_style.render(self._border.middle_left))

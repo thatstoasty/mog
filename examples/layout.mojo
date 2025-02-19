@@ -3,7 +3,7 @@ from mog.join import join_vertical, join_horizontal
 from mog.border import HIDDEN_BORDER, NORMAL_BORDER, ROUNDED_BORDER, Border
 from mog.style import Style
 from mog.size import get_width
-from mog import position
+from mog import Position
 from mog.whitespace import (
     place,
     with_whitespace_chars,
@@ -76,7 +76,7 @@ fn build_tabs() -> String:
     var tab_gap = tab_style.border_top(False).border_left(False).border_right(False).border_bottom(True)
 
     var row = join_horizontal(
-        position.top,
+        Position.TOP,
         active_tab.render("Mog"),
         tab_style.render("Gojo"),
         tab_style.render("Lightbug"),
@@ -84,7 +84,7 @@ fn build_tabs() -> String:
         tab_style.render("Prism"),
     )
     var gap = tab_gap.render(String(" ") * max(0, width - get_width(row) - 2))
-    return join_horizontal(position.bottom, row, gap)
+    return join_horizontal(Position.BOTTOM, row, gap)
 
 
 fn build_description() -> String:
@@ -105,15 +105,15 @@ fn build_description() -> String:
     var info_style = mog.Style().border(NORMAL_BORDER, True, False, False, False).border_foreground(subtle)
 
     var description = join_vertical(
-        position.left,
+        Position.LEFT,
         desc_style.render("Style Definitions for Nice Terminal Layouts.\nInspired by charmbracelet/lipgloss"),
         info_style.render("From Mikhail" + divider + url.render("https://github.com/thatstoasty/mog")),
     )
-    return join_horizontal(position.top, String(title), description)
+    return join_horizontal(Position.TOP, String(title), description)
 
 
 fn build_dialog_box() -> String:
-    var dialog_box_style = mog.Style().alignment(position.center).border(ROUNDED_BORDER).border_foreground(
+    var dialog_box_style = mog.Style().alignment(Position.CENTER).border(ROUNDED_BORDER).border_foreground(
         mog.Color(0xFF713C)
     ).padding(1, 0)
 
@@ -128,16 +128,16 @@ fn build_dialog_box() -> String:
     var ok_button = active_button_style.render("Yes")
     var cancel_button = button_style.render("No")
 
-    var question = mog.Style().width(50).alignment(position.center).render("Are you sure you want to deploy?")
+    var question = mog.Style().width(50).alignment(Position.CENTER).render("Are you sure you want to deploy?")
 
-    var buttons = join_horizontal(position.top, ok_button, cancel_button)
-    var ui = join_vertical(position.center, question, buttons)
+    var buttons = join_horizontal(Position.TOP, ok_button, cancel_button)
+    var ui = join_vertical(Position.CENTER, question, buttons)
 
     return place(
         width,
         9,
-        position.center,
-        position.center,
+        Position.CENTER,
+        Position.CENTER,
         dialog_box_style.render(ui),
         with_whitespace_chars["⣾⣽⣻⢿⡿⣟⣯⣷"](),
         with_whitespace_foreground[subtle](),
@@ -166,10 +166,10 @@ fn build_lists() -> String:
         builder.write("\n")
 
     var lists = join_horizontal(
-        position.top,
+        Position.TOP,
         list_style.render(
             join_vertical(
-                position.left,
+                Position.LEFT,
                 list_header.render("Citrus Fruits to Try"),
                 check_mark + list_done.render("Grapefruit"),
                 check_mark + list_done.render("Yuzu"),
@@ -180,7 +180,7 @@ fn build_lists() -> String:
         ),
         list_style.width(column_width - 1).render(
             join_vertical(
-                position.left,
+                Position.LEFT,
                 list_header.render("Programming Languages"),
                 list_item.render("Mojo"),
                 list_item.render("Rust"),
@@ -191,12 +191,12 @@ fn build_lists() -> String:
         ),
     )
 
-    return join_horizontal(position.top, lists, builder)
+    return join_horizontal(Position.TOP, lists, builder)
 
 
 fn build_history() -> String:
     var history_style = mog.Style().height(20).width(column_width).padding(1, 2).margin(1, 3, 0, 0).alignment(
-        position.left
+        Position.LEFT
     ).foreground(mog.Color(0xFFFDF5)).background(highlight)
 
     alias history_a = "The Romans learned from the Greeks that quinces slowly cooked with honey would 'set' when cool. The Apicius gives a recipe for preserving whole quinces, stems and leaves attached, in a bath of honey diluted with defrutum: Roman marmalade. Preserves of quince and lemon appear (along with rose, apple, plum and pear) in the Book of ceremonies of the Byzantine Emperor Constantine VII Porphyrogennetos."
@@ -204,9 +204,9 @@ fn build_history() -> String:
     alias history_c = "In 1524, Henry VIII, King of England, received a 'box of marmalade' from Mr. Hull of Exeter. This was probably marmelada, a solid quince paste from Portugal, still made and sold in southern Europe today. It became a favourite treat of Anne Boleyn and her ladies in waiting."
 
     return join_horizontal(
-        position.top,
-        history_style.alignment(position.right).render(history_a),
-        history_style.alignment(position.center).render(history_b),
+        Position.TOP,
+        history_style.alignment(Position.RIGHT).render(history_a),
+        history_style.alignment(Position.CENTER).render(history_b),
         history_style.margin_right(0).render(history_c),
     )
 
@@ -217,7 +217,7 @@ fn build_status_bar() -> String:
     var status_style = mog.Style().foreground(mog.Color(0xFFFDF5)).background(mog.Color(0xFF5F87)).padding(0, 1)
     # .margin_right(1)
 
-    var encoding_style = status_nugget_style.background(mog.Color(0xA550DF)).horizontal_alignment(position.right)
+    var encoding_style = status_nugget_style.background(mog.Color(0xA550DF)).horizontal_alignment(Position.RIGHT)
     var status_text_style = status_bar_style.padding_left(1)
     var fish_cake_style = status_nugget_style.background(mog.Color(0x6124DF))
 
@@ -229,7 +229,7 @@ fn build_status_bar() -> String:
     ).render("Ravishing")
 
     var bar = join_horizontal(
-        position.top,
+        Position.TOP,
         status_key,
         status_val,
         encoding,

@@ -1,9 +1,9 @@
 from collections import Optional
 import mist
 import weave.ansi
-from .extensions import get_lines, get_widest_line
-from .whitespace import WhitespaceOption, new_whitespace, _new_whitespace
-import .position
+from mog.extensions import get_lines, get_widest_line
+from mog.whitespace import WhitespaceOption, WhitespaceRenderer
+from mog.position import Position
 
 
 # Working on terminal background querying, currently it defaults to dark background terminal.
@@ -50,13 +50,21 @@ struct Renderer:
             Whether or not the renderer will render to a dark background.
         """
         return self.dark_background
+    
+    fn as_mist_style(self) -> mist.Style:
+        """Returns a the `mist.Style` using the same profile as the for the style.
+
+        Returns:
+            The mist style.
+        """
+        return mist.Style(self.profile)
 
     fn place(
         self,
         width: Int,
         height: Int,
-        horizontal_alignment: Float64,
-        vertical_alignment: Float64,
+        horizontal_alignment: Position,
+        vertical_alignment: Position,
         text: String,
         /,
         *opts: WhitespaceOption,
@@ -90,8 +98,8 @@ struct Renderer:
         self,
         width: Int,
         height: Int,
-        horizontal_alignment: Float64,
-        vertical_alignment: Float64,
+        horizontal_alignment: Position,
+        vertical_alignment: Position,
         text: String,
         opts: VariadicList[WhitespaceOption],
     ) -> String:
@@ -117,7 +125,7 @@ struct Renderer:
             height, vertical_alignment, self._place_horizontal(width, horizontal_alignment, text, opts), opts
         )
 
-    fn place_horizontal(self, width: Int, alignment: Float64, text: String, /, *opts: WhitespaceOption) -> String:
+    fn place_horizontal(self, width: Int, alignment: Position, text: String, /, *opts: WhitespaceOption) -> String:
         """Places a string or text block horizontally in an unstyled
         block of a given width. If the given width is shorter than the max width of
         the string (measured by its longest line) this will be a noöp.
@@ -138,7 +146,7 @@ struct Renderer:
     fn _place_horizontal(
         self,
         width: Int,
-        alignment: Float64,
+        alignment: Position,
         text: String,
         opts: VariadicList[WhitespaceOption],
     ) -> String:
@@ -162,19 +170,19 @@ struct Renderer:
         if gap <= 0:
             return text
 
-        var white_space = _new_whitespace(self, opts)
+        var white_space = WhitespaceRenderer(self, opts)
         var result = String()
         for i in range(len(lines)):
             # Is this line shorter than the longest line?
             var short = max(0, content_width - ansi.printable_rune_width(lines[i]))
-            if alignment == position.left:
+            if alignment == Position.LEFT:
                 result.write(lines[i], white_space.render(gap + short))
-            elif alignment == position.right:
+            elif alignment == Position.RIGHT:
                 result.write(white_space.render(gap + short), lines[i])
             else:
                 # somewhere in the middle
                 var total_gap = gap + short
-                var split = Int(round(total_gap * alignment))
+                var split = Int(round(total_gap * alignment.value))
                 var right = total_gap - split
                 var left = total_gap - right
                 result.write(white_space.render(left), lines[i], white_space.render(right))
@@ -187,7 +195,7 @@ struct Renderer:
     fn place_vertical(
         self,
         height: Int,
-        alignment: Float64,
+        alignment: Position,
         text: String,
         /,
         *opts: WhitespaceOption,
@@ -212,7 +220,7 @@ struct Renderer:
     fn _place_vertical(
         self,
         height: Int,
-        alignment: Float64,
+        alignment: Position,
         text: String,
         opts: VariadicList[WhitespaceOption],
     ) -> String:
@@ -236,11 +244,9 @@ struct Renderer:
         if gap <= 0:
             return text
 
-        var white_space = _new_whitespace(self, opts)
-        width = get_widest_line(text)
-        var empty_line = white_space.render(width)
+        var empty_line = WhitespaceRenderer(self, opts).render(get_widest_line(text))
         var result = String()
-        if alignment == position.top:
+        if alignment == Position.TOP:
             result.write(text, NEWLINE)
 
             var i = 0
@@ -249,11 +255,11 @@ struct Renderer:
                 if i < gap - 1:
                     result.write(NEWLINE)
                 i += 1
-        elif alignment == position.bottom:
+        elif alignment == Position.BOTTOM:
             result.write((empty_line + NEWLINE) * gap, text)
         else:
             # somewhere in the middle
-            var split = Int(round(Float64(gap) * alignment))
+            var split = Int(round(Float64(gap) * alignment.value))
             var bottom = gap - split
             var top = gap - bottom
 

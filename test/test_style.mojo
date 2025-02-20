@@ -1,6 +1,6 @@
 import testing
 import mog
-
+from mog import Position
 
 alias ansi_style = mog.Style(mog.ANSI)
 
@@ -247,38 +247,38 @@ def test_unset_max_height():
 
 def test_horizontal_alignment():
     alias style = ansi_style.width(9)
-    testing.assert_equal(style.horizontal_alignment(mog.left).render("hello"), "hello    ")
-    testing.assert_equal(style.horizontal_alignment(mog.right).render("hello"), "    hello")
-    testing.assert_equal(style.horizontal_alignment(mog.center).render("hello"), "  hello  ")
+    testing.assert_equal(style.horizontal_alignment(Position.LEFT).render("hello"), "hello    ")
+    testing.assert_equal(style.horizontal_alignment(Position.RIGHT).render("hello"), "    hello")
+    testing.assert_equal(style.horizontal_alignment(Position.CENTER).render("hello"), "  hello  ")
 
 
 def test_unset_horizontal_alignment():
-    alias style = ansi_style.width(9).horizontal_alignment(mog.center).unset_horizontal_alignment()
+    alias style = ansi_style.width(9).horizontal_alignment(Position.CENTER).unset_horizontal_alignment()
     testing.assert_equal(style.render("hello"), "hello    ")
 
 
 def test_vertical_alignment():
     alias style = ansi_style.height(3)
-    testing.assert_equal(style.vertical_alignment(mog.top).render("hello"), "hello\n     \n     ")
-    testing.assert_equal(style.vertical_alignment(mog.bottom).render("hello"), "     \n     \nhello")
-    testing.assert_equal(style.vertical_alignment(mog.center).render("hello"), "     \nhello\n     ")
+    testing.assert_equal(style.vertical_alignment(Position.TOP).render("hello"), "hello\n     \n     ")
+    testing.assert_equal(style.vertical_alignment(Position.BOTTOM).render("hello"), "     \n     \nhello")
+    testing.assert_equal(style.vertical_alignment(Position.CENTER).render("hello"), "     \nhello\n     ")
 
 
 def test_unset_vertical_alignment():
-    alias style = ansi_style.height(3).vertical_alignment(mog.center).unset_vertical_alignment()
+    alias style = ansi_style.height(3).vertical_alignment(Position.CENTER).unset_vertical_alignment()
     testing.assert_equal(style.render("hello"), "hello\n     \n     ")
 
 
 def test_alignment():
     alias style = ansi_style.width(9)
-    testing.assert_equal(style.alignment(mog.left).render("hello"), "hello    ")
-    testing.assert_equal(style.alignment(mog.right).render("hello"), "    hello")
-    testing.assert_equal(style.alignment(mog.center).render("hello"), "  hello  ")
+    testing.assert_equal(style.alignment(Position.LEFT).render("hello"), "hello    ")
+    testing.assert_equal(style.alignment(Position.RIGHT).render("hello"), "    hello")
+    testing.assert_equal(style.alignment(Position.CENTER).render("hello"), "  hello  ")
 
     alias height_style = style.height(3)
-    testing.assert_equal(height_style.alignment(mog.left, mog.top).render("hello"), "hello    \n         \n         ")
-    testing.assert_equal(height_style.alignment(mog.left, mog.bottom).render("hello"), "         \n         \nhello    ")
-    testing.assert_equal(height_style.alignment(mog.left, mog.center).render("hello"), "         \nhello    \n         ")
+    testing.assert_equal(height_style.alignment(Position.LEFT, Position.TOP).render("hello"), "hello    \n         \n         ")
+    testing.assert_equal(height_style.alignment(Position.LEFT, Position.BOTTOM).render("hello"), "         \n         \nhello    ")
+    testing.assert_equal(height_style.alignment(Position.LEFT, Position.CENTER).render("hello"), "         \nhello    \n         ")
 
 
 def test_foreground():

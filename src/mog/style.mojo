@@ -18,7 +18,7 @@ from .border import (
     STAR_BORDER,
     PLUS_BORDER,
 )
-from .extensions import get_lines_view, get_widest_line, pad_left, pad_right
+from .extensions import get_lines, get_widest_line, split_lines, pad_left, pad_right
 from .properties import Properties, PropKey, Dimensions, Padding, Margin, Coloring, BorderColor, Alignment
 from .align import align_text_horizontal, align_text_vertical
 from .color import (
@@ -80,8 +80,7 @@ fn _apply_styles(text: String, use_space_styler: Bool, styles: Stylers) -> Strin
     """
     var result = String(capacity=Int(len(text) * 1.5))
 
-    # Even though String.splitlines allocates new strings, we need to add the newlines back in. Can't do it for a list of stringslice unfortunately.
-    var lines = text.as_string_slice().splitlines()
+    var lines = split_lines(text)
     for i in range(len(lines)):
         # Readd the newlines
         if i != 0:
@@ -2332,7 +2331,7 @@ struct Style(Movable, ExplicitlyCopyable):
         if is_no_border or (not has_top and not has_right and not has_bottom and not has_left):
             return text
 
-        lines, width = get_lines_view(text)
+        lines, width = get_lines(text)
         if has_left:
             if border.left == "":
                 border.left = " "
@@ -2542,10 +2541,10 @@ struct Style(Movable, ExplicitlyCopyable):
 
         # force-wrap long strings
         if (not inline) and (width > 0):
-            input_text = _wrap_words(input_text^, width, left_padding, right_padding)
+            input_text = _wrap_words(input_text, width, left_padding, right_padding)
 
         var stylers = self._get_styles()
-        var result = _apply_styles(self._maybe_convert_tabs(input_text^), self.uses_space_styler(), stylers)
+        var result = _apply_styles(self._maybe_convert_tabs(input_text), self.uses_space_styler(), stylers)
 
         # Do we need to style whitespace (padding and space outside paragraphs) separately?
         var use_whitespace_styler = reverse
@@ -2556,42 +2555,41 @@ struct Style(Movable, ExplicitlyCopyable):
                 var style = self._renderer.as_mist_style()
                 if color_whitespace or use_whitespace_styler:
                     style = stylers.whitespace.copy()
-                result = pad_left(result^, Int(left_padding), style)
+                result = pad_left(result, Int(left_padding), style)
 
             if right_padding > 0:
                 var style = self._renderer.as_mist_style()
                 if color_whitespace or use_whitespace_styler:
                     style = stylers.whitespace.copy()
-                result = pad_right(result^, Int(right_padding), style)
+                result = pad_right(result, Int(right_padding), style)
 
             if top_padding > 0:
                 result = String(NEWLINE * Int(top_padding), result^)
 
             if bottom_padding > 0:
-                # We lose the very last newline when splitting lines, so we up the padding by one.
-                result.write(NEWLINE * Int(bottom_padding + 1))
+                result.write(NEWLINE * Int(bottom_padding))
 
         # Alignment
         var height = self.get_height()
         if height > 0:
-            result = align_text_vertical(result^, self.get_vertical_alignment(), Int(height))
-        
+            result = align_text_vertical(result, self.get_vertical_alignment(), height)
+
+        # TODO: Need to handle line splitting removing the last line
         if width != 0 or get_widest_line(result) != 0:
             var style: mist.Style
             if color_whitespace or use_whitespace_styler:
                 style = stylers.whitespace.copy()
             else:
                 style = self._renderer.as_mist_style()
-            result = align_text_horizontal(result^, self.get_horizontal_alignment(), Int(width), style)
-        
+            result = align_text_horizontal(result, self.get_horizontal_alignment(), width, style)
+
         # Apply border at the end
         if not inline:
-            result = self._apply_margins(self._apply_border(result^), inline)
+            result = self._apply_margins(self._apply_border(result), inline)
 
         # Truncate according to max_width
         if max_width > 0:
-            # var text_lines = result.as_string_slice().get_immutable().splitlines()
-            var text_lines = result.splitlines() # TODO: update weave to support stringslice input
+            var text_lines = split_lines(result) # TODO: update weave to support stringslice input
             truncated = String(capacity=Int(len(result) * 1.5))
             for i in range(len(text_lines)):
                 if i != 0:
@@ -2602,6 +2600,8 @@ struct Style(Movable, ExplicitlyCopyable):
 
         # Truncate according to max_height
         if max_height > 0:
+            # TODO: Tables break if I use split instead of splitlines for some reason.
+            # ATM I don't know why this rejoining needs trailing newlines clipped off, but i'll figure it out later.
             var final_lines = result.as_string_slice().get_immutable().splitlines()
             result = NEWLINE.join(final_lines[0 : min(Int(max_height), len(final_lines))])
 

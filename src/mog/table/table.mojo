@@ -448,7 +448,6 @@ struct Table(Writable, Stringable, Movable, ExplicitlyCopyable):
         # Location: 6 / 10
         #
         # The biggest difference is 15 - 2, so we can shrink the 2nd column by 13.
-
         var width = self._compute_width(widths)
         if width < self.width and self.width > 0:
             # Table is too narrow, expand the columns evenly until it reaches the

@@ -1,6 +1,6 @@
 import testing
 import mist
-import mog.position
+from mog import Position
 from mog.align import align_text_horizontal, align_text_vertical
 
 

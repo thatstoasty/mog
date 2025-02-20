@@ -4,11 +4,9 @@ from mog.border import HIDDEN_BORDER, NORMAL_BORDER, ROUNDED_BORDER, Border
 from mog.style import Style
 from mog.size import get_width
 from mog import Position
-from mog.whitespace import (
-    place,
-    with_whitespace_chars,
-    with_whitespace_foreground,
-)
+from mog.whitespace import WhitespaceRenderer
+from mog.renderer import Renderer
+from mog.properties import Alignment
 import mog
 import mist.hue
 
@@ -133,14 +131,11 @@ fn build_dialog_box() -> String:
     var buttons = join_horizontal(Position.TOP, ok_button, cancel_button)
     var ui = join_vertical(Position.CENTER, question, buttons)
 
-    return place(
+    return WhitespaceRenderer(style=mog.Style().foreground(subtle), chars="⣾⣽⣻⢿⡿⣟⣯⣷").place(
         width,
         9,
-        Position.CENTER,
-        Position.CENTER,
+        Alignment(horizontal=Position.CENTER, vertical=Position.CENTER),
         dialog_box_style.render(ui),
-        with_whitespace_chars["⣾⣽⣻⢿⡿⣟⣯⣷"](),
-        with_whitespace_foreground[subtle](),
     )
 
 

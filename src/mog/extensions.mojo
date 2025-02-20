@@ -2,6 +2,23 @@ from utils import StringSlice
 from weave.ansi import printable_rune_width
 import mist
 
+# TODO Add a stringslice version when split is added to it in 25.2
+fn split_lines(text: String) -> List[String]:
+    """Split a string into lines.
+
+    Args:
+        text: The string to split.
+
+    Returns:
+        The lines.
+    """
+    try:
+        return text.split(NEWLINE)
+    except:
+        print("Somehow reached an error splitting lines. It should only raise if sep is empty", file=2)
+    
+    return List[String]()
+
 
 fn get_lines(text: String) -> Tuple[List[String], Int]:
     """Split a string into lines.
@@ -12,23 +29,7 @@ fn get_lines(text: String) -> Tuple[List[String], Int]:
     Returns:
         A tuple containing the lines and the width of the widest line.
     """
-    lines, widest_line = get_lines_view(text)
-    return line_view_to_lines(lines), widest_line
-
-
-fn get_lines_view(text: String) -> Tuple[List[StringSlice[__origin_of(text)]], Int]:
-    """Split a string into lines.
-
-    Args:
-        text: The string to split.
-
-    Returns:
-        A tuple containing the lines and the width of the widest line.
-    
-    #### Notes:
-    Reminder that splitlines strips any trailing newlines. If you need to preserve them, you'll need to add them back.
-    """
-    var lines = text.as_string_slice().splitlines()
+    var lines = split_lines(text)
     var widest_line = 0
     for line in lines:
         if printable_rune_width(line[]) > widest_line:
@@ -36,20 +37,41 @@ fn get_lines_view(text: String) -> Tuple[List[StringSlice[__origin_of(text)]], I
     
     return lines^, widest_line
 
+# TODO: Switch to using StringSlice for the lines split when it's released in 25.2.
+# fn get_lines_view(text: String) -> Tuple[List[StringSlice[__origin_of(text)]], Int]:
+#     """Split a string into lines.
 
-fn line_view_to_lines[origin: Origin](lines: List[StringSlice[origin]]) -> List[String]:
-    """Convert a list of string slices to a list of strings.
+#     Args:
+#         text: The string to split.
 
-    Args:
-        lines: The list of string slices.
+#     Returns:
+#         A tuple containing the lines and the width of the widest line.
+    
+#     #### Notes:
+#     Reminder that splitlines strips any trailing newlines. If you need to preserve them, you'll need to add them back.
+#     """
+#     var lines = text.as_string_slice().splitlines()
+#     var widest_line = 0
+#     for line in lines:
+#         if printable_rune_width(line[]) > widest_line:
+#             widest_line = printable_rune_width(line[])
+    
+#     return lines^, widest_line
 
-    Returns:
-        The list of strings.
-    """
-    var result = List[String](capacity=len(lines))
-    for line in lines:
-        result.append(String(line[]))
-    return result^
+
+# fn line_view_to_lines[origin: Origin](lines: List[StringSlice[origin]]) -> List[String]:
+#     """Convert a list of string slices to a list of strings.
+
+#     Args:
+#         lines: The list of string slices.
+
+#     Returns:
+#         The list of strings.
+#     """
+#     var result = List[String](capacity=len(lines))
+#     for line in lines:
+#         result.append(String(line[]))
+#     return result^
 
 
 fn get_widest_line[immutable: ImmutableOrigin](text: StringSlice[immutable]) -> Int:

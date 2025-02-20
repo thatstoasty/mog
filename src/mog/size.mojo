@@ -38,7 +38,7 @@ fn get_height[T: AsStringSlice](text: T) -> Int:
     Returns:
         The height of the string in cells.
     """
-    return text.as_string_slice().count("\n") + 1
+    return text.as_string_slice().count(NEWLINE) + 1
 
 
 fn get_dimensions[T: AsStringSlice](text: T) -> Dimensions:

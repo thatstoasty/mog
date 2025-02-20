@@ -9,64 +9,14 @@ from mog.border import (
     HIDDEN_BORDER,
 )
 from mog.style import Style
-from mog import position
+from mog import Position
 import mog
 from time import perf_counter_ns
 
 
-fn dummy_style_func(row: Int, col: Int) -> Style:
-    var style = mog.Style().horizontal_alignment(position.center).vertical_alignment(position.center).padding(0, 1)
-    if row == 0:
-        style = style.foreground(mog.Color(0xC9A0DC))
-        return style
-    elif row % 2 == 0:
-        style = style.foreground(mog.Color(0xE58006))
-        return style
-    else:
-        return style
-
-
-def test_table():
-    var border_style = mog.Style().foreground(mog.Color(0x39E506))
-
-    var table = Table(
-        style_function=default_styles,
-        border=ROUNDED_BORDER,
-        border_style=border_style,
-        border_bottom=True,
-        border_column=True,
-        border_header=True,
-        border_left=True,
-        border_right=True,
-        border_top=True,
-        data=StringData(),
-        width=50,
-    ).set_style(dummy_style_func).row("French", "Bonjour", "Salut").row("Russian", "Zdravstvuyte", "Privet")
-
-    var headerless_start_time = perf_counter_ns()
-    print(table.render())
-    var headerless_execution_time = perf_counter_ns() - headerless_start_time
-
-    table = table.set_headers("LANGUAGE", "FORMAL", "INFORMAL")
-    var headered_start_time = perf_counter_ns()
-    print(table.render())
-    var headered_execution_time = perf_counter_ns() - headerless_start_time
-
-    print(
-        "Headerless Execution Time: ",
-        headerless_execution_time,
-        headerless_execution_time / 1e9,
-    )
-    print(
-        "Headered Execution Time: ",
-        headered_execution_time,
-        headered_execution_time / 1e9,
-    )
-
-
 def test_horizontal_joined_paragraphs():
     var style_build_start = perf_counter_ns()
-    var style = mog.Style().bold().width(50).padding(1, 1, 1, 1).horizontal_alignment(position.center).border(
+    var style = mog.Style().bold().width(50).padding(1, 1, 1, 1).horizontal_alignment(Position.CENTER).border(
         ROUNDED_BORDER
     ).foreground(mog.Color(0xC9A0DC)).border_foreground(mog.Color(0x39E506))
     var style_build_duration = perf_counter_ns() - style_build_start
@@ -76,7 +26,7 @@ def test_horizontal_joined_paragraphs():
     print(style.render("You should be able to join blocks of different heights"))
     print(
         join_horizontal(
-            position.top,
+            Position.TOP,
             style.render("You should be able to join blocks of different heights"),
             style.render(
                 "Hello World!\nThis is a test of the mog style system. Which"
@@ -91,7 +41,7 @@ def test_horizontal_joined_paragraphs():
     )
     print(
         join_horizontal(
-            position.bottom,
+            Position.BOTTOM,
             style.render("You should be able to join blocks of different heights"),
             style.render(
                 "Hello World!\nThis is a test of the mog style system. Which"
@@ -106,7 +56,7 @@ def test_horizontal_joined_paragraphs():
     )
     print(
         join_horizontal(
-            position.center,
+            Position.CENTER,
             style.render("You should be able to join blocks of different heights"),
             style.render(
                 "Hello World!\nThis is a test of the mog style system. Which"
@@ -124,13 +74,13 @@ def test_horizontal_joined_paragraphs():
 
 
 def test_borderless_paragraph():
-    var borderless_style = mog.Style().width(50).padding(1, 2).horizontal_alignment(position.center).border(
+    var borderless_style = mog.Style().width(50).padding(1, 2).horizontal_alignment(Position.CENTER).border(
         HIDDEN_BORDER
     ).background(mog.Color(0xC9A0DC))
 
     print(
         join_horizontal(
-            position.center,
+            Position.CENTER,
             borderless_style.render("You should be able to join blocks of different heights"),
             borderless_style.render(
                 "Hello World!\nThis is a test of the mog style system. Which"
@@ -145,6 +95,5 @@ def test_borderless_paragraph():
     )
 
 def main():
-    test_table()
     test_horizontal_joined_paragraphs()
     test_borderless_paragraph()

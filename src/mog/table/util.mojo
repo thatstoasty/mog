@@ -29,10 +29,10 @@ fn median(owned numbers: List[Int]) -> Int:
 
     if len(numbers) % 2 == 0:
         var middle = len(numbers) / 2
-        var median = (numbers[int(middle) - 1] + numbers[int(middle)]) / 2
-        return int(round(median))
+        var median = (numbers[Int(middle) - 1] + numbers[Int(middle)]) / 2
+        return Int(round(median))
 
-    return numbers[int(len(numbers) / 2)]
+    return numbers[Int(len(numbers) / 2)]
 
 
 fn largest(numbers: List[Int]) -> (Int, Int):

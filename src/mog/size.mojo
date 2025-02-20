@@ -1,6 +1,6 @@
 from utils import StringSlice
 import weave.ansi
-from .extensions import AsStringSlice, count
+from weave.traits import AsStringSlice
 from .properties import Dimensions
 
 
@@ -38,7 +38,7 @@ fn get_height[T: AsStringSlice](text: T) -> Int:
     Returns:
         The height of the string in cells.
     """
-    return count(text.as_string_slice(), "\n") + 1
+    return text.as_string_slice().count(NEWLINE) + 1
 
 
 fn get_dimensions[T: AsStringSlice](text: T) -> Dimensions:

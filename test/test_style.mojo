@@ -1,13 +1,13 @@
 import testing
 import mog
-
+from mog import Position
 
 alias ansi_style = mog.Style(mog.ANSI)
 
 
 def test_renderer():
     alias style = ansi_style.renderer(mog.Renderer(mog.TRUE_COLOR))
-    testing.assert_equal(style._renderer.profile.value, mog.TRUE_COLOR)
+    testing.assert_equal(style._renderer.profile._value, mog.TRUE_COLOR)
 
 
 def test_value():
@@ -47,21 +47,21 @@ def test_unset_underline_spaces():
     testing.assert_equal(style.render("hello"), "hello")
 
 
-def test_crossout_spaces():
-    alias style = ansi_style.crossout_spaces()
+def test_strikethrough_spaces():
+    alias style = ansi_style.strikethrough_spaces()
     testing.assert_equal(style.render("  Hello world!  "), "\x1b[;9m \x1b[0m\x1b[;9m \x1b[0mHello\x1b[;9m \x1b[0mworld!\x1b[;9m \x1b[0m\x1b[;9m \x1b[0m")
 
-    # Turn on crossout spaces (flag has a value set), but then set it to False (flag has value set, value is False).
-    testing.assert_equal(style.crossout_spaces(False).render("  Hello world!  "), "  Hello world!  ")
+    # Turn on strikethrough spaces (flag has a value set), but then set it to False (flag has value set, value is False).
+    testing.assert_equal(style.strikethrough_spaces(False).render("  Hello world!  "), "  Hello world!  ")
 
 
-def test_get_crossout_spaces():
-    alias style = ansi_style.crossout_spaces()
-    testing.assert_true(style.get_crossout_spaces())
+def test_get_strikethrough_spaces():
+    alias style = ansi_style.strikethrough_spaces()
+    testing.assert_true(style.get_strikethrough_spaces())
 
 
-def test_unset_crossout_spaces():
-    alias style = ansi_style.crossout_spaces().unset_crossout_spaces()
+def test_unset_strikethrough_spaces():
+    alias style = ansi_style.strikethrough_spaces().unset_strikethrough_spaces()
     testing.assert_equal(style.render("hello"), "hello")
 
 
@@ -247,38 +247,38 @@ def test_unset_max_height():
 
 def test_horizontal_alignment():
     alias style = ansi_style.width(9)
-    testing.assert_equal(style.horizontal_alignment(mog.left).render("hello"), "hello    ")
-    testing.assert_equal(style.horizontal_alignment(mog.right).render("hello"), "    hello")
-    testing.assert_equal(style.horizontal_alignment(mog.center).render("hello"), "  hello  ")
+    testing.assert_equal(style.horizontal_alignment(Position.LEFT).render("hello"), "hello    ")
+    testing.assert_equal(style.horizontal_alignment(Position.RIGHT).render("hello"), "    hello")
+    testing.assert_equal(style.horizontal_alignment(Position.CENTER).render("hello"), "  hello  ")
 
 
 def test_unset_horizontal_alignment():
-    alias style = ansi_style.width(9).horizontal_alignment(mog.center).unset_horizontal_alignment()
+    alias style = ansi_style.width(9).horizontal_alignment(Position.CENTER).unset_horizontal_alignment()
     testing.assert_equal(style.render("hello"), "hello    ")
 
 
 def test_vertical_alignment():
     alias style = ansi_style.height(3)
-    testing.assert_equal(style.vertical_alignment(mog.top).render("hello"), "hello\n     \n     ")
-    testing.assert_equal(style.vertical_alignment(mog.bottom).render("hello"), "     \n     \nhello")
-    testing.assert_equal(style.vertical_alignment(mog.center).render("hello"), "     \nhello\n     ")
+    testing.assert_equal(style.vertical_alignment(Position.TOP).render("hello"), "hello\n     \n     ")
+    testing.assert_equal(style.vertical_alignment(Position.BOTTOM).render("hello"), "     \n     \nhello")
+    testing.assert_equal(style.vertical_alignment(Position.CENTER).render("hello"), "     \nhello\n     ")
 
 
 def test_unset_vertical_alignment():
-    alias style = ansi_style.height(3).vertical_alignment(mog.center).unset_vertical_alignment()
+    alias style = ansi_style.height(3).vertical_alignment(Position.CENTER).unset_vertical_alignment()
     testing.assert_equal(style.render("hello"), "hello\n     \n     ")
 
 
 def test_alignment():
     alias style = ansi_style.width(9)
-    testing.assert_equal(style.alignment(mog.left).render("hello"), "hello    ")
-    testing.assert_equal(style.alignment(mog.right).render("hello"), "    hello")
-    testing.assert_equal(style.alignment(mog.center).render("hello"), "  hello  ")
+    testing.assert_equal(style.alignment(Position.LEFT).render("hello"), "hello    ")
+    testing.assert_equal(style.alignment(Position.RIGHT).render("hello"), "    hello")
+    testing.assert_equal(style.alignment(Position.CENTER).render("hello"), "  hello  ")
 
     alias height_style = style.height(3)
-    testing.assert_equal(height_style.alignment(mog.left, mog.top).render("hello"), "hello    \n         \n         ")
-    testing.assert_equal(height_style.alignment(mog.left, mog.bottom).render("hello"), "         \n         \nhello    ")
-    testing.assert_equal(height_style.alignment(mog.left, mog.center).render("hello"), "         \nhello    \n         ")
+    testing.assert_equal(height_style.alignment(Position.LEFT, Position.TOP).render("hello"), "hello    \n         \n         ")
+    testing.assert_equal(height_style.alignment(Position.LEFT, Position.BOTTOM).render("hello"), "         \n         \nhello    ")
+    testing.assert_equal(height_style.alignment(Position.LEFT, Position.CENTER).render("hello"), "         \nhello    \n         ")
 
 
 def test_foreground():
@@ -469,6 +469,7 @@ def test_padding():
     testing.assert_equal(border_style.padding(1).render("hello"), "+++++++++\n+       +\n+ hello +\n+       +\n+++++++++")
 
     # Top/bottom and left/right
+    print(repr(ansi_style.padding(1, 2).render("hello")))
     testing.assert_equal(ansi_style.padding(1, 2).render("hello"), "         \n  hello  \n         ")
     testing.assert_equal(border_style.padding(1, 2).render("hello"), "+++++++++++\n+         +\n+  hello  +\n+         +\n+++++++++++")
 

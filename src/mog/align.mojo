@@ -1,16 +1,15 @@
 from collections import Optional
 from weave.ansi import printable_rune_width
 import mist
-import .position
-from .extensions import get_lines, get_lines_view
+import mog.position
+from mog.extensions import get_lines
 
 
 fn align_text_horizontal(
-    text: String, pos: position.Position, width: Int, style: Optional[mist.Style] = None
+    text: String, pos: position.Position, width: UInt16, style: mist.Style
 ) -> String:
     """Aligns the text on the horizontal axis. If the string is multi-lined, we also make all lines
-    the same width by padding them with spaces. If a termenv style is passed,
-    use that to style the spaces added.
+    the same width by padding them with spaces. The mist style is used to style the spaces added.
 
     Args:
         text: The text to align.
@@ -25,53 +24,33 @@ fn align_text_horizontal(
     
     # If the text is empty, just return (styled) padding up to the width passed.
     if len(lines) == 0:
-        var spaces = WHITESPACE * width
-        if style:
-            spaces = style.value().render(spaces)
-        return spaces
+        return style.render(WHITESPACE * Int(width))
 
-    var aligned_text = String(capacity=int(len(text) * 1.25))
+    var aligned = String(capacity=Int(len(text) * 1.25))
     for i in range(len(lines)):
-        var line = String.write(lines[i])
+        var line = String(lines[i])
         var line_width = printable_rune_width(line)
         var short_amount = widest_line - line_width  # difference from the widest line
-        short_amount += max(0, width - (short_amount + line_width))  # difference from the total width, if set
+        short_amount += max(0, Int(width) - (short_amount + line_width))  # difference from the total width, if set
         if short_amount > 0:
-            if pos == position.right:
-                var spaces = WHITESPACE * short_amount
-                if style:
-                    spaces = style.value().render(spaces)
-                
-                var new = String(capacity=len(line) + len(spaces) + 1)
-                new.write(spaces, line)
-                line = new
-            elif pos == position.center:
+            if pos == Position.RIGHT:
+                line = String(style.render(WHITESPACE * short_amount), line)
+            elif pos == Position.CENTER:
                 # Note: remainder goes on the right.
-                var left = short_amount / 2
-                var right = left + short_amount % 2
-                var left_spaces = WHITESPACE * int(left)
-                var right_spaces = WHITESPACE * int(right)
-                if style:
-                    left_spaces = style.value().render(left_spaces)
-                    right_spaces = style.value().render(right_spaces)
+                var left = Int(short_amount / 2)
+                var right = Int(left + short_amount % 2)
+                line = String(style.render(WHITESPACE * left), line, style.render(WHITESPACE * right))
+            elif pos == Position.LEFT:
+                line.write(style.render(WHITESPACE * short_amount))
 
-                var new = String(capacity=len(line) + len(left_spaces) + len(right_spaces) + 1)
-                new.write(left_spaces, line, right_spaces)
-                line = new
-            elif pos == position.left:
-                var spaces = WHITESPACE * int(short_amount)
-                if style:
-                    spaces = style.value().render(spaces)
-                line.write(spaces)
-
-        aligned_text.write(line)
+        aligned.write(line)
         if i < len(lines) - 1:
-            aligned_text.write(NEWLINE)
+            aligned.write(NEWLINE)
+        
+    return aligned^
 
-    return aligned_text
 
-
-fn align_text_vertical(text: String, pos: position.Position, height: Int) -> String:
+fn align_text_vertical(text: String, pos: position.Position, height: UInt16) -> String:
     """Aligns the text on the vertical axis. If the string is shorter than the height, it's padded
     with newlines. If the string is taller than the height, return the original
     string.
@@ -88,27 +67,21 @@ fn align_text_vertical(text: String, pos: position.Position, height: Int) -> Str
     if height < text_height:
         return text
 
-    var remaining_height = height - text_height
-    if pos == position.top:
-        var new = String(capacity=len(text) + remaining_height + 1)
-        new.write(text, NEWLINE * remaining_height)
-        return new
+    var remaining_height = Int(height - text_height)
+    if pos == Position.TOP:
+        return String(text, NEWLINE * remaining_height)
 
-    elif pos == position.center:
-        var top_padding = (remaining_height) / 2
-        var bottom_padding = (remaining_height) / 2
-        if text_height + top_padding + bottom_padding > height:
+    elif pos == Position.CENTER:
+        var top_padding = Int(remaining_height / 2)
+        var bottom_padding = Int(remaining_height / 2)
+        if text_height + top_padding + bottom_padding > Int(height):
             top_padding -= 1
-        elif text_height + top_padding + bottom_padding < height:
+        elif text_height + top_padding + bottom_padding < Int(height):
             bottom_padding += 1
 
-        var new = String(capacity=len(text) + len(NEWLINE * int(top_padding)) + len(NEWLINE * int(bottom_padding)) + 1)
-        new.write(NEWLINE * int(top_padding), text, NEWLINE * int(bottom_padding))
-        return new
+        return String(NEWLINE * top_padding, text, NEWLINE * bottom_padding)
 
-    elif pos == position.bottom:
-        var new = String(capacity=len(text) + remaining_height + 1)
-        new.write(NEWLINE * remaining_height, text)
-        return new
+    elif pos == Position.BOTTOM:
+        return String(NEWLINE * remaining_height, text)
 
     return text

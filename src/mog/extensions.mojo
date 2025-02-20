@@ -1,44 +1,23 @@
 from utils import StringSlice
 from weave.ansi import printable_rune_width
 import mist
-from .size import get_height
 
-
-# TODO: I'll see if I can get `count` on `StringSlice` upstream in Mojo and add `AsStringSlice`.
-trait AsStringSlice:
-    fn as_string_slice(ref self) -> StringSlice[__origin_of(self)]:
-        ...
-
-
-fn count(text: StringSlice, substr: String) -> Int:
-    """Return the number of non-overlapping occurrences of substring
-    `substr` in the string.
-
-    If sub is empty, returns the number of empty strings between characters
-    which is the length of the string plus one.
+# TODO Add a stringslice version when split is added to it in 25.2
+fn split_lines(text: String) -> List[String]:
+    """Split a string into lines.
 
     Args:
-        text: The string to search.
-        substr: The substring to count.
+        text: The string to split.
 
     Returns:
-        The number of occurrences of `substr`.
+        The lines.
     """
-    if not substr:
-        return len(text) + 1
-
-    var res = 0
-    var offset = 0
-
-    while True:
-        var pos = text.find(substr, offset)
-        if pos == -1:
-            break
-        res += 1
-
-        offset = pos + substr.byte_length()
-
-    return res
+    try:
+        return text.split(NEWLINE)
+    except:
+        print("Somehow reached an error splitting lines. It should only raise if sep is empty", file=2)
+    
+    return List[String]()
 
 
 fn get_lines(text: String) -> Tuple[List[String], Int]:
@@ -50,40 +29,49 @@ fn get_lines(text: String) -> Tuple[List[String], Int]:
     Returns:
         A tuple containing the lines and the width of the widest line.
     """
-    var lines = text.splitlines()
+    var lines = split_lines(text)
     var widest_line = 0
     for line in lines:
         if printable_rune_width(line[]) > widest_line:
             widest_line = printable_rune_width(line[])
     
-    # TODO: splitlines strips trailing newlines, if they're missing after the split, re-add them.
-    var height = get_height(text)
-    var missing_lines = height - len(lines)
-    if missing_lines != 0:
-        for _ in range(missing_lines):
-            lines.append("")
-    return lines, widest_line
+    return lines^, widest_line
 
+# TODO: Switch to using StringSlice for the lines split when it's released in 25.2.
+# fn get_lines_view(text: String) -> Tuple[List[StringSlice[__origin_of(text)]], Int]:
+#     """Split a string into lines.
 
-fn get_lines_view(text: String) -> Tuple[List[StringSlice[__origin_of(text)]], Int]:
-    """Split a string into lines.
+#     Args:
+#         text: The string to split.
 
-    Args:
-        text: The string to split.
-
-    Returns:
-        A tuple containing the lines and the width of the widest line.
+#     Returns:
+#         A tuple containing the lines and the width of the widest line.
     
-    #### Notes:
-    Reminder that splitlines strips any trailing newlines. If you need to preserve them, you'll need to add them back.
-    """
-    var lines = text.as_string_slice().splitlines()
-    var widest_line = 0
-    for line in lines:
-        if printable_rune_width(line[]) > widest_line:
-            widest_line = printable_rune_width(line[])
+#     #### Notes:
+#     Reminder that splitlines strips any trailing newlines. If you need to preserve them, you'll need to add them back.
+#     """
+#     var lines = text.as_string_slice().splitlines()
+#     var widest_line = 0
+#     for line in lines:
+#         if printable_rune_width(line[]) > widest_line:
+#             widest_line = printable_rune_width(line[])
     
-    return lines, widest_line
+#     return lines^, widest_line
+
+
+# fn line_view_to_lines[origin: Origin](lines: List[StringSlice[origin]]) -> List[String]:
+#     """Convert a list of string slices to a list of strings.
+
+#     Args:
+#         lines: The list of string slices.
+
+#     Returns:
+#         The list of strings.
+#     """
+#     var result = List[String](capacity=len(lines))
+#     for line in lines:
+#         result.append(String(line[]))
+#     return result^
 
 
 fn get_widest_line[immutable: ImmutableOrigin](text: StringSlice[immutable]) -> Int:
@@ -122,8 +110,8 @@ fn pad(text: String, n: Int, style: mist.Style) -> String:
         return text
 
     var spaces = style.render(WHITESPACE * abs(n))
-    var result = String(capacity=int(len(text) * 1.5))
-    var lines = text.as_string_slice().splitlines()
+    var result = String(capacity=Int(len(text) * 1.5))
+    var lines = text.as_string_slice().get_immutable().splitlines()
     for i in range(len(lines)):
         if n > 0:
             result.write(lines[i], spaces)
@@ -133,9 +121,9 @@ fn pad(text: String, n: Int, style: mist.Style) -> String:
         if i != len(lines) - 1:
             result.write(NEWLINE)
 
-    return result
+    return result^
 
-
+@always_inline
 fn pad_left(text: String, n: Int, style: mist.Style) -> String:
     """Pad text with spaces to the left.
 
@@ -149,7 +137,7 @@ fn pad_left(text: String, n: Int, style: mist.Style) -> String:
     """
     return pad(text, -n, style)
 
-
+@always_inline
 fn pad_right(text: String, n: Int, style: mist.Style) -> String:
     """Pad text with spaces to the right.
 

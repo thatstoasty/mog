@@ -191,13 +191,14 @@ You can align paragraphs of text to the left, right, or center.
 
 ```mojo
 import mog
+from mog import Position
 
 fn main():
     var style = mog.Style() \
         .width(24) \
-        .align(position.left) \
-        .align(position.right) \
-        .align(position.center)
+        .align(Position.LEFT) \
+        .align(Position.RIGHT) \
+        .align(Position.CENTER)
 ```
 
 ## Width and Height

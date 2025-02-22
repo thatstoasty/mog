@@ -35,4 +35,3 @@ from mist import TRUE_COLOR, ANSI256, ANSI, ASCII
 
 alias WHITESPACE = " "
 alias NEWLINE = "\n"
-

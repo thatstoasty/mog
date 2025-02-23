@@ -7,7 +7,7 @@ Style definitions for nice terminal layouts.
 * Ported from/Inspired by: <https://github.com/charmbracelet/lipgloss/tree/master>
 * If you're a Go developer, please check out their CLI tooling and libraries. They're amazing!
 
-![Mojo Version](https://img.shields.io/badge/Mojo%F0%9F%94%A5-24.6-orange)
+![Mojo Version](https://img.shields.io/badge/Mojo%F0%9F%94%A5-25.1-orange)
 ![Build Status](https://github.com/thatstoasty/mog/actions/workflows/build.yml/badge.svg)
 ![Test Status](https://github.com/thatstoasty/mog/actions/workflows/test.yml/badge.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)

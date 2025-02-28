@@ -6,7 +6,7 @@ from mog.extensions import get_lines
 
 
 fn align_text_horizontal(
-    text: String, pos: position.Position, width: UInt16, style: mist.Style
+    text: String, pos: position.Position, width: UInt16, style: Optional[mist.Style]
 ) -> String:
     """Aligns the text on the horizontal axis. If the string is multi-lined, we also make all lines
     the same width by padding them with spaces. The mist style is used to style the spaces added.
@@ -24,7 +24,10 @@ fn align_text_horizontal(
     
     # If the text is empty, just return (styled) padding up to the width passed.
     if len(lines) == 0:
-        return style.render(WHITESPACE * Int(width))
+        var spaces = WHITESPACE * Int(width)
+        if style:
+            return style.value().render(spaces)
+        return spaces^
 
     var aligned = String(capacity=Int(len(text) * 1.25))
     for i in range(len(lines)):
@@ -34,14 +37,27 @@ fn align_text_horizontal(
         short_amount += max(0, Int(width) - (short_amount + line_width))  # difference from the total width, if set
         if short_amount > 0:
             if pos == Position.RIGHT:
-                line = String(style.render(WHITESPACE * short_amount), line)
+                var spaces = WHITESPACE * short_amount
+                if style:
+                    line = String(style.value().render(spaces), line)
+                else:
+                    line = String(spaces, line)
             elif pos == Position.CENTER:
                 # Note: remainder goes on the right.
                 var left = Int(short_amount / 2)
                 var right = Int(left + short_amount % 2)
-                line = String(style.render(WHITESPACE * left), line, style.render(WHITESPACE * right))
+                var left_spaces = WHITESPACE * left
+                var right_spaces = WHITESPACE * right
+                if style:
+                    line = String(style.value().render(left_spaces), line, style.value().render(right_spaces))
+                else:
+                    line = String(left_spaces, line, right_spaces)
             elif pos == Position.LEFT:
-                line.write(style.render(WHITESPACE * short_amount))
+                var spaces = WHITESPACE * short_amount
+                if style:
+                    line = String(line, style.value().render(spaces))
+                else:
+                    line = String(line, spaces)
 
         aligned.write(line)
         if i < len(lines) - 1:

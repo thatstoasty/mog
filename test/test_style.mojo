@@ -31,7 +31,7 @@ def test_unset_tab_width():
 
 def test_underline_spaces():
     alias style = ansi_style.underline_spaces()
-    testing.assert_equal(style.render("  Hello world!  "), "\x1b[;4m \x1b[0m\x1b[;4m \x1b[0mHello\x1b[;4m \x1b[0mworld!\x1b[;4m \x1b[0m\x1b[;4m \x1b[0m")
+    testing.assert_equal(style.render("  Hello world!  "), "\x1b[4m \x1b[0m\x1b[4m \x1b[0mHello\x1b[4m \x1b[0mworld!\x1b[4m \x1b[0m\x1b[4m \x1b[0m")
 
     # Turn on underline spaces (flag has a value set), but then set it to False (flag has value set, value is False).
     testing.assert_equal(style.underline_spaces(False).render("  Hello world!  "), "  Hello world!  ")
@@ -49,7 +49,7 @@ def test_unset_underline_spaces():
 
 def test_strikethrough_spaces():
     alias style = ansi_style.strikethrough_spaces()
-    testing.assert_equal(style.render("  Hello world!  "), "\x1b[;9m \x1b[0m\x1b[;9m \x1b[0mHello\x1b[;9m \x1b[0mworld!\x1b[;9m \x1b[0m\x1b[;9m \x1b[0m")
+    testing.assert_equal(style.render("  Hello world!  "), "\x1b[9m \x1b[0m\x1b[9m \x1b[0mHello\x1b[9m \x1b[0mworld!\x1b[9m \x1b[0m\x1b[9m \x1b[0m")
 
     # Turn on strikethrough spaces (flag has a value set), but then set it to False (flag has value set, value is False).
     testing.assert_equal(style.strikethrough_spaces(False).render("  Hello world!  "), "  Hello world!  ")
@@ -85,7 +85,7 @@ def test_unset_underline():
 
 def test_bold():
     alias style = ansi_style.bold()
-    testing.assert_equal(style.render("hello"), "\x1b[;1mhello\x1b[0m")
+    testing.assert_equal(style.render("hello"), "\x1b[1mhello\x1b[0m")
 
     # Turn on bold (flag has a value set), but then set it to False (flag has value set, value is False).
     testing.assert_equal(style.bold(False).render("hello"), "hello")
@@ -108,7 +108,7 @@ def test_get_italic():
 
 def test_italic():
     alias style = ansi_style.italic()
-    testing.assert_equal(style.render("hello"), "\x1b[;3mhello\x1b[0m")
+    testing.assert_equal(style.render("hello"), "\x1b[3mhello\x1b[0m")
 
     # Turn on italic (flag has a value set), but then set it to False (flag has value set, value is False).
     testing.assert_equal(style.italic(False).render("hello"), "hello")
@@ -145,7 +145,7 @@ def test_get_reverse():
 
 def test_reverse():
     alias style = ansi_style.reverse()
-    testing.assert_equal(style.render("hello"), "\x1b[;7mhello\x1b[0m")
+    testing.assert_equal(style.render("hello"), "\x1b[7mhello\x1b[0m")
 
     # Turn on reverse (flag has a value set), but then set it to False (flag has value set, value is False).
     testing.assert_equal(style.reverse(False).render("hello"), "hello")
@@ -163,7 +163,7 @@ def test_get_blink():
 
 def test_blink():
     alias style = ansi_style.blink()
-    testing.assert_equal(style.render("hello"), "\x1b[;5mhello\x1b[0m")
+    testing.assert_equal(style.render("hello"), "\x1b[5mhello\x1b[0m")
 
     # Turn on blink (flag has a value set), but then set it to False (flag has value set, value is False).
     testing.assert_equal(style.blink(False).render("hello"), "hello")
@@ -181,7 +181,7 @@ def test_get_faint():
 
 def test_faint():
     alias style = ansi_style.faint()
-    testing.assert_equal(style.render("hello"), "\x1b[;2mhello\x1b[0m")
+    testing.assert_equal(style.render("hello"), "\x1b[2mhello\x1b[0m")
 
     # Turn on faint (flag has a value set), but then set it to False (flag has value set, value is False).
     testing.assert_equal(style.faint(False).render("hello"), "hello")
@@ -283,7 +283,7 @@ def test_alignment():
 
 def test_foreground():
     alias style = ansi_style.foreground(mog.Color(12))
-    testing.assert_equal(style.render("hello"), "\x1b[;94mhello\x1b[0m")
+    testing.assert_equal(style.render("hello"), "\x1b[94mhello\x1b[0m")
 
 
 def test_unset_foreground():
@@ -293,7 +293,7 @@ def test_unset_foreground():
 
 def test_background():
     alias style = ansi_style.background(mog.Color(12))
-    testing.assert_equal(style.render("hello"), "\x1b[;104mhello\x1b[0m")
+    testing.assert_equal(style.render("hello"), "\x1b[104mhello\x1b[0m")
 
 
 def test_unset_background():
@@ -362,20 +362,20 @@ def test_border_foreground():
     alias style = ansi_style.border(mog.PLUS_BORDER)
 
     # One for all sides
-    testing.assert_equal(style.border_foreground(mog.Color(12)).render("hello"), "\x1b[;94m+++++++\x1b[0m\n\x1b[;94m+\x1b[0mhello\x1b[;94m+\x1b[0m\n\x1b[;94m+++++++\x1b[0m")
+    testing.assert_equal(style.border_foreground(mog.Color(12)).render("hello"), "\x1b[94m+++++++\x1b[0m\n\x1b[94m+\x1b[0mhello\x1b[94m+\x1b[0m\n\x1b[94m+++++++\x1b[0m")
 
     # Two colors for top/bottom and left/right
-    testing.assert_equal(style.border_foreground(mog.Color(12), mog.Color(13)).render("hello"), "\x1b[;94m+++++++\x1b[0m\n\x1b[;95m+\x1b[0mhello\x1b[;95m+\x1b[0m\n\x1b[;94m+++++++\x1b[0m")
+    testing.assert_equal(style.border_foreground(mog.Color(12), mog.Color(13)).render("hello"), "\x1b[94m+++++++\x1b[0m\n\x1b[95m+\x1b[0mhello\x1b[95m+\x1b[0m\n\x1b[94m+++++++\x1b[0m")
 
     # Three colors for top, left/right, and bottom
-    testing.assert_equal(style.border_foreground(mog.Color(12), mog.Color(13), mog.Color(14)).render("hello"), "\x1b[;94m+++++++\x1b[0m\n\x1b[;95m+\x1b[0mhello\x1b[;95m+\x1b[0m\n\x1b[;96m+++++++\x1b[0m")
+    testing.assert_equal(style.border_foreground(mog.Color(12), mog.Color(13), mog.Color(14)).render("hello"), "\x1b[94m+++++++\x1b[0m\n\x1b[95m+\x1b[0mhello\x1b[95m+\x1b[0m\n\x1b[96m+++++++\x1b[0m")
 
     # Four colors for top, right, bottom, left
-    testing.assert_equal(style.border_foreground(mog.Color(12), mog.Color(13), mog.Color(14), mog.Color(15)).render("hello"), "\x1b[;94m+++++++\x1b[0m\n\x1b[;97m+\x1b[0mhello\x1b[;95m+\x1b[0m\n\x1b[;96m+++++++\x1b[0m")
+    testing.assert_equal(style.border_foreground(mog.Color(12), mog.Color(13), mog.Color(14), mog.Color(15)).render("hello"), "\x1b[94m+++++++\x1b[0m\n\x1b[97m+\x1b[0mhello\x1b[95m+\x1b[0m\n\x1b[96m+++++++\x1b[0m")
 
 
 def test_border_top_foreground():
-    testing.assert_equal(ansi_style.border(mog.PLUS_BORDER).border_top_foreground(mog.Color(12)).render("hello"), "\x1b[;94m+++++++\x1b[0m\n+hello+\n+++++++")
+    testing.assert_equal(ansi_style.border(mog.PLUS_BORDER).border_top_foreground(mog.Color(12)).render("hello"), "\x1b[94m+++++++\x1b[0m\n+hello+\n+++++++")
 
 
 def test_unset_border_top_foreground():
@@ -383,7 +383,7 @@ def test_unset_border_top_foreground():
 
 
 def test_border_left_foreground():
-    testing.assert_equal(ansi_style.border(mog.PLUS_BORDER).border_left_foreground(mog.Color(12)).render("hello"), "+++++++\n\x1b[;94m+\x1b[0mhello+\n+++++++")
+    testing.assert_equal(ansi_style.border(mog.PLUS_BORDER).border_left_foreground(mog.Color(12)).render("hello"), "+++++++\n\x1b[94m+\x1b[0mhello+\n+++++++")
 
 
 def test_unset_border_left_foreground():
@@ -391,7 +391,7 @@ def test_unset_border_left_foreground():
 
 
 def test_border_right_foreground():
-    testing.assert_equal(ansi_style.border(mog.PLUS_BORDER).border_right_foreground(mog.Color(12)).render("hello"), "+++++++\n+hello\x1b[;94m+\x1b[0m\n+++++++")
+    testing.assert_equal(ansi_style.border(mog.PLUS_BORDER).border_right_foreground(mog.Color(12)).render("hello"), "+++++++\n+hello\x1b[94m+\x1b[0m\n+++++++")
 
 
 def test_unset_border_right_foreground():
@@ -399,7 +399,7 @@ def test_unset_border_right_foreground():
 
 
 def test_border_bottom_foreground():
-    testing.assert_equal(ansi_style.border(mog.PLUS_BORDER).border_bottom_foreground(mog.Color(12)).render("hello"), "+++++++\n+hello+\n\x1b[;94m+++++++\x1b[0m")
+    testing.assert_equal(ansi_style.border(mog.PLUS_BORDER).border_bottom_foreground(mog.Color(12)).render("hello"), "+++++++\n+hello+\n\x1b[94m+++++++\x1b[0m")
 
 
 def test_unset_border_bottom_foreground():
@@ -410,21 +410,21 @@ def test_border_background():
     alias style = ansi_style.border(mog.PLUS_BORDER)
 
     # One for all sides
-    testing.assert_equal(style.border_background(mog.Color(12)).render("hello"), "\x1b[;104m+++++++\x1b[0m\n\x1b[;104m+\x1b[0mhello\x1b[;104m+\x1b[0m\n\x1b[;104m+++++++\x1b[0m")
+    testing.assert_equal(style.border_background(mog.Color(12)).render("hello"), "\x1b[104m+++++++\x1b[0m\n\x1b[104m+\x1b[0mhello\x1b[104m+\x1b[0m\n\x1b[104m+++++++\x1b[0m")
 
     # Two colors for top/bottom and left/right
-    testing.assert_equal(style.border_background(mog.Color(12), mog.Color(13)).render("hello"), "\x1b[;104m+++++++\x1b[0m\n\x1b[;105m+\x1b[0mhello\x1b[;105m+\x1b[0m\n\x1b[;104m+++++++\x1b[0m")
+    testing.assert_equal(style.border_background(mog.Color(12), mog.Color(13)).render("hello"), "\x1b[104m+++++++\x1b[0m\n\x1b[105m+\x1b[0mhello\x1b[105m+\x1b[0m\n\x1b[104m+++++++\x1b[0m")
 
     # Three colors for top, left/right, and bottom
-    testing.assert_equal(style.border_background(mog.Color(12), mog.Color(13), mog.Color(14)).render("hello"), "\x1b[;104m+++++++\x1b[0m\n\x1b[;105m+\x1b[0mhello\x1b[;105m+\x1b[0m\n\x1b[;106m+++++++\x1b[0m")
+    testing.assert_equal(style.border_background(mog.Color(12), mog.Color(13), mog.Color(14)).render("hello"), "\x1b[104m+++++++\x1b[0m\n\x1b[105m+\x1b[0mhello\x1b[105m+\x1b[0m\n\x1b[106m+++++++\x1b[0m")
 
     # Four colors for top, right, bottom, left
-    testing.assert_equal(style.border_background(mog.Color(12), mog.Color(13), mog.Color(14), mog.Color(15)).render("hello"), "\x1b[;104m+++++++\x1b[0m\n\x1b[;107m+\x1b[0mhello\x1b[;105m+\x1b[0m\n\x1b[;106m+++++++\x1b[0m")
+    testing.assert_equal(style.border_background(mog.Color(12), mog.Color(13), mog.Color(14), mog.Color(15)).render("hello"), "\x1b[104m+++++++\x1b[0m\n\x1b[107m+\x1b[0mhello\x1b[105m+\x1b[0m\n\x1b[106m+++++++\x1b[0m")
 
 
 def test_border_top_background():
     alias style = ansi_style.border(mog.PLUS_BORDER).border_top_background(mog.Color(12))
-    testing.assert_equal(style.render("hello"), "\x1b[;104m+++++++\x1b[0m\n+hello+\n+++++++")
+    testing.assert_equal(style.render("hello"), "\x1b[104m+++++++\x1b[0m\n+hello+\n+++++++")
 
 
 def test_unset_border_top_background():
@@ -433,7 +433,7 @@ def test_unset_border_top_background():
 
 def test_border_left_background():
     alias style = ansi_style.border(mog.PLUS_BORDER).border_left_background(mog.Color(12))
-    testing.assert_equal(style.render("hello"), "+++++++\n\x1b[;104m+\x1b[0mhello+\n+++++++")
+    testing.assert_equal(style.render("hello"), "+++++++\n\x1b[104m+\x1b[0mhello+\n+++++++")
 
 
 def test_unset_border_left_background():
@@ -442,7 +442,7 @@ def test_unset_border_left_background():
 
 def test_border_right_background():
     alias style = ansi_style.border(mog.PLUS_BORDER).border_right_background(mog.Color(12))
-    testing.assert_equal(style.render("hello"), "+++++++\n+hello\x1b[;104m+\x1b[0m\n+++++++")
+    testing.assert_equal(style.render("hello"), "+++++++\n+hello\x1b[104m+\x1b[0m\n+++++++")
 
 
 def test_unset_border_right_background():
@@ -451,7 +451,7 @@ def test_unset_border_right_background():
 
 def test_border_bottom_background():
     alias style = ansi_style.border(mog.PLUS_BORDER).border_bottom_background(mog.Color(12))
-    testing.assert_equal(style.render("hello"), "+++++++\n+hello+\n\x1b[;104m+++++++\x1b[0m")
+    testing.assert_equal(style.render("hello"), "+++++++\n+hello+\n\x1b[104m+++++++\x1b[0m")
 
 
 def test_unset_border_bottom_background():

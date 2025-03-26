@@ -17,10 +17,10 @@ def test_centered_align_text_horizontal():
 
 def test_styled_centered_align_text_horizontal():
     var style = mist.Style(mist.ANSI).background(0xFFFFFF)
-    testing.assert_equal(align_text_horizontal(text, Position.CENTER, 10, style), "\x1b[;47m  \x1b[0mhello\x1b[;47m   \x1b[0m")
+    testing.assert_equal(align_text_horizontal(text, Position.CENTER, 10, style), "\x1b[47m  \x1b[0mhello\x1b[47m   \x1b[0m")
 
     # Multi line alignment
-    testing.assert_equal(align_text_horizontal(multiline_text, Position.CENTER, 10, style), "\x1b[;47m  \x1b[0mhello\x1b[;47m   \x1b[0m\n\x1b[;47m  \x1b[0mhello\x1b[;47m   \x1b[0m\n\x1b[;47m  \x1b[0mhello\x1b[;47m   \x1b[0m")
+    testing.assert_equal(align_text_horizontal(multiline_text, Position.CENTER, 10, style), "\x1b[47m  \x1b[0mhello\x1b[47m   \x1b[0m\n\x1b[47m  \x1b[0mhello\x1b[47m   \x1b[0m\n\x1b[47m  \x1b[0mhello\x1b[47m   \x1b[0m")
 
 
 def test_left_align_text_horizontal():
@@ -32,10 +32,10 @@ def test_left_align_text_horizontal():
 
 def test_styled_left_align_text_horizontal():
     var style = mist.Style(mist.ANSI).background(0xFFFFFF)
-    testing.assert_equal(align_text_horizontal(text, Position.LEFT, 10, style), "hello\x1b[;47m     \x1b[0m")
+    testing.assert_equal(align_text_horizontal(text, Position.LEFT, 10, style), "hello\x1b[47m     \x1b[0m")
 
     # Multi line alignment
-    testing.assert_equal(align_text_horizontal(multiline_text, Position.LEFT, 10, style), "hello\x1b[;47m     \x1b[0m\nhello\x1b[;47m     \x1b[0m\nhello\x1b[;47m     \x1b[0m")
+    testing.assert_equal(align_text_horizontal(multiline_text, Position.LEFT, 10, style), "hello\x1b[47m     \x1b[0m\nhello\x1b[47m     \x1b[0m\nhello\x1b[47m     \x1b[0m")
 
 
 def test_right_align_text_horizontal():
@@ -47,10 +47,10 @@ def test_right_align_text_horizontal():
 
 def test_styled_right_align_text_horizontal():
     var style = mist.Style(mist.ANSI).background(0xFFFFFF)
-    testing.assert_equal(align_text_horizontal(text, Position.RIGHT, 10, style), "\x1b[;47m     \x1b[0mhello")
+    testing.assert_equal(align_text_horizontal(text, Position.RIGHT, 10, style), "\x1b[47m     \x1b[0mhello")
 
     # Multi line alignment
-    testing.assert_equal(align_text_horizontal(multiline_text, Position.RIGHT, 10, style), "\x1b[;47m     \x1b[0mhello\n\x1b[;47m     \x1b[0mhello\n\x1b[;47m     \x1b[0mhello")
+    testing.assert_equal(align_text_horizontal(multiline_text, Position.RIGHT, 10, style), "\x1b[47m     \x1b[0mhello\n\x1b[47m     \x1b[0mhello\n\x1b[47m     \x1b[0mhello")
 
 
 def test_empty_align_text_horizontal():
@@ -59,7 +59,7 @@ def test_empty_align_text_horizontal():
     testing.assert_equal(align_text_horizontal("", Position.LEFT, 10, style), "          ")
     testing.assert_equal(align_text_horizontal("", Position.RIGHT, 10, style), "          ")
     testing.assert_equal(align_text_horizontal("", Position.CENTER, 10, style), "          ")
-    testing.assert_equal(align_text_horizontal("", Position.LEFT, 10, bg_style), "\x1b[;47m          \x1b[0m")
+    testing.assert_equal(align_text_horizontal("", Position.LEFT, 10, bg_style), "\x1b[47m          \x1b[0m")
 
 
 def test_centered_align_text_vertical():

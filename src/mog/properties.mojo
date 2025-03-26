@@ -1,4 +1,4 @@
-from .position import Position
+from mog.position import Position
 
 @value
 @register_passable("trivial")

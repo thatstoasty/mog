@@ -1,4 +1,4 @@
-from weave import truncate
+from mist.transform import truncate
 from ..style import Style
 from ..border import ROUNDED_BORDER, Border
 from ..join import join_horizontal

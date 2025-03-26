@@ -1,6 +1,6 @@
 import math
-from utils import StringSlice
-from weave.ansi import printable_rune_width
+from collections.string import StringSlice
+from mist.transform.ansi import printable_rune_width
 from mog.extensions import get_lines
 from mog.position import Position
 

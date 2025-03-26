@@ -1,6 +1,3 @@
-from .renderer import Renderer
-
-
 @value
 @register_passable("trivial")
 struct Position:

@@ -1,5 +1,5 @@
 import mog
-import mist.hue
+import mist._hue as hue
 
 
 fn render_pixels(style: mog.Style, width: Int) -> String:

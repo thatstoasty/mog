@@ -1,5 +1,5 @@
 from collections import Optional
-from weave.ansi import printable_rune_width
+from mist.transform.ansi import printable_rune_width
 import mist
 import mog.position
 from mog.extensions import get_lines

@@ -1,9 +1,9 @@
-from utils import StringSlice
-from weave.ansi import printable_rune_width
+from collections.string import StringSlice
+from mist.transform.ansi import printable_rune_width
 import mist
 
 # TODO Add a stringslice version when split is added to it in 25.2
-fn split_lines(text: String) -> List[String]:
+fn split_lines[origin: ImmutableOrigin](text: StringSlice[origin]) -> List[String]:
     """Split a string into lines.
 
     Args:
@@ -20,7 +20,7 @@ fn split_lines(text: String) -> List[String]:
     return List[String]()
 
 
-fn get_lines(text: String) -> Tuple[List[String], Int]:
+fn get_lines[origin: ImmutableOrigin](text: StringSlice[origin]) -> Tuple[List[String], Int]:
     """Split a string into lines.
 
     Args:
@@ -37,44 +37,8 @@ fn get_lines(text: String) -> Tuple[List[String], Int]:
     
     return lines^, widest_line
 
-# TODO: Switch to using StringSlice for the lines split when it's released in 25.2.
-# fn get_lines_view(text: String) -> Tuple[List[StringSlice[__origin_of(text)]], Int]:
-#     """Split a string into lines.
 
-#     Args:
-#         text: The string to split.
-
-#     Returns:
-#         A tuple containing the lines and the width of the widest line.
-    
-#     #### Notes:
-#     Reminder that splitlines strips any trailing newlines. If you need to preserve them, you'll need to add them back.
-#     """
-#     var lines = text.as_string_slice().splitlines()
-#     var widest_line = 0
-#     for line in lines:
-#         if printable_rune_width(line[]) > widest_line:
-#             widest_line = printable_rune_width(line[])
-    
-#     return lines^, widest_line
-
-
-# fn line_view_to_lines[origin: Origin](lines: List[StringSlice[origin]]) -> List[String]:
-#     """Convert a list of string slices to a list of strings.
-
-#     Args:
-#         lines: The list of string slices.
-
-#     Returns:
-#         The list of strings.
-#     """
-#     var result = List[String](capacity=len(lines))
-#     for line in lines:
-#         result.append(String(line[]))
-#     return result^
-
-
-fn get_widest_line[immutable: ImmutableOrigin](text: StringSlice[immutable]) -> Int:
+fn get_widest_line[origin: ImmutableOrigin](text: StringSlice[origin]) -> Int:
     """Split a string into lines.
 
     Args:

@@ -1,4 +1,4 @@
-from weave.ansi import printable_rune_width
+from mist.transform.ansi import printable_rune_width
 from mog.join import join_vertical, join_horizontal
 from mog.border import HIDDEN_BORDER, NORMAL_BORDER, ROUNDED_BORDER, Border
 from mog.style import Style
@@ -6,9 +6,9 @@ from mog.size import get_width
 from mog import Position
 from mog.whitespace import WhitespaceRenderer
 from mog.renderer import Renderer
-from mog.properties import Alignment
+from mog._properties import Alignment
 import mog
-import mist.hue
+import mist._hue as hue
 
 
 alias width = 96

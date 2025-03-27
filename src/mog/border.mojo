@@ -1,4 +1,4 @@
-from weave.ansi import printable_rune_width
+from mist.transform.ansi import printable_rune_width
 
 
 @value

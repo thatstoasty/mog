@@ -50,7 +50,6 @@ fn test_basic_comptime_styling(mut b: Bencher) raises:
 fn main() raises:
     var config = BenchConfig()
     config.verbose_timing = True
-    config.tabular_view = True
     config.flush_denormals = True
     config.show_progress = True
     var bench = Bench(config)

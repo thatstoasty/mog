@@ -1,6 +1,6 @@
 import testing
 import mist
-from mog.extensions import pad_left, pad_right, get_lines, get_widest_line
+from mog._extensions import pad_left, pad_right, get_lines, get_widest_line
 
 
 alias ascii_style = mist.Style(mist.ASCII)
@@ -9,13 +9,13 @@ alias white_space_style = mist.Style(mist.ANSI).background(15)
 
 def test_pad_left():
     testing.assert_equal(pad_left("hello", 10, ascii_style), "          hello")
-    testing.assert_equal(pad_left("hello", 10, white_space_style), "\x1b[;107m          \x1b[0mhello")
+    testing.assert_equal(pad_left("hello", 10, white_space_style), "\x1b[107m          \x1b[0mhello")
     testing.assert_equal(pad_left("\n\n\n\n\n", 3, ascii_style), "   \n   \n   \n   \n   ")
 
 
 def test_pad_right():
     testing.assert_equal(pad_right("hello", 10, ascii_style), "hello          ")
-    testing.assert_equal(pad_right("hello", 10, white_space_style), "hello\x1b[;107m          \x1b[0m")
+    testing.assert_equal(pad_right("hello", 10, white_space_style), "hello\x1b[107m          \x1b[0m")
     testing.assert_equal(pad_right("\n\n\n\n\n", 3, ascii_style), "   \n   \n   \n   \n   ")
 
 

@@ -4,13 +4,15 @@
 
 Style definitions for nice terminal layouts.
 
-* Ported from/Inspired by: <https://github.com/charmbracelet/lipgloss/tree/master>
-* If you're a Go developer, please check out their CLI tooling and libraries. They're amazing!
-
-![Mojo Version](https://img.shields.io/badge/Mojo%F0%9F%94%A5-25.1-orange)
+![Mojo Version](https://img.shields.io/badge/Mojo%F0%9F%94%A5-25.2-orange)
 ![Build Status](https://github.com/thatstoasty/mog/actions/workflows/build.yml/badge.svg)
 ![Test Status](https://github.com/thatstoasty/mog/actions/workflows/test.yml/badge.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+## Attributions
+
+* Ported from/Inspired by: <https://github.com/charmbracelet/lipgloss/tree/master>
+  * If you're a Go developer, please check out their CLI tooling and libraries. They're amazing!
 
 ## Installation
 
@@ -68,9 +70,9 @@ mog.Color(202) # orange
 import mog
 
 fn main():
-    var color = mog.Color(0x0000FF) # good ol' 100% blue
-    color = mog.Color(0x04B575) # a green
-    color = mog.Color(0x3C3C3C) # a dark gray
+    var color = mog.Color(0x0000FF) # 100% blue
+    color = mog.Color(0x04B575) # green
+    color = mog.Color(0x3C3C3C) # dark gray
 ```
 
 ...as well as a 1-bit ASCII profile, which is black and white only.
@@ -347,8 +349,8 @@ import mog
 
 fn main():
     var style = mog.Style() # tabs will render as 4 spaces, the default
-    style = style.tab_width(2)    # render tabs as 2 spaces
-    style = style.tab_width(0)    # remove tabs entirely
+    style = style.tab_width(2) # render tabs as 2 spaces
+    style = style.tab_width(0) # remove tabs entirely
     style = style.tab_width(mog.NO_TAB_CONVERSION) # leave tabs intact
 ```
 
@@ -527,8 +529,6 @@ Here's an example table rendering!
 
 ## TODO
 
-* Decompose style render mega function and mega class into smaller ones.
-
-### Check out these other libraries in the Mojo Community!
+### Check out these other libraries in the Mojo Community
 
 * `A Mojo HTTP framework with wings` - [@saviorand/lightbug_http](https://github.com/saviorand/lightbug_http)

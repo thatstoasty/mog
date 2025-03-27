@@ -1,8 +1,8 @@
-import weave.ansi
-from mog.extensions import get_lines, get_widest_line
+import mist.transform.ansi
+from mog._extensions import get_lines, get_widest_line
 from mog.renderer import Renderer
 from mog.position import Position
-from mog.properties import Alignment
+from mog._properties import Alignment
 
 
 struct WhitespaceRenderer(Movable, ExplicitlyCopyable):
@@ -63,9 +63,9 @@ struct WhitespaceRenderer(Movable, ExplicitlyCopyable):
         var i = 0
 
         while i < width:
-            for char in self.chars.char_slices():
-                result.write(char)
-                var printable_width = ansi.printable_rune_width(char)
+            for codepoint in self.chars.codepoint_slices():
+                result.write(codepoint)
+                var printable_width = ansi.printable_rune_width(codepoint)
                 if j >= printable_width:
                     j = 0
 

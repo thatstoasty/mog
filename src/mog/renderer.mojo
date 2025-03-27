@@ -1,4 +1,3 @@
-from collections import Optional
 import mist
 from mog.position import Position
 

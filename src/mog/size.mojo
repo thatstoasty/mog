@@ -1,7 +1,7 @@
-from utils import StringSlice
-import weave.ansi
-from weave.traits import AsStringSlice
-from .properties import Dimensions
+from collections.string import StringSlice
+import mist.transform.ansi
+from mist.transform.traits import AsStringSlice
+from mog._properties import Dimensions
 
 
 fn get_width[T: AsStringSlice](text: T) -> Int:

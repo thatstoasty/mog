@@ -26,7 +26,7 @@ from mog.color import (
     AnyTerminalColor,
 )
 from mog.align import align_text_horizontal, align_text_vertical
-from mog.properties import Alignment
+from mog._properties import Alignment
 from mog.renderer import Renderer
 from mog.join import join_horizontal, join_vertical
 from mog.position import Position

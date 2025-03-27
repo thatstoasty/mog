@@ -1,8 +1,8 @@
 from collections import Optional
-from weave.ansi import printable_rune_width
+from mist.transform.ansi import printable_rune_width
 import mist
 import mog.position
-from mog.extensions import get_lines
+from mog._extensions import get_lines
 
 
 fn align_text_horizontal(
@@ -81,7 +81,7 @@ fn align_text_vertical(text: String, pos: position.Position, height: UInt16) -> 
     """
     var text_height = text.count(NEWLINE) + 1
     if height < text_height:
-        return text
+        return text.copy()
 
     var remaining_height = Int(height - text_height)
     if pos == Position.TOP:
@@ -100,4 +100,4 @@ fn align_text_vertical(text: String, pos: position.Position, height: UInt16) -> 
     elif pos == Position.BOTTOM:
         return String(NEWLINE * remaining_height, text)
 
-    return text
+    return text.copy()

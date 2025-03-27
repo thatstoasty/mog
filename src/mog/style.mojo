@@ -17,8 +17,8 @@ from mog.border import (
     STAR_BORDER,
     PLUS_BORDER,
 )
-from mog.extensions import get_lines, get_widest_line, split_lines, pad_left, pad_right
-from mog.properties import Properties, PropKey, Dimensions, Padding, Margin, Coloring, BorderColor, Alignment
+from mog._extensions import get_lines, get_widest_line, split_lines, pad_left, pad_right
+from mog._properties import Properties, PropKey, Dimensions, Padding, Margin, Coloring, BorderColor, Alignment
 from mog.align import align_text_horizontal, align_text_vertical
 from mog.color import (
     AnyTerminalColor,
@@ -2423,9 +2423,7 @@ struct Style(Movable, ExplicitlyCopyable):
         var styler = self._renderer.as_mist_style().background(color=self.get_margin_background().to_mist_color(self._renderer))
 
         # Add left and right margin
-        var left_margin = Int(self.get_margin_left())
-        var right_margin = Int(self.get_margin_right())
-        text = pad_right(pad_left(text^, left_margin, styler), right_margin, styler)
+        text = pad_right(pad_left(text^, Int(self.get_margin_left()), styler), Int(self.get_margin_right()), styler)
 
         # Top/bottom margin
         var top_margin = Int(self.get_margin_top())
@@ -2531,7 +2529,7 @@ struct Style(Movable, ExplicitlyCopyable):
         var width = self.get_width()
 
         # force-wrap long strings
-        if (not inline) and (width > 0):
+        if not inline and (width > 0):
             input_text = _wrap_words(input_text, width, left_padding, right_padding)
 
         var stylers = self._get_styles()
@@ -2565,7 +2563,6 @@ struct Style(Movable, ExplicitlyCopyable):
         if height > 0:
             result = align_text_vertical(result, self.get_vertical_alignment(), height)
 
-        # TODO: Need to handle line splitting removing the last line
         if width != 0 or get_widest_line(result) != 0:
             var style: mist.Style
             if color_whitespace or use_whitespace_styler:
@@ -2581,7 +2578,7 @@ struct Style(Movable, ExplicitlyCopyable):
         # Truncate according to max_width
         if max_width > 0:
             var text_lines = split_lines(result) # TODO: update mist.transform to support stringslice input
-            truncated = String(capacity=Int(len(result) * 1.5))
+            var truncated = String(capacity=Int(len(result) * 1.5))
             for i in range(len(text_lines)):
                 if i != 0:
                     truncated.write(NEWLINE)
@@ -2591,8 +2588,6 @@ struct Style(Movable, ExplicitlyCopyable):
 
         # Truncate according to max_height
         if max_height > 0:
-            # TODO: Tables break if I use split instead of splitlines for some reason.
-            # ATM I don't know why this rejoining needs trailing newlines clipped off, but i'll figure it out later.
             var final_lines = result.as_string_slice().get_immutable().splitlines()
             result = NEWLINE.join(final_lines[0 : min(Int(max_height), len(final_lines))])
 

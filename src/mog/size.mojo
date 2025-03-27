@@ -1,7 +1,7 @@
 from collections.string import StringSlice
 import mist.transform.ansi
 from mist.transform.traits import AsStringSlice
-from mog.properties import Dimensions
+from mog._properties import Dimensions
 
 
 fn get_width[T: AsStringSlice](text: T) -> Int:

@@ -1,8 +1,8 @@
 import mist.transform.ansi
-from mog.extensions import get_lines, get_widest_line
+from mog._extensions import get_lines, get_widest_line
 from mog.renderer import Renderer
 from mog.position import Position
-from mog.properties import Alignment
+from mog._properties import Alignment
 
 
 struct WhitespaceRenderer(Movable, ExplicitlyCopyable):

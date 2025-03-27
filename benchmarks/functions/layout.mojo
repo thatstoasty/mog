@@ -6,7 +6,7 @@ from mog.size import get_width
 from mog import Position
 from mog.whitespace import WhitespaceRenderer
 from mog.renderer import Renderer
-from mog.properties import Alignment
+from mog._properties import Alignment
 import mog
 import mist._hue as hue
 

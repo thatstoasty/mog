@@ -1,6 +1,6 @@
 import testing
 import mist
-from mog.extensions import pad_left, pad_right, get_lines, get_widest_line
+from mog._extensions import pad_left, pad_right, get_lines, get_widest_line
 
 
 alias ascii_style = mist.Style(mist.ASCII)

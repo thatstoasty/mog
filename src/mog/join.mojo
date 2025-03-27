@@ -1,7 +1,7 @@
 import math
 from collections.string import StringSlice
 from mist.transform.ansi import printable_rune_width
-from mog.extensions import get_lines
+from mog._extensions import get_lines
 from mog.position import Position
 
 
@@ -14,18 +14,19 @@ fn join_horizontal(pos: Position, *strs: String) -> String:
     If you just want to align to the left, right or center you may as well just
     use the helper constants Top, Center, and Bottom.
 
-    Examples:
+    #### Examples:
     ```mojo
     import mog
 
-    var block_b = "...\\n...\\n..."
-    var block_a = "...\\n...\\n...\\n...\\n..."
+    fn main():
+        var block_b = "...\\n...\\n..."
+        var block_a = "...\\n...\\n...\\n...\\n..."
 
-    # Join 20% from the top
-    var text = mog.join_horizontal(0.2, block_a, block_b)
+        # Join 20% from the top
+        var text = mog.join_horizontal(0.2, block_a, block_b)
 
-    # Join on the top edge
-    text = mog.join_horizontal(mog.top, block_a, block_b)
+        # Join on the top edge
+        text = mog.join_horizontal(mog.top, block_a, block_b)
     ```
 
     Args:
@@ -39,7 +40,7 @@ fn join_horizontal(pos: Position, *strs: String) -> String:
         return ""
 
     if len(strs) == 1:
-        return strs[0]
+        return String(strs[0])
 
     # Groups of strings broken into multiple lines
     var blocks = List[List[String]](capacity=len(strs))
@@ -108,14 +109,15 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
     ```mojo
     import mog
 
-    var block_b = "...\\n...\\n..."
-    var block_a = "...\\n...\\n...\\n...\\n..."
+    fn main():
+        var block_b = "...\\n...\\n..."
+        var block_a = "...\\n...\\n...\\n...\\n..."
 
-    # Join 20% from the top
-    var text = mog.join_horizontal(0.2, block_a, block_b)
+        # Join 20% from the top
+        var text = mog.join_horizontal(0.2, block_a, block_b)
 
-    # Join on the top edge
-    text = mog.join_horizontal(mog.top, block_a, block_b)
+        # Join on the top edge
+        text = mog.join_horizontal(mog.top, block_a, block_b)
     ```
 
     Args:
@@ -194,16 +196,19 @@ fn join_vertical(pos: Position, *strs: String) -> String:
     If you just want to align to the left, right or center you may as well just
     use the helper constants Left, Center, and Right.
 
-    Examples:
+    #### Examples:
     ```mojo
-    var block_b = "...\\n...\\n..."
-    var block_a = "...\\n...\\n...\\n...\\n..."
+    import mog
 
-    # Join 20% from the top
-    var text = mog.join_vertical(0.2, block_a, block_b)
+    fn main():
+        var block_b = "...\\n...\\n..."
+        var block_a = "...\\n...\\n...\\n...\\n..."
 
-    # Join on the right edge
-    text = mog.join_vertical(mog.right, block_a, block_b)
+        # Join 20% from the top
+        var text = mog.join_vertical(0.2, block_a, block_b)
+
+        # Join on the right edge
+        text = mog.join_vertical(mog.right, block_a, block_b)
     ```
 
     Args:
@@ -217,7 +222,7 @@ fn join_vertical(pos: Position, *strs: String) -> String:
         return ""
 
     if len(strs) == 1:
-        return strs[0]
+        return String(strs[0])
 
     # Groups of strings broken into multiple lines
     var blocks = List[List[String]](capacity=len(strs))
@@ -266,16 +271,19 @@ fn join_vertical(pos: Position, strs: List[String]) -> String:
     If you just want to align to the left, right or center you may as well just
     use the helper constants Left, Center, and Right.
 
-    Examples:
+    #### Examples:
     ```mojo
-    var block_b = "...\\n...\\n..."
-    var block_a = "...\\n...\\n...\\n...\\n..."
+    import mog
 
-    # Join 20% from the top
-    var text = mog.join_vertical(0.2, block_a, block_b)
+    fn main():
+        var block_b = "...\\n...\\n..."
+        var block_a = "...\\n...\\n...\\n...\\n..."
 
-    # Join on the right edge
-    text = mog.join_vertical(mog.right, block_a, block_b)
+        # Join 20% from the top
+        var text = mog.join_vertical(0.2, block_a, block_b)
+
+        # Join on the right edge
+        text = mog.join_vertical(mog.right, block_a, block_b)
     ```
 
     Args:

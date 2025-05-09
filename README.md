@@ -4,7 +4,7 @@
 
 Style definitions for nice terminal layouts.
 
-![Mojo Version](https://img.shields.io/badge/Mojo%F0%9F%94%A5-25.2-orange)
+![Mojo Version](https://img.shields.io/badge/Mojo%F0%9F%94%A5-25.3-orange)
 ![Build Status](https://github.com/thatstoasty/mog/actions/workflows/build.yml/badge.svg)
 ![Test Status](https://github.com/thatstoasty/mog/actions/workflows/test.yml/badge.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -528,6 +528,8 @@ Here's an example table rendering!
 ---
 
 ## TODO
+
+* Add style ranges.
 
 ### Check out these other libraries in the Mojo Community
 

@@ -1,9 +1,9 @@
-from collections.string import StringSlice
 from mist.transform.ansi import printable_rune_width
 import mist
+from sys import stderr
 
 
-fn split_lines[origin: ImmutableOrigin](text: StringSlice[origin]) -> List[String]:
+fn split_lines[origin: ImmutableOrigin](text: StringSlice[origin]) -> List[StringSlice[origin]]:
     """Split a string into lines.
 
     Args:
@@ -15,12 +15,12 @@ fn split_lines[origin: ImmutableOrigin](text: StringSlice[origin]) -> List[Strin
     try:
         return text.split(NEWLINE)
     except:
-        print("Somehow reached an error splitting lines. It should only raise if sep is empty", file=2)
+        print("Somehow reached an error splitting lines. It should only raise if sep is empty", file=stderr)
     
-    return List[String]()
+    return List[StringSlice[origin]]()
 
 
-fn get_lines[origin: ImmutableOrigin](text: StringSlice[origin]) -> Tuple[List[String], Int]:
+fn get_lines[origin: ImmutableOrigin](text: StringSlice[origin]) -> Tuple[List[StringSlice[origin]], Int]:
     """Split a string into lines.
 
     Args:

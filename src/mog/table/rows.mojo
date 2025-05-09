@@ -1,7 +1,4 @@
-from collections import Optional
-
-
-trait Data(CollectionElement):
+trait Data(Movable, Copyable, ExplicitlyCopyable):
     """Trait that wraps the basic methods of a table model."""
 
     # TODO: Need to figure out if I want this to return an optional or just raise.

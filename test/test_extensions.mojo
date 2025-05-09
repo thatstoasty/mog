@@ -22,14 +22,14 @@ def test_pad_right():
 def test_get_lines():
     lines, widest_line = get_lines("hello\nworld")
     testing.assert_equal(len(lines), 2)
-    testing.assert_equal(lines, List[String]("hello", "world"))
+    testing.assert_equal(lines, List[StringSlice[StaticConstantOrigin]]("hello", "world"))
     testing.assert_equal(widest_line, 5)
 
 
 def test_get_lines_empty_string():
     lines, widest_line = get_lines("")
     testing.assert_equal(len(lines), 1)
-    testing.assert_equal(lines, List[String](""))
+    testing.assert_equal(lines, List[StringSlice[StaticConstantOrigin]](""))
     testing.assert_equal(widest_line, 0)
 
 

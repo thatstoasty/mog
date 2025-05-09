@@ -1,4 +1,3 @@
-from collections.string import StringSlice
 from mog.renderer import Renderer
 from mog.position import Position
 from mog.border import (
@@ -1480,11 +1479,10 @@ struct Style(Movable, ExplicitlyCopyable):
         * If three colors are passed, the first is applied to the top, the second to the left and right, and the third to the bottom.
         * If four colors are passed, the first is applied to the top, the second to the right, the third to the bottom, and the fourth to the left.
         """
-        var top: AnyTerminalColor = NoColor()
-        var bottom: AnyTerminalColor = NoColor()
-        var left: AnyTerminalColor = NoColor()
-        var right: AnyTerminalColor = NoColor()
-        var new = self.copy()
+        var top: AnyTerminalColor
+        var bottom: AnyTerminalColor
+        var left: AnyTerminalColor
+        var right: AnyTerminalColor
         var widths_specified = len(colors)
         if widths_specified == 1:
             top = colors[0].copy()
@@ -1507,8 +1505,9 @@ struct Style(Movable, ExplicitlyCopyable):
             bottom = colors[2].copy()
             left = colors[3].copy()
         else:
-            return new^
+            return self.copy()
 
+        var new = self.copy()
         new._set_attribute[PropKey.BORDER_TOP_FOREGROUND](top)
         new._set_attribute[PropKey.BORDER_RIGHT_FOREGROUND](right)
         new._set_attribute[PropKey.BORDER_BOTTOM_FOREGROUND](bottom)
@@ -1652,11 +1651,6 @@ struct Style(Movable, ExplicitlyCopyable):
         Returns:
             A new Style with the border background color rule set.
         """
-        var top: AnyTerminalColor = NoColor()
-        var bottom: AnyTerminalColor = NoColor()
-        var left: AnyTerminalColor = NoColor()
-        var right: AnyTerminalColor = NoColor()
-        var new = self.copy()
         var widths_specified = len(colors)
         if widths_specified == 1:
             top = colors[0].copy()
@@ -1679,8 +1673,9 @@ struct Style(Movable, ExplicitlyCopyable):
             bottom = colors[2].copy()
             left = colors[3].copy()
         else:
-            return new^
+            return self.copy()
 
+        var new = self.copy()
         new._set_attribute[PropKey.BORDER_TOP_BACKGROUND](top)
         new._set_attribute[PropKey.BORDER_RIGHT_BACKGROUND](right)
         new._set_attribute[PropKey.BORDER_BOTTOM_BACKGROUND](bottom)
@@ -1836,11 +1831,10 @@ struct Style(Movable, ExplicitlyCopyable):
         side, followed by the right side, then the bottom, and finally the left.
         * With more than four arguments no padding will be added.
         """
-        var top: UInt16 = 0
-        var bottom: UInt16 = 0
-        var left: UInt16 = 0
-        var right: UInt16 = 0
-        var new = self.copy()
+        var top: UInt16
+        var bottom: UInt16
+        var left: UInt16
+        var right: UInt16
         var widths_specified = len(widths)
         if widths_specified == 1:
             top = widths[0]
@@ -1863,8 +1857,9 @@ struct Style(Movable, ExplicitlyCopyable):
             bottom = widths[2]
             left = widths[3]
         else:
-            return new^
+            return self.copy()
 
+        var new = self.copy()
         new._set_attribute[PropKey.PADDING_TOP](top)
         new._set_attribute[PropKey.PADDING_RIGHT](right)
         new._set_attribute[PropKey.PADDING_BOTTOM](bottom)
@@ -2028,11 +2023,10 @@ struct Style(Movable, ExplicitlyCopyable):
         side, followed by the right side, then the bottom, and finally the left.
         * With more than four arguments no margin will be added.
         """
-        var top: UInt16 = 0
-        var bottom: UInt16 = 0
-        var left: UInt16 = 0
-        var right: UInt16 = 0
-        var new = self.copy()
+        var top: UInt16
+        var bottom: UInt16
+        var left: UInt16
+        var right: UInt16
         var widths_specified = len(widths)
         if widths_specified == 1:
             top = widths[0]
@@ -2055,8 +2049,9 @@ struct Style(Movable, ExplicitlyCopyable):
             bottom = widths[2]
             left = widths[3]
         else:
-            return new^
+            return self.copy()
 
+        var new = self.copy()
         new._set_attribute[PropKey.MARGIN_TOP](top)
         new._set_attribute[PropKey.MARGIN_RIGHT](right)
         new._set_attribute[PropKey.MARGIN_BOTTOM](bottom)
@@ -2589,6 +2584,6 @@ struct Style(Movable, ExplicitlyCopyable):
         # Truncate according to max_height
         if max_height > 0:
             var final_lines = result.as_string_slice().get_immutable().splitlines()
-            result = NEWLINE.join(final_lines[0 : min(Int(max_height), len(final_lines))])
+            result = StaticString(NEWLINE).join(final_lines[0 : min(Int(max_height), len(final_lines))])
 
         return result^

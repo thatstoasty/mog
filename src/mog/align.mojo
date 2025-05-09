@@ -1,4 +1,3 @@
-from collections import Optional
 from mist.transform.ansi import printable_rune_width
 import mist
 import mog.position

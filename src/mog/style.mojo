@@ -2583,7 +2583,7 @@ struct Style(Movable, ExplicitlyCopyable):
 
         # Truncate according to max_height
         if max_height > 0:
-            var final_lines = result.splitlines()
+            var final_lines = result.as_string_slice().get_immutable().splitlines()
             result = StaticString(NEWLINE).join(final_lines[0 : min(Int(max_height), len(final_lines))])
 
         return result^

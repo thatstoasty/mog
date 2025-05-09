@@ -3,9 +3,9 @@ from mist.transform.ansi import printable_rune_width
 from mog._extensions import get_lines
 from mog.position import Position
 
-
+# TODO: Refactor this module to reuse some of the logic instead of duplicating functions.
 fn _get_lines_mem[origin: ImmutableOrigin](pos: Position, strs: VariadicListMem[String, origin]) -> Tuple[List[List[StringSlice[origin]]], List[Int]]:
-    """Split a string into lines.
+    """Split a variadic list of strings into lines.
 
     Args:
         pos: The position to split the string.

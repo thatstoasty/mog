@@ -1,11 +1,11 @@
 from mist.transform import truncate
-from ..style import Style
-from ..border import ROUNDED_BORDER, Border
-from ..join import join_horizontal
-from ..size import get_height, get_width
-from ..position import Position
-from .rows import StringData
-from .util import median, largest, sum
+from mog.style import Style
+from mog.border import ROUNDED_BORDER, Border
+from mog.join import join_horizontal
+from mog.size import get_height, get_width
+from mog.position import Position
+from mog.table.rows import StringData
+from mog.table.util import median, largest, sum
 
 
 alias StyleFunction = fn (row: Int, col: Int) -> Style

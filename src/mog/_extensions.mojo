@@ -15,8 +15,9 @@ fn get_lines[origin: ImmutableOrigin](text: StringSlice[origin]) -> Tuple[List[S
     var lines = text.split(NEWLINE)
     var widest_line = 0
     for line in lines:
-        if printable_rune_width(line) > widest_line:
-            widest_line = printable_rune_width(line)
+        var width = printable_rune_width(line)
+        if width > widest_line:
+            widest_line = width
 
     return lines^, widest_line
 
@@ -30,14 +31,14 @@ fn get_widest_line[origin: ImmutableOrigin](text: StringSlice[origin]) -> Int:
     Returns:
         The width of the widest line.
     """
-    if text == "":
+    if len(text) == 0:
         return 0
 
-    var lines = text.splitlines()
     var widest = 0
-    for i in range(len(lines)):
-        if printable_rune_width(lines[i]) > widest:
-            widest = printable_rune_width(lines[i])
+    for line in text.splitlines():
+        var width = printable_rune_width(line)
+        if width > widest:
+            widest = width
 
     return widest
 

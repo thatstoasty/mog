@@ -1,8 +1,6 @@
 from mist.transform.ansi import printable_rune_width
 
-
-@value
-struct Border:
+struct Border(ExplicitlyCopyable, Movable):
     """A border to use to wrap around text."""
 
     var top: String
@@ -78,6 +76,28 @@ struct Border:
         self.middle = middle
         self.middle_top = middle_top
         self.middle_bottom = middle_bottom
+    
+    fn copy(self) -> Border:
+        """Create a copy of the border.
+
+        Returns:
+            A new instance of the border with the same properties.
+        """
+        return Border(
+            top=self.top,
+            bottom=self.bottom,
+            left=self.left,
+            right=self.right,
+            top_left=self.top_left,
+            top_right=self.top_right,
+            bottom_left=self.bottom_left,
+            bottom_right=self.bottom_right,
+            middle_left=self.middle_left,
+            middle_right=self.middle_right,
+            middle=self.middle,
+            middle_top=self.middle_top,
+            middle_bottom=self.middle_bottom,
+        )
 
     fn __eq__(self, other: Border) -> Bool:
         """Check if two borders are equal.
@@ -309,7 +329,7 @@ alias HIDDEN_BORDER = Border(
 alias NO_BORDER = Border()
 
 
-fn render_horizontal_edge(left: String, owned middle: String, right: String, width: Int) -> String:
+fn render_horizontal_edge(left: StringSlice, middle: StringSlice, right: StringSlice, width: Int) -> String:
     """Render the horizontal (top or bottom) portion of a border.
 
     Args:
@@ -319,28 +339,29 @@ fn render_horizontal_edge(left: String, owned middle: String, right: String, wid
         width: The width of the border.
 
     Returns:
-        The rendered horizontal edge.
+        The rendered horizontal edge. This allocates a new `String`.
     """
     if width < 1:
         return ""
 
-    if middle == "":
-        middle = " "
+    var mid = String(middle)
+    if mid == "":
+        mid = " "
 
     var left_width = printable_rune_width(left)
     var right_width = printable_rune_width(right)
 
-    var output = left.copy()
+    var output = String(left)
     var i = left_width + right_width
     var j = 0
     while i < width + right_width:
-        output.write(middle[j])
+        output.write(mid[j])
         j += 1
 
-        if j >= len(middle):
+        if j >= len(mid):
             j = 0
 
-        i += printable_rune_width(middle[j])
+        i += printable_rune_width(mid[j])
 
     output.write(right)
     return output^

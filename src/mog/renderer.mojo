@@ -4,7 +4,7 @@ from mog.position import Position
 
 # Working on terminal background querying, currently it defaults to dark background terminal.
 # If you need to set it to light, you can do so manually via the `set_dark_background` method.
-@value
+@fieldwise_init
 @register_passable("trivial")
 struct Renderer:
     """Contains context for the color profile of the terminal and it's background.
@@ -21,7 +21,7 @@ struct Renderer:
 
     fn __init__(
         out self,
-        profile: Int = -1,
+        profile: Optional[mist.Profile] = None,
         *,
         dark_background: Bool = True,
     ):
@@ -31,10 +31,10 @@ struct Renderer:
             profile: The color profile to use for the renderer. Defaults to None.
             dark_background: Whether or not the renderer will render to a dark background. Defaults to True.
         """
-        if profile != -1:
-            self.profile = mist.Profile(profile)
-        else:
+        if not profile:
             self.profile = mist.Profile()
+        else:
+            self.profile = profile.value()
         self.dark_background = dark_background
 
     fn has_dark_background(self) -> Bool:

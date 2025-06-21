@@ -23,14 +23,13 @@ fn _get_lines_mem[origin: ImmutableOrigin](pos: Position, strs: VariadicListMem[
 
     # Break text blocks into lines and get max widths for each text block
     for s in strs:
-        lines, widest = get_lines(s[])
+        lines, widest = get_lines(s)
         var line_length = len(lines)
         blocks.append(lines^)
         max_widths.append(widest)
         if line_length > max_height:
             max_height = line_length
 
-    # return blocks^, widest, max_widths^, max_height
     for i in range(len(blocks)):
         if len(blocks[i]) >= max_height:
             continue
@@ -52,6 +51,32 @@ fn _get_lines_mem[origin: ImmutableOrigin](pos: Position, strs: VariadicListMem[
             blocks[i].extend(bottom_lines)
     
     return blocks^, max_widths^
+
+
+fn _merge_lines[origin: ImmutableOrigin](blocks: List[List[StringSlice[origin]]], max_widths: List[Int]) -> String:
+    """Merge a block (List of List of lines) of lines into a single String.
+
+    Args:
+        blocks: The blocks of lines to merge.
+        max_widths: The maximum widths of each block.
+
+    Returns:
+        The merged string.
+    """
+    # Merge lines
+    var result = String()
+    # remember, all blocks have the same number of members now
+    for i in range(len(blocks[0])):
+        for j in range(len(blocks)):
+            result.write(blocks[j][i])
+
+            # Also make lines the same length by padding with whitespace
+            result.write(WHITESPACE * (max_widths[j] - printable_rune_width(blocks[j][i])))
+
+        if i < len(blocks[0]) - 1:
+            result.write(NEWLINE)
+
+    return result^
 
 
 fn join_horizontal(pos: Position, *strs: String) -> String:
@@ -92,21 +117,7 @@ fn join_horizontal(pos: Position, *strs: String) -> String:
         return String(strs[0])
 
     blocks, max_widths = _get_lines_mem(pos, strs)
-
-    # Merge lines
-    var result = String()
-    # remember, all blocks have the same number of members now
-    for i in range(len(blocks[0])):
-        for j in range(len(blocks)):
-            result.write(blocks[j][i])
-
-            # Also make lines the same length by padding with whitespace
-            result.write(WHITESPACE * (max_widths[j] - printable_rune_width(blocks[j][i])))
-
-        if i < len(blocks[0]) - 1:
-            result.write(NEWLINE)
-
-    return result^
+    return _merge_lines(blocks, max_widths)
 
 
 fn join_horizontal(pos: Position, strs: List[String]) -> String:
@@ -155,7 +166,7 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
 
     # Break text blocks into lines and get max widths for each text block
     for s in strs:
-        lines, widest = get_lines(s[])
+        lines, widest = get_lines(s)
         blocks.append(lines)
         max_widths.append(widest)
         if len(lines) > max_height:
@@ -184,20 +195,8 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
             blocks[i] = top_lines
             blocks[i].extend(bottom_lines)
     
-    # Merge lines
-    var result = String()
-    # remember, all blocks have the same number of members now
-    for i in range(len(blocks[0])):
-        for j in range(len(blocks)):
-            result.write(blocks[j][i])
+    return _merge_lines(blocks, max_widths)
 
-            # Also make lines the same length by padding with whitespace
-            result.write(WHITESPACE * (max_widths[j] - printable_rune_width(blocks[j][i])))
-
-        if i < len(blocks[0]) - 1:
-            result.write(NEWLINE)
-
-    return result^
 
 fn _get_lines_mem_width[origin: ImmutableOrigin](pos: Position, strs: VariadicListMem[String, origin]) -> Tuple[List[List[StringSlice[origin]]], Int]:
     """Split a string into lines.
@@ -215,12 +214,49 @@ fn _get_lines_mem_width[origin: ImmutableOrigin](pos: Position, strs: VariadicLi
     # Max line widths for the above text blocks
     var max_width = 0
     for s in strs:
-        lines, widest = get_lines(s[])
+        lines, widest = get_lines(s)
         blocks.append(lines)
         if widest > max_width:
             max_width = widest
 
     return blocks^, max_width
+
+
+fn _merge_blocks_vertically[origin: ImmutableOrigin](blocks: List[List[StringSlice[origin]]], max_width: Int, pos: Position) -> String:
+    """Merge a block (List of List of lines) of lines into a single String.
+
+    Args:
+        blocks: The blocks of lines to merge.
+        max_width: The maximum width of the lines.
+        pos: The position to align the text.
+
+    Returns:
+        The merged string.
+    """
+    var result = String()
+    for i in range(len(blocks)):
+        for j in range(len(blocks[i])):
+            # blocks[i][j] is equivalent to a line
+            var w = max_width - printable_rune_width(blocks[i][j])
+
+            if pos == Position.LEFT:
+                result.write(blocks[i][j], WHITESPACE * w)
+            elif pos == Position.RIGHT:
+                result.write(WHITESPACE * w, blocks[i][j])
+            else:
+                if w < 1:
+                    result.write(blocks[i][j])
+                else:
+                    var split = Int(w * pos.value)
+                    var right = w - split
+                    var left = w - right
+
+                    result.write(WHITESPACE * left, blocks[i][j], WHITESPACE * right)
+
+            if not (i == len(blocks) - 1 and j == len(blocks[i]) - 1):
+                result.write("\n")
+    
+    return result^
 
 
 fn join_vertical(pos: Position, *strs: String) -> String:
@@ -261,31 +297,7 @@ fn join_vertical(pos: Position, *strs: String) -> String:
         return String(strs[0])
 
     blocks, max_width = _get_lines_mem_width(pos, strs)
-
-    var result = String()
-    for i in range(len(blocks)):
-        for j in range(len(blocks[i])):
-            var line = blocks[i][j]
-            var w = max_width - printable_rune_width(line)
-
-            if pos == Position.LEFT:
-                result.write(line, WHITESPACE * w)
-            elif pos == Position.RIGHT:
-                result.write(WHITESPACE * w, line)
-            else:
-                if w < 1:
-                    result.write(line)
-                else:
-                    var split = Int(w * pos.value)
-                    var right = w - split
-                    var left = w - right
-
-                    result.write(WHITESPACE * left, line, WHITESPACE * right)
-
-            if not (i == len(blocks) - 1 and j == len(blocks[i]) - 1):
-                result.write("\n")
-
-    return result^
+    return _merge_blocks_vertically(blocks, max_width, pos)
 
 
 fn join_vertical(pos: Position, strs: List[String]) -> String:
@@ -331,32 +343,9 @@ fn join_vertical(pos: Position, strs: List[String]) -> String:
     # Max line widths for the above text blocks
     var max_width = 0
     for s in strs:
-        lines, widest = get_lines(s[])
+        lines, widest = get_lines(s)
         blocks.append(lines)
         if widest > max_width:
             max_width = widest
 
-    var result = String()
-    for i in range(len(blocks)):
-        for j in range(len(blocks[i])):
-            # blocks[i][j] is equivalent to a line
-            var w = max_width - printable_rune_width(blocks[i][j])
-
-            if pos == Position.LEFT:
-                result.write(blocks[i][j], WHITESPACE * w)
-            elif pos == Position.RIGHT:
-                result.write(WHITESPACE * w, blocks[i][j])
-            else:
-                if w < 1:
-                    result.write(blocks[i][j])
-                else:
-                    var split = Int(w * pos.value)
-                    var right = w - split
-                    var left = w - right
-
-                    result.write(WHITESPACE * left, blocks[i][j], WHITESPACE * right)
-
-            if not (i == len(blocks) - 1 and j == len(blocks[i]) - 1):
-                result.write("\n")
-
-    return result^
+    return _merge_blocks_vertically(blocks, max_width, pos)

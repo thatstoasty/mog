@@ -4,7 +4,7 @@ from mog.renderer import Renderer
 from mog.position import Position
 from mog._properties import Alignment
 
-
+@fieldwise_init
 struct WhitespaceRenderer(Movable, ExplicitlyCopyable):
     """Whitespace renderer."""
 
@@ -29,12 +29,7 @@ struct WhitespaceRenderer(Movable, ExplicitlyCopyable):
         # TODO: Assume dark background for now, until I add support to mist for querying background color.
         self.renderer = style._renderer
         self.style = style.copy()
-        self.chars = chars
-    
-    fn __moveinit__(out self, owned other: Self):
-        self.renderer = other.renderer
-        self.style = other.style^
-        self.chars = other.chars^
+        self.chars = chars.copy()
     
     fn copy(self) -> Self:
         """Copies the whitespace renderer.

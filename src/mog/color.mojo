@@ -3,7 +3,7 @@ import mist
 from mog.renderer import Renderer
 
 
-trait TerminalColor(CollectionElement):
+trait TerminalColor(Movable, Copyable, ExplicitlyCopyable):
     """Color intended to be rendered in the terminal."""
 
     fn color(self, renderer: Renderer) -> mist.AnyColor:
@@ -24,7 +24,8 @@ trait TerminalColor(CollectionElement):
         ...
 
 
-@value
+@fieldwise_init
+@register_passable("trivial")
 struct NoColor(TerminalColor):
     """Used to specify the absence of color styling. When this is active
     foreground colors will be rendered with the terminal's default text color,
@@ -48,7 +49,8 @@ struct NoColor(TerminalColor):
         return mist.NoColor()
 
 
-@value
+@fieldwise_init
+@register_passable("trivial")
 struct Color(TerminalColor):
     """Specifies a color by hex or ANSI value. For example.
 
@@ -83,7 +85,8 @@ struct Color(TerminalColor):
         return renderer.profile.color(self.value)
 
 
-@value
+@fieldwise_init
+@register_passable("trivial")
 struct ANSIColor(TerminalColor):
     """Color specified by an ANSI color value. It's merely syntactic
     sugar for the more general Color function. Invalid colors will render as
@@ -121,7 +124,8 @@ struct ANSIColor(TerminalColor):
         return Color(self.value).color(renderer)
 
 
-@value
+@fieldwise_init
+@register_passable("trivial")
 struct AdaptiveColor(TerminalColor):
     """Provides color options for light and dark backgrounds. The
     appropriate color will be returned at runtime based on the darkness of the
@@ -163,7 +167,8 @@ struct AdaptiveColor(TerminalColor):
         return Color(self.light).color(renderer)
 
 
-@value
+@fieldwise_init
+@register_passable("trivial")
 struct CompleteColor(TerminalColor):
     """Specifies exact values for truecolor, ANSI256, and ANSI color
     profiles. Automatic color degradation will not be performed.
@@ -211,7 +216,7 @@ struct CompleteColor(TerminalColor):
             return mist.NoColor()
 
 
-@value
+@fieldwise_init
 struct CompleteAdaptiveColor(TerminalColor):
     """Specifies exact values for truecolor, ANSI256, and ANSI color
     profiles, with separate options for light and dark backgrounds. Automatic
@@ -256,7 +261,8 @@ struct CompleteAdaptiveColor(TerminalColor):
         return self.light.color(renderer)
 
 
-struct AnyTerminalColor:
+struct AnyTerminalColor(Movable):
+    """A type that can hold any terminal color."""
     var value: Variant[
         NoColor,
         Color,
@@ -265,6 +271,7 @@ struct AnyTerminalColor:
         CompleteColor,
         CompleteAdaptiveColor,
     ]
+    """Internal `Color` value."""
 
     @implicit
     fn __init__(out self, color: Variant[
@@ -275,36 +282,81 @@ struct AnyTerminalColor:
             CompleteColor,
             CompleteAdaptiveColor,
         ]):
+        """Initializes the `AnyTerminalColor` with a `Variant` of terminal colors.
+        
+        Args:
+            color: The `Variant` of terminal colors to initialize with.
+        """
         self.value = color
 
     @implicit
     fn __init__(out self, color: NoColor):
+        """Initializes the `AnyTerminalColor` with a `NoColor`.
+
+        Args:
+            color: The `NoColor` to initialize with.
+        """
         self.value = color
     
     @implicit
     fn __init__(out self, color: Color):
+        """Initializes the `AnyTerminalColor` with a `Color`.
+
+        Args:
+            color: The `Color` to initialize with.
+        """
         self.value = color
     
     @implicit
     fn __init__(out self, color: ANSIColor):
+        """Initializes the `AnyTerminalColor` with an `ANSIColor`.
+
+        Args:
+            color: The `ANSIColor` to initialize with.
+        """
         self.value = color
     
     @implicit
     fn __init__(out self, color: AdaptiveColor):
+        """Initializes the `AnyTerminalColor` with an `AdaptiveColor`.
+
+        Args:
+            color: The `AdaptiveColor` to initialize with.
+        """
         self.value = color
     
     @implicit
     fn __init__(out self, color: CompleteColor):
+        """Initializes the `AnyTerminalColor` with a `CompleteColor`.
+
+        Args:
+            color: The `CompleteColor` to initialize with.
+        """
         self.value = color
     
     @implicit
     fn __init__(out self, color: CompleteAdaptiveColor):
+        """Initializes the `AnyTerminalColor` with a `CompleteAdaptiveColor`.
+
+        Args:
+            color: The `CompleteAdaptiveColor` to initialize with.
+        """
         self.value = color
     
     fn __moveinit__(out self, owned other: Self):
+        """Moves the `AnyTerminalColor` from another instance.
+
+        Args:
+            other: The `AnyTerminalColor` to move from.
+        """
         self.value = other.value^
     
     fn copy(self) -> Self:
+        """Creates a copy of the `AnyTerminalColor`.
+
+        Returns:
+            A new `AnyTerminalColor` with the same value.
+        """
         return Self(self.value)
 
     fn to_mist_color(self, renderer: Renderer) -> mist.AnyColor:
@@ -332,7 +384,7 @@ struct AnyTerminalColor:
 
         return mist.NoColor()
     
-    fn isa[T: CollectionElement](self) -> Bool:
+    fn isa[T: Movable & Copyable](self) -> Bool:
         """Checks if the value is of the given type.
 
         Parameters:
@@ -343,7 +395,7 @@ struct AnyTerminalColor:
         """
         return self.value.isa[T]()
 
-    fn __getitem__[T: CollectionElement](ref self) -> ref [self.value] T:
+    fn __getitem__[T: Movable & Copyable](ref self) -> ref [self.value] T:
         """Gets the value as the given type.
 
         Parameters:

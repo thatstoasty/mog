@@ -329,7 +329,7 @@ alias HIDDEN_BORDER = Border(
 alias NO_BORDER = Border()
 
 
-fn render_horizontal_edge(left: StringSlice, middle: StringSlice, right: StringSlice, width: Int) -> String:
+fn render_horizontal_edge(left: StringSlice, owned middle: String, right: StringSlice, width: Int) -> String:
     """Render the horizontal (top or bottom) portion of a border.
 
     Args:
@@ -344,24 +344,24 @@ fn render_horizontal_edge(left: StringSlice, middle: StringSlice, right: StringS
     if width < 1:
         return ""
 
-    var mid = String(middle)
-    if mid == "":
-        mid = " "
+    if middle == "":
+        middle = " "
 
     var left_width = printable_rune_width(left)
     var right_width = printable_rune_width(right)
 
     var output = String(left)
+    var middle_slice = middle.as_string_slice()
     var i = left_width + right_width
     var j = 0
     while i < width + right_width:
-        output.write(mid[j])
+        output.write(middle_slice[j])
         j += 1
 
-        if j >= len(mid):
+        if j >= len(middle_slice):
             j = 0
 
-        i += printable_rune_width(mid[j])
+        i += printable_rune_width(middle_slice[j])
 
     output.write(right)
     return output^

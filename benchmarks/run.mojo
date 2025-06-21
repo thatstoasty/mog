@@ -54,7 +54,7 @@ fn main() raises:
     config.show_progress = True
     var bench = Bench(config)
 
-    # run[test_render_layout, "Layout"](bench)
+    run[test_render_layout, "Layout"](bench)
     run[test_basic_styling, "BasicStyle"](bench)
     run[test_basic_comptime_styling, "CompTimeBasicStyle"](bench)
 

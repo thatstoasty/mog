@@ -18,18 +18,13 @@ alias special = mog.AdaptiveColor(light=0x43BF6D, dark=0x73F59F)
 
 
 fn color_grid(x_steps: Int, y_steps: Int) -> List[List[hue.Color]]:
-    var x0y0 = hue.Color(0xF25D94)
-    var x1y0 = hue.Color(0xEDFF82)
-    var x0y1 = hue.Color(0x643AFF)
-    var x1y1 = hue.Color(0x14F9D5)
+    alias x0y0 = hue.Color(0xF25D94)
+    alias x1y0 = hue.Color(0xEDFF82)
+    alias x0y1 = hue.Color(0x643AFF)
+    alias x1y1 = hue.Color(0x14F9D5)
 
-    var x0 = List[hue.Color](capacity=y_steps)
-    for i in range(y_steps):
-        x0.append(x0y0.blend_luv(x0y1, Float64(i)/Float64(y_steps)))
-
-    var x1 = List[hue.Color](capacity=y_steps)
-    for i in range(y_steps):
-        x1.append(x1y0.blend_luv(x1y1, Float64(i)/Float64(y_steps)))
+    var x0: List[hue.Color] = [x0y0.blend_luv(x0y1, Float64(i)/Float64(y_steps)) for i in range(y_steps)]
+    var x1: List[hue.Color] = [x1y0.blend_luv(x1y1, Float64(i)/Float64(y_steps)) for i in range(y_steps)]
 
     var grid = List[List[hue.Color]](capacity=y_steps)
     var x = 0
@@ -41,7 +36,7 @@ fn color_grid(x_steps: Int, y_steps: Int) -> List[List[hue.Color]]:
             grid[x].append(y0.blend_luv(x1[x], Float64(y)/Float64(x_steps)))
             y += 1
         x += 1
-    return grid
+    return grid^
 
 
 fn build_tabs() -> String:
@@ -80,7 +75,7 @@ fn build_tabs() -> String:
         tab_style.render("Basalt"),
         tab_style.render("Prism"),
     )
-    var gap = tab_gap.render(String(" ") * max(0, width - get_width(row) - 2))
+    var gap = tab_gap.render(" " * max(0, width - get_width(row) - 2))
     return join_horizontal(Position.BOTTOM, row, gap)
 
 
@@ -106,7 +101,7 @@ fn build_description() -> String:
         desc_style.render("Style Definitions for Nice Terminal Layouts.\nInspired by charmbracelet/lipgloss"),
         info_style.render("From Mikhail" + divider + url.render("https://github.com/thatstoasty/mog")),
     )
-    return join_horizontal(Position.TOP, String(title), description)
+    return join_horizontal(Position.TOP, title, description)
 
 
 fn build_dialog_box() -> String:
@@ -154,6 +149,7 @@ fn build_lists() -> String:
     var colors = color_grid(14, 8)
     var color_style = mog.Style(value="  ")
     var builder = String()
+
     for i in range(len(colors)):
         for j in range(len(colors[i])):
             builder.write(color_style.background(mog.Color(colors[i][j].hex())).render())
@@ -209,7 +205,6 @@ fn build_status_bar() -> String:
     var status_nugget_style = mog.Style().foreground(mog.Color(0xFFFDF5)).padding(0, 1)
     var status_bar_style = mog.Style().foreground(mog.Color(0xC1C6B2)).background(mog.Color(0x353533))
     var status_style = mog.Style().foreground(mog.Color(0xFFFDF5)).background(mog.Color(0xFF5F87)).padding(0, 1)
-    # .margin_right(1)
 
     var encoding_style = status_nugget_style.background(mog.Color(0xA550DF)).horizontal_alignment(Position.RIGHT)
     var status_text_style = status_bar_style.padding_left(1)

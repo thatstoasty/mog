@@ -4,7 +4,7 @@
 
 Style definitions for nice terminal layouts.
 
-![Mojo Version](https://img.shields.io/badge/Mojo%F0%9F%94%A5-25.3-orange)
+![Mojo Version](https://img.shields.io/badge/Mojo%F0%9F%94%A5-25.4-orange)
 ![Build Status](https://github.com/thatstoasty/mog/actions/workflows/build.yml/badge.svg)
 ![Test Status](https://github.com/thatstoasty/mog/actions/workflows/test.yml/badge.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -17,8 +17,8 @@ Style definitions for nice terminal layouts.
 ## Installation
 
 1. First, you'll need to configure your `mojoproject.toml` file to include my Conda channel. Add `"https://repo.prefix.dev/mojo-community"` to the list of channels.
-2. Next, add `mog` to your project's dependencies by running `magic add mog`.
-3. Finally, run `magic install` to install in `mog` and its dependencies. You should see the `.mojopkg` files in `$CONDA_PREFIX/lib/mojo/`.
+2. Next, add `mog` to your project's dependencies by running `pixi add mog`.
+3. Finally, run `pixi install` to install in `mog` and its dependencies. You should see the `.mojopkg` files in `$CONDA_PREFIX/lib/mojo/` which usually resolves to `.pixi/envs/default/lib/mojo`.
 
 ![Mog example](https://github.com/thatstoasty/mog/blob/main/doc/images/layout.png)
 

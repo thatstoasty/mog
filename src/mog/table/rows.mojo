@@ -32,7 +32,7 @@ trait Data(Movable, Copyable, ExplicitlyCopyable):
         ...
 
 
-@value
+@fieldwise_init
 struct StringData(Data):
     """String-based implementation of the Data Trait.
 
@@ -73,8 +73,8 @@ struct StringData(Data):
         var widest = 0
         var r = List[List[String]](capacity=len(rows))
         for row in rows:
-            widest = max(widest, len(row[]))
-            r.append(row[])
+            widest = max(widest, len(row))
+            r.append(row)
         self._rows = r
         self._columns = widest
 
@@ -126,7 +126,7 @@ struct StringData(Data):
         self._columns = max(self._columns, len(elements))
         var row = List[String](capacity=len(elements))
         for element in elements:
-            row.append(element[])
+            row.append(element)
         self._rows.append(row)
     
     fn __add__(self, other: Self) -> Self:
@@ -154,7 +154,7 @@ alias FilterFunction = fn (row: Int) -> Bool
 """Function type that filters rows based on a condition."""
 
 
-@value
+@fieldwise_init
 struct Filter[DataType: Data, //](Data):
     """Applies a filter function on some data.
 

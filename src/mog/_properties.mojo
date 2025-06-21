@@ -1,8 +1,8 @@
 from mog.position import Position
 
-@value
+@fieldwise_init
 @register_passable("trivial")
-struct PropKey:
+struct PropKey(EqualityComparable, Movable, Copyable, ExplicitlyCopyable):
     """Property keys for the style."""
     var _value: UInt8
     alias BOLD = Self(1)
@@ -112,7 +112,7 @@ struct PropKey:
 
 
 @register_passable("trivial")
-struct Properties:
+struct Properties(Movable, Copyable, ExplicitlyCopyable):
     """Properties for a style."""
 
     var value: SIMD[DType.bool, 64]
@@ -149,9 +149,8 @@ struct Properties:
         return self.value[Int(key._value)]
 
 
-@value
 @register_passable("trivial")
-struct Padding:
+struct Padding(Movable, Copyable, ExplicitlyCopyable):
     var top: UInt16
     """The padding level at the top of the text."""
     var right: UInt16
@@ -211,9 +210,8 @@ struct Margin(Movable, ExplicitlyCopyable):
         )
 
 
-@value
 @register_passable("trivial")
-struct Dimensions:
+struct Dimensions(Movable, Copyable, ExplicitlyCopyable):
     var height: UInt16
     """The height of the text."""
     var width: UInt16
@@ -224,9 +222,8 @@ struct Dimensions:
         self.width = width
 
 
-@value
 @register_passable("trivial")
-struct Alignment:
+struct Alignment(Movable, Copyable, ExplicitlyCopyable):
     var horizontal: Position
     """The horizontal alignment of the text."""
     var vertical: Position

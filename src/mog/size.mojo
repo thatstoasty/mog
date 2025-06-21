@@ -17,7 +17,7 @@ fn get_width(text: StringSlice) -> Int:
     """
     var width = 0
     for line in text.splitlines():
-        var w = ansi.printable_rune_width(line[])
+        var w = ansi.printable_rune_width(line)
         if w > width:
             width = w
 

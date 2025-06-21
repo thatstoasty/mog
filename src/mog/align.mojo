@@ -5,7 +5,7 @@ from mog._extensions import get_lines
 
 
 fn align_text_horizontal(
-    text: String, pos: position.Position, width: UInt16, style: Optional[mist.Style]
+    text: StringSlice, pos: position.Position, width: UInt16, style: Optional[mist.Style]
 ) -> String:
     """Aligns the text on the horizontal axis. If the string is multi-lined, we also make all lines
     the same width by padding them with spaces. The mist style is used to style the spaces added.
@@ -65,7 +65,7 @@ fn align_text_horizontal(
     return aligned^
 
 
-fn align_text_vertical(text: String, pos: position.Position, height: UInt16) -> String:
+fn align_text_vertical(text: StringSlice, pos: position.Position, height: UInt16) -> String:
     """Aligns the text on the vertical axis. If the string is shorter than the height, it's padded
     with newlines. If the string is taller than the height, return the original
     string.
@@ -80,7 +80,7 @@ fn align_text_vertical(text: String, pos: position.Position, height: UInt16) -> 
     """
     var text_height = text.count(NEWLINE) + 1
     if height < text_height:
-        return text.copy()
+        return String(text)
 
     var remaining_height = Int(height - text_height)
     if pos == Position.TOP:
@@ -99,4 +99,4 @@ fn align_text_vertical(text: String, pos: position.Position, height: UInt16) -> 
     elif pos == Position.BOTTOM:
         return String(NEWLINE * remaining_height, text)
 
-    return text.copy()
+    return String(text)

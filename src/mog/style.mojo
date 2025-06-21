@@ -16,7 +16,7 @@ from mog.border import (
     STAR_BORDER,
     PLUS_BORDER,
 )
-from mog._extensions import get_lines, get_widest_line, split_lines, pad_left, pad_right
+from mog._extensions import get_lines, get_widest_line, pad_left, pad_right
 from mog._properties import Properties, PropKey, Dimensions, Padding, Margin, Coloring, BorderColor, Alignment
 from mog.align import align_text_horizontal, align_text_vertical
 from mog.color import (
@@ -70,7 +70,7 @@ fn _apply_styles(text: String, use_space_styler: Bool, styles: Stylers) -> Strin
     """
     var result = String(capacity=Int(len(text) * 1.5))
 
-    var lines = split_lines(text)
+    var lines = text.split(NEWLINE)
     for i in range(len(lines)):
         # Readd the newlines
         if i != 0:
@@ -198,11 +198,11 @@ struct Style(Movable, ExplicitlyCopyable):
         self._alignment = alignment
         self._padding = padding
         self._margin = margin^
-        self._border = border
+        self._border = border.copy()
         self._border_color = border_color^
         self._tab_width = tab_width
 
-    fn __init__(out self, color_profile: Int = -1, *, value: String = ""):
+    fn __init__(out self, color_profile: Optional[mist.Profile] = None, *, value: String = ""):
         """Initialize A new Style.
 
         Args:
@@ -424,7 +424,7 @@ struct Style(Movable, ExplicitlyCopyable):
         if not self.is_set[PropKey.BORDER_STYLE]():
             return Border()
 
-        return self._border
+        return self._border.copy()
 
     fn is_set[key: PropKey](self) -> Bool:
         """Check if a rule is set on the style.
@@ -446,7 +446,7 @@ struct Style(Movable, ExplicitlyCopyable):
         Args:
             value: The value to set.
         """
-        self._border = value
+        self._border = value.copy()
         self._properties.set[key](True)
 
     fn _set_attribute[key: PropKey](mut self, value: Bool):
@@ -2496,12 +2496,10 @@ struct Style(Movable, ExplicitlyCopyable):
         var input_text = self._value.copy()
 
         @parameter
-        fn write_text[i: Int, T: Writable](text: T) -> None:
-            input_text.write(text)
+        for i in range(texts.__len__()):
+            input_text.write(texts[i])
             if i != len(texts) - 1:
                 input_text.write(" ")
-
-        texts.each_idx[write_text]()
 
         var reverse = self.get_reverse()
         var color_whitespace = self._get_as_bool[PropKey.COLOR_WHITESPACE](True)
@@ -2572,7 +2570,7 @@ struct Style(Movable, ExplicitlyCopyable):
 
         # Truncate according to max_width
         if max_width > 0:
-            var text_lines = split_lines(result) # TODO: update mist.transform to support stringslice input
+            var text_lines = result.split(NEWLINE)
             var truncated = String(capacity=Int(len(result) * 1.5))
             for i in range(len(text_lines)):
                 if i != 0:

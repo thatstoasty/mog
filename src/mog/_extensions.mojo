@@ -3,23 +3,6 @@ import mist
 from sys import stderr
 
 
-fn split_lines[origin: ImmutableOrigin](text: StringSlice[origin]) -> List[StringSlice[origin]]:
-    """Split a string into lines.
-
-    Args:
-        text: The string to split.
-
-    Returns:
-        The lines.
-    """
-    try:
-        return text.split(NEWLINE)
-    except:
-        print("Somehow reached an error splitting lines. It should only raise if sep is empty", file=stderr)
-    
-    return List[StringSlice[origin]]()
-
-
 fn get_lines[origin: ImmutableOrigin](text: StringSlice[origin]) -> Tuple[List[StringSlice[origin]], Int]:
     """Split a string into lines.
 
@@ -29,12 +12,12 @@ fn get_lines[origin: ImmutableOrigin](text: StringSlice[origin]) -> Tuple[List[S
     Returns:
         A tuple containing the lines and the width of the widest line.
     """
-    var lines = split_lines(text)
+    var lines = text.split(NEWLINE)
     var widest_line = 0
     for line in lines:
-        if printable_rune_width(line[]) > widest_line:
-            widest_line = printable_rune_width(line[])
-    
+        if printable_rune_width(line) > widest_line:
+            widest_line = printable_rune_width(line)
+
     return lines^, widest_line
 
 

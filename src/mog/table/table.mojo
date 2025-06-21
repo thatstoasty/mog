@@ -87,7 +87,6 @@ struct Table(Writable, Stringable, Movable, ExplicitlyCopyable):
 
         print(t)
     ```
-    .
     """
 
     var _styler: StyleFunction
@@ -120,10 +119,6 @@ struct Table(Writable, Stringable, Movable, ExplicitlyCopyable):
     """The height of the table."""
     var _offset: Int
     """The offset of the table."""
-    # var widths: List[Int]
-    # """Tracks the width of each column."""
-    # var heights: List[Int]
-    # """Tracks the height of each row."""
 
     fn __init__(
         out self,
@@ -162,7 +157,7 @@ struct Table(Writable, Stringable, Movable, ExplicitlyCopyable):
             height: The height of the table.
         """
         self._styler = style_function
-        self._border = border
+        self._border = border.copy()
         self._border_style = border_style.copy()
         self._border_top = border_top
         self._border_bottom = border_bottom
@@ -280,7 +275,7 @@ struct Table(Writable, Stringable, Movable, ExplicitlyCopyable):
         """
         var new = self.copy()
         for row in rows:
-            new._data.append(row[])
+            new._data.append(row)
         return new^
 
     fn row(self, *row: String) -> Table:
@@ -295,7 +290,7 @@ struct Table(Writable, Stringable, Movable, ExplicitlyCopyable):
         var new = self.copy()
         var temp = List[String](capacity=len(row))
         for element in row:
-            temp.append(element[])
+            temp.append(element)
         new._data.append(temp)
         return new^
 
@@ -324,7 +319,7 @@ struct Table(Writable, Stringable, Movable, ExplicitlyCopyable):
         var new = self.copy()
         var temp = List[String](capacity=len(headers))
         for element in headers:
-            temp.append(element[])
+            temp.append(element)
         new._headers = temp
         return new^
 
@@ -512,7 +507,7 @@ struct Table(Writable, Stringable, Movable, ExplicitlyCopyable):
         if self._border_bottom:
             result.write(self._construct_bottom_border(widths))
 
-        writer.write(mog.Style(mog.ASCII).max_height(self._compute_height(heights)).max_width(self.width).render(result))
+        writer.write(mog.Style(mog.ASCII_PROFILE).max_height(self._compute_height(heights)).max_width(self.width).render(result))
 
     fn __str__(self) -> String:
         """Returns the table as a String.
@@ -693,10 +688,10 @@ struct Table(Writable, Stringable, Movable, ExplicitlyCopyable):
         
         # TODO: removesuffix doesn't seem to work with all utf8 chars, maybe it'll be fixed upstream soon.
         # It wasn't recognizing the last character as a newline.
-        for cell in cells:
-            if cell[][-1] == "\n":
-                cell[] = cell[][:-1]
-        
+        for ref cell in cells:
+            if cell[-1] == "\n":
+                cell = cell[:-1]
+
         result.write(join_horizontal(Position.TOP, cells), "\n")
 
         if self._border_row and index < self._data.rows() - 1:

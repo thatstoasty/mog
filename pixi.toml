@@ -16,7 +16,7 @@ benchmarks = "python scripts/util.py run-benchmarks"
 examples = "python scripts/util.py run-examples"
 template = "python scripts/util.py generate-recipe"
 build = { cmd = "python scripts/util.py build-conda-package" }
-publish = { cmd = "python scripts/util.py dne", env = { PREFIX_API_KEY = "$PREFIX_API_KEY" } }
+publish = { cmd = "python scripts/util.py publish", env = { PREFIX_API_KEY = "$PREFIX_API_KEY" } }
 
 [dependencies]
 max = ">=25.4.0,<25.5.0"

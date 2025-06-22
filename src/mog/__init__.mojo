@@ -32,6 +32,5 @@ from mog.join import join_horizontal, join_vertical
 from mog.position import Position
 from mist import TRUE_COLOR, TRUE_COLOR_PROFILE, ANSI256, ANSI256_PROFILE, ANSI, ANSI_PROFILE, ASCII, ASCII_PROFILE
 
-
 alias WHITESPACE = " "
 alias NEWLINE = "\n"

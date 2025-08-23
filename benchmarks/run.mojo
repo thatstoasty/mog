@@ -69,16 +69,16 @@ fn main() raises:
     config.show_progress = True
     var bench = Bench(config)
 
-    var sample_data = pathlib._dir_of_current_file() / pathlib.Path("data/big.txt")
-    var data: String
-    with open(sample_data, "r") as file:
-        data = file.read()
+    # var sample_data = pathlib._dir_of_current_file() / pathlib.Path("data/big.txt")
+    # var data: String
+    # with open(sample_data, "r") as file:
+    #     data = file.read()
 
-    run[bench_get_width, "GetWidth"](bench, data)
+    # run[bench_get_width, "GetWidth"](bench, data)
 
-    # run[test_render_layout, "Layout"](bench)
-    # run[test_basic_styling, "BasicStyle"](bench)
-    # run[test_basic_comptime_styling, "CompTimeBasicStyle"](bench)
+    run[test_render_layout, "Layout"](bench)
+    run[test_basic_styling, "BasicStyle"](bench)
+    run[test_basic_comptime_styling, "CompTimeBasicStyle"](bench)
     # run[bench_get_width, "GetWidth"](bench)
 
     bench.dump_report()

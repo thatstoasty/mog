@@ -1,4 +1,5 @@
 from mist.transform import truncate
+from mist import Profile
 from mog.style import Style
 from mog.border import ROUNDED_BORDER, Border
 from mog.join import join_horizontal
@@ -507,7 +508,7 @@ struct Table(Writable, Stringable, Movable, ExplicitlyCopyable):
         if self._border_bottom:
             result.write(self._construct_bottom_border(widths))
 
-        writer.write(mog.Style(mog.ASCII_PROFILE).max_height(self._compute_height(heights)).max_width(self.width).render(result))
+        writer.write(mog.Style(Profile.ASCII).max_height(self._compute_height(heights)).max_width(self.width).render(result))
 
     fn __str__(self) -> String:
         """Returns the table as a String.

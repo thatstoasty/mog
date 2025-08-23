@@ -4,7 +4,7 @@ from collections import Dict
 
 # TODO: There's an issue with rows being taller than 1 line. Adding vertical padding will break the table.
 # BUG: Mojo can't handle list of lists and dicts as aliases atm.
-alias style = mog.Style(mog.TRUE_COLOR_PROFILE).padding(0, 1)
+alias style = mog.Style(mog.Profile.TRUE_COLOR).padding(0, 1)
 alias header_style = style.bold().foreground(mog.Color(252))
 alias selected_style = style.foreground(mog.Color(0x01BE85)).background(mog.Color(0x00432F))
 

@@ -18,7 +18,7 @@ fn basic_styling():
 
 
 alias file_style = (
-    mog.Style(mog.TRUE_COLOR_PROFILE)
+    mog.Style(mog.Profile.TRUE_COLOR)
     .bold(True)
     .foreground(mog.Color(0xFAFAFA))
     .background(mog.Color(0x7D56F4))

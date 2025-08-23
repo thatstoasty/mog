@@ -58,7 +58,7 @@ fn pad(text: String, n: Int, style: mist.Style) -> String:
         return text
 
     var spaces = style.render(WHITESPACE * abs(n))
-    var result = String(capacity=Int(len(text) * 1.5))
+    var result = String(capacity=UInt(len(text) * 1.5))
     var lines = text.as_string_slice().get_immutable().splitlines()
     for i in range(len(lines)):
         if n > 0:

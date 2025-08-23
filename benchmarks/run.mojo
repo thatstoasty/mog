@@ -9,12 +9,17 @@ from functions.basic_styling import (
 import mog
 import pathlib
 
-# fn get_gbs_measure(input: String) raises -> ThroughputMeasure:
-#     return ThroughputMeasure(BenchMetric.bytes, input.byte_length())
+
+fn get_gbs_measure(input: String) raises -> ThroughputMeasure:
+    return ThroughputMeasure(BenchMetric.bytes, input.byte_length())
 
 
 fn run[func: fn (mut Bencher) raises capturing, name: String](mut m: Bench) raises:
     m.bench_function[func](BenchId(name))
+
+
+fn run[func: fn (mut Bencher, String) raises capturing, name: String](mut m: Bench, data: String) raises:
+    m.bench_with_input[String, func](BenchId(name), data, get_gbs_measure(data))
 
 
 @parameter
@@ -47,6 +52,16 @@ fn test_basic_comptime_styling(mut b: Bencher) raises:
     b.iter[do]()
 
 
+@parameter
+fn bench_get_width(mut b: Bencher, s: String) raises:
+    @always_inline
+    @parameter
+    fn do() raises:
+        _ = mog.get_width(s)
+
+    b.iter[do]()
+
+
 fn main() raises:
     var config = BenchConfig()
     config.verbose_timing = True
@@ -54,9 +69,17 @@ fn main() raises:
     config.show_progress = True
     var bench = Bench(config)
 
-    run[test_render_layout, "Layout"](bench)
-    run[test_basic_styling, "BasicStyle"](bench)
-    run[test_basic_comptime_styling, "CompTimeBasicStyle"](bench)
+    var sample_data = pathlib._dir_of_current_file() / pathlib.Path("data/big.txt")
+    var data: String
+    with open(sample_data, "r") as file:
+        data = file.read()
+
+    run[bench_get_width, "GetWidth"](bench, data)
+
+    # run[test_render_layout, "Layout"](bench)
+    # run[test_basic_styling, "BasicStyle"](bench)
+    # run[test_basic_comptime_styling, "CompTimeBasicStyle"](bench)
+    # run[bench_get_width, "GetWidth"](bench)
 
     bench.dump_report()
 

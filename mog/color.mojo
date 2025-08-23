@@ -19,7 +19,6 @@ trait TerminalColor(Movable, Copyable, ExplicitlyCopyable):
         * 0 - 15: `mist.ANSIColor`
         * 16 - 255: `mist.ANSI256Color`
         * 256 - 0xffffff: `mist.RGBColor`
-        .
         """
         ...
 
@@ -80,7 +79,6 @@ struct Color(TerminalColor):
         * 0 - 15: `mist.ANSIColor`
         * 16 - 255: `mist.ANSI256Color`
         * 256 - 0xffffff: `mist.RGBColor`
-        .
         """
         return renderer.profile.color(self.value)
 
@@ -119,7 +117,6 @@ struct ANSIColor(TerminalColor):
         * 0 - 15: `mist.ANSIColor`
         * 16 - 255: `mist.ANSI256Color`
         * 256 - 0xffffff: `mist.RGBColor`
-        .
         """
         return Color(self.value).color(renderer)
 
@@ -159,7 +156,6 @@ struct AdaptiveColor(TerminalColor):
         * 0 - 15: `mist.ANSIColor`
         * 16 - 255: `mist.ANSI256Color`
         * 256 - 0xffffff: `mist.RGBColor`
-        .
         """
         if renderer.has_dark_background():
             return Color(self.dark).color(renderer)
@@ -204,13 +200,12 @@ struct CompleteColor(TerminalColor):
         * 0 - 15: `mist.ANSIColor`
         * 16 - 255: `mist.ANSI256Color`
         * 256 - 0xffffff: `mist.RGBColor`
-        .
         """
-        if renderer.profile._value == mist.profile.TRUE_COLOR:
+        if renderer.profile == mist.profile.Profile.TRUE_COLOR:
             return Color(self.true_color).color(renderer)
-        elif renderer.profile._value == mist.profile.ANSI256:
+        elif renderer.profile == mist.profile.Profile.ANSI256:
             return Color(self.ansi256).color(renderer)
-        elif renderer.profile._value == mist.profile.ANSI:
+        elif renderer.profile == mist.profile.Profile.ANSI:
             return Color(self.ansi).color(renderer)
         else:
             return mist.NoColor()
@@ -253,7 +248,6 @@ struct CompleteAdaptiveColor(TerminalColor):
         * 0 - 15: `mist.ANSIColor`
         * 16 - 255: `mist.ANSI256Color`
         * 256 - 0xffffff: `mist.RGBColor`
-        .
         """
         if renderer.has_dark_background():
             return self.dark.color(renderer)
@@ -384,7 +378,7 @@ struct AnyTerminalColor(Movable):
 
         return mist.NoColor()
     
-    fn isa[T: Movable & Copyable](self) -> Bool:
+    fn isa[T: TerminalColor](self) -> Bool:
         """Checks if the value is of the given type.
 
         Parameters:
@@ -395,7 +389,7 @@ struct AnyTerminalColor(Movable):
         """
         return self.value.isa[T]()
 
-    fn __getitem__[T: Movable & Copyable](ref self) -> ref [self.value] T:
+    fn __getitem__[T: TerminalColor](ref self) -> ref [self.value] T:
         """Gets the value as the given type.
 
         Parameters:

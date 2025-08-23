@@ -9,13 +9,13 @@ repos:
     hooks:
       - id: mojo-format
         name: mojo-format
-        entry: pixi run mojo format -l 120
-        language: system
-        files: '\.(mojo|🔥)$'
-        stages: [commit]
-      - id: mojo-docs
-        name: mojo-docs
-        entry: python3 ./scripts/check-docstrings.py
+        entry: pixi run format
         language: system
         pass_filenames: false
-        stages: [commit]
+        stages: [pre-commit]
+      - id: mojo-docs
+        name: mojo-docs
+        entry: pixi run lint_docs
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]

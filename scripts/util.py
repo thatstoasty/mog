@@ -2,11 +2,9 @@ import tomllib
 import os
 import subprocess
 import shutil
-import glob
 from typing import Any
 from pathlib import Path
 
-import yaml
 import typer
 
 
@@ -14,7 +12,6 @@ app = typer.Typer()
 
 TEMP_DIR = Path(os.path.expandvars("$HOME/tmp"))
 PIXI_TOML_PATH = Path("pixi.toml")
-RECIPE_PATH = Path("recipe.yaml")
 CONDA_BUILD_PATH = Path(os.environ.get("CONDA_BLD_PATH", os.getcwd()))
 """If `CONDA_BLD_PATH` is set, then publish from there. Otherwise, publish from the current directory."""
 
@@ -32,7 +29,7 @@ class TemporaryBuildDirectory:
         TEMP_DIR.mkdir(parents=True, exist_ok=True)
         package = PROJECT_CONFIG["package"]["name"]
         subprocess.run(
-            ["mojo", "package", f"src/{package}", "-o", f"{TEMP_DIR}/{package}.mojopkg"],
+            ["mojo", "package", f"{package}", "-o", f"{TEMP_DIR}/{package}.mojopkg"],
             check=True,
         )
         return TEMP_DIR
@@ -58,71 +55,6 @@ def format_dependency(name: str, version: str) -> str:
     return f"{name} {operator} {version[start:]}"
 
 
-@app.command()
-def generate_recipe() -> None:
-    """Generates a recipe for the project based on the project configuration in the pixi.toml."""
-    # Replace the placeholders in the recipe with the project configuration.
-    recipe = {
-        "context": {"version": "13.4.2"},
-        "package": {},
-        "source": [],
-        "build": {
-            "script": [
-                "mkdir -p ${PREFIX}/lib/mojo",
-            ]
-        },
-        "requirements": {
-            "run": []
-        },
-        "about": {},
-    }
-
-    # Populate package information
-    package_name = PROJECT_CONFIG["package"]["name"]
-    recipe["package"]["name"] = package_name
-    recipe["package"]["version"] = PROJECT_CONFIG["package"]["version"]
-
-    # Populate source files
-    recipe["source"].append({"path": "src"})
-    recipe["source"].append({"path": PROJECT_CONFIG["workspace"]["license-file"]})
-
-    # Populate build script
-    recipe["build"]["script"].append(
-        f"pixi run mojo package {package_name} -o ${{PREFIX}}/lib/mojo/{package_name}.mojopkg"
-    )
-
-    # Populate requirements
-    for dependency, version in PROJECT_CONFIG["dependencies"].items():
-        recipe["requirements"]["run"].append(format_dependency(dependency, version))
-
-    # Populate about section
-    recipe["about"]["homepage"] = PROJECT_CONFIG["workspace"]["homepage"]
-    recipe["about"]["license"] = PROJECT_CONFIG["workspace"]["license"]
-    recipe["about"]["license_file"] = PROJECT_CONFIG["workspace"]["license-file"]
-    recipe["about"]["summary"] = PROJECT_CONFIG["workspace"]["description"]
-    recipe["about"]["repository"] = PROJECT_CONFIG["workspace"]["repository"]
-
-    # Write the final recipe.
-    with Path("recipe.yaml").open("w+") as f:
-        yaml.dump(recipe, f)
-
-
-@app.command()
-def publish(channel: str) -> None:
-    """Publishes the conda packages to the specified conda channel."""
-    print(f"Publishing packages to: {channel}, from {CONDA_BUILD_PATH}.")
-    for file in glob.glob(f'{CONDA_BUILD_PATH}/*.conda'):
-        print(f"Uploading {file} to {channel}...")
-        try:
-            subprocess.run(
-                ["pixi", "upload", f"https://prefix.dev/api/v1/upload/{channel}", file],
-                check=True,
-            )
-        except subprocess.CalledProcessError:
-            pass
-        os.remove(file)
-
-
 def remove_temp_directory() -> None:
     """Removes the temporary directory used for building the package."""
     if TEMP_DIR.exists():
@@ -136,24 +68,9 @@ def prepare_temp_directory() -> None:
     TEMP_DIR.mkdir()
     package = PROJECT_CONFIG["package"]["name"]
     subprocess.run(
-        ["mojo", "package", f"src/{package}", "-o", f"{TEMP_DIR}/{package}.mojopkg"],
+        ["mojo", "package", f"{package}", "-o", f"{TEMP_DIR}/{package}.mojopkg"],
         check=True,
     )
-
-
-@app.command()
-def run_tests(path: str | None = None) -> None:
-    """Executes the tests for the package."""
-    TEST_DIR = Path("src/test")
-
-    print("Building package and copying tests.")
-    with TemporaryBuildDirectory() as temp_directory:
-        shutil.copytree(TEST_DIR, temp_directory, dirs_exist_ok=True)
-        target = temp_directory
-        if path:
-            target = target / path
-        print(f"Running tests at {target}...")
-        subprocess.run(["mojo", "test", target], check=True)
 
 
 @app.command()
@@ -199,20 +116,6 @@ def run_benchmarks(path: str | None = None) -> None:
             shutil.copyfile(file, temp_directory / file.name)
             subprocess.run(["mojo", "build", temp_directory / file.name, "-o", temp_directory / name], check=True)
             subprocess.run([temp_directory / name], check=True)
-
-
-@app.command()
-def build_conda_package() -> None:
-    """Builds the conda package for the project."""
-    # Generate the recipe if it does not exist already.
-    if not RECIPE_PATH.exists():
-        generate_recipe()
-
-    subprocess.run(
-        ["pixi", "build", "-o", CONDA_BUILD_PATH],
-        check=True,
-    )
-    os.remove("recipe.yaml")
 
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@ from mog._extensions import get_lines
 
 
 fn align_text_horizontal(
-    text: StringSlice, pos: position.Position, width: UInt16, style: Optional[mist.Style]
+    text: StringSlice, pos: position.Position, width: UInt16, style: Optional[mist.Style] = None
 ) -> String:
     """Aligns the text on the horizontal axis. If the string is multi-lined, we also make all lines
     the same width by padding them with spaces. The mist style is used to style the spaces added.

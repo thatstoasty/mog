@@ -1,5 +1,5 @@
 @register_passable("trivial")
-struct Position:
+struct Position(EqualityComparable):
     """Position represents a position along a horizontal or vertical axis. It's in
     situations where an axis is involved, like alignment, joining, placement and
     so on.
@@ -12,15 +12,15 @@ struct Position:
     var value: Float64
     """The value of the position, between 0 and 1 inclusive."""
 
-    alias RIGHT: Position = Self(1.0)
+    alias RIGHT = Self(1.0)
     """Aligns to the right."""
-    alias TOP: Position = Self(0.0)
+    alias TOP = Self(0.0)
     """Aligns to the top."""
-    alias BOTTOM: Position = Self(1.0)
+    alias BOTTOM = Self(1.0)
     """Aligns to the bottom."""
-    alias CENTER: Position = Self(0.5)
+    alias CENTER = Self(0.5)
     """Aligns to the center."""
-    alias LEFT: Position = Self(0.0)
+    alias LEFT = Self(0.0)
     """Aligns to the left."""
 
     @implicit

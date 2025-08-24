@@ -1,10 +1,10 @@
-import testing
 import mist
-from mog._extensions import pad_left, pad_right, get_lines, get_widest_line
+import testing
+from mog._extensions import get_lines, get_widest_line, pad_left, pad_right
 
 
-alias ascii_style = mist.Style(mist.ASCII)
-alias white_space_style = mist.Style(mist.ANSI).background(15)
+alias ascii_style = mist.Style(mist.Profile.ASCII)
+alias white_space_style = mist.Style(mist.Profile.ANSI).background(15)
 
 
 def test_pad_left():

@@ -1,6 +1,6 @@
-from mist.transform.ansi import printable_rune_width
 import mist
 import mog.position
+from mist.transform.ansi import printable_rune_width
 from mog._extensions import get_lines
 
 
@@ -20,7 +20,7 @@ fn align_text_horizontal(
         The aligned text.
     """
     lines, widest_line = get_lines(text)
-    
+
     # If the text is empty, just return (styled) padding up to the width passed.
     if len(lines) == 0:
         var spaces = WHITESPACE * Int(width)
@@ -61,7 +61,7 @@ fn align_text_horizontal(
         aligned.write(line)
         if i < len(lines) - 1:
             aligned.write(NEWLINE)
-        
+
     return aligned^
 
 

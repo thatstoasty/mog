@@ -1,10 +1,14 @@
 import math
+
 from mist.transform.ansi import printable_rune_width
 from mog._extensions import get_lines
 from mog.position import Position
 
+
 # TODO: Refactor this module to reuse some of the logic instead of duplicating functions.
-fn _get_lines_mem[origin: ImmutableOrigin](pos: Position, strs: VariadicListMem[String, origin]) -> Tuple[List[List[StringSlice[origin]]], List[Int]]:
+fn _get_lines_mem[
+    origin: ImmutableOrigin
+](pos: Position, strs: VariadicListMem[String, origin]) -> Tuple[List[List[StringSlice[origin]]], List[Int]]:
     """Split a variadic list of strings into lines.
 
     Args:
@@ -33,7 +37,9 @@ fn _get_lines_mem[origin: ImmutableOrigin](pos: Position, strs: VariadicListMem[
     for i in range(len(blocks)):
         if len(blocks[i]) >= max_height:
             continue
-        var extra_lines = List[StringSlice[origin], False](length=max_height - len(blocks[i]), fill=StringSlice[origin]())
+        var extra_lines = List[StringSlice[origin], False](
+            length=max_height - len(blocks[i]), fill=StringSlice[origin]()
+        )
         if pos == Position.TOP:
             blocks[i].extend(other=extra_lines^)
         elif pos == Position.BOTTOM:
@@ -44,12 +50,12 @@ fn _get_lines_mem[origin: ImmutableOrigin](pos: Position, strs: VariadicListMem[
             var top_point = end - Int(end * pos.value)
             var bottom_point = end - top_point
 
-            var top_lines = extra_lines[top_point : end]
-            var bottom_lines = extra_lines[bottom_point : end]
+            var top_lines = extra_lines[top_point:end]
+            var bottom_lines = extra_lines[bottom_point:end]
             top_lines.extend(blocks[i])
             blocks[i] = top_lines
             blocks[i].extend(bottom_lines)
-    
+
     return blocks^, max_widths^
 
 
@@ -189,16 +195,18 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
             var top_point = end - Int(end * pos.value)
             var bottom_point = end - top_point
 
-            var top_lines = extra_lines[top_point : end]
-            var bottom_lines = extra_lines[bottom_point : end]
+            var top_lines = extra_lines[top_point:end]
+            var bottom_lines = extra_lines[bottom_point:end]
             top_lines.extend(blocks[i])
             blocks[i] = top_lines
             blocks[i].extend(bottom_lines)
-    
+
     return _merge_lines(blocks, max_widths)
 
 
-fn _get_lines_mem_width[origin: ImmutableOrigin](pos: Position, strs: VariadicListMem[String, origin]) -> Tuple[List[List[StringSlice[origin]]], Int]:
+fn _get_lines_mem_width[
+    origin: ImmutableOrigin
+](pos: Position, strs: VariadicListMem[String, origin]) -> Tuple[List[List[StringSlice[origin]]], Int]:
     """Split a string into lines.
 
     Args:
@@ -222,7 +230,9 @@ fn _get_lines_mem_width[origin: ImmutableOrigin](pos: Position, strs: VariadicLi
     return blocks^, max_width
 
 
-fn _merge_blocks_vertically[origin: ImmutableOrigin](blocks: List[List[StringSlice[origin]]], max_width: Int, pos: Position) -> String:
+fn _merge_blocks_vertically[
+    origin: ImmutableOrigin
+](blocks: List[List[StringSlice[origin]]], max_width: Int, pos: Position) -> String:
     """Merge a block (List of List of lines) of lines into a single String.
 
     Args:
@@ -255,7 +265,7 @@ fn _merge_blocks_vertically[origin: ImmutableOrigin](blocks: List[List[StringSli
 
             if not (i == len(blocks) - 1 and j == len(blocks[i]) - 1):
                 result.write("\n")
-    
+
     return result^
 
 

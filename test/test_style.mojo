@@ -1,13 +1,15 @@
 import testing
+
 import mog
 from mog import Position
 
-alias ansi_style = mog.Style(mog.ANSI_PROFILE)
+
+alias ansi_style = mog.Style(mog.Profile.ANSI)
 
 
 def test_renderer():
-    alias style = ansi_style.renderer(mog.Renderer(mog.TRUE_COLOR_PROFILE))
-    testing.assert_equal(style._renderer.profile._value, mog.TRUE_COLOR)
+    alias style = ansi_style.renderer(mog.Renderer(mog.Profile.TRUE_COLOR))
+    testing.assert_equal(style._renderer.profile._value, mog.Profile.TRUE_COLOR)
 
 
 def test_value():

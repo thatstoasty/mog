@@ -1,37 +1,37 @@
-from mog.renderer import Renderer
-from mog.position import Position
+import mist
+from mist.transform import truncate, word_wrap, wrap
+from mist.transform.ansi import printable_rune_width
+from mog._extensions import get_lines, get_widest_line, pad_left, pad_right
+from mog._properties import Alignment, BorderColor, Coloring, Dimensions, Margin, Padding, Properties, PropKey
+from mog.align import align_text_horizontal, align_text_vertical
 from mog.border import (
+    ASCII_BORDER,
+    BLOCK_BORDER,
+    DOUBLE_BORDER,
+    HIDDEN_BORDER,
+    INNER_HALF_BLOCK_BORDER,
+    NO_BORDER,
+    NORMAL_BORDER,
+    OUTER_HALF_BLOCK_BORDER,
+    PLUS_BORDER,
+    ROUNDED_BORDER,
+    STAR_BORDER,
+    THICK_BORDER,
     Border,
     render_horizontal_edge,
-    NO_BORDER,
-    HIDDEN_BORDER,
-    DOUBLE_BORDER,
-    ROUNDED_BORDER,
-    NORMAL_BORDER,
-    BLOCK_BORDER,
-    INNER_HALF_BLOCK_BORDER,
-    OUTER_HALF_BLOCK_BORDER,
-    THICK_BORDER,
-    ASCII_BORDER,
-    STAR_BORDER,
-    PLUS_BORDER,
 )
-from mog._extensions import get_lines, get_widest_line, pad_left, pad_right
-from mog._properties import Properties, PropKey, Dimensions, Padding, Margin, Coloring, BorderColor, Alignment
-from mog.align import align_text_horizontal, align_text_vertical
 from mog.color import (
-    AnyTerminalColor,
-    TerminalColor,
-    NoColor,
-    Color,
-    ANSIColor,
     AdaptiveColor,
-    CompleteColor,
+    ANSIColor,
+    AnyTerminalColor,
+    Color,
     CompleteAdaptiveColor,
+    CompleteColor,
+    NoColor,
+    TerminalColor,
 )
-from mist.transform import wrap, word_wrap, truncate
-from mist.transform.ansi import printable_rune_width
-import mist
+from mog.position import Position
+from mog.renderer import Renderer
 
 
 alias TAB_WIDTH = 4
@@ -50,7 +50,7 @@ struct Stylers:
         self.common = common^
         self.space = space^
         self.whitespace = whitespace^
-    
+
     fn __moveinit__(out self, owned other: Self):
         self.common = other.common^
         self.space = other.space^
@@ -64,7 +64,7 @@ fn _apply_styles(text: String, use_space_styler: Bool, styles: Stylers) -> Strin
         text: The text to apply styles to.
         use_space_styler: Whether to use the space styler.
         styles: The styles to apply.
-    
+
     Returns:
         The styled text.
     """
@@ -97,7 +97,7 @@ fn _wrap_words(text: String, width: UInt16, left_padding: UInt16, right_padding:
     return wrap(word_wrap(text, Int(wrap_at)), Int(wrap_at))
 
 
-struct Style(Movable, ExplicitlyCopyable):
+struct Style(ExplicitlyCopyable, Movable):
     """Terminal styler.
 
     #### Usage:
@@ -169,7 +169,7 @@ struct Style(Movable, ExplicitlyCopyable):
         owned margin: Margin,
         border: Border,
         owned border_color: BorderColor,
-        tab_width: UInt16
+        tab_width: UInt16,
     ):
         """Initialize A new Style.
 
@@ -222,7 +222,7 @@ struct Style(Movable, ExplicitlyCopyable):
         self._border = NO_BORDER
         self._border_color = BorderColor()
         self._tab_width = 0
-    
+
     fn __moveinit__(out self, owned other: Self):
         self._renderer = other._renderer
         self._properties = other._properties
@@ -237,7 +237,7 @@ struct Style(Movable, ExplicitlyCopyable):
         self._border = other._border^
         self._border_color = other._border_color^
         self._tab_width = other._tab_width
-    
+
     fn copy(self) -> Self:
         """Create a copy of the style.
 
@@ -257,7 +257,7 @@ struct Style(Movable, ExplicitlyCopyable):
             margin=self._margin.copy(),
             border=self._border,
             border_color=self._border_color.copy(),
-            tab_width=self._tab_width
+            tab_width=self._tab_width,
         )
 
     fn _get_as_bool[key: PropKey](self, default: Bool = False) -> Bool:
@@ -287,7 +287,8 @@ struct Style(Movable, ExplicitlyCopyable):
             The color value.
         """
         constrained[
-            key in [
+            key
+            in [
                 PropKey.FOREGROUND,
                 PropKey.BACKGROUND,
                 PropKey.MARGIN_BACKGROUND,
@@ -300,7 +301,11 @@ struct Style(Movable, ExplicitlyCopyable):
                 PropKey.BORDER_BOTTOM_BACKGROUND,
                 PropKey.BORDER_LEFT_BACKGROUND,
             ],
-            "The key must be FOREGROUND, BACKGROUND, MARGIN_BACKGROUND, BORDER_TOP_FOREGROUND, BORDER_RIGHT_FOREGROUND, BORDER_BOTTOM_FOREGROUND, BORDER_LEFT_FOREGROUND, BORDER_TOP_BACKGROUND, BORDER_RIGHT_BACKGROUND, BORDER_BOTTOM_BACKGROUND, or BORDER_LEFT_BACKGROUND."
+            (
+                "The key must be FOREGROUND, BACKGROUND, MARGIN_BACKGROUND, BORDER_TOP_FOREGROUND,"
+                " BORDER_RIGHT_FOREGROUND, BORDER_BOTTOM_FOREGROUND, BORDER_LEFT_FOREGROUND, BORDER_TOP_BACKGROUND,"
+                " BORDER_RIGHT_BACKGROUND, BORDER_BOTTOM_BACKGROUND, or BORDER_LEFT_BACKGROUND."
+            ),
         ]()
         if not self.is_set[key]():
             return NoColor()
@@ -341,7 +346,8 @@ struct Style(Movable, ExplicitlyCopyable):
             The integer value.
         """
         constrained[
-            key in [
+            key
+            in [
                 PropKey.WIDTH,
                 PropKey.HEIGHT,
                 PropKey.PADDING_TOP,
@@ -356,7 +362,10 @@ struct Style(Movable, ExplicitlyCopyable):
                 PropKey.MAX_HEIGHT,
                 PropKey.TAB_WIDTH,
             ],
-            "The key must be WIDTH, HEIGHT, PADDING_TOP, PADDING_RIGHT, PADDING_BOTTOM, PADDING_LEFT, MARGIN_TOP, MARGIN_RIGHT, MARGIN_BOTTOM, MARGIN_LEFT, MAX_WIDTH, MAX_HEIGHT, or TAB_WIDTH."
+            (
+                "The key must be WIDTH, HEIGHT, PADDING_TOP, PADDING_RIGHT, PADDING_BOTTOM, PADDING_LEFT, MARGIN_TOP,"
+                " MARGIN_RIGHT, MARGIN_BOTTOM, MARGIN_LEFT, MAX_WIDTH, MAX_HEIGHT, or TAB_WIDTH."
+            ),
         ]()
         if not self.is_set[key]():
             return 0
@@ -402,7 +411,7 @@ struct Style(Movable, ExplicitlyCopyable):
         """
         constrained[
             key in [PropKey.HORIZONTAL_ALIGNMENT, PropKey.VERTICAL_ALIGNMENT],
-            "The key must be HORIZONTAL_ALIGNMENT or VERTICAL_ALIGNMENT."
+            "The key must be HORIZONTAL_ALIGNMENT or VERTICAL_ALIGNMENT.",
         ]()
         if not self.is_set[key]():
             return Position(0)
@@ -473,6 +482,7 @@ struct Style(Movable, ExplicitlyCopyable):
         Args:
             value: The value to set.
         """
+
         @parameter
         if key == PropKey.WIDTH:
             self._dimensions.width = value
@@ -532,6 +542,7 @@ struct Style(Movable, ExplicitlyCopyable):
         Args:
             value: The value to set.
         """
+
         @parameter
         if key == PropKey.FOREGROUND:
             self._color.foreground = value.copy()
@@ -609,7 +620,7 @@ struct Style(Movable, ExplicitlyCopyable):
         var new = self.copy()
         new._set_attribute[PropKey.TAB_WIDTH](width)
         return new^
-    
+
     fn get_tab_width(self) -> UInt16:
         """Returns the tab width of the text.
 
@@ -641,7 +652,7 @@ struct Style(Movable, ExplicitlyCopyable):
         var new = self.copy()
         new._set_attribute[PropKey.UNDERLINE_SPACES](value)
         return new^
-    
+
     @always_inline
     fn get_underline_spaces(self) -> Bool:
         """Returns whether or not the underline spaces rule is set.
@@ -674,7 +685,7 @@ struct Style(Movable, ExplicitlyCopyable):
         var new = self.copy()
         new._set_attribute[PropKey.STRIKETHROUGH_SPACES](value)
         return new^
-    
+
     @always_inline
     fn get_strikethrough_spaces(self) -> Bool:
         """Returns whether or not the strikethrough spaces rule is set.
@@ -706,7 +717,7 @@ struct Style(Movable, ExplicitlyCopyable):
         var new = self.copy()
         new._set_attribute[PropKey.COLOR_WHITESPACE](value)
         return new^
-    
+
     @always_inline
     fn get_color_whitespace(self) -> Bool:
         """Returns whether or not the color whitespace rule is set.
@@ -732,14 +743,14 @@ struct Style(Movable, ExplicitlyCopyable):
         only to font rendering and don't want it to change any physical dimensions.
         It works well with `Style.max_width()`.
 
-        
+
 
         Args:
             value: Value to set the rule to.
 
         Returns:
             A new Style with the bold rule set.
-        
+
         #### Examples:
         ```mojo
         var input = "..."
@@ -792,7 +803,7 @@ struct Style(Movable, ExplicitlyCopyable):
             True if set, False otherwise.
         """
         return self._get_as_bool[PropKey.BOLD](False)
-    
+
     fn unset_bold(self) -> Self:
         """Unset the bold rule.
 
@@ -824,7 +835,7 @@ struct Style(Movable, ExplicitlyCopyable):
             True if set, False otherwise.
         """
         return self._get_as_bool[PropKey.ITALIC](False)
-    
+
     fn unset_italic(self) -> Self:
         """Unset the italic rule.
 
@@ -847,7 +858,7 @@ struct Style(Movable, ExplicitlyCopyable):
         var new = self.copy()
         new._set_attribute[PropKey.UNDERLINE](value)
         return new^
-    
+
     @always_inline
     fn get_underline(self) -> Bool:
         """Returns whether or not the underline rule is set.
@@ -856,7 +867,7 @@ struct Style(Movable, ExplicitlyCopyable):
             True if set, False otherwise.
         """
         return self._get_as_bool[PropKey.UNDERLINE](False)
-    
+
     fn unset_underline(self) -> Self:
         """Unset the text to be underline.
 
@@ -879,7 +890,7 @@ struct Style(Movable, ExplicitlyCopyable):
         var new = self.copy()
         new._set_attribute[PropKey.STRIKETHROUGH](value)
         return new^
-    
+
     @always_inline
     fn get_strikethrough(self) -> Bool:
         """Returns whether or not the strikethrough rule is set.
@@ -888,7 +899,7 @@ struct Style(Movable, ExplicitlyCopyable):
             True if set, False otherwise.
         """
         return self._get_as_bool[PropKey.STRIKETHROUGH](False)
-    
+
     fn unset_strikethrough(self) -> Self:
         """Unset the strikethrough rule.
 
@@ -911,7 +922,7 @@ struct Style(Movable, ExplicitlyCopyable):
         var new = self.copy()
         new._set_attribute[PropKey.REVERSE](value)
         return new^
-    
+
     @always_inline
     fn get_reverse(self) -> Bool:
         """Returns whether or not the reverse rule is set.
@@ -920,7 +931,7 @@ struct Style(Movable, ExplicitlyCopyable):
             True if set, False otherwise.
         """
         return self._get_as_bool[PropKey.REVERSE](False)
-    
+
     fn unset_reverse(self) -> Self:
         """Unset the reverse rule.
 
@@ -943,7 +954,7 @@ struct Style(Movable, ExplicitlyCopyable):
         var new = self.copy()
         new._set_attribute[PropKey.BLINK](value)
         return new^
-    
+
     @always_inline
     fn get_blink(self) -> Bool:
         """Returns whether or not the blink rule is set.
@@ -952,7 +963,7 @@ struct Style(Movable, ExplicitlyCopyable):
             True if set, False otherwise.
         """
         return self._get_as_bool[PropKey.BLINK](False)
-    
+
     fn unset_blink(self) -> Self:
         """Unset the blink rule.
 
@@ -975,7 +986,7 @@ struct Style(Movable, ExplicitlyCopyable):
         var new = self.copy()
         new._set_attribute[PropKey.FAINT](value)
         return new^
-    
+
     @always_inline
     fn get_faint(self) -> Bool:
         """Returns whether or not the faint rule is set.
@@ -984,7 +995,7 @@ struct Style(Movable, ExplicitlyCopyable):
             True if set, False otherwise.
         """
         return self._get_as_bool[PropKey.FAINT](False)
-    
+
     fn unset_faint(self) -> Self:
         """Unset the text to be faint.
 
@@ -1003,14 +1014,14 @@ struct Style(Movable, ExplicitlyCopyable):
 
         Returns:
             A new Style with the width rule set.
-        
+
         #### Notes:
         If you need width to be truncated to obey the width rule, use `Style.max_width()` instead.
         """
         var new = self.copy()
         new._set_attribute[PropKey.WIDTH](width)
         return new^
-    
+
     @always_inline
     fn get_width(self) -> UInt16:
         """Returns the width of the text.
@@ -1039,14 +1050,14 @@ struct Style(Movable, ExplicitlyCopyable):
 
         Returns:
             A new Style with the height rule set.
-        
+
         #### Notes:
         If you need height to be truncated to obey the height rule, use `Style.max_height()` instead.
         """
         var new = self.copy()
         new._set_attribute[PropKey.HEIGHT](height)
         return new^
-    
+
     @always_inline
     fn get_height(self) -> UInt16:
         """Returns the height of the text.
@@ -1075,10 +1086,10 @@ struct Style(Movable, ExplicitlyCopyable):
 
         Returns:
             A new Style with the maximum width rule set.
-        
+
         #### Notes:
         This does **NOT** pad the lines to the max width, if you want to pad all lines to the width given use `Style.width()` instead.
-        
+
         #### Examples:
         ```mojo
         var user_input = "..."
@@ -1090,7 +1101,7 @@ struct Style(Movable, ExplicitlyCopyable):
         var new = self.copy()
         new._set_attribute[PropKey.MAX_WIDTH](width)
         return new^
-    
+
     @always_inline
     fn get_max_width(self) -> UInt16:
         """Returns the max width of the text.
@@ -1119,14 +1130,14 @@ struct Style(Movable, ExplicitlyCopyable):
 
         Returns:
             A new Style with the maximum height rule set.
-        
+
         #### Notes:
         This does **NOT** pad the lines to the max height, if you want to pad all lines to the height given use `Style.height()` instead.
         """
         var new = self.copy()
         new._set_attribute[PropKey.MAX_HEIGHT](height)
         return new^
-    
+
     @always_inline
     fn get_max_height(self) -> UInt16:
         """Returns the max height of the text.
@@ -1158,7 +1169,7 @@ struct Style(Movable, ExplicitlyCopyable):
         var new = self.copy()
         new._set_attribute[PropKey.HORIZONTAL_ALIGNMENT](align)
         return new^
-    
+
     @always_inline
     fn get_horizontal_alignment(self) -> Position:
         """Returns the horizontal alignment of the text.
@@ -1190,7 +1201,7 @@ struct Style(Movable, ExplicitlyCopyable):
         var new = self.copy()
         new._set_attribute[PropKey.VERTICAL_ALIGNMENT](align)
         return new^
-    
+
     @always_inline
     fn get_vertical_alignment(self) -> Position:
         """Returns the vertical alignment of the text.
@@ -1275,7 +1286,7 @@ struct Style(Movable, ExplicitlyCopyable):
         var new = self.copy()
         new._set_attribute[PropKey.BACKGROUND](color)
         return new^
-    
+
     fn get_background(self) -> AnyTerminalColor:
         """Returns the background color of the text.
 
@@ -1351,7 +1362,7 @@ struct Style(Movable, ExplicitlyCopyable):
         var new = self.copy()
         new._set_attribute[PropKey.BORDER_TOP](top)
         return new^
-    
+
     fn get_border_top(self) -> Bool:
         """Returns whether or not the top border rule is set.
 
@@ -1382,7 +1393,7 @@ struct Style(Movable, ExplicitlyCopyable):
         var new = self.copy()
         new._set_attribute[PropKey.BORDER_BOTTOM](bottom)
         return new^
-    
+
     fn get_border_bottom(self) -> Bool:
         """Returns whether or not the bottom border rule is set.
 
@@ -1413,7 +1424,7 @@ struct Style(Movable, ExplicitlyCopyable):
         var new = self.copy()
         new._set_attribute[PropKey.BORDER_LEFT](left)
         return new^
-    
+
     fn get_border_left(self) -> Bool:
         """Returns whether or not the left border rule is set.
 
@@ -1444,7 +1455,7 @@ struct Style(Movable, ExplicitlyCopyable):
         var new = self.copy()
         new._set_attribute[PropKey.BORDER_RIGHT](right)
         return new^
-    
+
     fn get_border_right(self) -> Bool:
         """Returns whether or not the right border rule is set.
 
@@ -1471,7 +1482,7 @@ struct Style(Movable, ExplicitlyCopyable):
 
         Returns:
             A new Style with the border foreground color rule set.
-        
+
         #### Notes:
         The colors are applied in the order of top, right, bottom, left.
         * If one color is passed, it is applied to all sides.
@@ -1527,7 +1538,7 @@ struct Style(Movable, ExplicitlyCopyable):
         new._properties.set[PropKey.BORDER_TOP_FOREGROUND](True)
         new._border_color.foreground_top = color.copy()
         return new^
-    
+
     fn get_border_top_foreground(self) -> AnyTerminalColor:
         """Returns the top border foreground color.
 
@@ -1559,7 +1570,7 @@ struct Style(Movable, ExplicitlyCopyable):
         new._properties.set[PropKey.BORDER_RIGHT_FOREGROUND](True)
         new._border_color.foreground_right = color.copy()
         return new^
-    
+
     fn get_border_right_foreground(self) -> AnyTerminalColor:
         """Returns the right border foreground color.
 
@@ -1591,7 +1602,7 @@ struct Style(Movable, ExplicitlyCopyable):
         new._properties.set[PropKey.BORDER_LEFT_FOREGROUND](True)
         new._border_color.foreground_left = color.copy()
         return new^
-    
+
     fn get_border_left_foreground(self) -> AnyTerminalColor:
         """Returns the left border foreground color.
 
@@ -1623,7 +1634,7 @@ struct Style(Movable, ExplicitlyCopyable):
         new._properties.set[PropKey.BORDER_BOTTOM_FOREGROUND](True)
         new._border_color.foreground_bottom = color.copy()
         return new^
-    
+
     fn get_border_bottom_foreground(self) -> AnyTerminalColor:
         """Returns the bottom border foreground color.
 
@@ -1695,7 +1706,7 @@ struct Style(Movable, ExplicitlyCopyable):
         new._properties.set[PropKey.BORDER_TOP_BACKGROUND](True)
         new._border_color.background_top = color.copy()
         return new^
-    
+
     fn get_border_top_background(self) -> AnyTerminalColor:
         """Returns the top border background color.
 
@@ -1727,7 +1738,7 @@ struct Style(Movable, ExplicitlyCopyable):
         new._properties.set[PropKey.BORDER_RIGHT_BACKGROUND](True)
         new._border_color.background_right = color.copy()
         return new^
-    
+
     fn get_border_right_background(self) -> AnyTerminalColor:
         """Returns the right border background color.
 
@@ -1759,7 +1770,7 @@ struct Style(Movable, ExplicitlyCopyable):
         new._properties.set[PropKey.BORDER_LEFT_BACKGROUND](True)
         new._border_color.background_left = color.copy()
         return new^
-    
+
     fn get_border_left_background(self) -> AnyTerminalColor:
         """Returns the left border background color.
 
@@ -1791,7 +1802,7 @@ struct Style(Movable, ExplicitlyCopyable):
         new._properties.set[PropKey.BORDER_BOTTOM_BACKGROUND](True)
         new._border_color.background_bottom = color.copy()
         return new^
-    
+
     fn get_border_bottom_background(self) -> AnyTerminalColor:
         """Returns the bottom border background color.
 
@@ -1818,7 +1829,7 @@ struct Style(Movable, ExplicitlyCopyable):
 
         Returns:
             A new Style with the padding rule set.
-        
+
         #### Notes:
         Padding is applied inside the text area, inside of the border if there is one.
         Margin is applied outside the text area, outside of the border if there is one.
@@ -1874,14 +1885,14 @@ struct Style(Movable, ExplicitlyCopyable):
 
         Returns:
             A new Style with the padding top rule set.
-        
+
         #### Notes:
         Padding is applied inside the text area, inside of the border if there is one.
         """
         var new = self.copy()
         new._set_attribute[PropKey.PADDING_TOP](width)
         return new^
-    
+
     fn get_padding_top(self) -> UInt16:
         """Returns the padding on the top side.
 
@@ -1908,14 +1919,14 @@ struct Style(Movable, ExplicitlyCopyable):
 
         Returns:
             A new Style with the padding right rule set.
-        
+
         #### Notes:
         Padding is applied inside the text area, inside of the border if there is one.
         """
         var new = self.copy()
         new._set_attribute[PropKey.PADDING_RIGHT](width)
         return new^
-    
+
     fn get_padding_right(self) -> UInt16:
         """Returns the padding on the top side.
 
@@ -1942,14 +1953,14 @@ struct Style(Movable, ExplicitlyCopyable):
 
         Returns:
             A new Style with the padding bottom rule set.
-        
+
         #### Notes:
         Padding is applied inside the text area, inside of the border if there is one.
         """
         var new = self.copy()
         new._set_attribute[PropKey.PADDING_BOTTOM](width)
         return new^
-    
+
     fn get_padding_bottom(self) -> UInt16:
         """Returns the padding on the bottom side.
 
@@ -1976,14 +1987,14 @@ struct Style(Movable, ExplicitlyCopyable):
 
         Returns:
             A new Style with the padding left rule set.
-        
+
         #### Notes:
         Padding is applied inside the text area, inside of the border if there is one.
         """
         var new = self.copy()
         new._set_attribute[PropKey.PADDING_LEFT](width)
         return new^
-    
+
     fn get_padding_left(self) -> UInt16:
         """Returns the padding on the left side.
 
@@ -2010,7 +2021,7 @@ struct Style(Movable, ExplicitlyCopyable):
 
         Returns:
             A new Style with the margin rule set.
-        
+
         #### Notes:
         Padding is applied inside the text area, inside of the border if there is one.
         Margin is applied outside the text area, outside of the border if there is one.
@@ -2066,14 +2077,14 @@ struct Style(Movable, ExplicitlyCopyable):
 
         Returns:
             A new Style with the margin top rule set.
-        
+
         #### Notes:
         Margin is applied uotside the text area, outside of the border if there is one.
         """
         var new = self.copy()
         new._set_attribute[PropKey.MARGIN_TOP](width)
         return new^
-    
+
     fn get_margin_top(self) -> UInt16:
         """Returns the margin on the top side.
 
@@ -2100,14 +2111,14 @@ struct Style(Movable, ExplicitlyCopyable):
 
         Returns:
             A new Style with the margin right rule set.
-        
+
         #### Notes:
         Margin is applied uotside the text area, outside of the border if there is one.
         """
         var new = self.copy()
         new._set_attribute[PropKey.MARGIN_RIGHT](width)
         return new^
-    
+
     fn get_margin_right(self) -> UInt16:
         """Returns the margin on the right side.
 
@@ -2134,14 +2145,14 @@ struct Style(Movable, ExplicitlyCopyable):
 
         Returns:
             A new Style with the margin bottom rule set.
-        
+
         #### Notes:
         Margin is applied uotside the text area, outside of the border if there is one.
         """
         var new = self.copy()
         new._set_attribute[PropKey.MARGIN_BOTTOM](width)
         return new^
-    
+
     fn get_margin_bottom(self) -> UInt16:
         """Returns the margin on the bottom side.
 
@@ -2168,14 +2179,14 @@ struct Style(Movable, ExplicitlyCopyable):
 
         Returns:
             A new Style with the margin left rule set.
-        
+
         #### Notes:
         Margin is applied uotside the text area, outside of the border if there is one.
         """
         var new = self.copy()
         new._set_attribute[PropKey.MARGIN_LEFT](width)
         return new^
-    
+
     fn get_margin_left(self) -> UInt16:
         """Returns the margin on the left side.
 
@@ -2206,7 +2217,7 @@ struct Style(Movable, ExplicitlyCopyable):
         var new = self.copy()
         new._set_attribute[PropKey.MARGIN_BACKGROUND](color)
         return new^
-    
+
     fn get_margin_background(self) -> AnyTerminalColor:
         """Returns the margin background color.
 
@@ -2240,12 +2251,12 @@ struct Style(Movable, ExplicitlyCopyable):
 
         if DEFAULT_TAB_WIDTH == -1:
             return text.copy()
-        
+
         if DEFAULT_TAB_WIDTH == 0:
             return text.replace("\t", "")
         else:
             return text.replace("\t", (WHITESPACE * Int(DEFAULT_TAB_WIDTH)))
-    
+
     fn uses_space_styler(self) -> Bool:
         """Returns whether or not the style uses the space styler.
 
@@ -2278,10 +2289,12 @@ struct Style(Movable, ExplicitlyCopyable):
         if fg.isa[NoColor]() and bg.isa[NoColor]():
             return border
 
-        return self._renderer.as_mist_style()
+        return (
+            self._renderer.as_mist_style()
             .foreground(color=fg.to_mist_color(self._renderer))
             .background(color=bg.to_mist_color(self._renderer))
             .render(border)
+        )
 
     fn _apply_border(self, text: String) -> String:
         """Apply a border to the text.
@@ -2364,21 +2377,25 @@ struct Style(Movable, ExplicitlyCopyable):
                 self._style_border(
                     render_horizontal_edge(border.top_left, border.top, border.top_right, width),
                     self.get_border_top_foreground(),
-                    self.get_border_top_background()
+                    self.get_border_top_background(),
                 ),
-                NEWLINE
+                NEWLINE,
             )
 
         # Render sides once, and reuse for each line.
         var left_border: String
         if has_left:
-            left_border = self._style_border(border.left, self.get_border_left_foreground(), self.get_border_left_background())
+            left_border = self._style_border(
+                border.left, self.get_border_left_foreground(), self.get_border_left_background()
+            )
         else:
             left_border = ""
-        
+
         var right_border: String
         if has_right:
-            right_border = self._style_border(border.right, self.get_border_right_foreground(), self.get_border_right_background())
+            right_border = self._style_border(
+                border.right, self.get_border_right_foreground(), self.get_border_right_background()
+            )
         else:
             right_border = ""
 
@@ -2396,11 +2413,13 @@ struct Style(Movable, ExplicitlyCopyable):
 
         # Render bottom
         if has_bottom:
-            result.write(NEWLINE, self._style_border(
+            result.write(
+                NEWLINE,
+                self._style_border(
                     render_horizontal_edge(border.bottom_left, border.bottom, border.bottom_right, width),
                     self.get_border_bottom_foreground(),
                     self.get_border_bottom_background(),
-                )
+                ),
             )
 
         return result^
@@ -2415,7 +2434,9 @@ struct Style(Movable, ExplicitlyCopyable):
         Returns:
             The text with the margins applied.
         """
-        var styler = self._renderer.as_mist_style().background(color=self.get_margin_background().to_mist_color(self._renderer))
+        var styler = self._renderer.as_mist_style().background(
+            color=self.get_margin_background().to_mist_color(self._renderer)
+        )
 
         # Add left and right margin
         text = pad_right(pad_left(text^, Int(self.get_margin_left()), styler), Int(self.get_margin_right()), styler)
@@ -2426,15 +2447,12 @@ struct Style(Movable, ExplicitlyCopyable):
         if not inline:
             var width = get_widest_line(text)
             if top_margin > 0:
-                text = String(
-                    (WHITESPACE * width + NEWLINE) * top_margin, 
-                    text
-                )
+                text = String((WHITESPACE * width + NEWLINE) * top_margin, text)
             if bottom_margin > 0:
                 text.write((NEWLINE + WHITESPACE * width) * bottom_margin)
 
         return text^
-    
+
     fn _get_styles(self) -> Stylers:
         var base = self._renderer.as_mist_style()
         var stylers = Stylers(base.copy(), base.copy(), base.copy())
@@ -2480,7 +2498,7 @@ struct Style(Movable, ExplicitlyCopyable):
             stylers.space = stylers.space.underline()
         if strikethrough_spaces:
             stylers.space = stylers.space.strikethrough()
-        
+
         return stylers^
 
     fn render[*Ts: Writable](self, *texts: *Ts) -> String:
@@ -2509,7 +2527,7 @@ struct Style(Movable, ExplicitlyCopyable):
         # If no style properties are set, return the input text as is with tabs maybe converted.
         if not any(self._properties.value):
             return self._maybe_convert_tabs(input_text)
-        
+
         var inline = self.get_inline()
         if inline:
             input_text = input_text.replace(NEWLINE, "")

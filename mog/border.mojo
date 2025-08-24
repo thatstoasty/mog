@@ -1,5 +1,6 @@
 from mist.transform.ansi import printable_rune_width
 
+
 struct Border(ExplicitlyCopyable, Movable):
     """A border to use to wrap around text."""
 
@@ -76,7 +77,7 @@ struct Border(ExplicitlyCopyable, Movable):
         self.middle = middle
         self.middle_top = middle_top
         self.middle_bottom = middle_bottom
-    
+
     fn copy(self) -> Border:
         """Create a copy of the border.
 

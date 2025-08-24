@@ -9,6 +9,7 @@ struct Position(EqualityComparable):
 
     There are constants `top`, `bottom`, `center`, `left` and `right` in this package that
     can be used to aid readability."""
+
     var value: Float64
     """The value of the position, between 0 and 1 inclusive."""
 
@@ -31,18 +32,18 @@ struct Position(EqualityComparable):
             value: The value of the position, between 0 and 1 inclusive.
         """
         self.value = value
-    
+
     fn __eq__(self, other: Self) -> Bool:
         """Check if two positions are equal.
-        
+
         Args:
             other: The other position to compare with.
-        
+
         Returns:
             True if the positions are equal, False otherwise.
         """
         return self.value == other.value
-    
+
     fn __ne__(self, other: Self) -> Bool:
         """Check if two positions are not equal.
 

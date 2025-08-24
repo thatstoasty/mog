@@ -1,11 +1,12 @@
 import mist.transform.ansi
 from mog._extensions import get_lines, get_widest_line
-from mog.renderer import Renderer
-from mog.position import Position
 from mog._properties import Alignment
+from mog.position import Position
+from mog.renderer import Renderer
+
 
 @fieldwise_init
-struct WhitespaceRenderer(Movable, ExplicitlyCopyable):
+struct WhitespaceRenderer(ExplicitlyCopyable, Movable):
     """Whitespace renderer."""
 
     var renderer: Renderer
@@ -30,7 +31,7 @@ struct WhitespaceRenderer(Movable, ExplicitlyCopyable):
         self.renderer = style._renderer
         self.style = style.copy()
         self.chars = chars.copy()
-    
+
     fn copy(self) -> Self:
         """Copies the whitespace renderer.
 
@@ -118,7 +119,7 @@ struct WhitespaceRenderer(Movable, ExplicitlyCopyable):
             text: The string to place in the block.
             width: The width of the block to place the text in.
             alignment: The position to place the text in the block. This should be
-                a float between 0 and 1. 
+                a float between 0 and 1.
                 0 is left aligned, 1 is the right aligned, and
                 0.5 is center aligned. Defaults to left aligned.
 

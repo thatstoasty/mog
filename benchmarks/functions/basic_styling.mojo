@@ -1,5 +1,6 @@
-import mog
 from benchmark.compiler import keep
+
+import mog
 
 
 fn basic_styling():

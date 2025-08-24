@@ -1,11 +1,13 @@
-import testing
 import mist
-from mog import Position
+import testing
 from mog.align import align_text_horizontal, align_text_vertical
+
+from mog import Position
+
 
 alias text = "hello"
 alias multiline_text = "hello\nhello\nhello"
-alias style = mist.Style(mist.ANSI)
+alias style = mist.Style(mist.Profile.ANSI)
 
 
 def test_centered_align_text_horizontal():
@@ -16,7 +18,7 @@ def test_centered_align_text_horizontal():
 
 
 def test_styled_centered_align_text_horizontal():
-    var style = mist.Style(mist.ANSI).background(0xFFFFFF)
+    var style = mist.Style(mist.Profile.ANSI).background(0xFFFFFF)
     testing.assert_equal(align_text_horizontal(text, Position.CENTER, 10, style), "\x1b[107m  \x1b[0mhello\x1b[107m   \x1b[0m")
 
     # Multi line alignment
@@ -31,7 +33,7 @@ def test_left_align_text_horizontal():
 
 
 def test_styled_left_align_text_horizontal():
-    var style = mist.Style(mist.ANSI).background(0xFFFFFF)
+    var style = mist.Style(mist.Profile.ANSI).background(0xFFFFFF)
     testing.assert_equal(align_text_horizontal(text, Position.LEFT, 10, style), "hello\x1b[107m     \x1b[0m")
 
     # Multi line alignment
@@ -46,7 +48,7 @@ def test_right_align_text_horizontal():
 
 
 def test_styled_right_align_text_horizontal():
-    var style = mist.Style(mist.ANSI).background(0xFFFFFF)
+    var style = mist.Style(mist.Profile.ANSI).background(0xFFFFFF)
     testing.assert_equal(align_text_horizontal(text, Position.RIGHT, 10, style), "\x1b[107m     \x1b[0mhello")
 
     # Multi line alignment
@@ -55,7 +57,7 @@ def test_styled_right_align_text_horizontal():
 
 def test_empty_align_text_horizontal():
     """Test that a padded string is returned if the text is empty."""
-    var bg_style = mist.Style(mist.ANSI).background(0xFFFFFF)
+    var bg_style = mist.Style(mist.Profile.ANSI).background(0xFFFFFF)
     testing.assert_equal(align_text_horizontal("", Position.LEFT, 10, style), "          ")
     testing.assert_equal(align_text_horizontal("", Position.RIGHT, 10, style), "          ")
     testing.assert_equal(align_text_horizontal("", Position.CENTER, 10, style), "          ")

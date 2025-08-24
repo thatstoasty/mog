@@ -1,14 +1,16 @@
-from mist.transform.ansi import printable_rune_width
-from mog.join import join_vertical, join_horizontal
-from mog.border import HIDDEN_BORDER, NORMAL_BORDER, ROUNDED_BORDER, Border
-from mog.style import Style
-from mog.size import get_width
-from mog import Position
-from mog.whitespace import WhitespaceRenderer
-from mog.renderer import Renderer
-from mog._properties import Alignment
-import mog
 import mist._hue as hue
+from mist.transform.ansi import printable_rune_width
+from mog._properties import Alignment
+from mog.border import HIDDEN_BORDER, NORMAL_BORDER, ROUNDED_BORDER, Border
+from mog.join import join_horizontal, join_vertical
+from mog.renderer import Renderer
+from mog.size import get_width
+from mog.style import Style
+from mog.whitespace import WhitespaceRenderer
+
+import mog
+from mog import Position
+
 
 alias width = 96
 alias column_width = 30

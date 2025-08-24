@@ -1,5 +1,6 @@
 import testing
-from mog import join_horizontal, join_vertical, Position
+
+from mog import Position, join_horizontal, join_vertical
 
 
 def test_horizontal_join():

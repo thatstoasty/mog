@@ -1,5 +1,6 @@
-import mog
 from collections import Dict
+
+import mog
 
 
 # TODO: There's an issue with rows being taller than 1 line. Adding vertical padding will break the table.

@@ -1,5 +1,6 @@
 import testing
-from mog.table import StringData, Filter
+
+from mog.table import Filter, StringData
 
 
 def test_string_data_append():

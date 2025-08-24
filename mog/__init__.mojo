@@ -1,36 +1,30 @@
-from mog.style import Style, NO_TAB_CONVERSION
-from mog.border import (
-    Border,
-    NORMAL_BORDER,
-    ROUNDED_BORDER,
-    DOUBLE_BORDER,
-    ASCII_BORDER,
-    STAR_BORDER,
-    PLUS_BORDER,
-    BLOCK_BORDER,
-    OUTER_HALF_BLOCK_BORDER,
-    INNER_HALF_BLOCK_BORDER,
-    THICK_BORDER,
-    HIDDEN_BORDER,
-    NO_BORDER,
-)
-from mog.table import Table, default_styles, StringData, Data, Filter
-from mog.size import get_height, get_width, get_dimensions
-from mog.color import (
-    NoColor,
-    Color,
-    ANSIColor,
-    AdaptiveColor,
-    CompleteColor,
-    CompleteAdaptiveColor,
-    AnyTerminalColor,
-)
-from mog.align import align_text_horizontal, align_text_vertical
+from mist import Profile
 from mog._properties import Alignment
-from mog.renderer import Renderer
+from mog.align import align_text_horizontal, align_text_vertical
+from mog.border import (
+    ASCII_BORDER,
+    BLOCK_BORDER,
+    DOUBLE_BORDER,
+    HIDDEN_BORDER,
+    INNER_HALF_BLOCK_BORDER,
+    NO_BORDER,
+    NORMAL_BORDER,
+    OUTER_HALF_BLOCK_BORDER,
+    PLUS_BORDER,
+    ROUNDED_BORDER,
+    STAR_BORDER,
+    THICK_BORDER,
+    Border,
+)
+from mog.color import AdaptiveColor, ANSIColor, AnyTerminalColor, Color, CompleteAdaptiveColor, CompleteColor, NoColor
 from mog.join import join_horizontal, join_vertical
 from mog.position import Position
-from mist import Profile
+from mog.renderer import Renderer
+from mog.size import get_dimensions, get_height, get_width
+from mog.style import NO_TAB_CONVERSION, Style
+
+from mog.table import Data, Filter, StringData, Table, default_styles
+
 
 alias WHITESPACE = " "
 alias NEWLINE = "\n"

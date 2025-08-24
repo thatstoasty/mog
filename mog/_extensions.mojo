@@ -1,6 +1,7 @@
-from mist.transform.ansi import printable_rune_width
-import mist
 from sys import stderr
+
+import mist
+from mist.transform.ansi import printable_rune_width
 
 
 fn get_lines[origin: ImmutableOrigin](text: StringSlice[origin]) -> Tuple[List[StringSlice[origin]], Int]:
@@ -58,7 +59,7 @@ fn pad(text: String, n: Int, style: mist.Style) -> String:
         return text
 
     var spaces = style.render(WHITESPACE * abs(n))
-    var result = String(capacity=UInt(len(text) * 1.5))
+    var result = String(capacity=Int(len(text) * 1.5))
     var lines = text.as_string_slice().get_immutable().splitlines()
     for i in range(len(lines)):
         if n > 0:
@@ -70,6 +71,7 @@ fn pad(text: String, n: Int, style: mist.Style) -> String:
             result.write(NEWLINE)
 
     return result^
+
 
 @always_inline
 fn pad_left(text: String, n: Int, style: mist.Style) -> String:
@@ -84,6 +86,7 @@ fn pad_left(text: String, n: Int, style: mist.Style) -> String:
         The padded text.
     """
     return pad(text, -n, style)
+
 
 @always_inline
 fn pad_right(text: String, n: Int, style: mist.Style) -> String:

@@ -1,4 +1,4 @@
-trait Data(Movable, Copyable, ExplicitlyCopyable):
+trait Data(Copyable, ExplicitlyCopyable, Movable):
     """Trait that wraps the basic methods of a table model."""
 
     # TODO: Need to figure out if I want this to return an optional or just raise.
@@ -63,7 +63,7 @@ struct StringData(Data):
         """
         self._rows = rows
         self._columns = len(rows)
-    
+
     fn __init__(out self, *rows: List[String]):
         """Initializes a new StringData instance.
 
@@ -116,7 +116,7 @@ struct StringData(Data):
         """
         self._columns = max(self._columns, len(row))
         self._rows.append(row)
-    
+
     fn append(mut self, *elements: String):
         """Appends the given row to the table.
 
@@ -128,7 +128,7 @@ struct StringData(Data):
         for element in elements:
             row.append(element)
         self._rows.append(row)
-    
+
     fn __add__(self, other: Self) -> Self:
         """Concatenates two StringData instances.
 
@@ -139,7 +139,7 @@ struct StringData(Data):
             The concatenated StringData instance.
         """
         return StringData(self._rows + other._rows, max(self.columns(), other.columns()))
-    
+
     fn __iadd__(mut self, other: Self):
         """Concatenates two StringData instances in place.
 

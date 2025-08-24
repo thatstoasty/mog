@@ -1,16 +1,17 @@
 import testing
-import mog
 from mog.renderer import Renderer
 
+import mog
 
-alias true_color_renderer = Renderer(mog.TRUE_COLOR_PROFILE)
-alias light_true_color_renderer = Renderer(mog.TRUE_COLOR, dark_background=False)
-alias ansi256_color_renderer = Renderer(mog.ANSI256_PROFILE)
-alias light_ansi256_color_renderer = Renderer(mog.ANSI256, dark_background=False)
-alias ansi_color_renderer = Renderer(mog.ANSI_PROFILE)
-alias light_ansi_color_renderer = Renderer(mog.ANSI, dark_background=False)
-alias ascii_renderer = Renderer(mog.ASCII_PROFILE)
-alias light_ascii_renderer = Renderer(mog.ASCII, dark_background=False)
+
+alias true_color_renderer = Renderer(mog.Profile.TRUE_COLOR)
+alias light_true_color_renderer = Renderer(mog.Profile.TRUE_COLOR, dark_background=False)
+alias ansi256_color_renderer = Renderer(mog.Profile.ANSI256)
+alias light_ansi256_color_renderer = Renderer(mog.Profile.ANSI256, dark_background=False)
+alias ansi_color_renderer = Renderer(mog.Profile.ANSI)
+alias light_ansi_color_renderer = Renderer(mog.Profile.ANSI, dark_background=False)
+alias ascii_renderer = Renderer(mog.Profile.ASCII)
+alias light_ascii_renderer = Renderer(mog.Profile.ASCII, dark_background=False)
 
 
 def test_has_dark_background():

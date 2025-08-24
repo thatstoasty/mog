@@ -40,21 +40,6 @@ class TemporaryBuildDirectory:
             print("Temporary build directory removed.")
 
 
-def format_dependency(name: str, version: str) -> str:
-    """Converts the list of dependencies from the pixi.toml into a list of strings for the recipe."""
-    start = 0
-    operator = "=="
-    if version[0] in {"<", ">"}:
-        if version[1] != "=":
-            operator = version[0]
-            start = 1
-        else:
-            operator = version[:2]
-            start = 2
-
-    return f"{name} {operator} {version[start:]}"
-
-
 def remove_temp_directory() -> None:
     """Removes the temporary directory used for building the package."""
     if TEMP_DIR.exists():

@@ -1,18 +1,19 @@
-from mog.color import NoColor, Color, ANSIColor, AdaptiveColor, CompleteColor, CompleteAdaptiveColor
-from mog.renderer import Renderer
 import mist
-from mist.color import RGBColor, ANSI256Color
 import mist.color
 import testing
+from mist.color import ANSI256Color, RGBColor
+from mog.color import AdaptiveColor, ANSIColor, Color, CompleteAdaptiveColor, CompleteColor, NoColor
+from mog.renderer import Renderer
 
-alias true_color_renderer = Renderer(mog.TRUE_COLOR_PROFILE)
-alias light_true_color_renderer = Renderer(mog.TRUE_COLOR, dark_background=False)
-alias ansi256_color_renderer = Renderer(mog.ANSI256_PROFILE)
-alias light_ansi256_color_renderer = Renderer(mog.ANSI256, dark_background=False)
-alias ansi_color_renderer = Renderer(mog.ANSI_PROFILE)
-alias light_ansi_color_renderer = Renderer(mog.ANSI, dark_background=False)
-alias ascii_renderer = Renderer(mog.ASCII_PROFILE)
-alias light_ascii_renderer = Renderer(mog.ASCII, dark_background=False)
+
+alias true_color_renderer = Renderer(mog.Profile.TRUE_COLOR)
+alias light_true_color_renderer = Renderer(mog.Profile.TRUE_COLOR, dark_background=False)
+alias ansi256_color_renderer = Renderer(mog.Profile.ANSI256)
+alias light_ansi256_color_renderer = Renderer(mog.Profile.ANSI256, dark_background=False)
+alias ansi_color_renderer = Renderer(mog.Profile.ANSI)
+alias light_ansi_color_renderer = Renderer(mog.Profile.ANSI, dark_background=False)
+alias ascii_renderer = Renderer(mog.Profile.ASCII)
+alias light_ascii_renderer = Renderer(mog.Profile.ASCII, dark_background=False)
 
 
 def test_no_color():

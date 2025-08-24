@@ -1,12 +1,12 @@
-from mist.transform import truncate
 from mist import Profile
-from mog.style import Style
+from mist.transform import truncate
 from mog.border import ROUNDED_BORDER, Border
 from mog.join import join_horizontal
-from mog.size import get_height, get_width
 from mog.position import Position
+from mog.size import get_height, get_width
+from mog.style import Style
 from mog.table.rows import StringData
-from mog.table.util import median, largest, sum
+from mog.table.util import largest, median, sum
 
 
 alias StyleFunction = fn (row: Int, col: Int) -> Style
@@ -59,7 +59,7 @@ fn default_styles(row: Int, col: Int) -> Style:
 
 
 # TODO: Parametrize on data field, so other structs that implement `Data` can be used. For now it only support `StringData`.
-struct Table(Writable, Stringable, Movable, ExplicitlyCopyable):
+struct Table(ExplicitlyCopyable, Movable, Stringable, Writable):
     """Used to model and render tabular data as a table.
 
     #### Examples:
@@ -172,7 +172,7 @@ struct Table(Writable, Stringable, Movable, ExplicitlyCopyable):
         self.width = width
         self.height = height
         self._offset = 0
-    
+
     fn __moveinit__(out self, owned other: Self):
         """Initializes a new Table by moving the data from another Table.
 
@@ -217,7 +217,7 @@ struct Table(Writable, Stringable, Movable, ExplicitlyCopyable):
             width=self.width,
             height=self.height,
         )
-    
+
     @staticmethod
     fn new() -> Self:
         """Returns a new Table, this is to bypass the compiler limitation on these args having default values.
@@ -336,20 +336,20 @@ struct Table(Writable, Stringable, Movable, ExplicitlyCopyable):
         var new = self.copy()
         new._headers = headers
         return new^
-    
+
     fn set_style(self, styler: StyleFunction) -> Table:
         """Sets the table headers.
 
         Args:
             styler: The style function to use.
-        
+
         Returns:
             The updated table.
         """
         var new = self.copy()
         new._styler = styler
         return new^
-    
+
     fn write_to[W: Writer, //](self, mut writer: W):
         """Writes the table to the writer.
 
@@ -508,7 +508,9 @@ struct Table(Writable, Stringable, Movable, ExplicitlyCopyable):
         if self._border_bottom:
             result.write(self._construct_bottom_border(widths))
 
-        writer.write(mog.Style(Profile.ASCII).max_height(self._compute_height(heights)).max_width(self.width).render(result))
+        writer.write(
+            mog.Style(Profile.ASCII).max_height(self._compute_height(heights)).max_width(self.width).render(result)
+        )
 
     fn __str__(self) -> String:
         """Returns the table as a String.
@@ -675,9 +677,7 @@ struct Table(Writable, Stringable, Movable, ExplicitlyCopyable):
 
         var c = 0
         while c < self._data.columns():
-            var style = self.style(index + 1, c).height(height).max_height(height).width(widths[c]).max_width(
-                widths[c]
-            )
+            var style = self.style(index + 1, c).height(height).max_height(height).width(widths[c]).max_width(widths[c])
             cells.append(style.render(truncate(self._data[index, c], widths[c] * height, "…")))
             if c < self._data.columns() - 1 and self._border_column:
                 cells.append(left)
@@ -686,7 +686,7 @@ struct Table(Writable, Stringable, Movable, ExplicitlyCopyable):
 
         if self._border_right:
             cells.append((self._border_style.render(self._border.right) + "\n") * height)
-        
+
         # TODO: removesuffix doesn't seem to work with all utf8 chars, maybe it'll be fixed upstream soon.
         # It wasn't recognizing the last character as a newline.
         for ref cell in cells:

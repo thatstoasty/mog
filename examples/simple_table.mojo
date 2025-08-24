@@ -1,17 +1,13 @@
-from mog.join import join_vertical, join_horizontal
-from mog.table import Table, StringData
-from mog.table.table import default_styles
-from mog.border import (
-    STAR_BORDER,
-    ASCII_BORDER,
-    Border,
-    ROUNDED_BORDER,
-    HIDDEN_BORDER,
-)
-from mog.style import Style
-from mog import Position
-import mog
 from time import perf_counter_ns
+
+from mog.border import ASCII_BORDER, HIDDEN_BORDER, ROUNDED_BORDER, STAR_BORDER, Border
+from mog.join import join_horizontal, join_vertical
+from mog.style import Style
+
+import mog
+from mog import Position
+from mog.table import StringData, Table
+from mog.table.table import default_styles
 
 
 fn dummy_style_func(row: Int, col: Int) -> Style:

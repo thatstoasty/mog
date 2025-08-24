@@ -1,9 +1,11 @@
 import testing
-import mog
-from mog import Position, Alignment
 from mog.whitespace import WhitespaceRenderer
 
-alias ANSI_STYLE = mog.Style(mog.ANSI_PROFILE)
+import mog
+from mog import Alignment, Position
+
+
+alias ANSI_STYLE = mog.Style(mog.Profile.ANSI)
 
 def test_with_whitespace_background():
     # Use a renderer with a specific profile to ensure consistent output.

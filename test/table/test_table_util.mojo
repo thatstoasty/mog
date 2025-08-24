@@ -1,6 +1,7 @@
 import testing
+from mog.table.util import largest, median, sum
+
 import mog
-from mog.table.util import sum, median, largest
 
 
 def test_sum():

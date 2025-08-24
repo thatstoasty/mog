@@ -8,7 +8,7 @@ from mog.position import Position
 @register_passable("trivial")
 struct Renderer:
     """Contains context for the color profile of the terminal and it's background.
-    
+
     ### Attributes:
     * `profile`: The color profile to use for the renderer.
     * `dark_background`: Whether or not the renderer will render to a dark background.
@@ -46,7 +46,7 @@ struct Renderer:
             Whether or not the renderer will render to a dark background.
         """
         return self.dark_background
-    
+
     fn as_mist_style(self) -> mist.Style:
         """Returns a the `mist.Style` using the same profile as the for the style.
 
@@ -54,4 +54,3 @@ struct Renderer:
             The mist style.
         """
         return mist.Style(self.profile)
-

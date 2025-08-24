@@ -1,5 +1,5 @@
 import testing
-from mog.size import get_height, get_width, get_dimensions
+from mog.size import get_dimensions, get_height, get_width
 
 
 alias test_string = "This\nis\na\ntest\nstring"

@@ -1,13 +1,11 @@
-import benchmark
-from benchmark import ThroughputMeasure, BenchMetric, Bencher, Bench, BenchId, BenchConfig
-from functions.layout import render_layout
-from functions.basic_styling import (
-    basic_styling,
-    basic_styling_big_file,
-    basic_comptime_styling,
-)
-import mog
 import pathlib
+
+import benchmark
+from benchmark import Bench, BenchConfig, Bencher, BenchId, BenchMetric, ThroughputMeasure
+from functions.basic_styling import basic_comptime_styling, basic_styling, basic_styling_big_file
+from functions.layout import render_layout
+
+import mog
 
 
 fn get_gbs_measure(input: String) raises -> ThroughputMeasure:

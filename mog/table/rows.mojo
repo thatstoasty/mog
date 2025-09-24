@@ -55,14 +55,14 @@ struct StringData(Data):
     var _columns: Int
     """The number of columns in the table."""
 
-    fn __init__(out self, rows: List[List[String]] = List[List[String]]()):
+    fn __init__(out self, var rows: List[List[String]] = List[List[String]]()):
         """Initializes a new StringData instance.
 
         Args:
             rows: The rows of the table.
         """
-        self._rows = rows
-        self._columns = len(rows)
+        self._rows = rows^
+        self._columns = len(self._rows)
 
     fn __init__(out self, *rows: List[String]):
         """Initializes a new StringData instance.
@@ -74,8 +74,8 @@ struct StringData(Data):
         var r = List[List[String]](capacity=len(rows))
         for row in rows:
             widest = max(widest, len(row))
-            r.append(row)
-        self._rows = r
+            r.append(row.copy())
+        self._rows = r^
         self._columns = widest
 
     # TODO: Can't return ref String because it depends on the origin of a struct attribute
@@ -108,14 +108,14 @@ struct StringData(Data):
         """
         return self._columns
 
-    fn append(mut self, row: List[String]):
+    fn append(mut self, var row: List[String]):
         """Appends the given row to the table.
 
         Args:
             row: The row to append.
         """
         self._columns = max(self._columns, len(row))
-        self._rows.append(row)
+        self._rows.append(row^)
 
     fn append(mut self, *elements: String):
         """Appends the given row to the table.
@@ -127,7 +127,7 @@ struct StringData(Data):
         var row = List[String](capacity=len(elements))
         for element in elements:
             row.append(element)
-        self._rows.append(row)
+        self._rows.append(row^)
 
     fn __add__(self, other: Self) -> Self:
         """Concatenates two StringData instances.
@@ -138,7 +138,7 @@ struct StringData(Data):
         Returns:
             The concatenated StringData instance.
         """
-        return StringData(self._rows + other._rows, max(self.columns(), other.columns()))
+        return StringData(self._rows + other._rows.copy(), max(self.columns(), other.columns()))
 
     fn __iadd__(mut self, other: Self):
         """Concatenates two StringData instances in place.
@@ -146,7 +146,7 @@ struct StringData(Data):
         Args:
             other: The other StringData instance to concatenate.
         """
-        self._rows.extend(other._rows)
+        self._rows.extend(other._rows.copy())
         self._columns = max(self.columns(), other.columns())
 
 

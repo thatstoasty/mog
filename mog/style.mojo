@@ -2330,7 +2330,8 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         if is_no_border or (not has_top and not has_right and not has_bottom and not has_left):
             return text
 
-        lines, width = get_lines(text)
+        var lines = text.split(NEWLINE)
+        var width = get_widest_line(lines)
         if has_left:
             if border.left == "":
                 border.left = " "

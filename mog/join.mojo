@@ -1,7 +1,7 @@
 import math
 
 from mist.transform.ansi import printable_rune_width
-from mog._extensions import get_lines
+from mog._extensions import get_widest_line
 from mog.position import Position
 
 
@@ -27,7 +27,8 @@ fn _get_lines_mem[
 
     # Break text blocks into lines and get max widths for each text block
     for s in strs:
-        lines, widest = get_lines(s)
+        var lines = s.split(NEWLINE)
+        var widest = get_widest_line(lines)
         var line_length = len(lines)
         blocks.append(lines^)
         max_widths.append(widest)
@@ -44,7 +45,7 @@ fn _get_lines_mem[
             blocks[i].extend(other=extra_lines^)
         elif pos == Position.BOTTOM:
             extra_lines.extend(blocks[i].copy())
-            blocks[i] = extra_lines.copy()
+            blocks[i] = extra_lines^
         else:
             var end = len(extra_lines)
             var top_point = end - Int(end * pos.value)
@@ -53,8 +54,8 @@ fn _get_lines_mem[
             var top_lines = extra_lines[top_point:end]
             var bottom_lines = extra_lines[bottom_point:end]
             top_lines.extend(blocks[i].copy())
-            blocks[i] = top_lines.copy()
-            blocks[i].extend(bottom_lines.copy())
+            blocks[i] = top_lines^
+            blocks[i].extend(bottom_lines^)
 
     return blocks^, max_widths^
 
@@ -122,8 +123,9 @@ fn join_horizontal(pos: Position, *strs: String) -> String:
     if len(strs) == 1:
         return String(strs[0])
 
-    blocks, max_widths = _get_lines_mem(pos, strs)
-    return _merge_lines(blocks, max_widths)
+    # TODO: Can't move from tuple without copy, so just use getitem to reference it instead
+    var result = _get_lines_mem(pos, strs)
+    return _merge_lines(result[0], result[1])
 
 
 fn join_horizontal(pos: Position, strs: List[String]) -> String:
@@ -172,11 +174,13 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
 
     # Break text blocks into lines and get max widths for each text block
     for s in strs:
-        lines, widest = get_lines(s)
-        blocks.append(lines.copy())
+        var lines = s.split(NEWLINE)
+        var widest = get_widest_line(lines)
+        var line_length = len(lines)
+        blocks.append(lines^)
         max_widths.append(widest)
-        if len(lines) > max_height:
-            max_height = len(lines)
+        if line_length > max_height:
+            max_height = line_length
 
     # Add extra lines to make each side the same height
     for i in range(len(blocks)):
@@ -186,10 +190,10 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
         extra_lines.resize(max_height - len(blocks[i]), blocks[0][0][0:0])
 
         if pos == Position.TOP:
-            blocks[i].extend(extra_lines.copy())
+            blocks[i].extend(extra_lines^)
         elif pos == Position.BOTTOM:
             extra_lines.extend(blocks[i].copy())
-            blocks[i] = extra_lines.copy()
+            blocks[i] = extra_lines^
         else:
             var end = len(extra_lines)
             var top_point = end - Int(end * pos.value)
@@ -198,8 +202,8 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
             var top_lines = extra_lines[top_point:end]
             var bottom_lines = extra_lines[bottom_point:end]
             top_lines.extend(blocks[i].copy())
-            blocks[i] = top_lines.copy()
-            blocks[i].extend(bottom_lines.copy())
+            blocks[i] = top_lines^
+            blocks[i].extend(bottom_lines^)
 
     return _merge_lines(blocks, max_widths)
 
@@ -222,7 +226,8 @@ fn _get_lines_mem_width[
     # Max line widths for the above text blocks
     var max_width = 0
     for s in strs:
-        lines, widest = get_lines(s)
+        var lines = s.split(NEWLINE)
+        var widest = get_widest_line(lines)
         blocks.append(lines.copy())
         if widest > max_width:
             max_width = widest
@@ -306,8 +311,9 @@ fn join_vertical(pos: Position, *strs: String) -> String:
     if len(strs) == 1:
         return String(strs[0])
 
-    blocks, max_width = _get_lines_mem_width(pos, strs)
-    return _merge_blocks_vertically(blocks, max_width, pos)
+    # TODO: Can't move from tuple without copy, so just use getitem to reference it instead
+    var result = _get_lines_mem_width(pos, strs)
+    return _merge_blocks_vertically(result[0], result[1], pos)
 
 
 fn join_vertical(pos: Position, strs: List[String]) -> String:
@@ -353,8 +359,9 @@ fn join_vertical(pos: Position, strs: List[String]) -> String:
     # Max line widths for the above text blocks
     var max_width = 0
     for s in strs:
-        lines, widest = get_lines(s)
-        blocks.append(lines.copy())
+        var lines = s.split(NEWLINE)
+        var widest = get_widest_line(lines)
+        blocks.append(lines^)
         if widest > max_width:
             max_width = widest
 

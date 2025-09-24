@@ -255,7 +255,7 @@ struct CompleteAdaptiveColor(TerminalColor):
         return self.light.color(renderer)
 
 
-struct AnyTerminalColor(Copyable, Movable):
+struct AnyTerminalColor(ImplicitlyCopyable, Copyable, Movable):
     """A type that can hold any terminal color."""
 
     var value: Variant[

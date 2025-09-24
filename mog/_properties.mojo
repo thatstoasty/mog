@@ -169,7 +169,7 @@ struct Padding(Copyable, Movable):
         self.left = left
 
 
-struct Margin(Copyable, Movable):
+struct Margin(ImplicitlyCopyable, Copyable, Movable):
     var top: UInt16
     """The margin level at the top of the text."""
     var right: UInt16
@@ -232,7 +232,7 @@ struct Alignment(Copyable, Movable):
         self.vertical = vertical
 
 
-struct Coloring(Copyable, Movable):
+struct Coloring(ImplicitlyCopyable, Copyable, Movable):
     var foreground: AnyTerminalColor
     """The foreground color."""
     var background: AnyTerminalColor
@@ -252,7 +252,7 @@ struct Coloring(Copyable, Movable):
         return Self(foreground=self.foreground.copy(), background=self.background.copy())
 
 
-struct BorderColor(Copyable, Movable):
+struct BorderColor(ImplicitlyCopyable, Copyable, Movable):
     var foreground_top: AnyTerminalColor
     """The foreground color of the top border."""
     var foreground_right: AnyTerminalColor

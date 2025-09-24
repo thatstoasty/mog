@@ -126,7 +126,8 @@ struct WhitespaceRenderer(Copyable, Movable):
         Returns:
             The string with the text placed in the block.
         """
-        lines, content_width = get_lines(text)
+        var lines = text.split(NEWLINE)
+        var content_width = get_widest_line(lines)
         var gap = width - content_width
         if gap <= 0:
             return text

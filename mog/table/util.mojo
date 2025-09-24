@@ -1,4 +1,4 @@
-fn sum(numbers: List[Int]) -> Int:
+fn sum(numbers: Span[Int]) -> Int:
     """Returns the sum of all integers in a list.
 
     Args:
@@ -14,7 +14,7 @@ fn sum(numbers: List[Int]) -> Int:
     return sum
 
 
-fn median(var numbers: List[Int]) -> Int:
+fn median[origin: MutableOrigin](numbers: Span[Int, origin]) -> Int:
     """Returns the median of a list of integers.
 
     Args:
@@ -35,7 +35,7 @@ fn median(var numbers: List[Int]) -> Int:
     return numbers[Int(len(numbers) / 2)]
 
 
-fn largest(numbers: List[Int]) -> (Int, Int):
+fn largest(numbers: Span[Int]) -> (Int, Int):
     """Returns the largest element and it's index from a list of integers.
 
     Args:

@@ -44,6 +44,27 @@ fn get_widest_line[origin: ImmutableOrigin](text: StringSlice[origin]) -> Int:
     return widest
 
 
+fn get_widest_line[origin: ImmutableOrigin](lines: List[StringSlice[origin]]) -> Int:
+    """Get the width of the widest line.
+
+    Args:
+        lines: The lines to get the width from.
+
+    Returns:
+        The width of the widest line.
+    """
+    if len(lines) == 0:
+        return 0
+
+    var widest = 0
+    for line in lines:
+        var width = printable_rune_width(line)
+        if width > widest:
+            widest = width
+
+    return widest
+
+
 fn pad(text: String, n: Int, style: mist.Style) -> String:
     """Pad text with spaces.
 

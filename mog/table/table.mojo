@@ -262,7 +262,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
         """
         var new = self.copy()
         for i in range(len(rows)):
-            new._data.append(rows[i])
+            new._data.append(rows[i].copy())
         return new^
 
     fn rows(self, rows: List[List[String]]) -> Table:
@@ -276,7 +276,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
         """
         var new = self.copy()
         for row in rows:
-            new._data.append(row)
+            new._data.append(row.copy())
         return new^
 
     fn row(self, *row: String) -> Table:
@@ -292,10 +292,10 @@ struct Table(Copyable, Movable, Stringable, Writable):
         var temp = List[String](capacity=len(row))
         for element in row:
             temp.append(element)
-        new._data.append(temp)
+        new._data.append(temp^)
         return new^
 
-    fn row(self, row: List[String]) -> Table:
+    fn row(self, var row: List[String]) -> Table:
         """Appends a row to the table data.
 
         Args:
@@ -305,7 +305,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
             The updated table.
         """
         var new = self.copy()
-        new._data.append(row)
+        new._data.append(row^)
         return new^
 
     fn set_headers(self, *headers: String) -> Table:
@@ -321,10 +321,10 @@ struct Table(Copyable, Movable, Stringable, Writable):
         var temp = List[String](capacity=len(headers))
         for element in headers:
             temp.append(element)
-        new._headers = temp
+        new._headers = temp^
         return new^
 
-    fn set_headers(self, headers: List[String]) -> Table:
+    fn set_headers(self, var headers: List[String]) -> Table:
         """Sets the table headers.
 
         Args:
@@ -334,7 +334,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
             The updated table.
         """
         var new = self.copy()
-        new._headers = headers
+        new._headers = headers^
         return new^
 
     fn set_style(self, styler: StyleFunction) -> Table:
@@ -367,7 +367,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
         var result = String()
         # Add empty cells to the headers, until it's the same length as the longest
         # row (only if there are at headers in the first place).
-        var headers = self._headers
+        var headers = self._headers.copy()
         if has_headers:
             var i = len(headers)
             while i < self._data.columns():

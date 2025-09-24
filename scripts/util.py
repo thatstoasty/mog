@@ -12,6 +12,7 @@ app = typer.Typer()
 
 TEMP_DIR = Path(os.path.expandvars("$HOME/tmp"))
 PIXI_TOML_PATH = Path("pixi.toml")
+RECIPE_PATH = Path("recipe.yaml")
 CONDA_BUILD_PATH = Path(os.environ.get("CONDA_BLD_PATH", os.getcwd()))
 """If `CONDA_BLD_PATH` is set, then publish from there. Otherwise, publish from the current directory."""
 
@@ -38,6 +39,21 @@ class TemporaryBuildDirectory:
         if TEMP_DIR.exists():
             shutil.rmtree(TEMP_DIR)
             print("Temporary build directory removed.")
+
+
+def format_dependency(name: str, version: str) -> str:
+    """Converts the list of dependencies from the pixi.toml into a list of strings for the recipe."""
+    start = 0
+    operator = "=="
+    if version[0] in {"<", ">"}:
+        if version[1] != "=":
+            operator = version[0]
+            start = 1
+        else:
+            operator = version[:2]
+            start = 2
+
+    return f"{name} {operator} {version[start:]}"
 
 
 def remove_temp_directory() -> None:
@@ -73,8 +89,8 @@ def run_examples(path: str | None = None) -> None:
         if path:
             example_files = EXAMPLE_DIR.glob(path)
 
-        print(f"Running examples in {example_files}...")
         for file in example_files:
+            print(f"\nRunning example: {file}")
             name, _ = file.name.split(".", 1)
             shutil.copyfile(file, temp_directory / file.name)
             subprocess.run(["mojo", "build", temp_directory / file.name, "-o", temp_directory / name], check=True)
@@ -95,8 +111,8 @@ def run_benchmarks(path: str | None = None) -> None:
         if path:
             benchmark_files = BENCHMARK_DIR.glob(path)
 
-        print(f"Running benchmarks in {benchmark_files}...")
         for file in benchmark_files:
+            print(f"\nRunning benchmark: {file}")
             name, _ = file.name.split(".", 1)
             shutil.copyfile(file, temp_directory / file.name)
             subprocess.run(["mojo", "build", temp_directory / file.name, "-o", temp_directory / name], check=True)

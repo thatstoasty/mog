@@ -65,7 +65,7 @@ fn main() raises:
     config.verbose_timing = True
     config.flush_denormals = True
     config.show_progress = True
-    var bench = Bench(config)
+    var bench = Bench(config^)
 
     # var sample_data = pathlib._dir_of_current_file() / pathlib.Path("data/big.txt")
     # var data: String

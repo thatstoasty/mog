@@ -37,14 +37,14 @@ fn _get_lines_mem[
     for i in range(len(blocks)):
         if len(blocks[i]) >= max_height:
             continue
-        var extra_lines = List[StringSlice[origin], False](
+        var extra_lines = List[StringSlice[origin]](
             length=max_height - len(blocks[i]), fill=StringSlice[origin]()
         )
         if pos == Position.TOP:
             blocks[i].extend(other=extra_lines^)
         elif pos == Position.BOTTOM:
-            extra_lines.extend(blocks[i])
-            blocks[i] = extra_lines
+            extra_lines.extend(blocks[i].copy())
+            blocks[i] = extra_lines.copy()
         else:
             var end = len(extra_lines)
             var top_point = end - Int(end * pos.value)
@@ -52,9 +52,9 @@ fn _get_lines_mem[
 
             var top_lines = extra_lines[top_point:end]
             var bottom_lines = extra_lines[bottom_point:end]
-            top_lines.extend(blocks[i])
-            blocks[i] = top_lines
-            blocks[i].extend(bottom_lines)
+            top_lines.extend(blocks[i].copy())
+            blocks[i] = top_lines.copy()
+            blocks[i].extend(bottom_lines.copy())
 
     return blocks^, max_widths^
 
@@ -173,7 +173,7 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
     # Break text blocks into lines and get max widths for each text block
     for s in strs:
         lines, widest = get_lines(s)
-        blocks.append(lines)
+        blocks.append(lines.copy())
         max_widths.append(widest)
         if len(lines) > max_height:
             max_height = len(lines)
@@ -186,10 +186,10 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
         extra_lines.resize(max_height - len(blocks[i]), blocks[0][0][0:0])
 
         if pos == Position.TOP:
-            blocks[i].extend(extra_lines)
+            blocks[i].extend(extra_lines.copy())
         elif pos == Position.BOTTOM:
-            extra_lines.extend(blocks[i])
-            blocks[i] = extra_lines
+            extra_lines.extend(blocks[i].copy())
+            blocks[i] = extra_lines.copy()
         else:
             var end = len(extra_lines)
             var top_point = end - Int(end * pos.value)
@@ -197,9 +197,9 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
 
             var top_lines = extra_lines[top_point:end]
             var bottom_lines = extra_lines[bottom_point:end]
-            top_lines.extend(blocks[i])
-            blocks[i] = top_lines
-            blocks[i].extend(bottom_lines)
+            top_lines.extend(blocks[i].copy())
+            blocks[i] = top_lines.copy()
+            blocks[i].extend(bottom_lines.copy())
 
     return _merge_lines(blocks, max_widths)
 
@@ -223,7 +223,7 @@ fn _get_lines_mem_width[
     var max_width = 0
     for s in strs:
         lines, widest = get_lines(s)
-        blocks.append(lines)
+        blocks.append(lines.copy())
         if widest > max_width:
             max_width = widest
 
@@ -354,7 +354,7 @@ fn join_vertical(pos: Position, strs: List[String]) -> String:
     var max_width = 0
     for s in strs:
         lines, widest = get_lines(s)
-        blocks.append(lines)
+        blocks.append(lines.copy())
         if widest > max_width:
             max_width = widest
 

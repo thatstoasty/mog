@@ -1,4 +1,4 @@
-trait Data(Copyable, ExplicitlyCopyable, Movable):
+trait Data(Copyable, Movable):
     """Trait that wraps the basic methods of a table model."""
 
     # TODO: Need to figure out if I want this to return an optional or just raise.

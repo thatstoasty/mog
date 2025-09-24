@@ -46,12 +46,12 @@ struct Stylers:
     var space: mist.Style
     var whitespace: mist.Style
 
-    fn __init__(out self, owned common: mist.Style, owned space: mist.Style, owned whitespace: mist.Style):
+    fn __init__(out self, var common: mist.Style, var space: mist.Style, var whitespace: mist.Style):
         self.common = common^
         self.space = space^
         self.whitespace = whitespace^
 
-    fn __moveinit__(out self, owned other: Self):
+    fn __moveinit__(out self, deinit other: Self):
         self.common = other.common^
         self.space = other.space^
         self.whitespace = other.whitespace^
@@ -97,7 +97,7 @@ fn _wrap_words(text: String, width: UInt16, left_padding: UInt16, right_padding:
     return wrap(word_wrap(text, Int(wrap_at)), Int(wrap_at))
 
 
-struct Style(ExplicitlyCopyable, Movable):
+struct Style(ImplicitlyCopyable, Copyable, Movable):
     """Terminal styler.
 
     #### Usage:
@@ -161,14 +161,14 @@ struct Style(ExplicitlyCopyable, Movable):
         properties: Properties,
         value: String,
         attrs: Properties,
-        owned color: Coloring,
+        var color: Coloring,
         dimensions: Dimensions,
         max_dimensions: Dimensions,
         alignment: Alignment,
         padding: Padding,
-        owned margin: Margin,
+        var margin: Margin,
         border: Border,
-        owned border_color: BorderColor,
+        var border_color: BorderColor,
         tab_width: UInt16,
     ):
         """Initialize A new Style.
@@ -223,7 +223,7 @@ struct Style(ExplicitlyCopyable, Movable):
         self._border_color = BorderColor()
         self._tab_width = 0
 
-    fn __moveinit__(out self, owned other: Self):
+    fn __moveinit__(out self, deinit other: Self):
         self._renderer = other._renderer
         self._properties = other._properties
         self._value = other._value^
@@ -2424,7 +2424,7 @@ struct Style(ExplicitlyCopyable, Movable):
 
         return result^
 
-    fn _apply_margins(self, owned text: String, inline: Bool) -> String:
+    fn _apply_margins(self, var text: String, inline: Bool) -> String:
         """Apply margins to the text.
 
         Args:

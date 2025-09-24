@@ -6,7 +6,7 @@ from mog.renderer import Renderer
 
 
 @fieldwise_init
-struct WhitespaceRenderer(ExplicitlyCopyable, Movable):
+struct WhitespaceRenderer(Copyable, Movable):
     """Whitespace renderer."""
 
     var renderer: Renderer

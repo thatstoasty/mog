@@ -1,7 +1,7 @@
 from mist.transform.ansi import printable_rune_width
 
 
-struct Border(ExplicitlyCopyable, Movable):
+struct Border(ImplicitlyCopyable, Copyable, Movable):
     """A border to use to wrap around text."""
 
     var top: String
@@ -330,7 +330,7 @@ alias HIDDEN_BORDER = Border(
 alias NO_BORDER = Border()
 
 
-fn render_horizontal_edge(left: StringSlice, owned middle: String, right: StringSlice, width: Int) -> String:
+fn render_horizontal_edge(left: StringSlice, var middle: String, right: StringSlice, width: Int) -> String:
     """Render the horizontal (top or bottom) portion of a border.
 
     Args:

@@ -14,7 +14,7 @@ fn sum(numbers: List[Int]) -> Int:
     return sum
 
 
-fn median(owned numbers: List[Int]) -> Int:
+fn median(var numbers: List[Int]) -> Int:
     """Returns the median of a list of integers.
 
     Args:

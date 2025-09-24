@@ -65,7 +65,7 @@ def test_filter():
     fn filter_headers(row: Int) -> Bool:
         return row != 0
 
-    var filter = Filter(data, filter_headers)
+    var filter = Filter(data^, filter_headers)
     testing.assert_equal(filter.rows(), 3)
     testing.assert_equal(filter.columns(), 2)
     testing.assert_equal(filter[0, 0], "My Name")

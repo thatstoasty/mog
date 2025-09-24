@@ -3,7 +3,7 @@ from mog.renderer import Renderer
 from utils.variant import Variant
 
 
-trait TerminalColor(Copyable, ExplicitlyCopyable, Movable):
+trait TerminalColor(ImplicitlyCopyable, Copyable, Movable):
     """Color intended to be rendered in the terminal."""
 
     fn color(self, renderer: Renderer) -> mist.AnyColor:
@@ -255,7 +255,7 @@ struct CompleteAdaptiveColor(TerminalColor):
         return self.light.color(renderer)
 
 
-struct AnyTerminalColor(Movable):
+struct AnyTerminalColor(Copyable, Movable):
     """A type that can hold any terminal color."""
 
     var value: Variant[
@@ -339,9 +339,9 @@ struct AnyTerminalColor(Movable):
         Args:
             color: The `CompleteAdaptiveColor` to initialize with.
         """
-        self.value = color
+        self.value = color.copy()
 
-    fn __moveinit__(out self, owned other: Self):
+    fn __moveinit__(out self, deinit other: Self):
         """Moves the `AnyTerminalColor` from another instance.
 
         Args:

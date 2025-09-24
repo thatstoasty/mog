@@ -3,7 +3,7 @@ from mog.position import Position
 
 @fieldwise_init
 @register_passable("trivial")
-struct PropKey(Copyable, EqualityComparable, ExplicitlyCopyable, Movable):
+struct PropKey(Copyable, EqualityComparable, Movable):
     """Property keys for the style."""
 
     var _value: UInt8
@@ -114,7 +114,7 @@ struct PropKey(Copyable, EqualityComparable, ExplicitlyCopyable, Movable):
 
 
 @register_passable("trivial")
-struct Properties(Copyable, ExplicitlyCopyable, Movable):
+struct Properties(Copyable, Movable):
     """Properties for a style."""
 
     var value: SIMD[DType.bool, 64]
@@ -152,7 +152,7 @@ struct Properties(Copyable, ExplicitlyCopyable, Movable):
 
 
 @register_passable("trivial")
-struct Padding(Copyable, ExplicitlyCopyable, Movable):
+struct Padding(Copyable, Movable):
     var top: UInt16
     """The padding level at the top of the text."""
     var right: UInt16
@@ -169,7 +169,7 @@ struct Padding(Copyable, ExplicitlyCopyable, Movable):
         self.left = left
 
 
-struct Margin(ExplicitlyCopyable, Movable):
+struct Margin(Copyable, Movable):
     var top: UInt16
     """The margin level at the top of the text."""
     var right: UInt16
@@ -187,7 +187,7 @@ struct Margin(ExplicitlyCopyable, Movable):
         right: UInt16 = 0,
         bottom: UInt16 = 0,
         left: UInt16 = 0,
-        owned background: AnyTerminalColor = NoColor(),
+        var background: AnyTerminalColor = NoColor(),
     ):
         self.top = top
         self.right = right
@@ -195,7 +195,7 @@ struct Margin(ExplicitlyCopyable, Movable):
         self.left = left
         self.background = background^
 
-    fn __moveinit__(out self, owned other: Self):
+    fn __moveinit__(out self, deinit other: Self):
         self.top = other.top
         self.right = other.right
         self.bottom = other.bottom
@@ -209,7 +209,7 @@ struct Margin(ExplicitlyCopyable, Movable):
 
 
 @register_passable("trivial")
-struct Dimensions(Copyable, ExplicitlyCopyable, Movable):
+struct Dimensions(Copyable, Movable):
     var height: UInt16
     """The height of the text."""
     var width: UInt16
@@ -221,7 +221,7 @@ struct Dimensions(Copyable, ExplicitlyCopyable, Movable):
 
 
 @register_passable("trivial")
-struct Alignment(Copyable, ExplicitlyCopyable, Movable):
+struct Alignment(Copyable, Movable):
     var horizontal: Position
     """The horizontal alignment of the text."""
     var vertical: Position
@@ -232,19 +232,19 @@ struct Alignment(Copyable, ExplicitlyCopyable, Movable):
         self.vertical = vertical
 
 
-struct Coloring(ExplicitlyCopyable, Movable):
+struct Coloring(Copyable, Movable):
     var foreground: AnyTerminalColor
     """The foreground color."""
     var background: AnyTerminalColor
     """The background color."""
 
     fn __init__(
-        out self, owned foreground: AnyTerminalColor = NoColor(), owned background: AnyTerminalColor = NoColor()
+        out self, var foreground: AnyTerminalColor = NoColor(), var background: AnyTerminalColor = NoColor()
     ):
         self.foreground = foreground^
         self.background = background^
 
-    fn __moveinit__(out self, owned other: Self):
+    fn __moveinit__(out self, deinit other: Self):
         self.foreground = other.foreground^
         self.background = other.background^
 
@@ -252,7 +252,7 @@ struct Coloring(ExplicitlyCopyable, Movable):
         return Self(foreground=self.foreground.copy(), background=self.background.copy())
 
 
-struct BorderColor(ExplicitlyCopyable, Movable):
+struct BorderColor(Copyable, Movable):
     var foreground_top: AnyTerminalColor
     """The foreground color of the top border."""
     var foreground_right: AnyTerminalColor
@@ -272,14 +272,14 @@ struct BorderColor(ExplicitlyCopyable, Movable):
 
     fn __init__(
         out self,
-        owned foreground_top: AnyTerminalColor = NoColor(),
-        owned foreground_right: AnyTerminalColor = NoColor(),
-        owned foreground_bottom: AnyTerminalColor = NoColor(),
-        owned foreground_left: AnyTerminalColor = NoColor(),
-        owned background_top: AnyTerminalColor = NoColor(),
-        owned background_right: AnyTerminalColor = NoColor(),
-        owned background_bottom: AnyTerminalColor = NoColor(),
-        owned background_left: AnyTerminalColor = NoColor(),
+        var foreground_top: AnyTerminalColor = NoColor(),
+        var foreground_right: AnyTerminalColor = NoColor(),
+        var foreground_bottom: AnyTerminalColor = NoColor(),
+        var foreground_left: AnyTerminalColor = NoColor(),
+        var background_top: AnyTerminalColor = NoColor(),
+        var background_right: AnyTerminalColor = NoColor(),
+        var background_bottom: AnyTerminalColor = NoColor(),
+        var background_left: AnyTerminalColor = NoColor(),
     ):
         self.foreground_top = foreground_top^
         self.foreground_right = foreground_right^
@@ -290,7 +290,7 @@ struct BorderColor(ExplicitlyCopyable, Movable):
         self.background_bottom = background_bottom^
         self.background_left = background_left^
 
-    fn __moveinit__(out self, owned other: Self):
+    fn __moveinit__(out self, deinit other: Self):
         self.foreground_top = other.foreground_top^
         self.foreground_right = other.foreground_right^
         self.foreground_bottom = other.foreground_bottom^

@@ -29,29 +29,26 @@ build_and_publish = [{ task = "build" }, { task = "publish" }]
 
 [package]
 name = "mog"
-version = "25.5.1"
+version = "25.6.0"
 
 [package.build]
 backend = { name = "pixi-build-mojo", version = "*" }
 
 [dependencies]
-mojo = ">=25.5.0,<25.6.0"
-mojo-compiler = ">=25.5.0,<25.6.0"
-mist = ">=25.5.0,<25.6.0"
+mojo = ">=0.25.6.0,<0.25.7.0"
+mist = ">=25.6.0,<25.7.0"
 
 [package.host-dependencies]
-mojo = ">=25.5.0,<25.6.0"
-mojo-compiler = ">=25.5.0,<25.6.0"
-mist = ">=25.5.0,<25.6.0"
+mojo = ">=0.25.6.0,<0.25.7.0"
+mist = ">=25.6.0,<25.7.0"
 
 [package.build-dependencies]
-mojo = ">=25.5.0,<25.6.0"
-mojo-compiler = ">=25.5.0,<25.6.0"
+mojo-compiler = ">=0.25.6.0,<0.25.7.0"
 mist = ">=25.5.0,<25.6.0"
 
 [package.run-dependencies]
-mojo = ">=25.5.0,<25.6.0"
-mist = ">=25.5.0,<25.6.0"
+mojo = ">=0.25.6.0,<0.25.7.0"
+mist = ">=25.6.0,<25.7.0"
 
 [feature.util.dependencies]
 typer = ">=0.16.0,<0.17"

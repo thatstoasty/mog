@@ -59,7 +59,7 @@ fn default_styles(row: Int, col: Int) -> Style:
 
 
 # TODO: Parametrize on data field, so other structs that implement `Data` can be used. For now it only support `StringData`.
-struct Table(ExplicitlyCopyable, Movable, Stringable, Writable):
+struct Table(Copyable, Movable, Stringable, Writable):
     """Used to model and render tabular data as a table.
 
     #### Examples:
@@ -134,8 +134,8 @@ struct Table(ExplicitlyCopyable, Movable, Stringable, Writable):
         border_header: Bool = True,
         border_column: Bool = True,
         border_row: Bool = False,
-        headers: List[String] = List[String](),
-        data: StringData = StringData(),
+        var headers: List[String] = List[String](),
+        var data: StringData = StringData(),
         width: Int = 0,
         height: Int = 0,
     ):
@@ -167,13 +167,13 @@ struct Table(ExplicitlyCopyable, Movable, Stringable, Writable):
         self._border_header = border_header
         self._border_column = border_column
         self._border_row = border_row
-        self._headers = headers
-        self._data = data
+        self._headers = headers^
+        self._data = data^
         self.width = width
         self.height = height
         self._offset = 0
 
-    fn __moveinit__(out self, owned other: Self):
+    fn __moveinit__(out self, deinit other: Self):
         """Initializes a new Table by moving the data from another Table.
 
         Args:
@@ -212,8 +212,8 @@ struct Table(ExplicitlyCopyable, Movable, Stringable, Writable):
             border_header=self._border_header,
             border_column=self._border_column,
             border_row=self._border_row,
-            headers=self._headers,
-            data=self._data,
+            headers=self._headers.copy(),
+            data=self._data.copy(),
             width=self.width,
             height=self.height,
         )
@@ -349,7 +349,7 @@ struct Table(ExplicitlyCopyable, Movable, Stringable, Writable):
         var new = self.copy()
         new._styler = styler
         return new^
-
+    
     fn write_to[W: Writer, //](self, mut writer: W):
         """Writes the table to the writer.
 

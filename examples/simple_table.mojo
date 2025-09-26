@@ -6,11 +6,11 @@ from mog.style import Style
 
 import mog
 from mog import Position
-from mog.table import StringData, Table
+from mog.table import Data, Table
 from mog.table.table import default_styles
 
 
-fn dummy_style_func(row: Int, col: Int) -> Style:
+fn dummy_style_func(data: Data, row: Int, col: Int) -> Style:
     var style = mog.Style().horizontal_alignment(Position.CENTER).vertical_alignment(Position.CENTER).padding(0, 1)
     if row == 0:
         return style.foreground(mog.Color(0xC9A0DC))
@@ -24,7 +24,7 @@ def main():
     var border_style = mog.Style().foreground(mog.Color(0x39E506))
 
     var table = Table(
-        style_function=default_styles,
+        style_function=dummy_style_func,
         border=ROUNDED_BORDER,
         border_style=border_style,
         border_bottom=True,
@@ -33,10 +33,12 @@ def main():
         border_left=True,
         border_right=True,
         border_top=True,
-        data=StringData(),
+        data=Data(
+            ["French", "Bonjour", "Salut"],
+            ["Russian", "Zdravstvuyte", "Privet"]
+        ),
         width=50,
-    ).set_style(dummy_style_func).row("French", "Bonjour", "Salut").row("Russian", "Zdravstvuyte", "Privet")
-
+    )
     var headerless_start_time = perf_counter_ns()
     print(table)
     var headerless_execution_time = perf_counter_ns() - headerless_start_time

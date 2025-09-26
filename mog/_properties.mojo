@@ -169,7 +169,7 @@ struct Padding(Copyable, Movable):
         self.left = left
 
 
-struct Margin(ImplicitlyCopyable, Copyable, Movable):
+struct Margin(Copyable, ImplicitlyCopyable, Movable):
     var top: UInt16
     """The margin level at the top of the text."""
     var right: UInt16
@@ -232,15 +232,13 @@ struct Alignment(Copyable, Movable):
         self.vertical = vertical
 
 
-struct Coloring(ImplicitlyCopyable, Copyable, Movable):
+struct Coloring(Copyable, ImplicitlyCopyable, Movable):
     var foreground: AnyTerminalColor
     """The foreground color."""
     var background: AnyTerminalColor
     """The background color."""
 
-    fn __init__(
-        out self, var foreground: AnyTerminalColor = NoColor(), var background: AnyTerminalColor = NoColor()
-    ):
+    fn __init__(out self, var foreground: AnyTerminalColor = NoColor(), var background: AnyTerminalColor = NoColor()):
         self.foreground = foreground^
         self.background = background^
 
@@ -252,7 +250,7 @@ struct Coloring(ImplicitlyCopyable, Copyable, Movable):
         return Self(foreground=self.foreground.copy(), background=self.background.copy())
 
 
-struct BorderColor(ImplicitlyCopyable, Copyable, Movable):
+struct BorderColor(Copyable, ImplicitlyCopyable, Movable):
     var foreground_top: AnyTerminalColor
     """The foreground color of the top border."""
     var foreground_right: AnyTerminalColor
@@ -311,3 +309,16 @@ struct BorderColor(ImplicitlyCopyable, Copyable, Movable):
             background_bottom=self.background_bottom.copy(),
             background_left=self.background_left.copy(),
         )
+
+
+@fieldwise_init
+struct Side(ImplicitlyCopyable, Copyable, Movable, EqualityComparable):
+    var value: UInt8
+
+    alias TOP = Self(0)
+    alias RIGHT = Self(1)
+    alias BOTTOM = Self(2)
+    alias LEFT = Self(3)
+
+    fn __eq__(self, other: Self) -> Bool:
+        return self.value == other.value

@@ -4,7 +4,7 @@ import mog
 
 
 fn render_pixels(style: mog.Style, width: Int) -> String:
-    return style.render(String("  ") * width)
+    return style.render("  " * width)
 
 
 alias NEWLINE = ord("\n")

@@ -12,4 +12,4 @@ fn main():
         .width(22)
     )
 
-    print(style.render("Hello, kitty"))
+    print(style.render("Hello, Mojo"))

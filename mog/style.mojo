@@ -2,7 +2,7 @@ import mist
 from mist.transform import truncate, word_wrap, wrap
 from mist.transform.ansi import printable_rune_width
 from mog._extensions import get_lines, get_widest_line, pad_left, pad_right
-from mog._properties import Alignment, BorderColor, Coloring, Dimensions, Margin, Padding, Properties, PropKey
+from mog._properties import Alignment, BorderColor, Coloring, Dimensions, Margin, Padding, Properties, PropKey, Side
 from mog.align import align_text_horizontal, align_text_vertical
 from mog.border import (
     ASCII_BORDER,
@@ -97,7 +97,7 @@ fn _wrap_words(text: String, width: UInt16, left_padding: UInt16, right_padding:
     return wrap(word_wrap(text, Int(wrap_at)), Int(wrap_at))
 
 
-struct Style(ImplicitlyCopyable, Copyable, Movable):
+struct Style(Copyable, ImplicitlyCopyable, Movable):
     """Terminal styler.
 
     #### Usage:
@@ -106,13 +106,13 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
 
     fn main():
         var style = (
-            mog.Style()
-            .bold(True)
-            .foreground(mog.Color(0xFAFAFA))
-            .background(mog.Color(0x7D56F4))
-            .padding_top(2)
-            .padding_left(4)
-            .width(22)
+            mog.Style(
+                width=22,
+                color=mog.Color(0xFAFAFA),
+                background_color=mog.Color(0x7D56F4),
+            )
+            .bold_text()
+            .set_padding(top=2, left=4)
         )
         print(style.render("Hello, world"))
     ```
@@ -159,7 +159,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         out self,
         renderer: Renderer,
         properties: Properties,
-        value: String,
+        var value: String,
         attrs: Properties,
         var color: Coloring,
         dimensions: Dimensions,
@@ -201,27 +201,96 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         self._border = border.copy()
         self._border_color = border_color^
         self._tab_width = tab_width
-
-    fn __init__(out self, color_profile: Optional[mist.Profile] = None, *, value: String = ""):
+    
+    fn __init__(
+        out self,
+        color_profile: Optional[mist.Profile] = None,
+        width: Optional[Int] = None,
+        height: Optional[Int] = None,
+        max_width: Optional[Int] = None,
+        max_height: Optional[Int] = None,
+        color: AnyTerminalColor = NoColor(),
+        background_color: AnyTerminalColor = NoColor(),
+        border: Optional[Border] = None,
+        var value: String = "",
+    ):
         """Initialize A new Style.
 
         Args:
-            color_profile: The color profile to use. Defaults to None, which means it'll be queried at run time instead.
-            value: Internal string value to apply the style to. Not required, but useful for reusing some string you want to format multiple times.
+            color_profile: The renderer to use for the style, determines the color profile.
+            width: TBD.
+            height: TBD.
+            max_width: TBD.
+            max_height: TBD.
+            color: Color of the text in the text area the style renders.
+            background_color: Color of the background in the text area the style renders.
+            border: TBD.
+            value: TBD.
         """
-        self._renderer = Renderer(color_profile)
         self._properties = Properties()
-        self._value = value
         self._attrs = Properties()
-        self._color = Coloring()
-        self._dimensions = Dimensions()
-        self._max_dimensions = Dimensions()
+        self._renderer = Renderer(color_profile.value()) if color_profile else Renderer()
+        self._value = value^
         self._alignment = Alignment()
         self._padding = Padding()
         self._margin = Margin()
-        self._border = NO_BORDER
         self._border_color = BorderColor()
         self._tab_width = 0
+        self._dimensions = Dimensions()
+        self._max_dimensions = Dimensions()
+        self._color = Coloring()
+        self._border = NO_BORDER.copy()
+
+        if width:
+            self._dimensions.width = width.value()
+            self._set_attribute[PropKey.WIDTH](UInt16(width.value()))
+        if height:
+            self._dimensions.height = height.value()
+            self._set_attribute[PropKey.HEIGHT](UInt16(height.value()))
+        
+        if max_width:
+            self._max_dimensions.width = max_width.value()
+            self._set_attribute[PropKey.WIDTH](UInt16(max_width.value()))
+        if max_height:
+            self._max_dimensions.height = max_height.value()
+            self._set_attribute[PropKey.HEIGHT](UInt16(max_height.value()))
+
+        if not color.is_same_type(NoColor()):
+            self._color.foreground = color
+            self._set_attribute[PropKey.FOREGROUND](color)
+        if not background_color.is_same_type(NoColor()):
+            self._color.background = background_color
+            self._set_attribute[PropKey.BACKGROUND](background_color)
+
+        if border:
+            self._border = border.value().copy()
+            self._set_attribute[PropKey.BORDER_STYLE](border.value())
+            
+            @parameter
+            for key in [PropKey.BORDER_TOP, PropKey.BORDER_RIGHT, PropKey.BORDER_BOTTOM, PropKey.BORDER_LEFT]:
+                self._set_attribute[key](value=True)
+
+
+    # fn __init__(out self, color_profile: Optional[mist.Profile] = None, *, var value: String = ""):
+    #     """Initialize A new Style.
+
+    #     Args:
+    #         color_profile: The color profile to use. Defaults to None, which means it'll be queried at run time instead.
+    #         value: Internal string value to apply the style to. Not required, but useful for reusing some string you want to format multiple times.
+    #     """
+    #     self._renderer = Renderer(color_profile)
+    #     self._properties = Properties()
+    #     self._value = value^
+    #     self._attrs = Properties()
+    #     self._color = Coloring()
+    #     self._dimensions = Dimensions()
+    #     self._max_dimensions = Dimensions()
+    #     self._alignment = Alignment()
+    #     self._padding = Padding()
+    #     self._margin = Margin()
+    #     self._border = NO_BORDER.copy()
+    #     self._border_color = BorderColor()
+    #     self._tab_width = 0
 
     fn __moveinit__(out self, deinit other: Self):
         self._renderer = other._renderer
@@ -260,7 +329,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
             tab_width=self._tab_width,
         )
 
-    fn _get_as_bool[key: PropKey](self, default: Bool = False) -> Bool:
+    fn _get_as_bool[key: PropKey](self, *, default: Bool = False) -> Bool:
         """Get a rule as a boolean value.
 
         Parameters:
@@ -578,7 +647,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         """
         self._properties.set[key](False)
 
-    fn renderer(self, /, renderer: Renderer) -> Self:
+    fn set_renderer(self, /, renderer: Renderer) -> Self:
         """Set the renderer for the style.
 
         Args:
@@ -591,7 +660,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._renderer = renderer
         return new^
 
-    fn value(self, /, value: String) -> Self:
+    fn set_value(self, /, value: String) -> Self:
         """Set the string value for the style.
 
         Args:
@@ -604,7 +673,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._value = value
         return new^
 
-    fn tab_width(self, /, width: UInt16) -> Self:
+    fn set_tab_width(self, /, width: UInt16) -> Self:
         """Sets the number of spaces that a tab (/t) should be rendered as.
         When set to 0, tabs will be removed. To disable the replacement of tabs with
         spaces entirely, set this to [NO_TAB_CONVERSION].
@@ -639,7 +708,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._unset_attribute[PropKey.TAB_WIDTH]()
         return new^
 
-    fn underline_spaces(self, /, value: Bool = True) -> Self:
+    fn underline_spaces(self, value: Bool = True) -> Self:
         """Determines whether to underline spaces between words.
         Spaces can also be underlined without underlining the text itself.
 
@@ -654,13 +723,13 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         return new^
 
     @always_inline
-    fn get_underline_spaces(self) -> Bool:
+    fn check_if_underline_spaces(self) -> Bool:
         """Returns whether or not the underline spaces rule is set.
 
         Returns:
             True if set, False otherwise.
         """
-        return self._get_as_bool[PropKey.UNDERLINE_SPACES](False)
+        return self._get_as_bool[PropKey.UNDERLINE_SPACES](default=False)
 
     fn unset_underline_spaces(self) -> Self:
         """Unset the underline spaces rule.
@@ -672,7 +741,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._unset_attribute[PropKey.UNDERLINE_SPACES]()
         return new^
 
-    fn strikethrough_spaces(self, /, value: Bool = True) -> Self:
+    fn strikethrough_spaces(self, value: Bool = True) -> Self:
         """Determines whether to strikethrough spaces between words. Spaces can also be
         crossed out without strikethrough on the text itself.
 
@@ -687,13 +756,13 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         return new^
 
     @always_inline
-    fn get_strikethrough_spaces(self) -> Bool:
+    fn check_if_strikethrough_spaces(self) -> Bool:
         """Returns whether or not the strikethrough spaces rule is set.
 
         Returns:
             True if set, False otherwise.
         """
-        return self._get_as_bool[PropKey.STRIKETHROUGH_SPACES](False)
+        return self._get_as_bool[PropKey.STRIKETHROUGH_SPACES](default=False)
 
     fn unset_strikethrough_spaces(self) -> Self:
         """Unset the strikethrough spaces rule.
@@ -705,7 +774,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._unset_attribute[PropKey.STRIKETHROUGH_SPACES]()
         return new^
 
-    fn color_whitespace(self, /, value: Bool = True) -> Self:
+    fn color_whitespace(self, value: Bool = True) -> Self:
         """Determines whether to color whitespace.
 
         Args:
@@ -719,13 +788,13 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         return new^
 
     @always_inline
-    fn get_color_whitespace(self) -> Bool:
+    fn check_if_color_whitespace(self) -> Bool:
         """Returns whether or not the color whitespace rule is set.
 
         Returns:
             True if set, False otherwise.
         """
-        return self._get_as_bool[PropKey.COLOR_WHITESPACE](False)
+        return self._get_as_bool[PropKey.COLOR_WHITESPACE](default=False)
 
     fn unset_color_whitespace(self) -> Self:
         """Unset the color whitespace rule.
@@ -737,13 +806,11 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._unset_attribute[PropKey.COLOR_WHITESPACE]()
         return new^
 
-    fn inline(self, /, value: Bool = True) -> Self:
+    fn inline(self, value: Bool = True) -> Self:
         """Makes rendering output one line and disables the rendering of
         margins, padding and borders. This is useful when you need a style to apply
         only to font rendering and don't want it to change any physical dimensions.
         It works well with `Style.max_width()`.
-
-
 
         Args:
             value: Value to set the rule to.
@@ -770,7 +837,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         Returns:
             True if set, False otherwise.
         """
-        return self._get_as_bool[PropKey.INLINE](False)
+        return self._get_as_bool[PropKey.INLINE](default=False)
 
     fn unset_inline(self) -> Self:
         """Unset the inline rule.
@@ -782,7 +849,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._unset_attribute[PropKey.INLINE]()
         return new^
 
-    fn bold(self, /, value: Bool = True) -> Self:
+    fn bold_text(self, value: Bool = True) -> Self:
         """Set the text to be bold.
 
         Args:
@@ -796,15 +863,15 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         return new^
 
     @always_inline
-    fn get_bold(self) -> Bool:
+    fn check_if_text_bolded(self) -> Bool:
         """Returns whether or not the bold rule is set.
 
         Returns:
             True if set, False otherwise.
         """
-        return self._get_as_bool[PropKey.BOLD](False)
+        return self._get_as_bool[PropKey.BOLD](default=False)
 
-    fn unset_bold(self) -> Self:
+    fn unset_bold_text(self) -> Self:
         """Unset the bold rule.
 
         Returns:
@@ -814,7 +881,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._unset_attribute[PropKey.BOLD]()
         return new^
 
-    fn italic(self, /, value: Bool = True) -> Self:
+    fn italicize_text(self, value: Bool = True) -> Self:
         """Set the text to be italic.
 
         Args:
@@ -828,15 +895,15 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         return new^
 
     @always_inline
-    fn get_italic(self) -> Bool:
+    fn check_if_text_italicized(self) -> Bool:
         """Returns whether or not the italic rule is set.
 
         Returns:
             True if set, False otherwise.
         """
-        return self._get_as_bool[PropKey.ITALIC](False)
+        return self._get_as_bool[PropKey.ITALIC](default=False)
 
-    fn unset_italic(self) -> Self:
+    fn unset_italic_text(self) -> Self:
         """Unset the italic rule.
 
         Returns:
@@ -846,7 +913,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._unset_attribute[PropKey.ITALIC]()
         return new^
 
-    fn underline(self, /, value: Bool = True) -> Self:
+    fn underline_text(self, value: Bool = True) -> Self:
         """Set the text to be underline.
 
         Args:
@@ -866,7 +933,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         Returns:
             True if set, False otherwise.
         """
-        return self._get_as_bool[PropKey.UNDERLINE](False)
+        return self._get_as_bool[PropKey.UNDERLINE](default=False)
 
     fn unset_underline(self) -> Self:
         """Unset the text to be underline.
@@ -878,7 +945,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._unset_attribute[PropKey.UNDERLINE]()
         return new^
 
-    fn strikethrough(self, /, value: Bool = True) -> Self:
+    fn strikethrough_text(self, value: Bool = True) -> Self:
         """Set the text to be crossed out.
 
         Args:
@@ -898,7 +965,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         Returns:
             True if set, False otherwise.
         """
-        return self._get_as_bool[PropKey.STRIKETHROUGH](False)
+        return self._get_as_bool[PropKey.STRIKETHROUGH](default=False)
 
     fn unset_strikethrough(self) -> Self:
         """Unset the strikethrough rule.
@@ -910,7 +977,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._unset_attribute[PropKey.STRIKETHROUGH]()
         return new^
 
-    fn reverse(self, /, value: Bool = True) -> Self:
+    fn reverse_text_background_and_foreground(self, value: Bool = True) -> Self:
         """Set the text have the foreground and background colors reversed.
 
         Args:
@@ -924,15 +991,15 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         return new^
 
     @always_inline
-    fn get_reverse(self) -> Bool:
+    fn check_if_text_colors_reversed(self) -> Bool:
         """Returns whether or not the reverse rule is set.
 
         Returns:
             True if set, False otherwise.
         """
-        return self._get_as_bool[PropKey.REVERSE](False)
+        return self._get_as_bool[PropKey.REVERSE](default=False)
 
-    fn unset_reverse(self) -> Self:
+    fn unset_text_color_reversal(self) -> Self:
         """Unset the reverse rule.
 
         Returns:
@@ -942,7 +1009,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._unset_attribute[PropKey.REVERSE]()
         return new^
 
-    fn blink(self, /, value: Bool = True) -> Self:
+    fn set_blink_text(self, value: Bool = True) -> Self:
         """Set the text to blink.
 
         Args:
@@ -962,7 +1029,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         Returns:
             True if set, False otherwise.
         """
-        return self._get_as_bool[PropKey.BLINK](False)
+        return self._get_as_bool[PropKey.BLINK](default=False)
 
     fn unset_blink(self) -> Self:
         """Unset the blink rule.
@@ -974,7 +1041,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._unset_attribute[PropKey.BLINK]()
         return new^
 
-    fn faint(self, /, value: Bool = True) -> Self:
+    fn faint_text(self, value: Bool = True) -> Self:
         """Set the text to be faint.
 
         Args:
@@ -988,13 +1055,13 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         return new^
 
     @always_inline
-    fn get_faint(self) -> Bool:
+    fn check_if_faint_text(self) -> Bool:
         """Returns whether or not the faint rule is set.
 
         Returns:
             True if set, False otherwise.
         """
-        return self._get_as_bool[PropKey.FAINT](False)
+        return self._get_as_bool[PropKey.FAINT](default=False)
 
     fn unset_faint(self) -> Self:
         """Unset the text to be faint.
@@ -1006,7 +1073,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._unset_attribute[PropKey.FAINT]()
         return new^
 
-    fn width(self, width: UInt16) -> Self:
+    fn set_width(self, width: UInt16) -> Self:
         """Set the width of the text.
 
         Args:
@@ -1041,7 +1108,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._unset_attribute[PropKey.WIDTH]()
         return new^
 
-    fn height(self, height: UInt16) -> Self:
+    fn set_height(self, height: UInt16) -> Self:
         """Set the height of the text.
         If the height of the text being styled is greater than height, then this is a noop.
 
@@ -1077,7 +1144,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._unset_attribute[PropKey.HEIGHT]()
         return new^
 
-    fn max_width(self, width: UInt16) -> Self:
+    fn set_max_width(self, width: UInt16) -> Self:
         """Applies a max width to a given style. This enforces a max width of a line by truncating lines that are too long,
         and will pad all lines to the width of the widest line.
 
@@ -1093,7 +1160,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         #### Examples:
         ```mojo
         var user_input = "..."
-        var user_style = mog.Style().max_width(16)
+        var user_style = mog.Style().set_max_width(16)
         print(user_style.render(user_input))
         ```
         .
@@ -1121,7 +1188,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._unset_attribute[PropKey.MAX_WIDTH]()
         return new^
 
-    fn max_height(self, height: UInt16) -> Self:
+    fn set_max_height(self, height: UInt16) -> Self:
         """Set the maximum height of the text.
         This enforces a max height by only rendering the first n lines.
 
@@ -1157,7 +1224,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._unset_attribute[PropKey.MAX_HEIGHT]()
         return new^
 
-    fn horizontal_alignment(self, align: Position) -> Self:
+    fn set_horizontal_text_alignment(self, align: Position) -> Self:
         """Set the horizontal alignment of the text.
 
         Args:
@@ -1171,7 +1238,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         return new^
 
     @always_inline
-    fn get_horizontal_alignment(self) -> Position:
+    fn get_horizontal_text_alignment(self) -> Position:
         """Returns the horizontal alignment of the text.
 
         Returns:
@@ -1179,7 +1246,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         """
         return self._get_as_position[PropKey.HORIZONTAL_ALIGNMENT]()
 
-    fn unset_horizontal_alignment(self) -> Self:
+    fn unset_horizontal_text_alignment(self) -> Self:
         """Unset the horizontal alignment of the text.
 
         Returns:
@@ -1189,7 +1256,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._unset_attribute[PropKey.HORIZONTAL_ALIGNMENT]()
         return new^
 
-    fn vertical_alignment(self, align: Position) -> Self:
+    fn set_vertical_text_alignment(self, align: Position) -> Self:
         """Set the vertical alignment of the text.
 
         Args:
@@ -1203,7 +1270,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         return new^
 
     @always_inline
-    fn get_vertical_alignment(self) -> Position:
+    fn get_vertical_text_alignment(self) -> Position:
         """Returns the vertical alignment of the text.
 
         Returns:
@@ -1221,7 +1288,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._unset_attribute[PropKey.VERTICAL_ALIGNMENT]()
         return new^
 
-    fn alignment(self, *align: Position) -> Self:
+    fn set_text_alignment(self, *align: Position) -> Self:
         """Align is a shorthand method for setting horizontal and vertical alignment.
 
         With one argument, the position value is applied to the horizontal alignment.
@@ -1243,7 +1310,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
             new._set_attribute[PropKey.VERTICAL_ALIGNMENT](align[1])
         return new^
 
-    fn foreground(self, color: AnyTerminalColor) -> Self:
+    fn set_foreground_color(self, color: AnyTerminalColor) -> Self:
         """Set the foreground color of the text.
 
         Args:
@@ -1256,7 +1323,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._set_attribute[PropKey.FOREGROUND](color)
         return new^
 
-    fn get_foreground(self) -> AnyTerminalColor:
+    fn get_foreground_color(self) -> AnyTerminalColor:
         """Returns the foreground color of the text.
 
         Returns:
@@ -1264,7 +1331,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         """
         return self._get_as_color[PropKey.FOREGROUND]()
 
-    fn unset_foreground(self) -> Self:
+    fn unset_foreground_color(self) -> Self:
         """Unset the foreground color of the text.
 
         Returns:
@@ -1274,7 +1341,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._unset_attribute[PropKey.FOREGROUND]()
         return new^
 
-    fn background(self, color: AnyTerminalColor) -> Self:
+    fn set_background_color(self, color: AnyTerminalColor) -> Self:
         """Set the background color of the text.
 
         Args:
@@ -1287,7 +1354,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._set_attribute[PropKey.BACKGROUND](color)
         return new^
 
-    fn get_background(self) -> AnyTerminalColor:
+    fn get_background_color(self) -> AnyTerminalColor:
         """Returns the background color of the text.
 
         Returns:
@@ -1305,907 +1372,480 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         new._unset_attribute[PropKey.BACKGROUND]()
         return new^
 
-    fn border(self, border: Border, *sides: Bool) -> Self:
-        """Set the border style of the text.
+    fn set_border(
+        self,
+        *,
+        top: Optional[Bool] = None,
+        right: Optional[Bool] = None,
+        bottom: Optional[Bool] = None,
+        left: Optional[Bool] = None,
+    ) -> Self:
+        """Sets the sides of the border to render or not.
 
         Args:
-            border: The border style to apply.
-            sides: The sides to apply the border to.
+            top: Whether or not the top border side should render.
+            right: Whether or not the right border side should render.
+            bottom: Whether or not the bottom border side should render.
+            left: Whether or not the left border side should render.
 
         Returns:
-            A new Style with the border rule set.
+            A new Style with the border rules set.
         """
+        if not top and not right and not bottom and not right:
+            return self.copy()
+
         var new = self.copy()
-        new._set_attribute[PropKey.BORDER_STYLE](border)
-        var top = True
-        var right = True
-        var bottom = True
-        var left = True
+        if top:
+            new._set_attribute[PropKey.BORDER_TOP](top.value())
 
-        var sides_specified = len(sides)
-        if sides_specified == 1:
-            top = sides[0]
-            bottom = sides[0]
-            left = sides[0]
-            right = sides[0]
-        elif sides_specified == 2:
-            top = sides[0]
-            bottom = sides[0]
-            left = sides[1]
-            right = sides[1]
-        elif sides_specified == 3:
-            top = sides[0]
-            left = sides[1]
-            right = sides[1]
-            bottom = sides[2]
-        elif sides_specified == 4:
-            top = sides[0]
-            right = sides[1]
-            bottom = sides[2]
-            left = sides[3]
+        if right:
+            new._set_attribute[PropKey.BORDER_RIGHT](right.value())
 
-        new._set_attribute[PropKey.BORDER_TOP](top)
-        new._set_attribute[PropKey.BORDER_RIGHT](right)
-        new._set_attribute[PropKey.BORDER_BOTTOM](bottom)
-        new._set_attribute[PropKey.BORDER_LEFT](left)
+        if bottom:
+            new._set_attribute[PropKey.BORDER_BOTTOM](bottom.value())
+
+        if left:
+            new._set_attribute[PropKey.BORDER_LEFT](left.value())
         return new^
-
-    fn border_top(self, /, top: Bool = True) -> Self:
-        """Sets the top border to be rendered or not.
+    
+    fn unset_border(
+        self,
+        *,
+        top: Bool = False,
+        right: Bool = False,
+        bottom: Bool = False,
+        left: Bool = False,
+    ) -> Self:
+        """Unsets the border rule for the sides specified.
 
         Args:
-            top: Whether to apply the border to the top side.
+            top: If True, the rule for rendering the top border will be unset.
+            right: If True, the rule for rendering the right border will be unset.
+            bottom: If True, the rule for rendering the bottom border will be unset.
+            left: If True, the rule for rendering the left border will be unset.
 
         Returns:
-            A new Style with the border rule set.
+            A new Style with the border rules set.
         """
-        var new = self.copy()
-        new._set_attribute[PropKey.BORDER_TOP](top)
-        return new^
+        if not top and not right and not bottom and not right:
+            return self.copy()
 
-    fn get_border_top(self) -> Bool:
-        """Returns whether or not the top border rule is set.
+        var new = self.copy()
+        if top:
+            new._unset_attribute[PropKey.BORDER_TOP]()
+
+        if right:
+            new._unset_attribute[PropKey.BORDER_RIGHT]()
+
+        if bottom:
+            new._unset_attribute[PropKey.BORDER_BOTTOM]()
+
+        if left:
+            new._unset_attribute[PropKey.BORDER_LEFT]()
+        return new^
+    
+    fn check_if_border_side_will_render(self, side: Side) -> Bool:
+        """Returns whether or not the border rule is set.
+
+        Args:
+            side: The side of the border to return the color for.
 
         Returns:
             True if set, False otherwise.
         """
-        return self._get_as_bool[PropKey.BORDER_TOP](False)
-
-    fn unset_border_top(self) -> Self:
-        """Unsets the top border rule.
-
-        Returns:
-            A new Style with the border rule unset.
-        """
-        var new = self.copy()
-        new._unset_attribute[PropKey.BORDER_TOP]()
-        return new^
-
-    fn border_bottom(self, /, bottom: Bool = True) -> Self:
-        """Sets the bottom border to be rendered or not.
-
-        Args:
-            bottom: Whether to apply the border to the bottom side.
-
-        Returns:
-            A new Style with the border rule set.
-        """
-        var new = self.copy()
-        new._set_attribute[PropKey.BORDER_BOTTOM](bottom)
-        return new^
-
-    fn get_border_bottom(self) -> Bool:
-        """Returns whether or not the bottom border rule is set.
-
-        Returns:
-            True if set, False otherwise.
-        """
-        return self._get_as_bool[PropKey.BORDER_BOTTOM](False)
-
-    fn unset_border_bottom(self) -> Self:
-        """Unsets the bottom border rule.
-
-        Returns:
-            A new Style with the border rule unset.
-        """
-        var new = self.copy()
-        new._unset_attribute[PropKey.BORDER_BOTTOM]()
-        return new^
-
-    fn border_left(self, /, left: Bool = True) -> Self:
-        """Sets the left border to be rendered or not.
-
-        Args:
-            left: Whether to apply the border to the left side.
-
-        Returns:
-            A new Style with the border rule set.
-        """
-        var new = self.copy()
-        new._set_attribute[PropKey.BORDER_LEFT](left)
-        return new^
-
-    fn get_border_left(self) -> Bool:
-        """Returns whether or not the left border rule is set.
-
-        Returns:
-            True if set, False otherwise.
-        """
-        return self._get_as_bool[PropKey.BORDER_LEFT](False)
-
-    fn unset_border_left(self) -> Self:
-        """Unsets the left border rule.
-
-        Returns:
-            A new Style with the border rule unset.
-        """
-        var new = self.copy()
-        new._unset_attribute[PropKey.BORDER_LEFT]()
-        return new^
-
-    fn border_right(self, /, right: Bool = True) -> Self:
-        """Sets the right border to be rendered or not.
-
-        Args:
-            right: Whether to apply the border to the right side.
-
-        Returns:
-            A new Style with the border rule set.
-        """
-        var new = self.copy()
-        new._set_attribute[PropKey.BORDER_RIGHT](right)
-        return new^
-
-    fn get_border_right(self) -> Bool:
-        """Returns whether or not the right border rule is set.
-
-        Returns:
-            True if set, False otherwise.
-        """
-        return self._get_as_bool[PropKey.BORDER_RIGHT](False)
-
-    fn unset_border_right(self) -> Self:
-        """Unsets the right border rule.
-
-        Returns:
-            A new Style with the border rule unset.
-        """
-        var new = self.copy()
-        new._unset_attribute[PropKey.BORDER_RIGHT]()
-        return new^
-
-    fn border_foreground(self, *colors: AnyTerminalColor) -> Self:
+        if side == Side.TOP:
+            return self._get_as_bool[PropKey.BORDER_TOP](default=False)
+        elif side == Side.RIGHT:
+            return self._get_as_bool[PropKey.BORDER_RIGHT](default=False)
+        elif side == Side.BOTTOM:
+            return self._get_as_bool[PropKey.BORDER_BOTTOM](default=False)
+        elif side == Side.LEFT:
+            return self._get_as_bool[PropKey.BORDER_LEFT](default=False)
+        
+        # TODO: Remove this when we have enums and exhaustive matching.
+        return False
+    
+    fn set_border_foreground(
+        self,
+        *,
+        top: Optional[AnyTerminalColor] = None,
+        right: Optional[AnyTerminalColor] = None,
+        bottom: Optional[AnyTerminalColor] = None,
+        left: Optional[AnyTerminalColor] = None,
+    ) -> Self:
         """Set the border foreground color.
 
         Args:
-            colors: The color to apply.
+            top: The foreground color for the top border side.
+            right: The foreground color for the right border side.
+            bottom: The foreground color for the bottom border side.
+            left: The foreground color for the left border side.
 
         Returns:
-            A new Style with the border foreground color rule set.
-
-        #### Notes:
-        The colors are applied in the order of top, right, bottom, left.
-        * If one color is passed, it is applied to all sides.
-        * If two colors are passed, the first is applied to the top and bottom, and the second to the left and right.
-        * If three colors are passed, the first is applied to the top, the second to the left and right, and the third to the bottom.
-        * If four colors are passed, the first is applied to the top, the second to the right, the third to the bottom, and the fourth to the left.
+            A new Style with the border foreground color rules set.
         """
-        var top: AnyTerminalColor
-        var bottom: AnyTerminalColor
-        var left: AnyTerminalColor
-        var right: AnyTerminalColor
-        var widths_specified = len(colors)
-        if widths_specified == 1:
-            top = colors[0].copy()
-            bottom = colors[0].copy()
-            left = colors[0].copy()
-            right = colors[0].copy()
-        elif widths_specified == 2:
-            top = colors[0].copy()
-            bottom = colors[0].copy()
-            left = colors[1].copy()
-            right = colors[1].copy()
-        elif widths_specified == 3:
-            top = colors[0].copy()
-            left = colors[1].copy()
-            right = colors[1].copy()
-            bottom = colors[2].copy()
-        elif widths_specified == 4:
-            top = colors[0].copy()
-            right = colors[1].copy()
-            bottom = colors[2].copy()
-            left = colors[3].copy()
-        else:
+        if not top and not right and not bottom and not right:
             return self.copy()
 
         var new = self.copy()
-        new._set_attribute[PropKey.BORDER_TOP_FOREGROUND](top)
-        new._set_attribute[PropKey.BORDER_RIGHT_FOREGROUND](right)
-        new._set_attribute[PropKey.BORDER_BOTTOM_FOREGROUND](bottom)
-        new._set_attribute[PropKey.BORDER_LEFT_FOREGROUND](left)
-        return new^
+        if top:
+            new._set_attribute[PropKey.BORDER_TOP_FOREGROUND](top.value())
 
-    fn border_top_foreground(self, /, color: AnyTerminalColor) -> Self:
-        """Set the top border foreground color.
+        if right:
+            new._set_attribute[PropKey.BORDER_RIGHT_FOREGROUND](right.value())
+
+        if bottom:
+            new._set_attribute[PropKey.BORDER_BOTTOM_FOREGROUND](bottom.value())
+
+        if left:
+            new._set_attribute[PropKey.BORDER_LEFT_FOREGROUND](left.value())
+        return new^
+    
+    fn unset_border_foreground(
+        self,
+        *,
+        top: Bool = False,
+        right: Bool = False,
+        bottom: Bool = False,
+        left: Bool = False,
+    ) -> Self:
+        """Set the border foreground color.
 
         Args:
-            color: The color to apply.
+            top: If True, the border top foreground rule is unset.
+            right: If True, the border top foreground rule is unset.
+            bottom: If True, the border top foreground rule is unset.
+            left: If True, the border top foreground rule is unset.
 
         Returns:
-            A new Style with the border foreground color rule set.
+            A new Style with the border foreground color rules unset.
         """
+        if not top and not right and not bottom and not right:
+            return self.copy()
+
         var new = self.copy()
-        new._properties.set[PropKey.BORDER_TOP_FOREGROUND](True)
-        new._border_color.foreground_top = color.copy()
+        if top:
+            new._unset_attribute[PropKey.BORDER_TOP_FOREGROUND]()
+
+        if right:
+            new._unset_attribute[PropKey.BORDER_RIGHT_FOREGROUND]()
+
+        if bottom:
+            new._unset_attribute[PropKey.BORDER_BOTTOM_FOREGROUND]()
+
+        if left:
+            new._unset_attribute[PropKey.BORDER_LEFT_FOREGROUND]()
         return new^
-
-    fn get_border_top_foreground(self) -> AnyTerminalColor:
-        """Returns the top border foreground color.
-
-        Returns:
-            The top border foreground color.
-        """
-        return self._get_as_color[PropKey.BORDER_TOP_FOREGROUND]()
-
-    fn unset_border_top_foreground(self) -> Self:
-        """Unsets the top border foreground rule.
-
-        Returns:
-            A new Style with the border foreground rule unset.
-        """
-        var new = self.copy()
-        new._unset_attribute[PropKey.BORDER_TOP_FOREGROUND]()
-        return new^
-
-    fn border_right_foreground(self, /, color: AnyTerminalColor) -> Self:
-        """Set the right border foreground color.
+    
+    fn get_border_foreground(self, side: Side) -> AnyTerminalColor:
+        """Returns the border foreground color.
 
         Args:
-            color: The color to apply.
+            side: The side of the border to return the color for.
 
         Returns:
-            A new Style with the border foreground color rule set.
+            The border foreground color.
         """
-        var new = self.copy()
-        new._properties.set[PropKey.BORDER_RIGHT_FOREGROUND](True)
-        new._border_color.foreground_right = color.copy()
-        return new^
+        if side == Side.TOP:
+            return self._get_as_color[PropKey.BORDER_TOP_FOREGROUND]()
+        elif side == Side.RIGHT:
+            return self._get_as_color[PropKey.BORDER_RIGHT_FOREGROUND]()
+        elif side == Side.BOTTOM:
+            return self._get_as_color[PropKey.BORDER_BOTTOM_FOREGROUND]()
+        elif side == Side.LEFT:
+            return self._get_as_color[PropKey.BORDER_LEFT_FOREGROUND]()
+        
+        # TODO: Remove this when we have enums and exhaustive matching.
+        return NoColor()
 
-    fn get_border_right_foreground(self) -> AnyTerminalColor:
-        """Returns the right border foreground color.
-
-        Returns:
-            The right border foreground color.
-        """
-        return self._get_as_color[PropKey.BORDER_RIGHT_FOREGROUND]()
-
-    fn unset_border_right_foreground(self) -> Self:
-        """Unsets the right border foreground rule.
-
-        Returns:
-            A new Style with the border foreground rule unset.
-        """
-        var new = self.copy()
-        new._unset_attribute[PropKey.BORDER_RIGHT_FOREGROUND]()
-        return new^
-
-    fn border_left_foreground(self, /, color: AnyTerminalColor) -> Self:
-        """Set the left border foreground color.
-
-        Args:
-            color: The color to apply.
-
-        Returns:
-            A new Style with the border foreground color rule set.
-        """
-        var new = self.copy()
-        new._properties.set[PropKey.BORDER_LEFT_FOREGROUND](True)
-        new._border_color.foreground_left = color.copy()
-        return new^
-
-    fn get_border_left_foreground(self) -> AnyTerminalColor:
-        """Returns the left border foreground color.
-
-        Returns:
-            The left border foreground color.
-        """
-        return self._get_as_color[PropKey.BORDER_LEFT_FOREGROUND]()
-
-    fn unset_border_left_foreground(self) -> Self:
-        """Unsets the left border foreground rule.
-
-        Returns:
-            A new Style with the border foreground rule unset.
-        """
-        var new = self.copy()
-        new._unset_attribute[PropKey.BORDER_LEFT_FOREGROUND]()
-        return new^
-
-    fn border_bottom_foreground(self, /, color: AnyTerminalColor) -> Self:
-        """Set the bottom border foreground color.
-
-        Args:
-            color: The color to apply.
-
-        Returns:
-            A new Style with the border foreground color rule set.
-        """
-        var new = self.copy()
-        new._properties.set[PropKey.BORDER_BOTTOM_FOREGROUND](True)
-        new._border_color.foreground_bottom = color.copy()
-        return new^
-
-    fn get_border_bottom_foreground(self) -> AnyTerminalColor:
-        """Returns the bottom border foreground color.
-
-        Returns:
-            The bottom border foreground color.
-        """
-        return self._get_as_color[PropKey.BORDER_BOTTOM_FOREGROUND]()
-
-    fn unset_border_bottom_foreground(self) -> Self:
-        """Unsets the bottom border foreground rule.
-
-        Returns:
-            A new Style with the border foreground rule unset.
-        """
-        var new = self.copy()
-        new._unset_attribute[PropKey.BORDER_BOTTOM_FOREGROUND]()
-        return new^
-
-    fn border_background(self, *colors: AnyTerminalColor) -> Self:
+    fn set_border_background(
+        self,
+        *,
+        top: Optional[AnyTerminalColor] = None,
+        right: Optional[AnyTerminalColor] = None,
+        bottom: Optional[AnyTerminalColor] = None,
+        left: Optional[AnyTerminalColor] = None,
+    ) -> Self:
         """Set the border background color.
 
         Args:
-            colors: The colors to apply.
+            top: The background color for the top border side.
+            right: The background color for the right border side.
+            bottom: The background color for the bottom border side.
+            left: The background color for the left border side.
 
         Returns:
-            A new Style with the border background color rule set.
+            A new Style with the border background color rules set.
         """
-        var widths_specified = len(colors)
-        if widths_specified == 1:
-            top = colors[0].copy()
-            bottom = colors[0].copy()
-            left = colors[0].copy()
-            right = colors[0].copy()
-        elif widths_specified == 2:
-            top = colors[0].copy()
-            bottom = colors[0].copy()
-            left = colors[1].copy()
-            right = colors[1].copy()
-        elif widths_specified == 3:
-            top = colors[0].copy()
-            left = colors[1].copy()
-            right = colors[1].copy()
-            bottom = colors[2].copy()
-        elif widths_specified == 4:
-            top = colors[0].copy()
-            right = colors[1].copy()
-            bottom = colors[2].copy()
-            left = colors[3].copy()
-        else:
+        if not top and not right and not bottom and not right:
             return self.copy()
 
         var new = self.copy()
-        new._set_attribute[PropKey.BORDER_TOP_BACKGROUND](top)
-        new._set_attribute[PropKey.BORDER_RIGHT_BACKGROUND](right)
-        new._set_attribute[PropKey.BORDER_BOTTOM_BACKGROUND](bottom)
-        new._set_attribute[PropKey.BORDER_LEFT_BACKGROUND](left)
-        return new^
+        if top:
+            new._set_attribute[PropKey.BORDER_TOP_BACKGROUND](top.value())
 
-    fn border_top_background(self, /, color: AnyTerminalColor) -> Self:
-        """Set the top border background color.
+        if right:
+            new._set_attribute[PropKey.BORDER_RIGHT_BACKGROUND](right.value())
+
+        if bottom:
+            new._set_attribute[PropKey.BORDER_BOTTOM_BACKGROUND](bottom.value())
+
+        if left:
+            new._set_attribute[PropKey.BORDER_LEFT_BACKGROUND](left.value())
+        return new^
+    
+    fn unset_border_background(
+        self,
+        *,
+        top: Bool = False,
+        right: Bool = False,
+        bottom: Bool = False,
+        left: Bool = False,
+    ) -> Self:
+        """Set the border background color.
 
         Args:
-            color: The color to apply.
+            top: If True, the border top background rule is unset.
+            right: If True, the border right background rule is unset.
+            bottom: If True, the border bottom background rule is unset.
+            left: If True, the border left background rule is unset.
 
         Returns:
-            A new Style with the border background color rule set.
+            A new Style with the border background color rules unset.
         """
+        if not top and not right and not bottom and not right:
+            return self.copy()
+
         var new = self.copy()
-        new._properties.set[PropKey.BORDER_TOP_BACKGROUND](True)
-        new._border_color.background_top = color.copy()
+        if top:
+            new._unset_attribute[PropKey.BORDER_TOP_BACKGROUND]()
+
+        if right:
+            new._unset_attribute[PropKey.BORDER_RIGHT_BACKGROUND]()
+
+        if bottom:
+            new._unset_attribute[PropKey.BORDER_BOTTOM_BACKGROUND]()
+
+        if left:
+            new._unset_attribute[PropKey.BORDER_LEFT_BACKGROUND]()
         return new^
-
-    fn get_border_top_background(self) -> AnyTerminalColor:
-        """Returns the top border background color.
-
-        Returns:
-            The top border background color.
-        """
-        return self._get_as_color[PropKey.BORDER_TOP_BACKGROUND]()
-
-    fn unset_border_top_background(self) -> Self:
-        """Unsets the top border background rule.
-
-        Returns:
-            A new Style with the border background rule unset.
-        """
-        var new = self.copy()
-        new._unset_attribute[PropKey.BORDER_TOP_BACKGROUND]()
-        return new^
-
-    fn border_right_background(self, /, color: AnyTerminalColor) -> Self:
-        """Set the right border background color.
+    
+    fn get_border_background(self, side: Side) -> AnyTerminalColor:
+        """Returns the border background color.
 
         Args:
-            color: The color to apply.
+            side: The side of the border to return the color for.
 
         Returns:
-            A new Style with the border background color rule set.
+            The border background color.
         """
-        var new = self.copy()
-        new._properties.set[PropKey.BORDER_RIGHT_BACKGROUND](True)
-        new._border_color.background_right = color.copy()
-        return new^
+        if side == Side.TOP:
+            return self._get_as_color[PropKey.BORDER_TOP_BACKGROUND]()
+        elif side == Side.RIGHT:
+            return self._get_as_color[PropKey.BORDER_RIGHT_BACKGROUND]()
+        elif side == Side.BOTTOM:
+            return self._get_as_color[PropKey.BORDER_BOTTOM_BACKGROUND]()
+        elif side == Side.LEFT:
+            return self._get_as_color[PropKey.BORDER_LEFT_BACKGROUND]()
+        
+        # TODO: Remove this when we have enums and exhaustive matching.
+        return NoColor()
 
-    fn get_border_right_background(self) -> AnyTerminalColor:
-        """Returns the right border background color.
-
-        Returns:
-            The right border background color.
-        """
-        return self._get_as_color[PropKey.BORDER_RIGHT_BACKGROUND]()
-
-    fn unset_border_right_background(self) -> Self:
-        """Unsets the right border background rule.
-
-        Returns:
-            A new Style with the border background rule unset.
-        """
-        var new = self.copy()
-        new._unset_attribute[PropKey.BORDER_RIGHT_BACKGROUND]()
-        return new^
-
-    fn border_left_background(self, /, color: AnyTerminalColor) -> Self:
-        """Set the left border background color.
-
-        Args:
-            color: The color to apply.
-
-        Returns:
-            A new Style with the border background color rule set.
-        """
-        var new = self.copy()
-        new._properties.set[PropKey.BORDER_LEFT_BACKGROUND](True)
-        new._border_color.background_left = color.copy()
-        return new^
-
-    fn get_border_left_background(self) -> AnyTerminalColor:
-        """Returns the left border background color.
-
-        Returns:
-            The left border background color.
-        """
-        return self._get_as_color[PropKey.BORDER_LEFT_BACKGROUND]()
-
-    fn unset_border_left_background(self) -> Self:
-        """Unsets the left border background rule.
-
-        Returns:
-            A new Style with the border background rule unset.
-        """
-        var new = self.copy()
-        new._unset_attribute[PropKey.BORDER_LEFT_BACKGROUND]()
-        return new^
-
-    fn border_bottom_background(self, /, color: AnyTerminalColor) -> Self:
-        """Set the bottom border background color.
-
-        Args:
-            color: The color to apply.
-
-        Returns:
-            A new Style with the border background color rule set.
-        """
-        var new = self.copy()
-        new._properties.set[PropKey.BORDER_BOTTOM_BACKGROUND](True)
-        new._border_color.background_bottom = color.copy()
-        return new^
-
-    fn get_border_bottom_background(self) -> AnyTerminalColor:
-        """Returns the bottom border background color.
-
-        Returns:
-            The bottom border background color.
-        """
-        return self._get_as_color[PropKey.BORDER_BOTTOM_BACKGROUND]()
-
-    fn unset_border_bottom_background(self) -> Self:
-        """Unsets the bottom border background rule.
-
-        Returns:
-            A new Style with the border background rule unset.
-        """
-        var new = self.copy()
-        new._unset_attribute[PropKey.BORDER_BOTTOM_BACKGROUND]()
-        return new^
-
-    fn padding(self, *widths: Int) -> Self:
+    fn set_padding(
+        self,
+        *,
+        top: Optional[Int] = None,
+        right: Optional[Int] = None,
+        bottom: Optional[Int] = None,
+        left: Optional[Int] = None,
+    ) -> Self:
         """Shorthand method for setting padding on all sides at once.
 
         Args:
-            widths: The padding widths to apply.
+            top: The padding width for the top side of the block.
+            right: The padding width for the right side of the block.
+            bottom: The padding width for the bottom side of the block.
+            left: The padding width for the left side of the block.
 
         Returns:
-            A new Style with the padding rule set.
-
+            A new Style with the padding width set.
+        
         #### Notes:
-        Padding is applied inside the text area, inside of the border if there is one.
-        Margin is applied outside the text area, outside of the border if there is one.
-        * With one argument, the value is applied to all sides.
-        * With two arguments, the value is applied to the vertical and horizontal
-        sides, in that order.
-        * With three arguments, the value is applied to the top side, the horizontal
-        sides, and the bottom side, in that order.
-        * With four arguments, the value is applied clockwise starting from the top
-        side, followed by the right side, then the bottom, and finally the left.
-        * With more than four arguments no padding will be added.
+        * Padding is applied inside the text area, inside of the border if there is one.
+        * Margin is applied outside the text area, outside of the border if there is one.
         """
-        var top: UInt16
-        var bottom: UInt16
-        var left: UInt16
-        var right: UInt16
-        var widths_specified = len(widths)
-        if widths_specified == 1:
-            top = widths[0]
-            bottom = widths[0]
-            left = widths[0]
-            right = widths[0]
-        elif widths_specified == 2:
-            top = widths[0]
-            bottom = widths[0]
-            left = widths[1]
-            right = widths[1]
-        elif widths_specified == 3:
-            top = widths[0]
-            left = widths[1]
-            right = widths[1]
-            bottom = widths[2]
-        elif widths_specified == 4:
-            top = widths[0]
-            right = widths[1]
-            bottom = widths[2]
-            left = widths[3]
-        else:
+        if not top and not right and not bottom and not right:
             return self.copy()
 
         var new = self.copy()
-        new._set_attribute[PropKey.PADDING_TOP](top)
-        new._set_attribute[PropKey.PADDING_RIGHT](right)
-        new._set_attribute[PropKey.PADDING_BOTTOM](bottom)
-        new._set_attribute[PropKey.PADDING_LEFT](left)
-        return new^
+        if top:
+            new._set_attribute[PropKey.PADDING_TOP](UInt16(top.value()))
 
-    fn padding_top(self, /, width: UInt16) -> Self:
-        """Set the padding on the top side.
+        if right:
+            new._set_attribute[PropKey.PADDING_RIGHT](UInt16(right.value()))
+
+        if bottom:
+            new._set_attribute[PropKey.PADDING_BOTTOM](UInt16(bottom.value()))
+
+        if left:
+            new._set_attribute[PropKey.PADDING_LEFT](UInt16(left.value()))
+        return new^
+    
+    fn unset_padding(
+        self,
+        *,
+        top: Bool = False,
+        right: Bool = False,
+        bottom: Bool = False,
+        left: Bool = False,
+    ) -> Self:
+        """Unsets the padding rules for the sides provided.
 
         Args:
-            width: The padding width to apply.
+            top: If True, the top padding rule is unset.
+            right: If True, the right padding rule is unset.
+            bottom: If True, the bottom padding rule is unset.
+            left: If True, the left padding rule is unset.
 
         Returns:
-            A new Style with the padding top rule set.
-
-        #### Notes:
-        Padding is applied inside the text area, inside of the border if there is one.
+            A new Style with the padding rules unset.
         """
-        var new = self.copy()
-        new._set_attribute[PropKey.PADDING_TOP](width)
-        return new^
+        if not top and not right and not bottom and not right:
+            return self.copy()
 
-    fn get_padding_top(self) -> UInt16:
-        """Returns the padding on the top side.
+        var new = self.copy()
+        if top:
+            new._unset_attribute[PropKey.PADDING_TOP]()
+
+        if right:
+            new._unset_attribute[PropKey.PADDING_RIGHT]()
+
+        if bottom:
+            new._unset_attribute[PropKey.PADDING_BOTTOM]()
+
+        if left:
+            new._unset_attribute[PropKey.PADDING_LEFT]()
+        return new^
+    
+    fn get_padding(self, side: Side) -> UInt16:
+        """Returns the padding width for the given side of the text area.
+
+        Args:
+            side: The side of the text area to return the padding width for.
 
         Returns:
             The padding width.
         """
-        return self._get_as_uint16[PropKey.PADDING_TOP]()
+        if side == Side.TOP:
+            return self._get_as_uint16[PropKey.PADDING_TOP]()
+        elif side == Side.RIGHT:
+            return self._get_as_uint16[PropKey.PADDING_RIGHT]()
+        elif side == Side.BOTTOM:
+            return self._get_as_uint16[PropKey.PADDING_BOTTOM]()
+        elif side == Side.LEFT:
+            return self._get_as_uint16[PropKey.PADDING_LEFT]()
+        
+        # TODO: Remove this when we have enums and exhaustive matching.
+        return 0
 
-    fn unset_padding_top(self) -> Self:
-        """Unset the padding top rule.
-
-        Returns:
-            A new Style with the padding top rule unset.
-        """
-        var new = self.copy()
-        new._unset_attribute[PropKey.PADDING_TOP]()
-        return new^
-
-    fn padding_right(self, /, width: UInt16) -> Self:
-        """Set the padding on the right side.
-
-        Args:
-            width: The padding width to apply.
-
-        Returns:
-            A new Style with the padding right rule set.
-
-        #### Notes:
-        Padding is applied inside the text area, inside of the border if there is one.
-        """
-        var new = self.copy()
-        new._set_attribute[PropKey.PADDING_RIGHT](width)
-        return new^
-
-    fn get_padding_right(self) -> UInt16:
-        """Returns the padding on the top side.
-
-        Returns:
-            The padding width.
-        """
-        return self._get_as_uint16[PropKey.PADDING_RIGHT]()
-
-    fn unset_padding_right(self) -> Self:
-        """Unset the padding right rule.
-
-        Returns:
-            A new Style with the padding right rule unset.
-        """
-        var new = self.copy()
-        new._unset_attribute[PropKey.PADDING_RIGHT]()
-        return new^
-
-    fn padding_bottom(self, /, width: UInt16) -> Self:
-        """Set the padding on the bottom side.
-
-        Args:
-            width: The padding width to apply.
-
-        Returns:
-            A new Style with the padding bottom rule set.
-
-        #### Notes:
-        Padding is applied inside the text area, inside of the border if there is one.
-        """
-        var new = self.copy()
-        new._set_attribute[PropKey.PADDING_BOTTOM](width)
-        return new^
-
-    fn get_padding_bottom(self) -> UInt16:
-        """Returns the padding on the bottom side.
-
-        Returns:
-            The padding width.
-        """
-        return self._get_as_uint16[PropKey.PADDING_BOTTOM]()
-
-    fn unset_padding_bottom(self) -> Self:
-        """Unset the padding bottom rule.
-
-        Returns:
-            A new Style with the padding bottom rule unset.
-        """
-        var new = self.copy()
-        new._unset_attribute[PropKey.PADDING_BOTTOM]()
-        return new^
-
-    fn padding_left(self, /, width: UInt16) -> Self:
-        """Set the padding on the left side.
-
-        Args:
-            width: The padding width to apply.
-
-        Returns:
-            A new Style with the padding left rule set.
-
-        #### Notes:
-        Padding is applied inside the text area, inside of the border if there is one.
-        """
-        var new = self.copy()
-        new._set_attribute[PropKey.PADDING_LEFT](width)
-        return new^
-
-    fn get_padding_left(self) -> UInt16:
-        """Returns the padding on the left side.
-
-        Returns:
-            The padding width.
-        """
-        return self._get_as_uint16[PropKey.PADDING_LEFT]()
-
-    fn unset_padding_left(self) -> Self:
-        """Unset the padding left rule.
-
-        Returns:
-            A new Style with the padding left rule unset.
-        """
-        var new = self.copy()
-        new._unset_attribute[PropKey.PADDING_LEFT]()
-        return new^
-
-    fn margin(self, *widths: Int) -> Self:
+    fn set_margin(
+        self,
+        *,
+        top: Optional[UInt16] = None,
+        right: Optional[UInt16] = None,
+        bottom: Optional[UInt16] = None,
+        left: Optional[UInt16] = None,
+    ) -> Self:
         """Shorthand method for setting margin on all sides at once.
 
         Args:
-            widths: The padding widths to apply.
+            top: The margin width for the top side of the block.
+            right: The margin width for the right side of the block.
+            bottom: The margin width for the bottom side of the block.
+            left: The margin width for the left side of the block.
 
         Returns:
-            A new Style with the margin rule set.
-
+            A new Style with the margin width set.
+        
         #### Notes:
-        Padding is applied inside the text area, inside of the border if there is one.
-        Margin is applied outside the text area, outside of the border if there is one.
-        * With one argument, the value is applied to all sides.
-        * With two arguments, the value is applied to the vertical and horizontal
-        sides, in that order.
-        * With three arguments, the value is applied to the top side, the horizontal
-        sides, and the bottom side, in that order.
-        * With four arguments, the value is applied clockwise starting from the top
-        side, followed by the right side, then the bottom, and finally the left.
-        * With more than four arguments no margin will be added.
+        * Padding is applied inside the text area, inside of the border if there is one.
+        * Margin is applied outside the text area, outside of the border if there is one.
         """
-        var top: UInt16
-        var bottom: UInt16
-        var left: UInt16
-        var right: UInt16
-        var widths_specified = len(widths)
-        if widths_specified == 1:
-            top = widths[0]
-            bottom = widths[0]
-            left = widths[0]
-            right = widths[0]
-        elif widths_specified == 2:
-            top = widths[0]
-            bottom = widths[0]
-            left = widths[1]
-            right = widths[1]
-        elif widths_specified == 3:
-            top = widths[0]
-            left = widths[1]
-            right = widths[1]
-            bottom = widths[2]
-        elif widths_specified == 4:
-            top = widths[0]
-            right = widths[1]
-            bottom = widths[2]
-            left = widths[3]
-        else:
+        if not top and not right and not bottom and not right:
             return self.copy()
 
         var new = self.copy()
-        new._set_attribute[PropKey.MARGIN_TOP](top)
-        new._set_attribute[PropKey.MARGIN_RIGHT](right)
-        new._set_attribute[PropKey.MARGIN_BOTTOM](bottom)
-        new._set_attribute[PropKey.MARGIN_LEFT](left)
-        return new^
+        if top:
+            new._set_attribute[PropKey.PADDING_TOP](top.value())
 
-    fn margin_top(self, /, width: UInt16) -> Self:
-        """Set the margin on the top side.
+        if right:
+            new._set_attribute[PropKey.PADDING_RIGHT](right.value())
+
+        if bottom:
+            new._set_attribute[PropKey.PADDING_BOTTOM](bottom.value())
+
+        if left:
+            new._set_attribute[PropKey.PADDING_LEFT](left.value())
+        return new^
+    
+    fn unset_margin(
+        self,
+        *,
+        top: Bool = False,
+        right: Bool = False,
+        bottom: Bool = False,
+        left: Bool = False,
+    ) -> Self:
+        """Unset the margin rules for the provided sides.
 
         Args:
-            width: The margin width to apply.
+            top: If True, the top margin rule is unset.
+            right: If True, the right margin rule is unset.
+            bottom: If True, the bottom margin rule is unset.
+            left: If True, the left margin rule is unset.
 
         Returns:
-            A new Style with the margin top rule set.
-
-        #### Notes:
-        Margin is applied uotside the text area, outside of the border if there is one.
+            A new Style with the margin rules unset.
         """
-        var new = self.copy()
-        new._set_attribute[PropKey.MARGIN_TOP](width)
-        return new^
+        if not top and not right and not bottom and not right:
+            return self.copy()
 
-    fn get_margin_top(self) -> UInt16:
-        """Returns the margin on the top side.
+        var new = self.copy()
+        if top:
+            new._unset_attribute[PropKey.MARGIN_TOP]()
+
+        if right:
+            new._unset_attribute[PropKey.MARGIN_RIGHT]()
+
+        if bottom:
+            new._unset_attribute[PropKey.MARGIN_BOTTOM]()
+
+        if left:
+            new._unset_attribute[PropKey.MARGIN_LEFT]()
+        return new^
+    
+    fn get_margin(self, side: Side) -> UInt16:
+        """Returns the margin width for the given side of the text area.
+
+        Args:
+            side: The side of the text area to return the margin width for.
 
         Returns:
             The margin width.
         """
-        return self._get_as_uint16[PropKey.MARGIN_TOP]()
+        if side == Side.TOP:
+            return self._get_as_uint16[PropKey.MARGIN_TOP]()
+        elif side == Side.RIGHT:
+            return self._get_as_uint16[PropKey.MARGIN_RIGHT]()
+        elif side == Side.BOTTOM:
+            return self._get_as_uint16[PropKey.MARGIN_BOTTOM]()
+        elif side == Side.LEFT:
+            return self._get_as_uint16[PropKey.MARGIN_LEFT]()
+        
+        # TODO: Remove this when we have enums and exhaustive matching.
+        return 0
 
-    fn unset_margin_top(self) -> Self:
-        """Unset the margin top rule.
-
-        Returns:
-            A new Style with the margin top rule unset.
-        """
-        var new = self.copy()
-        new._unset_attribute[PropKey.MARGIN_TOP]()
-        return new^
-
-    fn margin_right(self, /, width: UInt16) -> Self:
-        """Set the margin on the right side.
-
-        Args:
-            width: The margin width to apply.
-
-        Returns:
-            A new Style with the margin right rule set.
-
-        #### Notes:
-        Margin is applied uotside the text area, outside of the border if there is one.
-        """
-        var new = self.copy()
-        new._set_attribute[PropKey.MARGIN_RIGHT](width)
-        return new^
-
-    fn get_margin_right(self) -> UInt16:
-        """Returns the margin on the right side.
-
-        Returns:
-            The margin width.
-        """
-        return self._get_as_uint16[PropKey.MARGIN_RIGHT]()
-
-    fn unset_margin_right(self) -> Self:
-        """Unset the margin right rule.
-
-        Returns:
-            A new Style with the margin right rule unset.
-        """
-        var new = self.copy()
-        new._unset_attribute[PropKey.MARGIN_RIGHT]()
-        return new^
-
-    fn margin_bottom(self, /, width: UInt16) -> Self:
-        """Set the margin on the bottom side.
-
-        Args:
-            width: The margin width to apply.
-
-        Returns:
-            A new Style with the margin bottom rule set.
-
-        #### Notes:
-        Margin is applied uotside the text area, outside of the border if there is one.
-        """
-        var new = self.copy()
-        new._set_attribute[PropKey.MARGIN_BOTTOM](width)
-        return new^
-
-    fn get_margin_bottom(self) -> UInt16:
-        """Returns the margin on the bottom side.
-
-        Returns:
-            The margin width.
-        """
-        return self._get_as_uint16[PropKey.MARGIN_BOTTOM]()
-
-    fn unset_margin_bottom(self) -> Self:
-        """Unset the margin bottom rule.
-
-        Returns:
-            A new Style with the margin bottom rule unset.
-        """
-        var new = self.copy()
-        new._unset_attribute[PropKey.MARGIN_BOTTOM]()
-        return new^
-
-    fn margin_left(self, /, width: UInt16) -> Self:
-        """Set the margin on the left side.
-
-        Args:
-            width: The margin width to apply.
-
-        Returns:
-            A new Style with the margin left rule set.
-
-        #### Notes:
-        Margin is applied uotside the text area, outside of the border if there is one.
-        """
-        var new = self.copy()
-        new._set_attribute[PropKey.MARGIN_LEFT](width)
-        return new^
-
-    fn get_margin_left(self) -> UInt16:
-        """Returns the margin on the left side.
-
-        Returns:
-            The margin width.
-        """
-        return self._get_as_uint16[PropKey.MARGIN_LEFT]()
-
-    fn unset_margin_left(self) -> Self:
-        """Unset the margin left rule.
-
-        Returns:
-            A new Style with the margin left rule unset.
-        """
-        var new = self.copy()
-        new._unset_attribute[PropKey.MARGIN_LEFT]()
-        return new^
-
-    fn margin_background(self, /, color: AnyTerminalColor) -> Self:
+    fn set_margin_background(self, /, color: AnyTerminalColor) -> Self:
         """Set the margin on the background color.
 
         Args:
@@ -2263,14 +1903,14 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         Returns:
             True if the style uses the space styler, False otherwise.
         """
-        var underline = self._get_as_bool[PropKey.UNDERLINE](False)
-        var underline_spaces = self._get_as_bool[PropKey.UNDERLINE_SPACES](False) or (
-            underline and self._get_as_bool[PropKey.UNDERLINE_SPACES](True)
+        var underline = self._get_as_bool[PropKey.UNDERLINE](default=False)
+        var underline_spaces = self._get_as_bool[PropKey.UNDERLINE_SPACES](default=False) or (
+            underline and self._get_as_bool[PropKey.UNDERLINE_SPACES](default=True)
         )
 
-        var strikethrough = self._get_as_bool[PropKey.STRIKETHROUGH](False)
-        var strikethrough_spaces = self._get_as_bool[PropKey.STRIKETHROUGH_SPACES](False) or (
-            strikethrough and self._get_as_bool[PropKey.STRIKETHROUGH_SPACES](True)
+        var strikethrough = self._get_as_bool[PropKey.STRIKETHROUGH](default=False)
+        var strikethrough_spaces = self._get_as_bool[PropKey.STRIKETHROUGH_SPACES](default=False) or (
+            strikethrough and self._get_as_bool[PropKey.STRIKETHROUGH_SPACES](default=True)
         )
 
         return underline_spaces or strikethrough_spaces
@@ -2311,10 +1951,10 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         var left_set = self.is_set[PropKey.BORDER_LEFT]()
 
         var border = self.get_border_style()
-        var has_top = self.get_border_top()
-        var has_right = self.get_border_right()
-        var has_bottom = self.get_border_bottom()
-        var has_left = self.get_border_left()
+        var has_top = self.check_if_border_side_will_render(Side.TOP)
+        var has_right = self.check_if_border_side_will_render(Side.RIGHT)
+        var has_bottom = self.check_if_border_side_will_render(Side.BOTTOM)
+        var has_left = self.check_if_border_side_will_render(Side.LEFT)
 
         var is_no_border = border == NO_BORDER
 
@@ -2377,8 +2017,8 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
             result.write(
                 self._style_border(
                     render_horizontal_edge(border.top_left, border.top, border.top_right, width),
-                    self.get_border_top_foreground(),
-                    self.get_border_top_background(),
+                    self.get_border_foreground(Side.TOP),
+                    self.get_border_background(Side.TOP),
                 ),
                 NEWLINE,
             )
@@ -2387,7 +2027,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         var left_border: String
         if has_left:
             left_border = self._style_border(
-                border.left, self.get_border_left_foreground(), self.get_border_left_background()
+                border.left, self.get_border_foreground(Side.LEFT), self.get_border_background(Side.LEFT)
             )
         else:
             left_border = ""
@@ -2395,7 +2035,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         var right_border: String
         if has_right:
             right_border = self._style_border(
-                border.right, self.get_border_right_foreground(), self.get_border_right_background()
+                border.right, self.get_border_foreground(Side.RIGHT), self.get_border_background(Side.RIGHT)
             )
         else:
             right_border = ""
@@ -2418,8 +2058,8 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
                 NEWLINE,
                 self._style_border(
                     render_horizontal_edge(border.bottom_left, border.bottom, border.bottom_right, width),
-                    self.get_border_bottom_foreground(),
-                    self.get_border_bottom_background(),
+                    self.get_border_foreground(Side.BOTTOM),
+                    self.get_border_background(Side.BOTTOM),
                 ),
             )
 
@@ -2440,11 +2080,11 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         )
 
         # Add left and right margin
-        text = pad_right(pad_left(text^, Int(self.get_margin_left()), styler), Int(self.get_margin_right()), styler)
+        text = pad_right(pad_left(text^, Int(self.get_margin(Side.LEFT)), styler), Int(self.get_margin(Side.RIGHT)), styler)
 
         # Top/bottom margin
-        var top_margin = Int(self.get_margin_top())
-        var bottom_margin = Int(self.get_margin_bottom())
+        var top_margin = Int(self.get_margin(Side.TOP))
+        var bottom_margin = Int(self.get_margin(Side.BOTTOM))
         if not inline:
             var width = get_widest_line(text)
             if top_margin > 0:
@@ -2458,36 +2098,36 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         var base = self._renderer.as_mist_style()
         var stylers = Stylers(base.copy(), base.copy(), base.copy())
 
-        if self.get_bold():
+        if self.check_if_text_bolded():
             stylers.common = stylers.common.bold()
-        if self.get_italic():
+        if self.check_if_text_italicized():
             stylers.common = stylers.common.italic()
         if self.get_underline():
             stylers.common = stylers.common.underline()
-        if self.get_reverse():
+        if self.check_if_text_colors_reversed():
             stylers.common = stylers.common.reverse()
             stylers.whitespace = stylers.whitespace.reverse()
         if self.get_blink():
             stylers.common = stylers.common.blink()
-        if self.get_faint():
+        if self.check_if_faint_text():
             stylers.common = stylers.common.faint()
         if self.get_strikethrough():
             stylers.common = stylers.common.strikethrough()
 
-        var fg_color = self.get_foreground().to_mist_color(self._renderer)
-        var bg_color = self.get_background().to_mist_color(self._renderer)
+        var fg_color = self.get_foreground_color().to_mist_color(self._renderer)
+        var bg_color = self.get_background_color().to_mist_color(self._renderer)
         stylers.common = stylers.common.foreground(color=fg_color).background(color=bg_color)
 
         # Do we need to style spaces separately?
-        var color_whitespace = self._get_as_bool[PropKey.COLOR_WHITESPACE](True)
+        var color_whitespace = self._get_as_bool[PropKey.COLOR_WHITESPACE](default=True)
         var underline = self.get_underline()
-        var underline_spaces = self.get_underline_spaces() or (
-            underline and self._get_as_bool[PropKey.UNDERLINE_SPACES](True)
+        var underline_spaces = self.check_if_underline_spaces() or (
+            underline and self._get_as_bool[PropKey.UNDERLINE_SPACES](default=True)
         )
 
         var strikethrough = self.get_strikethrough()
-        var strikethrough_spaces = self.get_strikethrough_spaces() or (
-            strikethrough and self._get_as_bool[PropKey.STRIKETHROUGH_SPACES](True)
+        var strikethrough_spaces = self.check_if_strikethrough_spaces() or (
+            strikethrough and self._get_as_bool[PropKey.STRIKETHROUGH_SPACES](default=True)
         )
 
         if underline_spaces or strikethrough_spaces:
@@ -2520,8 +2160,8 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
             if i != len(texts) - 1:
                 input_text.write(" ")
 
-        var reverse = self.get_reverse()
-        var color_whitespace = self._get_as_bool[PropKey.COLOR_WHITESPACE](True)
+        var reverse = self.check_if_text_colors_reversed()
+        var color_whitespace = self._get_as_bool[PropKey.COLOR_WHITESPACE](default=True)
         var max_width = self.get_max_width()
         var max_height = self.get_max_height()
 
@@ -2534,10 +2174,10 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
             input_text = input_text.replace(NEWLINE, "")
 
         # Word wrap
-        var top_padding = self.get_padding_top()
-        var right_padding = self.get_padding_right()
-        var bottom_padding = self.get_padding_bottom()
-        var left_padding = self.get_padding_left()
+        var top_padding = self.get_padding(Side.TOP)
+        var right_padding = self.get_padding(Side.RIGHT)
+        var bottom_padding = self.get_padding(Side.BOTTOM)
+        var left_padding = self.get_padding(Side.LEFT)
         var width = self.get_width()
 
         # force-wrap long strings
@@ -2573,7 +2213,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
         # Alignment
         var height = self.get_height()
         if height > 0:
-            result = align_text_vertical(result, self.get_vertical_alignment(), height)
+            result = align_text_vertical(result, self.get_vertical_text_alignment(), height)
 
         if width != 0 or get_widest_line(result) != 0:
             var style: mist.Style
@@ -2581,7 +2221,7 @@ struct Style(ImplicitlyCopyable, Copyable, Movable):
                 style = stylers.whitespace.copy()
             else:
                 style = self._renderer.as_mist_style()
-            result = align_text_horizontal(result, self.get_horizontal_alignment(), width, style)
+            result = align_text_horizontal(result, self.get_horizontal_text_alignment(), width, style)
 
         # Apply border at the end
         if not inline:

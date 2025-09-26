@@ -5,11 +5,11 @@ from mog.join import join_horizontal
 from mog.position import Position
 from mog.size import get_height, get_width
 from mog.style import Style
-from mog.table.rows import StringData
+from mog.table.rows import Data
 from mog.table.util import largest, median, sum
 
 
-alias StyleFunction = fn (row: Int, col: Int) -> Style
+alias StyleFn = fn (data: Data, row: Int, col: Int) -> Style
 """Styling function that determines the style of a Cell.
 
 It takes the row and column of the cell as an input and determines the
@@ -19,36 +19,34 @@ lipgloss Style to use for that cell position.
 ```mojo
 import mog
 
+fn styler(data: mog.Data, row: Int, col: Int) -> mog.Style:
+    if row == 0:
+        return mog.Style().bold()
+    elif row % 2 == 0:
+        return mog.Style().italic()
+    else:
+        return mog.Style().faint()
+
 fn main():
-    var header_style =  mog.Style().bold()
-    var even_row_style = mog.Style().italic()
-    var odd_row_style = mog.Style().faint()
-
-    fn styler(row: Int, col: Int) -> mog.Style:
-        if row == 0:
-            return header_style.copy()
-        elif row%2 == 0:
-            return even_row_style.copy()
-        else:
-            return odd_row_style.copy()
-
-    var t = mog.Table.new().
-    set_headers("Name", "Age").
-    row("Kini", "4").
-    row("Eli", "1").
-    row("Iris", "102").
-    set_style(styler)
-
+    var t = mog.Table(
+        headers=["Name", "Age"],
+        data=mog.Data(
+            ["Kini", "4"],
+            ["Eli", "1"],
+            ["Iris", "102"],
+        ),
+        style_function=styler
+    )
     print(t)
 ```
-.
 """
 
 
-fn default_styles(row: Int, col: Int) -> Style:
+fn default_styles(data: Data, row: Int, col: Int) -> Style:
     """Returns a new Style with no attributes.
 
     Args:
+        data: The data of the table.
         row: The row of the cell.
         col: The column of the cell.
 
@@ -66,31 +64,29 @@ struct Table(Copyable, Movable, Stringable, Writable):
     ```mojo
     import mog
 
+    fn styler(data: mog.Data, row: Int, col: Int) -> mog.Style:
+        if row == 0:
+            return mog.Style().bold_text()
+        elif row % 2 == 0:
+            return mog.Style().italicize_text()
+        else:
+            return mog.Style().faint_text()
+
     fn main():
-        var header_style =  mog.Style().bold()
-        var even_row_style = mog.Style().italic()
-        var odd_row_style = mog.Style().faint()
-
-        fn styler(row: Int, col: Int) -> mog.Style:
-            if row == 0:
-                return header_style.copy()
-            elif row%2 == 0:
-                return even_row_style.copy()
-            else:
-                return odd_row_style.copy()
-
-        var t = mog.Table.new().
-        set_headers("Name", "Age").
-        row("Kini", "4").
-        row("Eli", "1").
-        row("Iris", "102").
-        set_style(styler)
-
+        var t = mog.Table(
+            headers=["Name", "Age"],
+            data=mog.Data(
+                ["Kini", "4"],
+                ["Eli", "1"],
+                ["Iris", "102"],
+            ),
+            style_function=styler
+        )
         print(t)
     ```
     """
 
-    var _styler: StyleFunction
+    var _styler: StyleFn
     """The style function that determines the style of a cell. It returns a `mog.Style` for a given row and column position."""
     var _border: Border
     """The border style to use for the table."""
@@ -112,7 +108,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
     """The style to use for the border."""
     var _headers: List[String]
     """The headers of the table."""
-    var _data: StringData
+    var data: Data
     """The data of the table."""
     var width: Int
     """The width of the table."""
@@ -124,8 +120,8 @@ struct Table(Copyable, Movable, Stringable, Writable):
     fn __init__(
         out self,
         *,
-        style_function: StyleFunction,
-        border_style: Style,
+        style_function: StyleFn = default_styles,
+        border_style: Optional[Style] = None,
         border: Border = ROUNDED_BORDER,
         border_top: Bool = True,
         border_bottom: Bool = True,
@@ -135,7 +131,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
         border_column: Bool = True,
         border_row: Bool = False,
         var headers: List[String] = List[String](),
-        var data: StringData = StringData(),
+        var data: Data = Data(),
         width: Int = 0,
         height: Int = 0,
     ):
@@ -159,7 +155,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
         """
         self._styler = style_function
         self._border = border.copy()
-        self._border_style = border_style.copy()
+        self._border_style = border_style.value().copy() if border_style else mog.Style()
         self._border_top = border_top
         self._border_bottom = border_bottom
         self._border_left = border_left
@@ -168,7 +164,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
         self._border_column = border_column
         self._border_row = border_row
         self._headers = headers^
-        self._data = data^
+        self.data = data^
         self.width = width
         self.height = height
         self._offset = 0
@@ -190,7 +186,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
         self._border_column = other._border_column
         self._border_row = other._border_row
         self._headers = other._headers^
-        self._data = other._data^
+        self.data = other.data^
         self.width = other.width
         self.height = other.height
         self._offset = other._offset
@@ -213,31 +209,52 @@ struct Table(Copyable, Movable, Stringable, Writable):
             border_column=self._border_column,
             border_row=self._border_row,
             headers=self._headers.copy(),
-            data=self._data.copy(),
+            data=self.data.copy(),
             width=self.width,
             height=self.height,
         )
 
-    @staticmethod
-    fn new() -> Self:
-        """Returns a new Table, this is to bypass the compiler limitation on these args having default values.
-        It seems like argument default values are handled at compile time, and mog Styles are not compile time constants,
-        UNLESS a profile is specified ahead of time.
+    fn copy_without_data(self) -> Self:
+        """Returns a copy of the Table with an empty Data attribute.
 
         Returns:
-            A new Table.
+            A copy of the Table.
         """
-        return Table(style_function=default_styles, border_style=mog.Style())
+        return Self(
+            style_function=self._styler,
+            border_style=self._border_style.copy(),
+            border=self._border,
+            border_top=self._border_top,
+            border_bottom=self._border_bottom,
+            border_left=self._border_left,
+            border_right=self._border_right,
+            border_header=self._border_header,
+            border_column=self._border_column,
+            border_row=self._border_row,
+            headers=self._headers.copy(),
+            data=Data(),
+            width=self.width,
+            height=self.height,
+        )
 
-    fn clear_rows(self) -> Table:
+    # @staticmethod
+    # fn new() -> Self:
+    #     """Returns a new Table, this is to bypass the compiler limitation on these args having default values.
+    #     It seems like argument default values are handled at compile time, and mog Styles are not compile time constants,
+    #     UNLESS a profile is specified ahead of time.
+
+    #     Returns:
+    #         A new Table.
+    #     """
+    #     return Table[styler=default_styles](border_style=mog.Style())
+
+    fn clear_rows(self) -> Self:
         """Clears the table rows.
 
         Returns:
             The updated table.
         """
-        var new = self.copy()
-        new._data = StringData()
-        return new^
+        return self.copy_without_data()
 
     fn style(self, row: Int, col: Int) -> Style:
         """Returns the style for a cell based on it's position (row, column).
@@ -249,66 +266,66 @@ struct Table(Copyable, Movable, Stringable, Writable):
         Returns:
             The style for the cell.
         """
-        return self._styler(row, col)
+        return self._styler(self.data, row, col)
 
-    fn rows(self, *rows: List[String]) -> Table:
-        """Returns the style for a cell based on it's position (row, column).
+    # fn rows(self, *rows: List[String]) -> Self:
+    #     """Returns the style for a cell based on it's position (row, column).
 
-        Args:
-            rows: The rows to add to the table.
+    #     Args:
+    #         rows: The rows to add to the table.
 
-        Returns:
-            The updated table.
-        """
-        var new = self.copy()
-        for i in range(len(rows)):
-            new._data.append(rows[i].copy())
-        return new^
+    #     Returns:
+    #         The updated table.
+    #     """
+    #     var new = self.copy()
+    #     for i in range(len(rows)):
+    #         new.data.append(rows[i].copy())
+    #     return new^
 
-    fn rows(self, rows: List[List[String]]) -> Table:
-        """Appends the data from `rows` to the table.
+    # fn rows(self, rows: List[List[String]]) -> Self:
+    #     """Appends the data from `rows` to the table.
 
-        Args:
-            rows: The rows to add to the table.
+    #     Args:
+    #         rows: The rows to add to the table.
 
-        Returns:
-            The updated table.
-        """
-        var new = self.copy()
-        for row in rows:
-            new._data.append(row.copy())
-        return new^
+    #     Returns:
+    #         The updated table.
+    #     """
+    #     var new = self.copy()
+    #     for row in rows:
+    #         new.data.append(row.copy())
+    #     return new^
 
-    fn row(self, *row: String) -> Table:
-        """Appends a row to the table data.
+    # fn row(self, *row: String) -> Self:
+    #     """Appends a row to the table data.
 
-        Args:
-            row: The row to append to the table.
+    #     Args:
+    #         row: The row to append to the table.
 
-        Returns:
-            The updated table.
-        """
-        var new = self.copy()
-        var temp = List[String](capacity=len(row))
-        for element in row:
-            temp.append(element)
-        new._data.append(temp^)
-        return new^
+    #     Returns:
+    #         The updated table.
+    #     """
+    #     var new = self.copy()
+    #     var temp = List[String](capacity=len(row))
+    #     for element in row:
+    #         temp.append(element)
+    #     new.data.append(temp^)
+    #     return new^
 
-    fn row(self, var row: List[String]) -> Table:
-        """Appends a row to the table data.
+    # fn row(self, var row: List[String]) -> Self:
+    #     """Appends a row to the table data.
 
-        Args:
-            row: The row to append to the table.
+    #     Args:
+    #         row: The row to append to the table.
 
-        Returns:
-            The updated table.
-        """
-        var new = self.copy()
-        new._data.append(row^)
-        return new^
+    #     Returns:
+    #         The updated table.
+    #     """
+    #     var new = self.copy()
+    #     new.data.append(row^)
+    #     return new^
 
-    fn set_headers(self, *headers: String) -> Table:
+    fn set_headers(self, *headers: String) -> Self:
         """Sets the table headers.
 
         Args:
@@ -324,7 +341,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
         new._headers = temp^
         return new^
 
-    fn set_headers(self, var headers: List[String]) -> Table:
+    fn set_headers(self, var headers: List[String]) -> Self:
         """Sets the table headers.
 
         Args:
@@ -337,19 +354,19 @@ struct Table(Copyable, Movable, Stringable, Writable):
         new._headers = headers^
         return new^
 
-    fn set_style(self, styler: StyleFunction) -> Table:
-        """Sets the table headers.
+    # fn set_style(self, styler: StyleFunction) -> Self:
+    #     """Sets the table headers.
 
-        Args:
-            styler: The style function to use.
+    #     Args:
+    #         styler: The style function to use.
 
-        Returns:
-            The updated table.
-        """
-        var new = self.copy()
-        new._styler = styler
-        return new^
-    
+    #     Returns:
+    #         The updated table.
+    #     """
+    #     var new = self.copy()
+    #     new._styler = styler
+    #     return new^
+
     fn write_to[W: Writer, //](self, mut writer: W):
         """Writes the table to the writer.
 
@@ -360,7 +377,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
             writer: The writer to write to.
         """
         var has_headers = len(self._headers) > 0
-        var has_rows = self._data.rows() > 0
+        var has_rows = self.data.rows() > 0
         if not has_headers and not has_rows:
             return
 
@@ -370,18 +387,18 @@ struct Table(Copyable, Movable, Stringable, Writable):
         var headers = self._headers.copy()
         if has_headers:
             var i = len(headers)
-            while i < self._data.columns():
+            while i < self.data.columns():
                 headers.append("")
                 i += 1
 
         # Initialize the widths.
-        var widths_len = max(len(self._headers), self._data.columns())
+        var widths_len = max(len(self._headers), self.data.columns())
         var widths = List[Int](capacity=widths_len)
         for _ in range(widths_len):
             widths.append(0)
 
         # Initialize the heights.
-        var heights_len = Int(has_headers) + self._data.rows()
+        var heights_len = Int(has_headers) + self.data.rows()
         var heights = List[Int](capacity=heights_len)
         for _ in range(heights_len):
             heights.append(0)
@@ -394,11 +411,10 @@ struct Table(Copyable, Movable, Stringable, Writable):
             heights[0] = get_height(self.style(0, i).render(headers[i]))
 
         var row_number = 0
-        while row_number < self._data.rows():
+        while row_number < self.data.rows():
             var column_number = 0
-            while column_number < self._data.columns():
-                var rendered = self.style(row_number + 1, column_number).render(self._data[row_number, column_number])
-
+            while column_number < self.data.columns():
+                var rendered = self.style(row_number + 1, column_number).render(self.data[row_number, column_number])
                 var row_number_with_header_offset = row_number + Int(has_headers)
                 heights[row_number_with_header_offset] = max(
                     heights[row_number_with_header_offset],
@@ -459,10 +475,10 @@ struct Table(Copyable, Movable, Stringable, Writable):
             # column, and shrink the columns based on the largest difference.
             var column_medians = List[Int](capacity=len(widths))
             for i in range(len(widths)):
-                var trimmed_width = List[Int](capacity=self._data.rows())
+                var trimmed_width = List[Int](capacity=self.data.rows())
 
-                for r in range(self._data.rows()):
-                    var rendered_cell = self.style(r + Int(has_headers), i).render(self._data[r, i])
+                for r in range(self.data.rows()):
+                    var rendered_cell = self.style(r + Int(has_headers), i).render(self.data[r, i])
                     var non_whitespace_chars = get_width(rendered_cell.removesuffix(" "))
                     trimmed_width[r] = non_whitespace_chars + 1
 
@@ -501,7 +517,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
             result.write(self._construct_headers(widths, headers), NEWLINE)
 
         var r = self._offset
-        while r < self._data.rows():
+        while r < self.data.rows():
             result.write(self._construct_row(r, widths, heights, headers))
             r += 1
 
@@ -509,7 +525,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
             result.write(self._construct_bottom_border(widths))
 
         writer.write(
-            mog.Style(Profile.ASCII).max_height(self._compute_height(heights)).max_width(self.width).render(result)
+            mog.Style(Profile.ASCII, max_height=self._compute_height(heights), max_width=self.width).render(result)
         )
 
     fn __str__(self) -> String:
@@ -551,7 +567,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
             + Int(self._border_top)
             + Int(self._border_bottom)
             + Int(self._border_header)
-            + self._data.rows() * Int(self._border_row)
+            + self.data.rows() * Int(self._border_row)
         )
 
     fn _construct_top_border(self, widths: List[Int]) -> String:
@@ -622,7 +638,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
             result.write(self._border_style.render(self._border.left))
 
         for i in range(len(headers)):
-            var style = self.style(0, i).max_height(1).width(widths[i]).max_width(widths[i])
+            var style = self.style(0, i).set_max_height(1).set_width(widths[i]).set_max_width(widths[i])
 
             result.write(style.render(truncate(headers[i], widths[i], "…")))
             if (i < len(headers) - 1) and (self._border_column):
@@ -676,10 +692,10 @@ struct Table(Copyable, Movable, Stringable, Writable):
             cells.append(left)
 
         var c = 0
-        while c < self._data.columns():
-            var style = self.style(index + 1, c).height(height).max_height(height).width(widths[c]).max_width(widths[c])
-            cells.append(style.render(truncate(self._data[index, c], widths[c] * height, "…")))
-            if c < self._data.columns() - 1 and self._border_column:
+        while c < self.data.columns():
+            var style = self.style(index + 1, c).set_height(height).set_max_height(height).set_width(widths[c]).set_max_width(widths[c])
+            cells.append(style.render(truncate(self.data[index, c], widths[c] * height, "…")))
+            if c < self.data.columns() - 1 and self._border_column:
                 cells.append(left)
 
             c += 1
@@ -695,7 +711,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
 
         result.write(join_horizontal(Position.TOP, cells), "\n")
 
-        if self._border_row and index < self._data.rows() - 1:
+        if self._border_row and index < self.data.rows() - 1:
             result.write(self._border_style.render(self._border.middle_left))
             var i = 0
             while i < len(widths):

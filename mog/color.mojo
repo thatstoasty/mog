@@ -3,7 +3,7 @@ from mog.renderer import Renderer
 from utils.variant import Variant
 
 
-trait TerminalColor(ImplicitlyCopyable, Copyable, Movable):
+trait TerminalColor(Copyable, ImplicitlyCopyable, Movable):
     """Color intended to be rendered in the terminal."""
 
     fn color(self, renderer: Renderer) -> mist.AnyColor:
@@ -32,7 +32,7 @@ struct NoColor(TerminalColor):
 
     ### Examples:
     ```mojo
-    var style = mog.Style().background(mog.NoColor())
+    var style = mog.Style(background_color=mog.NoColor())
     ```
     """
 
@@ -255,7 +255,7 @@ struct CompleteAdaptiveColor(TerminalColor):
         return self.light.color(renderer)
 
 
-struct AnyTerminalColor(ImplicitlyCopyable, Copyable, Movable):
+struct AnyTerminalColor(Copyable, ImplicitlyCopyable, Movable):
     """A type that can hold any terminal color."""
 
     var value: Variant[
@@ -403,3 +403,19 @@ struct AnyTerminalColor(ImplicitlyCopyable, Copyable, Movable):
             The value as the given type.
         """
         return self.value[T]
+    
+    fn is_same_type(self, other: Self) -> Bool:
+        if self.value.isa[Color]() and other.value.isa[Color]():
+            return True
+        elif self.value.isa[ANSIColor]() and other.value.isa[ANSIColor]():
+            return True
+        elif self.value.isa[AdaptiveColor]() and other.value.isa[AdaptiveColor]():
+            return True
+        elif self.value.isa[CompleteColor]() and other.value.isa[CompleteColor]():
+            return True
+        elif self.value.isa[CompleteAdaptiveColor]() and other.value.isa[CompleteAdaptiveColor]():
+            return True
+        elif self.value.isa[NoColor]() and other.value.isa[NoColor]():
+            return True
+        
+        return False

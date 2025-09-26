@@ -5,33 +5,34 @@ import mog
 
 fn basic_styling():
     var style = (
-        mog.Style()
-        .bold(True)
-        .foreground(mog.Color(0xFAFAFA))
-        .background(mog.Color(0x7D56F4))
-        .padding_top(2)
-        .padding_left(4)
-        .width(22)
+        mog.Style(
+            color=mog.Color(0xFAFAFA),
+            background_color=mog.Color(0x7D56F4),
+            width=22,
+        )
+        .bold_text()
+        .set_padding(top=2, left=4)
     )
 
     var output = style.render("Hello, kitty")
-    _ = output
+    _ = output^
 
 
 alias file_style = (
-    mog.Style(mog.Profile.TRUE_COLOR)
-    .bold(True)
-    .foreground(mog.Color(0xFAFAFA))
-    .background(mog.Color(0x7D56F4))
-    .padding_top(2)
-    .padding_left(4)
-    .width(22)
+    mog.Style(
+        mog.Profile.TRUE_COLOR,
+        color=mog.Color(0xFAFAFA),
+        background_color=mog.Color(0x7D56F4),
+        width=22,
+    )
+    .bold_text()
+    .set_padding(top=2, left=4)
 )
 
 
 fn basic_comptime_styling():
     var output = file_style.render("Hello, kitty")
-    _ = output
+    _ = output^
 
 
 fn basic_styling_big_file():
@@ -39,10 +40,12 @@ fn basic_styling_big_file():
     try:
         with open("./benchmarks/data/big.txt", "r") as file:
             content = file.read()
-            var style = mog.Style().bold(True).foreground(mog.Color(0xFAFAFA)).background(mog.Color(0x7D56F4)).width(
-                100
-            )
+            var style = mog.Style(
+                width=100,
+                color=mog.Color(0xFAFAFA),
+                background_color=mog.Color(0x7D56F4)
+            ).bold_text()
             var output = style.render(content)
-            _ = output
+            _ = output^
     except e:
         print(e)

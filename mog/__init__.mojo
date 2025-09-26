@@ -23,7 +23,8 @@ from mog.renderer import Renderer
 from mog.size import get_dimensions, get_height, get_width
 from mog.style import NO_TAB_CONVERSION, Style
 
-from mog.table import Data, Filter, StringData, Table, default_styles
+from mog.table import Data, Table, default_styles
+
 
 alias WHITESPACE = " "
 alias NEWLINE = "\n"

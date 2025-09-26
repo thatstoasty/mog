@@ -1,3 +1,3 @@
-from mog.table.rows import Data, Filter, StringData
+from mog.table.rows import Data
 
-from mog.table.table import StyleFunction, Table, default_styles
+from mog.table.table import StyleFn, Table, default_styles

@@ -6,7 +6,7 @@ from mog.style import Style
 
 import mog
 from mog import Position
-from mog.table import StringData, Table
+from mog.table import Data, Table
 from mog.table.table import default_styles
 
 

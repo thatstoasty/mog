@@ -38,9 +38,7 @@ fn _get_lines_mem[
     for i in range(len(blocks)):
         if len(blocks[i]) >= max_height:
             continue
-        var extra_lines = List[StringSlice[origin]](
-            length=max_height - len(blocks[i]), fill=StringSlice[origin]()
-        )
+        var extra_lines = List[StringSlice[origin]](length=max_height - len(blocks[i]), fill=StringSlice[origin]())
         if pos == Position.TOP:
             blocks[i].extend(other=extra_lines^)
         elif pos == Position.BOTTOM:

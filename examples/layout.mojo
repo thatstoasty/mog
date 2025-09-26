@@ -67,7 +67,7 @@ fn build_tabs() -> String:
     alias tab_color = mog.AdaptiveColor(light=0x874BFD, dark=0xFF713C)
     var tab_style = mog.Style().border(tab_border).border_foreground(tab_color).padding(0, 1)
     var active_tab = tab_style.border(active_tab_border, True)
-    var tab_gap = tab_style.border_top(False).border_left(False).border_right(False).border_bottom(True)
+    var tab_gap = tab_style.set_border(top=False, right=False, bottom=True, left=False)
 
     var row = join_horizontal(
         Position.TOP,

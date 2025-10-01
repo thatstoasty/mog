@@ -162,11 +162,23 @@ struct Padding(Copyable, Movable):
     var left: UInt16
     """The padding level to the left of the text."""
 
-    fn __init__(out self, top: UInt16 = 0, right: UInt16 = 0, bottom: UInt16 = 0, left: UInt16 = 0):
+    fn __init__(out self, *, top: UInt16 = 0, right: UInt16 = 0, bottom: UInt16 = 0, left: UInt16 = 0):
         self.top = top
         self.right = right
         self.bottom = bottom
         self.left = left
+    
+    fn __init__(out self, width: UInt16):
+        self.top = width
+        self.right = width
+        self.bottom = width
+        self.left = width
+    
+    fn __init__(out self, x_width: UInt16, y_width: UInt16):
+        self.top = y_width
+        self.right = x_width
+        self.bottom = y_width
+        self.left = x_width
 
 
 struct Margin(Copyable, ImplicitlyCopyable, Movable):
@@ -194,6 +206,20 @@ struct Margin(Copyable, ImplicitlyCopyable, Movable):
         self.bottom = bottom
         self.left = left
         self.background = background^
+    
+    fn __init__(out self, width: UInt16, var background: AnyTerminalColor = NoColor()):
+        self.top = width
+        self.right = width
+        self.bottom = width
+        self.left = width
+        self.background = background^
+    
+    fn __init__(out self, x_width: UInt16, y_width: UInt16, var background: AnyTerminalColor = NoColor()):
+        self.top = y_width
+        self.right = x_width
+        self.bottom = y_width
+        self.left = x_width
+        self.background = background^
 
     fn __moveinit__(out self, deinit other: Self):
         self.top = other.top
@@ -218,18 +244,6 @@ struct Dimensions(Copyable, Movable):
     fn __init__(out self, height: UInt16 = 0, width: UInt16 = 0):
         self.height = height
         self.width = width
-
-
-@register_passable("trivial")
-struct Alignment(Copyable, Movable):
-    var horizontal: Position
-    """The horizontal alignment of the text."""
-    var vertical: Position
-    """The vertical alignment of the text."""
-
-    fn __init__(out self, horizontal: Position = Position(0), vertical: Position = Position(0)):
-        self.horizontal = horizontal
-        self.vertical = vertical
 
 
 struct Coloring(Copyable, ImplicitlyCopyable, Movable):
@@ -319,6 +333,46 @@ struct Side(ImplicitlyCopyable, Copyable, Movable, EqualityComparable):
     alias RIGHT = Self(1)
     alias BOTTOM = Self(2)
     alias LEFT = Self(3)
+
+    fn __eq__(self, other: Self) -> Bool:
+        return self.value == other.value
+
+
+@fieldwise_init
+struct Emphasis(ImplicitlyCopyable, Copyable, Movable, EqualityComparable):
+    var value: UInt8
+    alias BOLD = Self(0)
+    """Whether the text is bold."""
+    alias ITALIC = Self(1)
+    """Whether the text is italic."""
+    alias UNDERLINE = Self(2)
+    """Whether the text is underlined."""
+    alias STRIKETHROUGH = Self(3)
+    """Whether the text is strikethrough."""
+    alias REVERSE = Self(4)
+    """Whether the text is reversed."""
+    alias BLINK = Self(5)
+    """Whether the text is blinking."""
+    alias FAINT = Self(6)
+    """Whether the text is faint."""
+    alias UNDERLINE_SPACES = Self(7)
+    """Whether spaces between words are underlined."""
+    alias STRIKETHROUGH_SPACES = Self(8)
+    """Whether spaces between words are strikethrough."""
+    alias COLOR_WHITESPACE = Self(9)
+    """Whether whitespace background is colored."""
+
+    fn __eq__(self, other: Self) -> Bool:
+        return self.value == other.value
+
+
+@fieldwise_init
+struct Axis(ImplicitlyCopyable, Copyable, Movable, EqualityComparable):
+    var value: UInt8
+    alias HORIZONTAL = Self(0)
+    """Whether the axis is horizontal."""
+    alias VERTICAL = Self(1)
+    """Whether the axis is vertical."""
 
     fn __eq__(self, other: Self) -> Bool:
         return self.value == other.value

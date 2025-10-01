@@ -2,7 +2,7 @@
 description = "Style definitions for nice terminal layouts."
 authors = ["Mikhail Tavarez <miktavarez@gmail.com>"]
 channels = ["https://repo.prefix.dev/mojo-community", "conda-forge", "https://conda.modular.com/max", "https://prefix.dev/pixi-build-backends"]
-platforms = ["osx-arm64", "linux-64"]
+platforms = ["osx-arm64", "linux-64", "linux-aarch64"]
 license = "MIT"
 license-file = "LICENSE"
 readme = "README.md"
@@ -36,11 +36,11 @@ backend = { name = "pixi-build-mojo", version = "*" }
 
 [dependencies]
 mojo = ">=0.25.6.0,<0.25.7.0"
-mist = ">=25.6.0,<25.7.0"
+mist = ">=25.6.1,<25.7.0"
 
 [package.host-dependencies]
 mojo = ">=0.25.6.0,<0.25.7.0"
-mist = ">=25.6.0,<25.7.0"
+mist = ">=25.6.1,<25.7.0"
 
 [package.build-dependencies]
 mojo-compiler = ">=0.25.6.0,<0.25.7.0"
@@ -48,7 +48,7 @@ mist = ">=25.5.0,<25.6.0"
 
 [package.run-dependencies]
 mojo = ">=0.25.6.0,<0.25.7.0"
-mist = ">=25.6.0,<25.7.0"
+mist = ">=25.6.1,<25.7.0"
 
 [feature.util.dependencies]
 typer = ">=0.16.0,<0.17"

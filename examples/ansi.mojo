@@ -2,7 +2,7 @@ import mog
 
 
 fn main():
-    var s = mog.Style(color=mog.Color(240))
+    var s = mog.Style(foreground=mog.Color(240))
     var table = mog.Table(
         width=50,
         data=mog.Data(

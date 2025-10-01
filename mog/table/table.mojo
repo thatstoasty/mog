@@ -18,14 +18,15 @@ lipgloss Style to use for that cell position.
 #### Examples:
 ```mojo
 import mog
+from mog import Emphasis
 
 fn styler(data: mog.Data, row: Int, col: Int) -> mog.Style:
     if row == 0:
-        return mog.Style().bold()
+        return mog.Style(emphasis=Emphasis.BOLD)
     elif row % 2 == 0:
-        return mog.Style().italic()
+        return mog.Style(emphasis=Emphasis.ITALIC)
     else:
-        return mog.Style().faint()
+        return mog.Style(emphasis=Emphasis.FAINT)
 
 fn main():
     var t = mog.Table(
@@ -63,14 +64,15 @@ struct Table(Copyable, Movable, Stringable, Writable):
     #### Examples:
     ```mojo
     import mog
+    from mog import Emphasis
 
     fn styler(data: mog.Data, row: Int, col: Int) -> mog.Style:
         if row == 0:
-            return mog.Style().bold_text()
+            return mog.Style(emphasis=Emphasis.BOLD)
         elif row % 2 == 0:
-            return mog.Style().italicize_text()
+            return mog.Style(emphasis=Emphasis.ITALIC)
         else:
-            return mog.Style().faint_text()
+            return mog.Style(emphasis=Emphasis.FAINT)
 
     fn main():
         var t = mog.Table(

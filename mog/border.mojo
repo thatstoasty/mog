@@ -352,17 +352,16 @@ fn render_horizontal_edge(left: StringSlice, var middle: String, right: StringSl
     var right_width = printable_rune_width(right)
 
     var output = String(left)
-    var middle_slice = middle.as_string_slice()
     var i = left_width + right_width
     var j = 0
     while i < width + right_width:
-        output.write(middle_slice[j])
+        output.write(middle[j])
         j += 1
 
-        if j >= len(middle_slice):
+        if j >= len(middle):
             j = 0
 
-        i += printable_rune_width(middle_slice[j])
+        i += printable_rune_width(middle[j])
 
     output.write(right)
     return output^

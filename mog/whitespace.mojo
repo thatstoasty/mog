@@ -1,6 +1,6 @@
 import mist.transform.ansi
 from mog._extensions import get_lines, get_widest_line
-from mog._properties import Alignment
+from mog.align import Alignment
 from mog.position import Position
 from mog.renderer import Renderer
 
@@ -28,7 +28,7 @@ struct WhitespaceRenderer(Copyable, Movable):
             chars: The characters to render.
         """
         # TODO: Assume dark background for now, until I add support to mist for querying background color.
-        self.renderer = style._renderer
+        self.renderer = style.renderer
         self.style = style.copy()
         self.chars = chars.copy()
 

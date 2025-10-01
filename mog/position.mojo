@@ -1,3 +1,4 @@
+@fieldwise_init
 @register_passable("trivial")
 struct Position(EqualityComparable):
     """Position represents a position along a horizontal or vertical axis. It's in
@@ -23,15 +24,6 @@ struct Position(EqualityComparable):
     """Aligns to the center."""
     alias LEFT = Self(0.0)
     """Aligns to the left."""
-
-    @implicit
-    fn __init__(out self, value: Float64):
-        """Initialize a new position.
-
-        Args:
-            value: The value of the position, between 0 and 1 inclusive.
-        """
-        self.value = value
 
     fn __eq__(self, other: Self) -> Bool:
         """Check if two positions are equal.

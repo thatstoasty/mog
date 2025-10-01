@@ -5,23 +5,25 @@ from mog.join import join_horizontal, join_vertical
 from mog.style import Style
 
 import mog
-from mog import Position
+from mog import Position, Alignment, Padding
 from mog.table import Data, Table
 from mog.table.table import default_styles
 
 
 fn dummy_style_func(data: Data, row: Int, col: Int) -> Style:
-    var style = mog.Style().horizontal_alignment(Position.CENTER).vertical_alignment(Position.CENTER).padding(0, 1)
+    var style = mog.Style(alignment=Alignment(Position.CENTER), padding=Padding(1, 0))
     if row == 0:
-        return style.foreground(mog.Color(0xC9A0DC))
+        return style.set_foreground_color(mog.Color(0xC9A0DC))
     elif row % 2 == 0:
-        return style.foreground(mog.Color(0xE58006))
+        return style.set_foreground_color(mog.Color(0xE58006))
     else:
         return style^
 
 
 def main():
-    var border_style = mog.Style().foreground(mog.Color(0x39E506))
+    var border_style = mog.Style(
+        foreground=mog.Color(0x39E506)
+    )
 
     var table = Table(
         style_function=dummy_style_func,

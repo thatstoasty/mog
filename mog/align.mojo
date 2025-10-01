@@ -1,11 +1,27 @@
 import mist
-import mog.position
 from mist.transform.ansi import printable_rune_width
 from mog._extensions import get_widest_line
+from mog.position import Position
+
+
+@register_passable("trivial")
+struct Alignment(Copyable, Movable):
+    var horizontal: Position
+    """The horizontal alignment of the text."""
+    var vertical: Position
+    """The vertical alignment of the text."""
+
+    fn __init__(out self, *, horizontal: Position = Position(0), vertical: Position = Position(0)):
+        self.horizontal = horizontal
+        self.vertical = vertical
+    
+    fn __init__(out self, alignment: Position):
+        self.horizontal = alignment
+        self.vertical = alignment
 
 
 fn align_text_horizontal(
-    text: StringSlice, pos: position.Position, width: UInt16, style: Optional[mist.Style] = None
+    text: StringSlice, pos: Position, width: UInt16, style: Optional[mist.Style] = None
 ) -> String:
     """Aligns the text on the horizontal axis. If the string is multi-lined, we also make all lines
     the same width by padding them with spaces. The mist style is used to style the spaces added.
@@ -66,7 +82,7 @@ fn align_text_horizontal(
     return aligned^
 
 
-fn align_text_vertical(text: StringSlice, pos: position.Position, height: UInt16) -> String:
+fn align_text_vertical(text: StringSlice, pos: Position, height: UInt16) -> String:
     """Aligns the text on the vertical axis. If the string is shorter than the height, it's padded
     with newlines. If the string is taller than the height, return the original
     string.

@@ -3,7 +3,7 @@ import pathlib
 import benchmark
 from benchmark import Bench, BenchConfig, Bencher, BenchId, BenchMetric, ThroughputMeasure
 from functions.basic_styling import basic_comptime_styling, basic_styling, basic_styling_big_file
-# from functions.layout import render_layout
+from functions.layout import render_layout
 
 import mog
 
@@ -20,14 +20,14 @@ fn run[func: fn (mut Bencher, String) raises capturing, name: String](mut m: Ben
     m.bench_with_input[String, func](BenchId(name), data, get_gbs_measure(data))
 
 
-# @parameter
-# fn test_render_layout(mut b: Bencher) raises:
-#     @always_inline
-#     @parameter
-#     fn do() raises:
-#         _ = render_layout()
+@parameter
+fn test_render_layout(mut b: Bencher) raises:
+    @always_inline
+    @parameter
+    fn do() raises:
+        _ = render_layout()
 
-#     b.iter[do]()
+    b.iter[do]()
 
 
 @parameter
@@ -74,7 +74,7 @@ fn main() raises:
 
     # run[bench_get_width, "GetWidth"](bench, data)
 
-    # run[test_render_layout, "Layout"](bench)
+    run[test_render_layout, "Layout"](bench)
     run[test_basic_styling, "BasicStyle"](bench)
     run[test_basic_comptime_styling, "CompTimeBasicStyle"](bench)
     # run[bench_get_width, "GetWidth"](bench)

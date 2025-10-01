@@ -5,16 +5,21 @@ from mog.join import join_horizontal, join_vertical
 from mog.style import Style
 
 import mog
-from mog import Position
+from mog import Position, Emphasis, Padding, Alignment
 from mog.table import Data, Table
 from mog.table.table import default_styles
 
 
 def test_horizontal_joined_paragraphs():
     var style_build_start = perf_counter_ns()
-    var style = mog.Style().bold().width(50).padding(1, 1, 1, 1).horizontal_alignment(Position.CENTER).border(
-        ROUNDED_BORDER
-    ).foreground(mog.Color(0xC9A0DC)).border_foreground(mog.Color(0x39E506))
+    var style = mog.Style(
+        width=50,
+        foreground=mog.Color(0xC9A0DC),
+        border=ROUNDED_BORDER,
+        emphasis=Emphasis.BOLD,
+        padding=Padding(1),
+        alignment=Alignment(horizontal=Position.CENTER),
+    ).set_border_foreground(mog.Color(0x39E506))
     var style_build_duration = perf_counter_ns() - style_build_start
     print("Style build duration: ", style_build_duration, style_build_duration / 1e9)
     var start_time = perf_counter_ns()
@@ -70,9 +75,13 @@ def test_horizontal_joined_paragraphs():
 
 
 def test_borderless_paragraph():
-    var borderless_style = mog.Style().width(50).padding(1, 2).horizontal_alignment(Position.CENTER).border(
-        HIDDEN_BORDER
-    ).background(mog.Color(0xC9A0DC))
+    var borderless_style = mog.Style(
+        width=50,
+        background=mog.Color(0xC9A0DC),
+        border=HIDDEN_BORDER,
+        padding=Padding(1, 2),
+        alignment=Alignment(horizontal=Position.CENTER),
+    )
 
     print(
         join_horizontal(

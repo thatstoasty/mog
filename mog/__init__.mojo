@@ -1,6 +1,6 @@
 from mist import Profile
-from mog._properties import Alignment
-from mog.align import align_text_horizontal, align_text_vertical
+from mog._properties import Emphasis, Axis, Padding, Margin
+from mog.align import align_text_horizontal, align_text_vertical, Alignment
 from mog.border import (
     ASCII_BORDER,
     BLOCK_BORDER,

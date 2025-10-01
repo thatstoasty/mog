@@ -9,10 +9,12 @@ def test_sum():
 
 
 def test_median():
-    testing.assert_equal(median(List[Int](1, 2, 3, 4, 5)), 3)
+    var numbers = List[Int](1, 2, 3, 4, 5)
+    testing.assert_equal(median(numbers), 3)
 
 
 def test_largest():
-    var result = largest(List[Int](1, 2, 3, 4, 5))
+    var numbers = List[Int](1, 2, 3, 4, 5)
+    var result = largest(numbers)
     testing.assert_equal(result[0], 4)
     testing.assert_equal(result[1], 5)

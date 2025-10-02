@@ -44,7 +44,7 @@ mist = ">=25.6.1,<25.7.0"
 
 [package.build-dependencies]
 mojo-compiler = ">=0.25.6.0,<0.25.7.0"
-mist = ">=25.5.0,<25.6.0"
+mist = ">=25.6.1,<25.7.0"
 
 [package.run-dependencies]
 mojo = ">=0.25.6.0,<0.25.7.0"

@@ -37,6 +37,7 @@ jobs:
         shell: bash
         env:
           CLICOLOR_FORCE: 1
+          TERN: xterm-256color
         run: |
           pixi run tests
           pixi run examples

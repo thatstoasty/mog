@@ -1,14 +1,14 @@
 from benchmark.compiler import keep
 
 import mog
-from mog import Padding, TextStyle, Profile
+from mog import Padding, Emphasis, Profile
 
 fn basic_styling():
     var style = mog.Style(
         width=22,
         foreground=mog.Color(0xFAFAFA),
         background=mog.Color(0x7D56F4),
-        text_style=TextStyle.BOLD,
+        emphasis=Emphasis.BOLD,
         padding=Padding(top=2, left=4),
     )
 
@@ -21,7 +21,7 @@ alias file_style = mog.Style(
     width=22,
     foreground=mog.Color(0xFAFAFA),
     background=mog.Color(0x7D56F4),
-    text_style=TextStyle.BOLD,
+    emphasis=Emphasis.BOLD,
     padding=Padding(top=2, left=4),
 )
 
@@ -40,7 +40,7 @@ fn basic_styling_big_file():
                 width=100,
                 foreground=mog.Color(0xFAFAFA),
                 background=mog.Color(0x7D56F4),
-                text_style=TextStyle.BOLD,
+                emphasis=Emphasis.BOLD,
             )
             var output = style.render(content)
             _ = output^

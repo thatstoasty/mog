@@ -2,10 +2,10 @@ import testing
 from mog.whitespace import WhitespaceRenderer
 
 import mog
-from mog import Alignment, Position
+from mog import Alignment, Position, Profile
 
 
-alias ANSI_STYLE = mog.Style(mog.Profile.ANSI)
+alias ANSI_STYLE = mog.Style(Profile.ANSI)
 
 def test_with_whitespace_background():
     # Use a renderer with a specific profile to ensure consistent output.
@@ -44,10 +44,9 @@ def test_multiple_whitespace_options():
     )
 
 
-
+alias TRUE_COLOR_RENDERER = WhitespaceRenderer(style=mog.Style(Profile.TRUE_COLOR))
 
 def test_place_horizontal():
-    var TRUE_COLOR_RENDERER = WhitespaceRenderer(style=mog.Style(mog.Profile.TRUE_COLOR))
     testing.assert_equal(TRUE_COLOR_RENDERER.place_horizontal("Hello, World!", 18, Position.CENTER), "  Hello, World!   ")
 
     # Text longer than width, return same string
@@ -55,17 +54,17 @@ def test_place_horizontal():
 
 
 def test_place_horizontal_left():
-    var TRUE_COLOR_RENDERER = WhitespaceRenderer(style=mog.Style(mog.Profile.TRUE_COLOR))
+
     testing.assert_equal(TRUE_COLOR_RENDERER.place_horizontal("Hello, World!", 18, Position.LEFT), "Hello, World!     ")
 
 
 def test_place_horizontal_right():
-    var TRUE_COLOR_RENDERER = WhitespaceRenderer(style=mog.Style(mog.Profile.TRUE_COLOR))
+
     testing.assert_equal(TRUE_COLOR_RENDERER.place_horizontal("Hello, World!", 18, Position.RIGHT), "     Hello, World!")
 
 
 def test_place_horizontal_fractional():
-    var TRUE_COLOR_RENDERER = WhitespaceRenderer(style=mog.Style(mog.Profile.TRUE_COLOR))
+
     # 0 ---------- 1
     # left ----- right
     testing.assert_equal(TRUE_COLOR_RENDERER.place_horizontal("Hello, World!", 18, Position(0.2)), " Hello, World!    ")
@@ -73,7 +72,7 @@ def test_place_horizontal_fractional():
 
 
 def test_place_vertical():
-    var TRUE_COLOR_RENDERER = WhitespaceRenderer(style=mog.Style(mog.Profile.TRUE_COLOR))
+
     testing.assert_equal(TRUE_COLOR_RENDERER.place_vertical("Hello, World!", 3, Position.CENTER), "             \nHello, World!\n             ")
 
     # Text taller than height, return same string
@@ -81,17 +80,17 @@ def test_place_vertical():
 
 
 def test_place_vertical_top():
-    var TRUE_COLOR_RENDERER = WhitespaceRenderer(style=mog.Style(mog.Profile.TRUE_COLOR))
+
     testing.assert_equal(TRUE_COLOR_RENDERER.place_vertical("Hello, World!", 3, Position.TOP), "Hello, World!\n             \n             ")
 
 
 def test_place_vertical_bottom():
-    var TRUE_COLOR_RENDERER = WhitespaceRenderer(style=mog.Style(mog.Profile.TRUE_COLOR))
+
     testing.assert_equal(TRUE_COLOR_RENDERER.place_vertical("Hello, World!", 3, Position.BOTTOM), "             \n             \nHello, World!")
 
 
 def test_place_vertical_fractional():
-    var TRUE_COLOR_RENDERER = WhitespaceRenderer(style=mog.Style(mog.Profile.TRUE_COLOR))
+
     testing.assert_equal(
         TRUE_COLOR_RENDERER.place_vertical("Hello, World!", 5, Position(0.2)),
         "             \nHello, World!\n             \n             \n             "
@@ -103,7 +102,7 @@ def test_place_vertical_fractional():
 
 
 def test_place():
-    var TRUE_COLOR_RENDERER = WhitespaceRenderer(style=mog.Style(mog.Profile.TRUE_COLOR))
+
     testing.assert_equal(TRUE_COLOR_RENDERER.place(18, 3, Alignment(horizontal=Position.CENTER, vertical=Position.CENTER), "Hello, World!"), "                  \n  Hello, World!   \n                  ")
 
     # Text taller than height, return width padded string

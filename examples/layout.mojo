@@ -99,7 +99,7 @@ fn build_description() -> String:
             title.write("\n")
 
     var divider = mog.Style(
-        padding=Padding(0, 1),
+        padding=Padding(1, 0),
         foreground=subtle,
     ).render("•")
     var url = mog.Style(foreground=special)
@@ -117,7 +117,7 @@ fn build_description() -> String:
 fn build_dialog_box() -> String:
     var dialog_box_style = mog.Style(
         border=ROUNDED_BORDER,
-        padding=Padding(1, 0),
+        padding=Padding(top=1, right=1, left=1),
         alignment=Alignment(Position.CENTER),
     ).set_border_foreground(mog.Color(0xFF713C))
 
@@ -209,7 +209,7 @@ fn build_history() -> String:
         height=20,
         width=column_width,
         padding=Padding(left=1, right=1, top=1, bottom=2),
-        margin=Margin(top=1, right=3),
+        margin=Margin(right=3),
         foreground=mog.Color(0xFFFDF5),
         background=highlight,
     ).set_text_alignment(Axis.HORIZONTAL, Position.LEFT)

@@ -162,7 +162,6 @@ fn _apply_border(style: Style, text: String) -> String:
     var has_right = style.check_if_border_side_will_render(Side.RIGHT)
     var has_bottom = style.check_if_border_side_will_render(Side.BOTTOM)
     var has_left = style.check_if_border_side_will_render(Side.LEFT)
-    print(text, has_top, has_right, has_bottom, has_left)
 
     var is_no_border = border == NO_BORDER
 

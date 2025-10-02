@@ -8,7 +8,7 @@ from mog.size import get_width
 from mog.whitespace import WhitespaceRenderer
 
 import mog
-from mog import Position, Padding, Margin, TextStyle, Axis
+from mog import Position, Padding, Margin, Emphasis, Axis
 
 
 alias width = 96
@@ -88,7 +88,7 @@ fn build_description() -> String:
         foreground=mog.Color(0xFFFDF5),
         padding=Padding(1, 0),
         margin=Margin(left=1, right=5),
-        text_style=TextStyle.ITALIC,
+        emphasis=Emphasis.ITALIC,
     )
 
     for i in range(len(colors)):
@@ -99,7 +99,7 @@ fn build_description() -> String:
             title.write("\n")
 
     var divider = mog.Style(
-        padding=Padding(0, 1),
+        padding=Padding(1, 0),
         foreground=subtle,
     ).render("•")
     var url = mog.Style(foreground=special)
@@ -117,7 +117,7 @@ fn build_description() -> String:
 fn build_dialog_box() -> String:
     var dialog_box_style = mog.Style(
         border=ROUNDED_BORDER,
-        padding=Padding(1, 0),
+        padding=Padding(top=1, right=1, left=1),
         alignment=Alignment(Position.CENTER),
     ).set_border_foreground(mog.Color(0xFF713C))
 
@@ -128,7 +128,7 @@ fn build_dialog_box() -> String:
         margin=Margin(top=1),
     )
 
-    var active_button_style = button_style.set_foreground_color(mog.Color(0xFFF7DB)).set_background_color(mog.Color(0xF25D94)).set_margin(right=2).set_emphasis(TextStyle.UNDERLINE)
+    var active_button_style = button_style.set_foreground_color(mog.Color(0xFFF7DB)).set_background_color(mog.Color(0xF25D94)).set_margin(right=2).set_emphasis(Emphasis.UNDERLINE)
 
     var ok_button = active_button_style.render("Yes")
     var cancel_button = button_style.render("No")
@@ -162,7 +162,7 @@ fn build_lists() -> String:
     var list_item = mog.Style(padding=Padding(left=2))
     var check_mark = mog.Style(foreground=special, padding=Padding(right=1)).render("✔")
     var list_done = mog.Style(
-        text_style=TextStyle.STRIKETHROUGH,
+        emphasis=Emphasis.STRIKETHROUGH,
         foreground=mog.AdaptiveColor(light=0x969B86, dark=0x696969)
     )
 
@@ -209,7 +209,7 @@ fn build_history() -> String:
         height=20,
         width=column_width,
         padding=Padding(left=1, right=1, top=1, bottom=2),
-        margin=Margin(top=1, right=3),
+        margin=Margin(right=3),
         foreground=mog.Color(0xFFFDF5),
         background=highlight,
     ).set_text_alignment(Axis.HORIZONTAL, Position.LEFT)

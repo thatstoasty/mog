@@ -1,7 +1,7 @@
 from mist.transform.ansi import printable_rune_width
 
 
-struct Border(Copyable, ImplicitlyCopyable, Movable):
+struct Border(Copyable, ImplicitlyCopyable, Movable, EqualityComparable):
     """A border to use to wrap around text."""
 
     var top: String
@@ -78,28 +78,6 @@ struct Border(Copyable, ImplicitlyCopyable, Movable):
         self.middle_top = middle_top
         self.middle_bottom = middle_bottom
 
-    fn copy(self) -> Border:
-        """Create a copy of the border.
-
-        Returns:
-            A new instance of the border with the same properties.
-        """
-        return Border(
-            top=self.top,
-            bottom=self.bottom,
-            left=self.left,
-            right=self.right,
-            top_left=self.top_left,
-            top_right=self.top_right,
-            bottom_left=self.bottom_left,
-            bottom_right=self.bottom_right,
-            middle_left=self.middle_left,
-            middle_right=self.middle_right,
-            middle=self.middle,
-            middle_top=self.middle_top,
-            middle_bottom=self.middle_bottom,
-        )
-
     fn __eq__(self, other: Border) -> Bool:
         """Check if two borders are equal.
 
@@ -125,33 +103,8 @@ struct Border(Copyable, ImplicitlyCopyable, Movable):
             and self.middle_bottom == other.middle_bottom
         )
 
-    fn __ne__(self, other: Border) -> Bool:
-        """Check if two borders are not equal.
 
-        Args:
-            other: The other border to compare.
-
-        Returns:
-            Whether the two borders are not equal.
-        """
-        return (
-            self.top != other.top
-            or self.bottom != other.bottom
-            or self.left != other.left
-            or self.right != other.right
-            or self.top_left != other.top_left
-            or self.top_right != other.top_right
-            or self.bottom_left != other.bottom_left
-            or self.bottom_right != other.bottom_right
-            or self.middle_left != other.middle_left
-            or self.middle_right != other.middle_right
-            or self.middle != other.middle
-            or self.middle_top != other.middle_top
-            or self.middle_bottom != other.middle_bottom
-        )
-
-
-alias ASCII_BORDER = Border(
+comptime ASCII_BORDER = Border(
     top="-",
     bottom="_",
     left="|",
@@ -168,7 +121,7 @@ alias ASCII_BORDER = Border(
 )
 
 
-alias STAR_BORDER = Border(
+comptime STAR_BORDER = Border(
     top="*",
     bottom="*",
     left="*",
@@ -185,7 +138,7 @@ alias STAR_BORDER = Border(
 )
 
 
-alias PLUS_BORDER = Border(
+comptime PLUS_BORDER = Border(
     top="+",
     bottom="+",
     left="+",
@@ -202,7 +155,7 @@ alias PLUS_BORDER = Border(
 )
 
 
-alias NORMAL_BORDER = Border(
+comptime NORMAL_BORDER = Border(
     top="─",
     bottom="─",
     left="│",
@@ -219,7 +172,7 @@ alias NORMAL_BORDER = Border(
 )
 
 
-alias ROUNDED_BORDER = Border(
+comptime ROUNDED_BORDER = Border(
     top="─",
     bottom="─",
     left="│",
@@ -236,7 +189,7 @@ alias ROUNDED_BORDER = Border(
 )
 
 
-alias BLOCK_BORDER = Border(
+comptime BLOCK_BORDER = Border(
     top="█",
     bottom="█",
     left="█",
@@ -252,7 +205,7 @@ alias BLOCK_BORDER = Border(
 )
 
 
-alias OUTER_HALF_BLOCK_BORDER = Border(
+comptime OUTER_HALF_BLOCK_BORDER = Border(
     top="▀",
     bottom="▄",
     left="▌",
@@ -264,7 +217,7 @@ alias OUTER_HALF_BLOCK_BORDER = Border(
 )
 
 
-alias INNER_HALF_BLOCK_BORDER = Border(
+comptime INNER_HALF_BLOCK_BORDER = Border(
     top="▄",
     bottom="▀",
     left="▐",
@@ -276,7 +229,7 @@ alias INNER_HALF_BLOCK_BORDER = Border(
 )
 
 
-alias THICK_BORDER = Border(
+comptime THICK_BORDER = Border(
     top="━",
     bottom="━",
     left="┃",
@@ -293,7 +246,7 @@ alias THICK_BORDER = Border(
 )
 
 
-alias DOUBLE_BORDER = Border(
+comptime DOUBLE_BORDER = Border(
     top="═",
     bottom="═",
     left="║",
@@ -310,7 +263,7 @@ alias DOUBLE_BORDER = Border(
 )
 
 
-alias HIDDEN_BORDER = Border(
+comptime HIDDEN_BORDER = Border(
     top=" ",
     bottom=" ",
     left=" ",
@@ -327,10 +280,10 @@ alias HIDDEN_BORDER = Border(
 )
 
 
-alias NO_BORDER = Border()
+comptime NO_BORDER = Border()
 
 
-fn render_horizontal_edge(left: StringSlice, var middle: String, right: StringSlice, width: Int) -> String:
+fn render_horizontal_edge(left: StringSlice, var middle: String, right: StringSlice, width: UInt) -> String:
     """Render the horizontal (top or bottom) portion of a border.
 
     Args:

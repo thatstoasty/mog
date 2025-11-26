@@ -6,9 +6,10 @@ from mog.position import Position
 
 
 # TODO: Refactor this module to reuse some of the logic instead of duplicating functions.
-fn _get_lines_mem[
-    origin: ImmutableOrigin
-](pos: Position, strs: VariadicListMem[String, origin]) -> Tuple[List[List[StringSlice[origin]]], List[Int]]:
+fn _get_lines_mem[origin: ImmutOrigin](
+    pos: Position,
+    strs: VariadicListMem[String, origin],
+) -> Tuple[List[List[StringSlice[origin]]], List[UInt]]:
     """Split a variadic list of strings into lines.
 
     Args:
@@ -22,7 +23,7 @@ fn _get_lines_mem[
     var blocks = List[List[StringSlice[origin]]](capacity=len(strs))
 
     # Max line widths for the above text blocks
-    var max_widths = List[Int](capacity=len(strs))
+    var max_widths = List[UInt](capacity=len(strs))
     var max_height = 0
 
     # Break text blocks into lines and get max widths for each text block
@@ -58,7 +59,10 @@ fn _get_lines_mem[
     return blocks^, max_widths^
 
 
-fn _merge_lines[origin: ImmutableOrigin](blocks: List[List[StringSlice[origin]]], max_widths: List[Int]) -> String:
+fn _merge_lines[origin: ImmutOrigin](
+    blocks: List[List[StringSlice[origin]]],
+    max_widths: List[UInt]
+) -> String:
     """Merge a block (List of List of lines) of lines into a single String.
 
     Args:
@@ -76,7 +80,7 @@ fn _merge_lines[origin: ImmutableOrigin](blocks: List[List[StringSlice[origin]]]
             result.write(blocks[j][i])
 
             # Also make lines the same length by padding with whitespace
-            result.write(WHITESPACE * (max_widths[j] - printable_rune_width(blocks[j][i])))
+            result.write(WHITESPACE * Int(max_widths[j] - printable_rune_width(blocks[j][i])))
 
         if i < len(blocks[0]) - 1:
             result.write(NEWLINE)
@@ -164,10 +168,10 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
         return strs[0]
 
     # Groups of strings broken into multiple lines
-    var blocks = List[List[StringSlice[__origin_of(strs)]]](capacity=len(strs))
+    var blocks = List[List[StringSlice[origin_of(strs)]]](capacity=len(strs))
 
     # Max line widths for the above text blocks
-    var max_widths = List[Int](capacity=len(strs))
+    var max_widths = List[UInt](capacity=len(strs))
     var max_height = 0
 
     # Break text blocks into lines and get max widths for each text block
@@ -184,7 +188,7 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
     for i in range(len(blocks)):
         if len(blocks[i]) >= max_height:
             continue
-        var extra_lines = List[StringSlice[__origin_of(strs)]](capacity=max_height - len(blocks[i]))
+        var extra_lines = List[StringSlice[origin_of(strs)]](capacity=max_height - len(blocks[i]))
         extra_lines.resize(max_height - len(blocks[i]), blocks[0][0][0:0])
 
         if pos == Position.TOP:
@@ -206,9 +210,10 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
     return _merge_lines(blocks, max_widths)
 
 
-fn _get_lines_mem_width[
-    origin: ImmutableOrigin
-](pos: Position, strs: VariadicListMem[String, origin]) -> Tuple[List[List[StringSlice[origin]]], Int]:
+fn _get_lines_mem_width[origin: ImmutOrigin](
+    pos: Position,
+    strs: VariadicListMem[String, origin],
+) -> Tuple[List[List[StringSlice[origin]]], UInt]:
     """Split a string into lines.
 
     Args:
@@ -222,7 +227,7 @@ fn _get_lines_mem_width[
     var blocks = List[List[StringSlice[origin]]](capacity=len(strs))
 
     # Max line widths for the above text blocks
-    var max_width = 0
+    var max_width: UInt = 0
     for s in strs:
         var lines = s.split(NEWLINE)
         var widest = get_widest_line(lines)
@@ -233,9 +238,11 @@ fn _get_lines_mem_width[
     return blocks^, max_width
 
 
-fn _merge_blocks_vertically[
-    origin: ImmutableOrigin
-](blocks: List[List[StringSlice[origin]]], max_width: Int, pos: Position) -> String:
+fn _merge_blocks_vertically[origin: ImmutOrigin](
+    blocks: List[List[StringSlice[origin]]],
+    max_width: UInt,
+    pos: Position
+) -> String:
     """Merge a block (List of List of lines) of lines into a single String.
 
     Args:
@@ -253,18 +260,18 @@ fn _merge_blocks_vertically[
             var w = max_width - printable_rune_width(blocks[i][j])
 
             if pos == Position.LEFT:
-                result.write(blocks[i][j], WHITESPACE * w)
+                result.write(blocks[i][j], WHITESPACE * Int(w))
             elif pos == Position.RIGHT:
-                result.write(WHITESPACE * w, blocks[i][j])
+                result.write(WHITESPACE * Int(w), blocks[i][j])
             else:
                 if w < 1:
                     result.write(blocks[i][j])
                 else:
-                    var split = Int(w * pos.value)
+                    var split = UInt(Int(w * pos.value))
                     var right = w - split
                     var left = w - right
 
-                    result.write(WHITESPACE * left, blocks[i][j], WHITESPACE * right)
+                    result.write(WHITESPACE * Int(left), blocks[i][j], WHITESPACE * Int(right))
 
             if not (i == len(blocks) - 1 and j == len(blocks[i]) - 1):
                 result.write("\n")
@@ -352,10 +359,10 @@ fn join_vertical(pos: Position, strs: List[String]) -> String:
         return strs[0]
 
     # Groups of strings broken into multiple lines
-    var blocks = List[List[StringSlice[__origin_of(strs)]]](capacity=len(strs))
+    var blocks = List[List[StringSlice[origin_of(strs)]]](capacity=len(strs))
 
     # Max line widths for the above text blocks
-    var max_width = 0
+    var max_width: UInt = 0
     for s in strs:
         var lines = s.split(NEWLINE)
         var widest = get_widest_line(lines)

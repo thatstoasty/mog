@@ -11,10 +11,9 @@ repository = "https://github.com/thatstoasty/mog"
 preview = ["pixi-build"]
 
 [feature.util.tasks]
-tests = "mojo test"
-benchmarks = "python3 scripts/util.py run-benchmarks"
-examples = "python3 scripts/util.py run-examples"
-template = "python3 scripts/util.py generate-recipe"
+tests = "mojo scripts/util.mojo tests"
+benchmarks = "mojo scripts/util.mojo benchmarks"
+examples = "mojo scripts/util.mojo examples"
 
 # Linting and Formatting
 lint_docs = "python3 scripts/check-docstrings.py"
@@ -29,29 +28,28 @@ build_and_publish = [{ task = "build" }, { task = "publish" }]
 
 [package]
 name = "mog"
-version = "25.6.0"
+version = "25.7.0"
 
 [package.build]
 backend = { name = "pixi-build-mojo", version = "*" }
 
 [dependencies]
-mojo = ">=0.25.6.0,<0.25.7.0"
-mist = ">=25.6.1,<25.7.0"
+mojo = ">=0.25.7.0,<0.26.1.0"
+mist = ">=25.7.2,<26.1.0"
 
 [package.host-dependencies]
-mojo = ">=0.25.6.0,<0.25.7.0"
-mist = ">=25.6.1,<25.7.0"
+mojo = ">=0.25.7.0,<0.26.1.0"
+mist = ">=25.7.2,<26.1.0"
 
 [package.build-dependencies]
-mojo-compiler = ">=0.25.6.0,<0.25.7.0"
-mist = ">=25.6.1,<25.7.0"
+mojo-compiler = ">=0.25.7.0,<0.26.1.0"
+mist = ">=25.7.2,<26.1.0"
 
 [package.run-dependencies]
-mojo = ">=0.25.6.0,<0.25.7.0"
-mist = ">=25.6.1,<25.7.0"
+mojo = ">=0.25.7.0,<0.26.1.0"
+mist = ">=25.7.2,<26.1.0"
 
 [feature.util.dependencies]
-typer = ">=0.16.0,<0.17"
 isort = ">=6.0.1,<7"
 
 [environments]

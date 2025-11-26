@@ -4,7 +4,7 @@ import mist
 from mist.transform.ansi import printable_rune_width
 
 
-fn get_lines[origin: ImmutableOrigin](text: StringSlice[origin]) -> Tuple[List[StringSlice[origin]], Int]:
+fn get_lines[origin: ImmutOrigin](text: StringSlice[origin]) -> Tuple[List[StringSlice[origin]], UInt]:
     """Split a string into lines.
 
     Args:
@@ -14,7 +14,7 @@ fn get_lines[origin: ImmutableOrigin](text: StringSlice[origin]) -> Tuple[List[S
         A tuple containing the lines and the width of the widest line.
     """
     var lines = text.split(NEWLINE)
-    var widest_line = 0
+    var widest_line: UInt = 0
     for line in lines:
         var width = printable_rune_width(line)
         if width > widest_line:
@@ -23,7 +23,7 @@ fn get_lines[origin: ImmutableOrigin](text: StringSlice[origin]) -> Tuple[List[S
     return lines^, widest_line
 
 
-fn get_widest_line[origin: ImmutableOrigin](text: StringSlice[origin]) -> Int:
+fn get_widest_line[origin: ImmutOrigin](text: StringSlice[origin]) -> UInt:
     """Split a string into lines.
 
     Args:
@@ -35,7 +35,7 @@ fn get_widest_line[origin: ImmutableOrigin](text: StringSlice[origin]) -> Int:
     if len(text) == 0:
         return 0
 
-    var widest = 0
+    var widest: UInt = 0
     for line in text.splitlines():
         var width = printable_rune_width(line)
         if width > widest:
@@ -44,7 +44,7 @@ fn get_widest_line[origin: ImmutableOrigin](text: StringSlice[origin]) -> Int:
     return widest
 
 
-fn get_widest_line[origin: ImmutableOrigin](lines: List[StringSlice[origin]]) -> Int:
+fn get_widest_line[origin: ImmutOrigin](lines: List[StringSlice[origin]]) -> UInt:
     """Get the width of the widest line.
 
     Args:
@@ -56,7 +56,7 @@ fn get_widest_line[origin: ImmutableOrigin](lines: List[StringSlice[origin]]) ->
     if len(lines) == 0:
         return 0
 
-    var widest = 0
+    var widest: UInt = 0
     for line in lines:
         var width = printable_rune_width(line)
         if width > widest:

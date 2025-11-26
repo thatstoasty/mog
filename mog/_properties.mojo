@@ -7,103 +7,103 @@ struct PropKey(Copyable, EqualityComparable, Movable):
     """Property keys for the style."""
 
     var _value: UInt8
-    alias BOLD = Self(1)
+    comptime BOLD = Self(1)
     """Bold text."""
-    alias ITALIC = Self(2)
+    comptime ITALIC = Self(2)
     """Italicize text."""
-    alias UNDERLINE = Self(3)
+    comptime UNDERLINE = Self(3)
     """Underline text."""
-    alias STRIKETHROUGH = Self(4)
+    comptime STRIKETHROUGH = Self(4)
     """Crossout text."""
-    alias REVERSE = Self(5)
+    comptime REVERSE = Self(5)
     """Reverse text foreground/background coloring."""
-    alias BLINK = Self(6)
+    comptime BLINK = Self(6)
     """Blink text."""
-    alias FAINT = Self(7)
+    comptime FAINT = Self(7)
     """Faint text."""
-    alias FOREGROUND = Self(8)
+    comptime FOREGROUND = Self(8)
     """Foreground color."""
-    alias BACKGROUND = Self(9)
+    comptime BACKGROUND = Self(9)
     """Background color."""
-    alias WIDTH = Self(10)
+    comptime WIDTH = Self(10)
     """Text width."""
-    alias HEIGHT = Self(11)
+    comptime HEIGHT = Self(11)
     """Text height."""
-    alias HORIZONTAL_ALIGNMENT = Self(12)
+    comptime HORIZONTAL_ALIGNMENT = Self(12)
     """Horizontal alignment."""
-    alias VERTICAL_ALIGNMENT = Self(13)
+    comptime VERTICAL_ALIGNMENT = Self(13)
     """Vertical alignment."""
 
     # Padding.
-    alias PADDING_TOP = Self(14)
+    comptime PADDING_TOP = Self(14)
     """Padding level at the top of the text."""
-    alias PADDING_RIGHT = Self(15)
+    comptime PADDING_RIGHT = Self(15)
     """Padding level to the right of the text."""
-    alias PADDING_BOTTOM = Self(16)
+    comptime PADDING_BOTTOM = Self(16)
     """Padding level at the bottom of the text."""
-    alias PADDING_LEFT = Self(17)
+    comptime PADDING_LEFT = Self(17)
     """Padding level to the left of the text."""
 
-    alias COLOR_WHITESPACE = Self(18)
+    comptime COLOR_WHITESPACE = Self(18)
     """Color of whitespace background."""
 
     # Margins.
-    alias MARGIN_TOP = Self(19)
+    comptime MARGIN_TOP = Self(19)
     """Margin level at the top of the text."""
-    alias MARGIN_RIGHT = Self(20)
+    comptime MARGIN_RIGHT = Self(20)
     """Margin level to the right of the text."""
-    alias MARGIN_BOTTOM = Self(21)
+    comptime MARGIN_BOTTOM = Self(21)
     """Margin level at the bottom of the text."""
-    alias MARGIN_LEFT = Self(22)
+    comptime MARGIN_LEFT = Self(22)
     """Margin level to the left of the text."""
-    alias MARGIN_BACKGROUND = Self(23)
+    comptime MARGIN_BACKGROUND = Self(23)
     """Margin background color."""
 
     # Border style.
-    alias BORDER_STYLE = Self(24)
+    comptime BORDER_STYLE = Self(24)
     """Border style."""
 
     # Border edges.
-    alias BORDER_TOP = Self(25)
+    comptime BORDER_TOP = Self(25)
     """Border top."""
-    alias BORDER_RIGHT = Self(26)
+    comptime BORDER_RIGHT = Self(26)
     """Border right."""
-    alias BORDER_BOTTOM = Self(27)
+    comptime BORDER_BOTTOM = Self(27)
     """Border bottom."""
-    alias BORDER_LEFT = Self(28)
+    comptime BORDER_LEFT = Self(28)
     """Border left."""
 
     # Border foreground colors.
-    alias BORDER_TOP_FOREGROUND = Self(29)
+    comptime BORDER_TOP_FOREGROUND = Self(29)
     """Border top foreground color."""
-    alias BORDER_RIGHT_FOREGROUND = Self(30)
+    comptime BORDER_RIGHT_FOREGROUND = Self(30)
     """Border right foreground color."""
-    alias BORDER_BOTTOM_FOREGROUND = Self(31)
+    comptime BORDER_BOTTOM_FOREGROUND = Self(31)
     """Border bottom foreground color."""
-    alias BORDER_LEFT_FOREGROUND = Self(32)
+    comptime BORDER_LEFT_FOREGROUND = Self(32)
     """Border left foreground color."""
 
     # Border background colors.
-    alias BORDER_TOP_BACKGROUND = Self(33)
+    comptime BORDER_TOP_BACKGROUND = Self(33)
     """Border top background color."""
-    alias BORDER_RIGHT_BACKGROUND = Self(34)
+    comptime BORDER_RIGHT_BACKGROUND = Self(34)
     """Border right background color."""
-    alias BORDER_BOTTOM_BACKGROUND = Self(35)
+    comptime BORDER_BOTTOM_BACKGROUND = Self(35)
     """Border bottom background color."""
-    alias BORDER_LEFT_BACKGROUND = Self(36)
+    comptime BORDER_LEFT_BACKGROUND = Self(36)
     """Border left background color."""
 
-    alias INLINE = Self(37)
+    comptime INLINE = Self(37)
     """Inline rendering."""
-    alias MAX_WIDTH = Self(38)
+    comptime MAX_WIDTH = Self(38)
     """Maximum width of the text."""
-    alias MAX_HEIGHT = Self(39)
+    comptime MAX_HEIGHT = Self(39)
     """Maximum height of the text."""
-    alias TAB_WIDTH = Self(40)
+    comptime TAB_WIDTH = Self(40)
     """Tab width."""
-    alias UNDERLINE_SPACES = Self(41)
+    comptime UNDERLINE_SPACES = Self(41)
     """Underline spaces between words."""
-    alias STRIKETHROUGH_SPACES = Self(42)
+    comptime STRIKETHROUGH_SPACES = Self(42)
     """Crossout spaces between words."""
 
     fn __eq__(self, other: PropKey) -> Bool:
@@ -329,10 +329,10 @@ struct BorderColor(Copyable, ImplicitlyCopyable, Movable):
 struct Side(ImplicitlyCopyable, Copyable, Movable, EqualityComparable):
     var value: UInt8
 
-    alias TOP = Self(0)
-    alias RIGHT = Self(1)
-    alias BOTTOM = Self(2)
-    alias LEFT = Self(3)
+    comptime TOP = Self(0)
+    comptime RIGHT = Self(1)
+    comptime BOTTOM = Self(2)
+    comptime LEFT = Self(3)
 
     fn __eq__(self, other: Self) -> Bool:
         return self.value == other.value
@@ -341,25 +341,25 @@ struct Side(ImplicitlyCopyable, Copyable, Movable, EqualityComparable):
 @fieldwise_init
 struct Emphasis(ImplicitlyCopyable, Copyable, Movable, EqualityComparable):
     var value: UInt8
-    alias BOLD = Self(0)
+    comptime BOLD = Self(0)
     """Whether the text is bold."""
-    alias ITALIC = Self(1)
+    comptime ITALIC = Self(1)
     """Whether the text is italic."""
-    alias UNDERLINE = Self(2)
+    comptime UNDERLINE = Self(2)
     """Whether the text is underlined."""
-    alias STRIKETHROUGH = Self(3)
+    comptime STRIKETHROUGH = Self(3)
     """Whether the text is strikethrough."""
-    alias REVERSE = Self(4)
+    comptime REVERSE = Self(4)
     """Whether the text is reversed."""
-    alias BLINK = Self(5)
+    comptime BLINK = Self(5)
     """Whether the text is blinking."""
-    alias FAINT = Self(6)
+    comptime FAINT = Self(6)
     """Whether the text is faint."""
-    alias UNDERLINE_SPACES = Self(7)
+    comptime UNDERLINE_SPACES = Self(7)
     """Whether spaces between words are underlined."""
-    alias STRIKETHROUGH_SPACES = Self(8)
+    comptime STRIKETHROUGH_SPACES = Self(8)
     """Whether spaces between words are strikethrough."""
-    alias COLOR_WHITESPACE = Self(9)
+    comptime COLOR_WHITESPACE = Self(9)
     """Whether whitespace background is colored."""
 
     fn __eq__(self, other: Self) -> Bool:
@@ -369,9 +369,9 @@ struct Emphasis(ImplicitlyCopyable, Copyable, Movable, EqualityComparable):
 @fieldwise_init
 struct Axis(ImplicitlyCopyable, Copyable, Movable, EqualityComparable):
     var value: UInt8
-    alias HORIZONTAL = Self(0)
+    comptime HORIZONTAL = Self(0)
     """Whether the axis is horizontal."""
-    alias VERTICAL = Self(1)
+    comptime VERTICAL = Self(1)
     """Whether the axis is vertical."""
 
     fn __eq__(self, other: Self) -> Bool:

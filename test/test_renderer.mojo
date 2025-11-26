@@ -1,4 +1,5 @@
 import testing
+from testing import TestSuite
 from mog.renderer import Renderer
 
 import mog
@@ -15,6 +16,10 @@ alias ascii_renderer = Renderer(Profile.ASCII)
 alias light_ascii_renderer = Renderer(Profile.ASCII, dark_background=False)
 
 
-def test_has_dark_background():
+fn test_has_dark_background() raises:
     testing.assert_true(true_color_renderer.has_dark_background())
     testing.assert_false(light_true_color_renderer.has_dark_background())
+
+
+fn main() raises -> None:
+    TestSuite.discover_tests[__functions_in_module()]().run()

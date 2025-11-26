@@ -11,7 +11,7 @@ struct Alignment(Copyable, Movable):
     var vertical: Position
     """The vertical alignment of the text."""
 
-    fn __init__(out self, *, horizontal: Position = Position(0), vertical: Position = Position(0)):
+    fn __init__(out self, *, horizontal: Position = Position.LEFT, vertical: Position = Position.TOP):
         self.horizontal = horizontal
         self.vertical = vertical
     
@@ -48,12 +48,12 @@ fn align_text_horizontal(
     var aligned = String(capacity=Int(len(text) * 1.25))
     for i in range(len(lines)):
         var line = String(lines[i])
-        var line_width = printable_rune_width(line)
-        var short_amount = widest_line - line_width  # difference from the widest line
-        short_amount += max(0, Int(width) - (short_amount + line_width))  # difference from the total width, if set
+        var line_width = Int(printable_rune_width(line))
+        var short_amount = Int(widest_line) - line_width  # difference from the widest line
+        short_amount += max(0, (Int(width) - (short_amount + line_width)))  # difference from the total width, if set
         if short_amount > 0:
             if pos == Position.RIGHT:
-                var spaces = WHITESPACE * short_amount
+                var spaces = WHITESPACE * Int(short_amount)
                 if style:
                     line = String(style.value().render(spaces), line)
                 else:
@@ -61,7 +61,7 @@ fn align_text_horizontal(
             elif pos == Position.CENTER:
                 # Note: remainder goes on the right.
                 var left = Int(short_amount / 2)
-                var right = Int(left + short_amount % 2)
+                var right = left + (Int(short_amount) % 2)
                 var left_spaces = WHITESPACE * left
                 var right_spaces = WHITESPACE * right
                 if style:
@@ -69,7 +69,7 @@ fn align_text_horizontal(
                 else:
                     line = String(left_spaces, line, right_spaces)
             elif pos == Position.LEFT:
-                var spaces = WHITESPACE * short_amount
+                var spaces = WHITESPACE * Int(short_amount)
                 if style:
                     line = String(line, style.value().render(spaces))
                 else:

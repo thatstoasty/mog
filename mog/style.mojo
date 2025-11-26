@@ -34,10 +34,10 @@ from mog.position import Position
 from mog.renderer import Renderer
 
 
-alias TAB_WIDTH = 4
+comptime TAB_WIDTH = 4
 """The default tab width to use when rendering text with tabs."""
 
-alias NO_TAB_CONVERSION = -1
+comptime NO_TAB_CONVERSION = -1
 """Used to disable the replacement of tabs with spaces at render time."""
 
 
@@ -94,7 +94,7 @@ fn _apply_styles(text: String, use_space_styler: Bool, styles: Stylers) -> Strin
 
 fn _wrap_words(text: String, width: UInt16, left_padding: UInt16, right_padding: UInt16) -> String:
     var wrap_at = width - left_padding - right_padding
-    return wrap(word_wrap(text, Int(wrap_at)), Int(wrap_at))
+    return wrap(word_wrap(text, UInt(wrap_at)), UInt(wrap_at))
 
 
 fn _maybe_convert_tabs(style: Style, var text: String) -> String:
@@ -224,7 +224,7 @@ fn _apply_border(style: Style, text: String) -> String:
         result.write(
             _style_border(
                 style,
-                render_horizontal_edge(border.top_left, border.top, border.top_right, width),
+                render_horizontal_edge(border.top_left, border.top, border.top_right, UInt(width)),
                 style.border_color.foreground_top,
                 style.border_color.background_top,
             ),
@@ -266,7 +266,7 @@ fn _apply_border(style: Style, text: String) -> String:
             NEWLINE,
             _style_border(
                 style,
-                render_horizontal_edge(border.bottom_left, border.bottom, border.bottom_right, width),
+                render_horizontal_edge(border.bottom_left, border.bottom, border.bottom_right, UInt(width)),
                 style.border_color.foreground_bottom,
                 style.border_color.background_bottom,
             ),
@@ -296,7 +296,7 @@ fn _apply_margins(style: Style, var text: String, inline: Bool) -> String:
     var top_margin = Int(style.margin.top)
     var bottom_margin = Int(style.margin.bottom)
     if not inline:
-        var width = get_widest_line(text)
+        var width = Int(get_widest_line(text))
         if top_margin > 0:
             text = String((WHITESPACE * width + NEWLINE) * top_margin, text)
         if bottom_margin > 0:
@@ -594,31 +594,6 @@ struct Style(Copyable, ImplicitlyCopyable, Movable):
             self.alignment = alignment.value()
             self._properties.set[PropKey.HORIZONTAL_ALIGNMENT](True)
             self._properties.set[PropKey.VERTICAL_ALIGNMENT](True)
-
-    fn copy(self) -> Self:
-        """Create a copy of the style.
-
-        Returns:
-            A new Style with the same properties as the original.
-        """
-        return Self(
-            renderer=self.renderer,
-            properties=self._properties,
-            value=self.value,
-            attrs=self._attrs,
-            foreground=self.foreground.copy(),
-            background=self.background.copy(),
-            width=self.width,
-            height=self.height,
-            max_width=self.max_width,
-            max_height=self.max_height,
-            alignment=self.alignment,
-            padding=self.padding,
-            margin=self.margin.copy(),
-            border=self.border,
-            border_color=self.border_color.copy(),
-            tab_width=self.tab_width,
-        )
 
     fn _check_attr[key: PropKey](self, *, default: Bool = False) -> Bool:
         """Get a rule as a boolean value.
@@ -1906,7 +1881,6 @@ struct Style(Copyable, ImplicitlyCopyable, Movable):
 
         var stylers = _get_styles(self)
         var result = _apply_styles(_maybe_convert_tabs(self, input_text), self.uses_space_styler(), stylers)
-
         # Do we need to style whitespace (padding and space outside paragraphs) separately?
         var use_whitespace_styler = reverse
 
@@ -1956,7 +1930,7 @@ struct Style(Copyable, ImplicitlyCopyable, Movable):
             for i in range(len(text_lines)):
                 if i != 0:
                     truncated.write(NEWLINE)
-                truncated.write(truncate(text_lines[i], Int(self.max_width)))
+                truncated.write(truncate(text_lines[i], UInt(self.max_width)))
 
             result = truncated^
 

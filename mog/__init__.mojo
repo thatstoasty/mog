@@ -25,5 +25,5 @@ from mog.style import NO_TAB_CONVERSION, Style
 
 from mog.table import Data, Table, default_styles
 
-alias WHITESPACE = " "
-alias NEWLINE = "\n"
+comptime WHITESPACE = " "
+comptime NEWLINE = "\n"

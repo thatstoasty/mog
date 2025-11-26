@@ -1,9 +1,10 @@
 import testing
+from testing import TestSuite
 
 from mog import Position, join_horizontal, join_vertical
 
 
-def test_horizontal_join():
+fn test_horizontal_join() raises:
     alias a = "Hello World!\nThis is an example."
     alias b = "I could be more creative.\nBut, I'm out of ideas."
 
@@ -33,7 +34,7 @@ def test_horizontal_join():
     )
 
 
-def test_vertical_join():
+fn test_vertical_join() raises:
     alias a = "Hello World!\nThis is an example."
     alias b = "I could be more creative.\nBut, I'm out of ideas."
 
@@ -60,3 +61,7 @@ def test_vertical_join():
         center_aligned,
         "      Hello World!       \n   This is an example.   \nI could be more creative.\n But, I'm out of ideas.  ",
     )
+
+
+fn main() raises -> None:
+    TestSuite.discover_tests[__functions_in_module()]().run()

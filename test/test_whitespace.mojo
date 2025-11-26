@@ -1,4 +1,5 @@
 import testing
+from testing import TestSuite
 from mog.whitespace import WhitespaceRenderer
 
 import mog
@@ -7,17 +8,18 @@ from mog import Alignment, Position, Profile
 
 alias ANSI_STYLE = mog.Style(Profile.ANSI)
 
-def test_with_whitespace_background():
+fn test_with_whitespace_background() raises:
     # Use a renderer with a specific profile to ensure consistent output.
     testing.assert_equal(
         WhitespaceRenderer(
             style=ANSI_STYLE.set_background_color(mog.Color(2))
         ).place(10, 3, Alignment(horizontal=Position.RIGHT, vertical=Position.BOTTOM), "hello"),
-        "\x1b[42m          \x1b[0m\n\x1b[42m          \x1b[0m\n\x1b[42m     \x1b[0mhello"
+        "\x1b[42m          \x1b[0m\n\x1b[42m          \x1b[0m\n\x1b[42m     \x1b[0mhello",
+        '\x1b[42m     \x1b[0m'
     )
 
 
-def test_with_whitespace_foreground():
+fn test_with_whitespace_foreground() raises:
     testing.assert_equal(
         WhitespaceRenderer(
             style=ANSI_STYLE.set_foreground_color(mog.Color(2))
@@ -26,7 +28,7 @@ def test_with_whitespace_foreground():
     )
 
 
-def test_with_whitespace_chars():
+fn test_with_whitespace_chars() raises:
     testing.assert_equal(
         WhitespaceRenderer(
             style=ANSI_STYLE, chars="<>"
@@ -34,7 +36,7 @@ def test_with_whitespace_chars():
         "<><><><><>\n<>hello<><\n<><><><><>"
     )
 
-def test_multiple_whitespace_options():
+fn test_multiple_whitespace_options() raises:
     testing.assert_equal(
         WhitespaceRenderer(
             style=ANSI_STYLE.set_background_color(mog.Color(2)),
@@ -46,24 +48,24 @@ def test_multiple_whitespace_options():
 
 alias TRUE_COLOR_RENDERER = WhitespaceRenderer(style=mog.Style(Profile.TRUE_COLOR))
 
-def test_place_horizontal():
+fn test_place_horizontal() raises:
     testing.assert_equal(TRUE_COLOR_RENDERER.place_horizontal("Hello, World!", 18, Position.CENTER), "  Hello, World!   ")
 
     # Text longer than width, return same string
     testing.assert_equal(TRUE_COLOR_RENDERER.place_horizontal("Hello, World!", 10, Position.CENTER), "Hello, World!")
 
 
-def test_place_horizontal_left():
+fn test_place_horizontal_left() raises:
 
     testing.assert_equal(TRUE_COLOR_RENDERER.place_horizontal("Hello, World!", 18, Position.LEFT), "Hello, World!     ")
 
 
-def test_place_horizontal_right():
+fn test_place_horizontal_right() raises:
 
     testing.assert_equal(TRUE_COLOR_RENDERER.place_horizontal("Hello, World!", 18, Position.RIGHT), "     Hello, World!")
 
 
-def test_place_horizontal_fractional():
+fn test_place_horizontal_fractional() raises:
 
     # 0 ---------- 1
     # left ----- right
@@ -71,7 +73,7 @@ def test_place_horizontal_fractional():
     testing.assert_equal(TRUE_COLOR_RENDERER.place_horizontal("Hello, World!", 18, Position(0.8)), "    Hello, World! ")
 
 
-def test_place_vertical():
+fn test_place_vertical() raises:
 
     testing.assert_equal(TRUE_COLOR_RENDERER.place_vertical("Hello, World!", 3, Position.CENTER), "             \nHello, World!\n             ")
 
@@ -79,17 +81,17 @@ def test_place_vertical():
     testing.assert_equal(TRUE_COLOR_RENDERER.place_vertical("\nHello, World!\n", 1, Position.CENTER), "\nHello, World!\n")
 
 
-def test_place_vertical_top():
+fn test_place_vertical_top() raises:
 
     testing.assert_equal(TRUE_COLOR_RENDERER.place_vertical("Hello, World!", 3, Position.TOP), "Hello, World!\n             \n             ")
 
 
-def test_place_vertical_bottom():
+fn test_place_vertical_bottom() raises:
 
     testing.assert_equal(TRUE_COLOR_RENDERER.place_vertical("Hello, World!", 3, Position.BOTTOM), "             \n             \nHello, World!")
 
 
-def test_place_vertical_fractional():
+fn test_place_vertical_fractional() raises:
 
     testing.assert_equal(
         TRUE_COLOR_RENDERER.place_vertical("Hello, World!", 5, Position(0.2)),
@@ -101,7 +103,7 @@ def test_place_vertical_fractional():
     )
 
 
-def test_place():
+fn test_place() raises:
 
     testing.assert_equal(TRUE_COLOR_RENDERER.place(18, 3, Alignment(horizontal=Position.CENTER, vertical=Position.CENTER), "Hello, World!"), "                  \n  Hello, World!   \n                  ")
 
@@ -113,3 +115,10 @@ def test_place():
 
     # Text taller than height and wider than width, return same string
     testing.assert_equal(TRUE_COLOR_RENDERER.place(1, 1, Alignment(horizontal=Position.CENTER, vertical=Position.CENTER), "Hello, World!"), "Hello, World!")
+
+
+fn main() raises -> None:
+    # TestSuite.discover_tests[__functions_in_module()]().run()
+    var suite = TestSuite()
+    suite.test[test_with_whitespace_background]()
+    suite^.run()

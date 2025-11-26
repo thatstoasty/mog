@@ -1,41 +1,3 @@
-# trait Data(Copyable, Movable):
-#     """Trait that wraps the basic methods of a table model."""
-
-#     fn __init__(out self):
-#         """Initializes a new Data instance."""
-#         ...
-
-#     # TODO: Need to figure out if I want this to return an optional or just raise.
-#     # Also it should return a ref to the data, not a copy. When traits support attributes.
-#     fn __getitem__(self, row: Int, column: Int) -> String:
-#         """Returns the contents of the cell at the given index.
-
-#         Args:
-#             row: The row index.
-#             column: The column index.
-
-#         Returns:
-#             The contents of the cell at the given index.
-#         """
-#         ...
-
-#     fn rows(self) -> Int:
-#         """Returns the number of rows in the table.
-
-#         Returns:
-#             The number of rows in the table.
-#         """
-#         ...
-
-#     fn columns(self) -> Int:
-#         """Returns the number of columns in the table.
-
-#         Returns:
-#             The number of columns in the table.
-#         """
-#         ...
-
-
 @fieldwise_init
 struct Data(Copyable, Movable):
     """Table data.
@@ -57,7 +19,7 @@ struct Data(Copyable, Movable):
 
     var _rows: List[List[String]]
     """The rows of the table."""
-    var _columns: Int
+    var _columns: UInt
     """The number of columns in the table."""
 
     fn __init__(out self):
@@ -72,7 +34,7 @@ struct Data(Copyable, Movable):
             rows: The rows of the table.
         """
         self._rows = rows^
-        self._columns = len(self._rows)
+        self._columns = UInt(len(self._rows))
 
     fn __init__(out self, *rows: List[String]):
         """Initializes a new Data instance.
@@ -80,17 +42,17 @@ struct Data(Copyable, Movable):
         Args:
             rows: The rows of the table.
         """
-        var widest = 0
+        var widest: UInt = 0
         var r = List[List[String]](capacity=len(rows))
         for row in rows:
-            widest = max(widest, len(row))
+            widest = max(widest, UInt(len(row)))
             r.append(row.copy())
         self._rows = r^
         self._columns = widest
 
     # TODO: Can't return ref String because it depends on the origin of a struct attribute
     # and Traits do not support variables yet.
-    fn __getitem__(self, row: Int, column: Int) -> ref [self._rows[row][column]] String:
+    fn __getitem__(self, row: UInt, column: UInt) -> ref [self._rows[row][column]] String:
         """Returns the contents of the cell at the given index.
 
         Args:
@@ -102,21 +64,21 @@ struct Data(Copyable, Movable):
         """
         return self._rows[row][column]
 
-    fn rows(self) -> Int:
+    fn rows(self) -> UInt:
         """Returns the number of rows in the table.
 
         Returns:
             The number of rows in the table.
         """
-        return len(self._rows)
+        return UInt(len(self._rows))
 
-    fn columns(self) -> Int:
+    fn columns(self) -> UInt:
         """Returns the number of columns in the table.
 
         Returns:
             The number of columns in the table.
         """
-        return self._columns
+        return UInt(self._columns)
 
     fn add_row(mut self, var row: List[String]):
         """Appends the given row to the table.
@@ -124,7 +86,7 @@ struct Data(Copyable, Movable):
         Args:
             row: The row to append.
         """
-        self._columns = max(self._columns, len(row))
+        self._columns = max(self._columns, UInt(len(row)))
         self._rows.append(row^)
 
     fn add_row(mut self, *elements: String):
@@ -133,7 +95,7 @@ struct Data(Copyable, Movable):
         Args:
             elements: The row to append.
         """
-        self._columns = max(self._columns, len(elements))
+        self._columns = max(self._columns, UInt(len(elements)))
         var row = List[String](capacity=len(elements))
         for element in elements:
             row.append(element)
@@ -146,7 +108,7 @@ struct Data(Copyable, Movable):
             rows: The rows to append.
         """
         for row in rows:
-            self._columns = max(self._columns, len(row))
+            self._columns = max(self._columns, UInt(len(row)))
             self._rows.append(row.copy())
 
     fn add_rows(mut self, *rows: List[String]):
@@ -155,9 +117,9 @@ struct Data(Copyable, Movable):
         Args:
             rows: The rows to add to the table.
         """
-        var widest = 0
+        var widest: UInt = 0
         for row in rows:
-            widest = max(widest, len(row))
+            widest = max(widest, UInt(len(row)))
             self._rows.append(row.copy())
         self._columns = widest
 
@@ -180,71 +142,3 @@ struct Data(Copyable, Movable):
         """
         self._rows.extend(other._rows.copy())
         self._columns = max(self.columns(), other.columns())
-
-
-# alias FilterFn = fn (row: Int) -> Bool
-# """Function type that filters rows based on a condition."""
-
-
-# @fieldwise_init
-# struct FilteredData[T: Data, //](Data):
-#     """Applies a filter function on some data.
-
-#     Parameters:
-#         T: The type of data to use for the table.
-#     """
-
-#     var data: T
-#     """The data of the table."""
-#     var filter: Optional[FilterFn]
-#     """The filter function to apply."""
-
-#     fn __init__(out self):
-#         """Initializes a new FilteredData instance."""
-#         self.data = T()
-#         self.filter = None
-
-#     fn __getitem__(self, row: Int, column: Int) -> String:
-#         """Returns the contents of the cell at the given index.
-
-#         Args:
-#             row: The row index.
-#             column: The column index.
-
-#         Returns:
-#             The contents of the cell at the given index.
-#         """
-#         var j = 0
-#         var i = 0
-#         while i < self.data.rows():
-#             if self.filter and self.filter.value()(i):
-#                 if j == row:
-#                     return self.data[i, column]
-
-#                 j += 1
-#             i += 1
-
-#         return ""
-
-#     fn columns(self) -> Int:
-#         """Returns the number of columns in the table.
-
-#         Returns:
-#             The number of columns in the table.
-#         """
-#         return self.data.columns()
-
-#     fn rows(self) -> Int:
-#         """Returns the number of rows in the table.
-
-#         Returns:
-#             The number of rows in the table.
-#         """
-#         var j = 0
-#         var i = 0
-#         while i < self.data.rows():
-#             if self.filter and self.filter.value()(i):
-#                 j += 1
-#             i += 1
-
-#         return j

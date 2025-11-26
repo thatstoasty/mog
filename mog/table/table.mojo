@@ -9,7 +9,7 @@ from mog.table.rows import Data
 from mog.table.util import largest, median, sum
 
 
-alias StyleFn = fn (data: Data, row: Int, col: Int) -> Style
+comptime StyleFn = fn (data: Data, row: UInt, col: UInt) -> Style
 """Styling function that determines the style of a Cell.
 
 It takes the row and column of the cell as an input and determines the
@@ -20,7 +20,7 @@ lipgloss Style to use for that cell position.
 import mog
 from mog import Emphasis
 
-fn styler(data: mog.Data, row: Int, col: Int) -> mog.Style:
+fn styler(data: mog.Data, row: UInt, col: UInt) -> mog.Style:
     if row == 0:
         return mog.Style(emphasis=Emphasis.BOLD)
     elif row % 2 == 0:
@@ -43,7 +43,7 @@ fn main():
 """
 
 
-fn default_styles(data: Data, row: Int, col: Int) -> Style:
+fn default_styles(data: Data, row: UInt, col: UInt) -> Style:
     """Returns a new Style with no attributes.
 
     Args:
@@ -66,7 +66,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
     import mog
     from mog import Emphasis
 
-    fn styler(data: mog.Data, row: Int, col: Int) -> mog.Style:
+    fn styler(data: mog.Data, row: UInt, col: UInt) -> mog.Style:
         if row == 0:
             return mog.Style(emphasis=Emphasis.BOLD)
         elif row % 2 == 0:
@@ -112,11 +112,11 @@ struct Table(Copyable, Movable, Stringable, Writable):
     """The headers of the table."""
     var data: Data
     """The data of the table."""
-    var width: Int
+    var width: UInt
     """The width of the table."""
-    var height: Int
+    var height: UInt
     """The height of the table."""
-    var _offset: Int
+    var _offset: UInt
     """The offset of the table."""
 
     fn __init__(
@@ -134,8 +134,8 @@ struct Table(Copyable, Movable, Stringable, Writable):
         border_row: Bool = False,
         var headers: List[String] = List[String](),
         var data: Data = Data(),
-        width: Int = 0,
-        height: Int = 0,
+        width: UInt = 0,
+        height: UInt = 0,
     ):
         """Initializes a new Table.
 
@@ -170,28 +170,6 @@ struct Table(Copyable, Movable, Stringable, Writable):
         self.width = width
         self.height = height
         self._offset = 0
-
-    fn __moveinit__(out self, deinit other: Self):
-        """Initializes a new Table by moving the data from another Table.
-
-        Args:
-            other: The other Table to move the data from.
-        """
-        self._styler = other._styler
-        self._border = other._border^
-        self._border_style = other._border_style^
-        self._border_top = other._border_top
-        self._border_bottom = other._border_bottom
-        self._border_left = other._border_left
-        self._border_right = other._border_right
-        self._border_header = other._border_header
-        self._border_column = other._border_column
-        self._border_row = other._border_row
-        self._headers = other._headers^
-        self.data = other.data^
-        self.width = other.width
-        self.height = other.height
-        self._offset = other._offset
 
     fn copy(self) -> Self:
         """Returns a copy of the Table.
@@ -258,7 +236,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
         """
         return self.copy_without_data()
 
-    fn style(self, row: Int, col: Int) -> Style:
+    fn style(self, row: UInt, col: UInt) -> Style:
         """Returns the style for a cell based on it's position (row, column).
 
         Args:
@@ -388,36 +366,36 @@ struct Table(Copyable, Movable, Stringable, Writable):
         # row (only if there are at headers in the first place).
         var headers = self._headers.copy()
         if has_headers:
-            var i = len(headers)
+            var i = UInt(len(headers))
             while i < self.data.columns():
                 headers.append("")
                 i += 1
 
         # Initialize the widths.
-        var widths_len = max(len(self._headers), self.data.columns())
-        var widths = List[Int](capacity=widths_len)
+        var widths_len = max(len(self._headers), Int(self.data.columns()))
+        var widths = List[UInt](capacity=widths_len)
         for _ in range(widths_len):
             widths.append(0)
 
         # Initialize the heights.
-        var heights_len = Int(has_headers) + self.data.rows()
-        var heights = List[Int](capacity=heights_len)
+        var heights_len = Int(has_headers) + Int(self.data.rows())
+        var heights = List[UInt](capacity=heights_len)
         for _ in range(heights_len):
             heights.append(0)
 
         # The style function may affect width of the table. It's possible to set
         # the StyleFunction after the headers and rows. Update the widths for a final
         # time.
-        for i in range(len(headers)):
+        for i in range(UInt(len(headers))):
             widths[i] = get_width(self.style(0, i).render(headers[i]))
             heights[0] = get_height(self.style(0, i).render(headers[i]))
 
-        var row_number = 0
+        var row_number: UInt = 0
         while row_number < self.data.rows():
-            var column_number = 0
+            var column_number: UInt = 0
             while column_number < self.data.columns():
                 var rendered = self.style(row_number + 1, column_number).render(self.data[row_number, column_number])
-                var row_number_with_header_offset = row_number + Int(has_headers)
+                var row_number_with_header_offset = row_number + UInt(has_headers)
                 heights[row_number_with_header_offset] = max(
                     heights[row_number_with_header_offset],
                     get_height(rendered),
@@ -475,12 +453,12 @@ struct Table(Copyable, Movable, Stringable, Writable):
         elif width > self.width and self.width > 0:
             # Table is too wide, calculate the median non-whitespace length of each
             # column, and shrink the columns based on the largest difference.
-            var column_medians = List[Int](capacity=len(widths))
-            for i in range(len(widths)):
-                var trimmed_width = List[Int](capacity=self.data.rows())
+            var column_medians = List[UInt](capacity=len(widths))
+            for i in range(UInt(len(widths))):
+                var trimmed_width = List[UInt](capacity=Int(self.data.rows()))
 
                 for r in range(self.data.rows()):
-                    var rendered_cell = self.style(r + Int(has_headers), i).render(self.data[r, i])
+                    var rendered_cell = self.style(r + UInt(has_headers), i).render(self.data[r, i])
                     var non_whitespace_chars = get_width(rendered_cell.removesuffix(" "))
                     trimmed_width[r] = non_whitespace_chars + 1
 
@@ -488,7 +466,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
 
             # Find the biggest differences between the median and the column width.
             # Shrink the columns based on the largest difference.
-            var differences = List[Int](capacity=len(widths))
+            var differences = List[UInt](capacity=len(widths))
             for i in range(len(widths)):
                 differences[i] = widths[i] - column_medians[i]
 
@@ -538,7 +516,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
         """
         return String(self)
 
-    fn _compute_width(self, widths: List[Int]) -> Int:
+    fn _compute_width(self, widths: List[UInt]) -> UInt:
         """Computes the width of the table in it's current configuration.
 
         Args:
@@ -547,13 +525,13 @@ struct Table(Copyable, Movable, Stringable, Writable):
         Returns:
             The width of the table.
         """
-        var width = sum(widths) + Int(self._border_left) + Int(self._border_right)
+        var width = sum(widths) + UInt(self._border_left) + UInt(self._border_right)
         if self._border_column:
-            width += len(widths) - 1
+            width += UInt(len(widths) - 1)
 
         return width
 
-    fn _compute_height(self, heights: List[Int]) -> Int:
+    fn _compute_height(self, heights: List[UInt]) -> UInt:
         """Computes the height of the table in it's current configuration.
 
         Args:
@@ -565,14 +543,14 @@ struct Table(Copyable, Movable, Stringable, Writable):
         return (
             sum(heights)
             - 1
-            + Int(len(self._headers) > 0)
-            + Int(self._border_top)
-            + Int(self._border_bottom)
-            + Int(self._border_header)
-            + self.data.rows() * Int(self._border_row)
+            + UInt(len(self._headers) > 0)
+            + UInt(self._border_top)
+            + UInt(self._border_bottom)
+            + UInt(self._border_header)
+            + self.data.rows() * UInt(self._border_row)
         )
 
-    fn _construct_top_border(self, widths: List[Int]) -> String:
+    fn _construct_top_border(self, widths: List[UInt]) -> String:
         """Constructs the top border for the table given it's current
         border configuration and data.
 
@@ -588,7 +566,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
 
         var i = 0
         while i < len(widths):
-            result.write(self._border_style.render(self._border.top * widths[i]))
+            result.write(self._border_style.render(self._border.top * Int(widths[i])))
             if i < len(widths) - 1 and self._border_column:
                 result.write(self._border_style.render(self._border.middle_top))
             i += 1
@@ -598,7 +576,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
 
         return result
 
-    fn _construct_bottom_border(self, widths: List[Int]) -> String:
+    fn _construct_bottom_border(self, widths: List[UInt]) -> String:
         """Constructs the bottom border for the table given it's current
         border configuration and data.
 
@@ -614,7 +592,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
 
         var i = 0
         while i < len(widths):
-            result.write(self._border_style.render(self._border.bottom * widths[i]))
+            result.write(self._border_style.render(self._border.bottom * Int(widths[i])))
             if i < len(widths) - 1 and self._border_column:
                 result.write(self._border_style.render(self._border.middle_bottom))
             i += 1
@@ -624,7 +602,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
 
         return result
 
-    fn _construct_headers(self, widths: List[Int], headers: List[String]) -> String:
+    fn _construct_headers(self, widths: List[UInt], headers: List[String]) -> String:
         """Constructs the headers for the table given it's current
         header configuration and data.
 
@@ -639,11 +617,11 @@ struct Table(Copyable, Movable, Stringable, Writable):
         if self._border_left:
             result.write(self._border_style.render(self._border.left))
 
-        for i in range(len(headers)):
+        for i in range(UInt(len(headers))):
             var style = self.style(0, i).set_max_height(1).set_width(widths[i]).set_max_width(widths[i])
 
             result.write(style.render(truncate(headers[i], widths[i], "…")))
-            if (i < len(headers) - 1) and (self._border_column):
+            if (i < UInt(len(headers)) - 1) and (self._border_column):
                 result.write(self._border_style.render(self._border.left))
 
         if self._border_header:
@@ -656,7 +634,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
 
             var i = 0
             while i < len(headers):
-                result.write(self._border_style.render(self._border.bottom * widths[i]))
+                result.write(self._border_style.render(self._border.bottom * Int(widths[i])))
                 if i < len(headers) - 1 and self._border_column:
                     result.write(self._border_style.render(self._border.middle))
 
@@ -670,7 +648,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
 
         return result
 
-    fn _construct_row(self, index: Int, widths: List[Int], heights: List[Int], headers: List[String]) -> String:
+    fn _construct_row(self, index: UInt, widths: List[UInt], heights: List[UInt], headers: List[String]) -> String:
         """Constructs the row for the table given an index and row data
         based on the current configuration.
 
@@ -686,24 +664,24 @@ struct Table(Copyable, Movable, Stringable, Writable):
         var result = String()
 
         var has_headers = len(headers) > 0
-        var height = heights[index + Int(has_headers)]
+        var height = heights[index + UInt(has_headers)]
 
         var cells = List[String]()
-        var left = (self._border_style.render(self._border.left) + "\n") * height
+        var left = (self._border_style.render(self._border.left) + "\n") * Int(height)
         if self._border_left:
             cells.append(left)
 
-        var c = 0
+        var c: UInt = 0
         while c < self.data.columns():
             var style = self.style(index + 1, c).set_height(height).set_max_height(height).set_width(widths[c]).set_max_width(widths[c])
-            cells.append(style.render(truncate(self.data[index, c], widths[c] * height, "…")))
+            cells.append(style.render(truncate(self.data[index, c], (widths[c] * height), "…")))
             if c < self.data.columns() - 1 and self._border_column:
                 cells.append(left)
 
             c += 1
 
         if self._border_right:
-            cells.append((self._border_style.render(self._border.right) + "\n") * height)
+            cells.append((self._border_style.render(self._border.right) + "\n") * Int(height))
 
         # TODO: removesuffix doesn't seem to work with all utf8 chars, maybe it'll be fixed upstream soon.
         # It wasn't recognizing the last character as a newline.
@@ -717,7 +695,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
             result.write(self._border_style.render(self._border.middle_left))
             var i = 0
             while i < len(widths):
-                result.write(self._border_style.render(self._border.middle * widths[i]))
+                result.write(self._border_style.render(self._border.middle * Int(widths[i])))
                 if i < len(widths) - 1 and self._border_column:
                     result.write(self._border_style.render(self._border.middle))
 

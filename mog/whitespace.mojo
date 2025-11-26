@@ -43,7 +43,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable, Copyable, Movable):
             chars=self.chars,
         )
 
-    fn render(self, width: Int) -> String:
+    fn render(self, width: UInt) -> String:
         """Render whitespaces.
 
         Args:
@@ -52,16 +52,15 @@ struct WhitespaceRenderer(ImplicitlyCopyable, Copyable, Movable):
         Returns:
             The rendered whitespace.
         """
-        var j = 0
+        var j: UInt = 0
         var result = String()
 
         # Cycle through runes and print them into the whitespace.
-        var i = 0
-
+        var i: UInt = 0
         while i < width:
             for codepoint in self.chars.codepoint_slices():
                 result.write(codepoint)
-                var printable_width = ansi.printable_rune_width(codepoint)
+                var printable_width = UInt(ansi.printable_rune_width(codepoint))
                 if j >= printable_width:
                     j = 0
 
@@ -74,7 +73,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable, Copyable, Movable):
         #  are more than one cell wide, which could leave a one-rune gap.
         var short = width - ansi.printable_rune_width(result)
         if short > 0:
-            result.write(WHITESPACE * short)
+            result.write(WHITESPACE * Int(short))
 
         return self.style.render(result)
 
@@ -109,7 +108,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable, Copyable, Movable):
         self,
         text: String,
         width: UInt,
-        alignment: Position = Position(0),
+        alignment: Position = Position.LEFT,
     ) -> String:
         """Places a string or text block horizontally in an unstyled
         block of a given width. If the given width is shorter than the max width of
@@ -140,13 +139,13 @@ struct WhitespaceRenderer(ImplicitlyCopyable, Copyable, Movable):
             # Is this line shorter than the longest line?
             var short = max(0, content_width - ansi.printable_rune_width(lines[i]))
             if alignment == Position.LEFT:
-                result.write(lines[i], self.render(gap + short))
+                result.write(lines[i], self.render(UInt(gap + short)))
             elif alignment == Position.RIGHT:
-                result.write(self.render(gap + short), lines[i])
+                result.write(self.render(UInt(gap + short)), lines[i])
             else:
                 # somewhere in the middle
                 var total_gap = gap + short
-                var split = Int(round(total_gap * alignment.value))
+                var split = UInt(Int(round(total_gap * alignment.value)))
                 var right = total_gap - split
                 var left = total_gap - right
                 result.write(self.render(left), lines[i], self.render(right))
@@ -173,7 +172,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable, Copyable, Movable):
         Returns:
             The string with the text placed in the block.
         """
-        var content_height = text.count(NEWLINE) + 1
+        var content_height = UInt(text.count(NEWLINE) + 1)
         var gap = height - content_height
         if gap <= 0:
             return text
@@ -183,21 +182,21 @@ struct WhitespaceRenderer(ImplicitlyCopyable, Copyable, Movable):
         if alignment == Position.TOP:
             result.write(text, NEWLINE)
 
-            var i = 0
+            var i: UInt = 0
             while i < gap:
                 result.write(empty_line)
                 if i < gap - 1:
                     result.write(NEWLINE)
                 i += 1
         elif alignment == Position.BOTTOM:
-            result.write((empty_line + NEWLINE) * gap, text)
+            result.write((empty_line + NEWLINE) * Int(gap), text)
         else:
             # somewhere in the middle
-            var split = Int(round(Float64(gap) * alignment.value))
+            var split = UInt(Int(round(Float64(gap) * alignment.value)))
             var bottom = gap - split
             var top = gap - bottom
 
-            result.write((empty_line + NEWLINE) * top, text)
+            result.write((empty_line + NEWLINE) * Int(top), text)
             for _ in range(bottom):
                 result.write(NEWLINE, empty_line)
 

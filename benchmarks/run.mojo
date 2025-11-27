@@ -17,7 +17,7 @@ fn run[func: fn (mut Bencher) raises capturing, name: String](mut m: Bench) rais
 
 
 fn run[func: fn (mut Bencher, String) raises capturing, name: String](mut m: Bench, data: String) raises:
-    m.bench_with_input[String, func](BenchId(name), data, get_gbs_measure(data))
+    m.bench_with_input[String, func](BenchId(name), data, [get_gbs_measure(data)])
 
 
 @parameter
@@ -80,52 +80,3 @@ fn main() raises:
     # run[bench_get_width, "GetWidth"](bench)
 
     bench.dump_report()
-
-
-# fn main() raises:
-#     var results = mog.Table.new().set_style(table_styling).set_headers(
-#         "Name",
-#         "Mean (ms)",
-#         "Total (ms)",
-#         "Iterations",
-#         "Warmup Total",
-#     )
-
-#     var report = benchmark.run[render_layout](max_iters=10)
-#     results = results.row(
-#         "Render layout",
-#         str(report.mean(benchmark.Unit.ms)),
-#         str(report.duration(benchmark.Unit.ms)),
-#         str(report.iters()),
-#         str(report.warmup_duration / 1e6),
-#     )
-
-#     var bs_report = benchmark.run[basic_styling](max_iters=50)
-#     results = results.row(
-#         "Basic styling",
-#         str(bs_report.mean(benchmark.Unit.ms)),
-#         str(bs_report.duration(benchmark.Unit.ms)),
-#         str(bs_report.iters()),
-#         str(bs_report.warmup_duration / 1e6),
-#     )
-
-#     var bcs_report = benchmark.run[basic_comptime_styling](max_iters=50)
-#     results = results.row(
-#         "Basic comptime styling",
-#         str(bcs_report.mean(benchmark.Unit.ms)),
-#         str(bcs_report.duration(benchmark.Unit.ms)),
-#         str(bcs_report.iters()),
-#         str(bcs_report.warmup_duration / 1e6),
-#     )
-
-#     # var bs_big_report = benchmark.run[basic_styling_big_file](max_iters=10)
-#     # results = results.row(
-#     #     "Large file test",
-#     #     str(bs_big_report.mean(benchmark.Unit.ms)),
-#     #     str(bs_big_report.duration(benchmark.Unit.ms)),
-#     #     str(bs_big_report.iters()),
-#     #     str(bs_big_report.warmup_duration / 1e6),
-#     #     str(bs_big_report.warmup_iters),
-#     # )
-
-#     print(results)

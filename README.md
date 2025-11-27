@@ -4,7 +4,7 @@
 
 Style definitions for nice terminal layouts.
 
-![Mojo Version](https://img.shields.io/badge/Mojo%F0%9F%94%A5-25.6-orange)
+![Mojo Version](https://img.shields.io/badge/Mojo%F0%9F%94%A5-25.7-orange)
 ![Build Status](https://github.com/thatstoasty/mog/actions/workflows/build.yml/badge.svg)
 ![Test Status](https://github.com/thatstoasty/mog/actions/workflows/test.yml/badge.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)

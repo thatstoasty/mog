@@ -7,14 +7,14 @@ from mog.color import AdaptiveColor, ANSIColor, Color, CompleteAdaptiveColor, Co
 from mog.renderer import Renderer
 
 
-alias true_color_renderer = Renderer(mog.Profile.TRUE_COLOR)
-alias light_true_color_renderer = Renderer(mog.Profile.TRUE_COLOR, dark_background=False)
-alias ansi256_color_renderer = Renderer(mog.Profile.ANSI256)
-alias light_ansi256_color_renderer = Renderer(mog.Profile.ANSI256, dark_background=False)
-alias ansi_color_renderer = Renderer(mog.Profile.ANSI)
-alias light_ansi_color_renderer = Renderer(mog.Profile.ANSI, dark_background=False)
-alias ascii_renderer = Renderer(mog.Profile.ASCII)
-alias light_ascii_renderer = Renderer(mog.Profile.ASCII, dark_background=False)
+comptime true_color_renderer = Renderer(mog.Profile.TRUE_COLOR)
+comptime light_true_color_renderer = Renderer(mog.Profile.TRUE_COLOR, dark_background=False)
+comptime ansi256_color_renderer = Renderer(mog.Profile.ANSI256)
+comptime light_ansi256_color_renderer = Renderer(mog.Profile.ANSI256, dark_background=False)
+comptime ansi_color_renderer = Renderer(mog.Profile.ANSI)
+comptime light_ansi_color_renderer = Renderer(mog.Profile.ANSI, dark_background=False)
+comptime ascii_renderer = Renderer(mog.Profile.ASCII)
+comptime light_ascii_renderer = Renderer(mog.Profile.ASCII, dark_background=False)
 
 
 fn test_no_color() raises:
@@ -25,7 +25,7 @@ fn test_no_color() raises:
 
 
 fn test_color() raises:
-    alias example_color = Color(0)
+    comptime example_color = Color(0)
     testing.assert_true(example_color.color(true_color_renderer).isa[color.ANSIColor]())
     testing.assert_true(example_color.color(ansi256_color_renderer).isa[color.ANSIColor]())
     testing.assert_true(example_color.color(ansi_color_renderer).isa[color.ANSIColor]())
@@ -33,7 +33,7 @@ fn test_color() raises:
 
 
 fn test_ansi_color() raises:
-    alias example_color = ANSIColor(0)
+    comptime example_color = ANSIColor(0)
     testing.assert_true(example_color.color(true_color_renderer).isa[color.ANSIColor]())
     testing.assert_true(example_color.color(ansi256_color_renderer).isa[color.ANSIColor]())
     testing.assert_true(example_color.color(ansi_color_renderer).isa[color.ANSIColor]())
@@ -41,7 +41,7 @@ fn test_ansi_color() raises:
 
 
 fn test_adaptive_color() raises:
-    alias example_color = AdaptiveColor(light=0, dark=1)
+    comptime example_color = AdaptiveColor(light=0, dark=1)
 
     # Test dark background renderer
     testing.assert_true(example_color.color(true_color_renderer).isa[color.ANSIColor]())
@@ -52,7 +52,7 @@ fn test_adaptive_color() raises:
 
 
 fn test_complete_color() raises:
-    alias example_color = CompleteColor(true_color=0xffffff, ansi256=255, ansi=0)
+    comptime example_color = CompleteColor(true_color=0xffffff, ansi256=255, ansi=0)
 
     # Test true color renderer
     testing.assert_true(example_color.color(true_color_renderer).isa[RGBColor]())
@@ -71,7 +71,7 @@ fn test_complete_color() raises:
 
 
 fn test_complete_adaptive_color() raises:
-    alias example_color = CompleteAdaptiveColor(
+    comptime example_color = CompleteAdaptiveColor(
         light=CompleteColor(true_color=0xffffff, ansi256=255, ansi=0),
         dark=CompleteColor(true_color=0xffff00, ansi256=100, ansi=13)
     )

@@ -5,12 +5,12 @@ from mog import Profile, Padding, Emphasis
 
 
 # TODO: There's an issue with rows being taller than 1 line. Adding vertical padding will break the table.
-alias style = mog.Style(Profile.TRUE_COLOR, padding=Padding(1, 0))
-alias header_style = style.set_emphasis(Emphasis.BOLD).set_foreground_color(mog.Color(252))
-alias selected_style = style.set_foreground_color(mog.Color(0x01BE85)).set_background_color(mog.Color(0x00432F))
+comptime style = mog.Style(Profile.TRUE_COLOR, padding=Padding(1, 0))
+comptime header_style = style.set_emphasis(Emphasis.BOLD).set_foreground_color(mog.Color(252))
+comptime selected_style = style.set_foreground_color(mog.Color(0x01BE85)).set_background_color(mog.Color(0x00432F))
 
 
-alias TYPE_COLORS: Dict[String, mog.Color] = {
+comptime TYPE_COLORS: Dict[String, mog.Color] = {
     "Bug": mog.Color(0xD7FF87),
     "Electric": mog.Color(0xFDFF90),
     "Fire": mog.Color(0xFF7698),
@@ -23,7 +23,7 @@ alias TYPE_COLORS: Dict[String, mog.Color] = {
 }
 
 
-alias DIM_TYPE_COLORS: Dict[String, mog.Color] = {
+comptime DIM_TYPE_COLORS: Dict[String, mog.Color] = {
     "Bug": mog.Color(0x97AD64),
     "Electric": mog.Color(0xFCFF5F),
     "Fire": mog.Color(0xBA5F75),
@@ -35,7 +35,8 @@ alias DIM_TYPE_COLORS: Dict[String, mog.Color] = {
     "Water": mog.Color(0x439F8E),
 }
 
-fn style_func(data: mog.Data, row: Int, col: Int) -> mog.Style:
+
+fn style_func(data: mog.Data, row: UInt, col: UInt) -> mog.Style:
     if row == 0:
         return header_style
 

@@ -505,7 +505,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
             result.write(self._construct_bottom_border(widths))
 
         writer.write(
-            mog.Style(Profile.ASCII, max_height=self._compute_height(heights), max_width=self.width).render(result)
+            mog.Style(Profile.ASCII, max_height=Int(self._compute_height(heights)), max_width=Int(self.width)).render(result)
         )
 
     fn __str__(self) -> String:

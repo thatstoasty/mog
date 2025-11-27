@@ -6,9 +6,9 @@ from mog.align import align_text_horizontal, align_text_vertical
 from mog import Position
 
 
-alias text = "hello"
-alias multiline_text = "hello\nhello\nhello"
-alias style = mist.Style(mist.Profile.ANSI)
+comptime text = "hello"
+comptime multiline_text = "hello\nhello\nhello"
+comptime style = mist.Style(mist.Profile.ANSI)
 
 
 fn test_centered_align_text_horizontal() raises:

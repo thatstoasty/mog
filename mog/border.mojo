@@ -1,5 +1,5 @@
 from mist.transform.ansi import printable_rune_width
-
+from iter import enumerate
 
 struct Border(Copyable, ImplicitlyCopyable, Movable, EqualityComparable):
     """A border to use to wrap around text."""
@@ -308,13 +308,19 @@ fn render_horizontal_edge(left: StringSlice, var middle: String, right: StringSl
     var i = left_width + right_width
     var j = 0
     while i < width + right_width:
-        output.write(middle[j])
-        j += 1
+        # We loop over codepoints instead of indexing (middle[j]), because String and StringSlice
+        # indexing is by byte, not by character! Which leads to bugs with multi-byte UTF-8 characters.
+        # This can probably be changed back once String indexing is improved.
+        var codepoints = middle.codepoint_slices()
+        for idx, codepoint in enumerate(codepoints):
+            if idx == j:
+                output.write(codepoint)
+                j += 1
 
-        if j >= len(middle):
-            j = 0
+                if j >= len(codepoints):
+                    j = 0
 
-        i += printable_rune_width(middle[j])
+                i += printable_rune_width(codepoint)
 
     output.write(right)
     return output^

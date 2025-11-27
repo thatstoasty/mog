@@ -6,7 +6,7 @@ import mog
 from mog import Alignment, Position, Profile
 
 
-alias ANSI_STYLE = mog.Style(Profile.ANSI)
+comptime ANSI_STYLE = mog.Style(Profile.ANSI)
 
 fn test_with_whitespace_background() raises:
     # Use a renderer with a specific profile to ensure consistent output.
@@ -46,7 +46,7 @@ fn test_multiple_whitespace_options() raises:
     )
 
 
-alias TRUE_COLOR_RENDERER = WhitespaceRenderer(style=mog.Style(Profile.TRUE_COLOR))
+comptime TRUE_COLOR_RENDERER = WhitespaceRenderer(style=mog.Style(Profile.TRUE_COLOR))
 
 fn test_place_horizontal() raises:
     testing.assert_equal(TRUE_COLOR_RENDERER.place_horizontal("Hello, World!", 18, Position.CENTER), "  Hello, World!   ")

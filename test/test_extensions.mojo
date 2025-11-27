@@ -4,8 +4,8 @@ from testing import TestSuite
 from mog._extensions import get_lines, get_widest_line, pad_left, pad_right
 
 
-alias ascii_style = mist.Style(mist.Profile.ASCII)
-alias white_space_style = mist.Style(mist.Profile.ANSI).background(15)
+comptime ascii_style = mist.Style(mist.Profile.ASCII)
+comptime white_space_style = mist.Style(mist.Profile.ANSI).background(15)
 
 
 fn test_pad_left() raises:

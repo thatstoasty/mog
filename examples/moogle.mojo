@@ -7,8 +7,8 @@ fn render_pixels(style: mog.Style, width: Int) -> String:
     return style.render("  " * width)
 
 
-alias NEWLINE = ord("\n")
-alias NAME = """          .         .                                             
+comptime NEWLINE = ord("\n")
+comptime NAME = """          .         .                                             
          ,8.       ,8.           ,o888888o.         ,o888888o.    
         ,888.     ,888.       . 8888     `88.      8888     `88.  
        .`8888.   .`8888.     ,8 8888       `8b  ,8 8888       `8. 

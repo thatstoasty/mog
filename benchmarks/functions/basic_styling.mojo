@@ -16,7 +16,7 @@ fn basic_styling():
     _ = output^
 
 
-alias file_style = mog.Style(
+comptime file_style = mog.Style(
     color_profile=Profile.TRUE_COLOR,
     width=22,
     foreground=mog.Color(0xFAFAFA),

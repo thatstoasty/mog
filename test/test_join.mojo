@@ -5,8 +5,8 @@ from mog import Position, join_horizontal, join_vertical
 
 
 fn test_horizontal_join() raises:
-    alias a = "Hello World!\nThis is an example."
-    alias b = "I could be more creative.\nBut, I'm out of ideas."
+    comptime a = "Hello World!\nThis is an example."
+    comptime b = "I could be more creative.\nBut, I'm out of ideas."
 
     # Test horizontally joining three paragraphs along their bottom edges
     var bottom_aligned = join_horizontal(Position.BOTTOM, a, b)
@@ -35,8 +35,8 @@ fn test_horizontal_join() raises:
 
 
 fn test_vertical_join() raises:
-    alias a = "Hello World!\nThis is an example."
-    alias b = "I could be more creative.\nBut, I'm out of ideas."
+    comptime a = "Hello World!\nThis is an example."
+    comptime b = "I could be more creative.\nBut, I'm out of ideas."
 
     # Test vertically joining two paragraphs along their right border
     var right_aligned = join_vertical(Position.RIGHT, a, b)

@@ -7,7 +7,7 @@ fn main():
         width=50,
         data=mog.Data(
             ["Mistborn", s.render("Great")],
-            ["The Way of the Many", s.render("Excellent")],
+            ["The Will of the Many", s.render("Excellent")],
             ["Wheel of Time", s.render("Fantastic")],
         )
     )

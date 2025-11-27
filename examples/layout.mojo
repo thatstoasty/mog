@@ -11,18 +11,18 @@ import mog
 from mog import Position, Padding, Margin, Emphasis, Axis
 
 
-alias width = 96
-alias column_width = 30
-alias subtle = mog.AdaptiveColor(light=0xD9DCCF, dark=0x383838)
-alias highlight = mog.AdaptiveColor(light=0x874BFD, dark=0xFF713C)
-alias special = mog.AdaptiveColor(light=0x43BF6D, dark=0x73F59F)
+comptime width: UInt = 96
+comptime column_width = 30
+comptime subtle = mog.AdaptiveColor(light=0xD9DCCF, dark=0x383838)
+comptime highlight = mog.AdaptiveColor(light=0x874BFD, dark=0xFF713C)
+comptime special = mog.AdaptiveColor(light=0x43BF6D, dark=0x73F59F)
 
 
 fn color_grid(x_steps: Int, y_steps: Int) -> List[List[hue.Color]]:
-    alias x0y0 = hue.Color(0xF25D94)
-    alias x1y0 = hue.Color(0xEDFF82)
-    alias x0y1 = hue.Color(0x643AFF)
-    alias x1y1 = hue.Color(0x14F9D5)
+    comptime x0y0 = hue.Color(0xF25D94)
+    comptime x1y0 = hue.Color(0xEDFF82)
+    comptime x0y1 = hue.Color(0x643AFF)
+    comptime x1y1 = hue.Color(0x14F9D5)
 
     var x0: List[hue.Color] = [x0y0.blend_luv(x0y1, Float64(i)/Float64(y_steps)) for i in range(y_steps)]
     var x1: List[hue.Color] = [x1y0.blend_luv(x1y1, Float64(i)/Float64(y_steps)) for i in range(y_steps)]
@@ -41,7 +41,7 @@ fn color_grid(x_steps: Int, y_steps: Int) -> List[List[hue.Color]]:
 
 
 fn build_tabs() -> String:
-    alias active_tab_border = Border(
+    comptime active_tab_border = Border(
         top="─",
         bottom=" ",
         left="│",
@@ -52,7 +52,7 @@ fn build_tabs() -> String:
         bottom_right="└",
     )
 
-    alias tab_border = Border(
+    comptime tab_border = Border(
         top="─",
         bottom="─",
         left="│",
@@ -63,7 +63,7 @@ fn build_tabs() -> String:
         bottom_right="┴",
     )
 
-    alias tab_color = mog.AdaptiveColor(light=0x874BFD, dark=0xFF713C)
+    comptime tab_color = mog.AdaptiveColor(light=0x874BFD, dark=0xFF713C)
     var tab_style = mog.Style(border=tab_border).set_border_foreground(tab_color).set_padding(0, 1)
     var active_tab = tab_style.set_border(active_tab_border)
     var tab_gap = tab_style.set_border_side_rendering(top=False, right=False, bottom=True, left=False)
@@ -76,7 +76,7 @@ fn build_tabs() -> String:
         tab_style.render("Basalt"),
         tab_style.render("Prism"),
     )
-    var gap = tab_gap.render(" " * max(0, width - get_width(row) - 2))
+    var gap = tab_gap.render(" " * Int(max(0, width - get_width(row) - 2)))
     return join_horizontal(Position.BOTTOM, row, gap)
 
 
@@ -214,9 +214,9 @@ fn build_history() -> String:
         background=highlight,
     ).set_text_alignment(Axis.HORIZONTAL, Position.LEFT)
 
-    alias history_a = "The Romans learned from the Greeks that quinces slowly cooked with honey would 'set' when cool. The Apicius gives a recipe for preserving whole quinces, stems and leaves attached, in a bath of honey diluted with defrutum: Roman marmalade. Preserves of quince and lemon appear (along with rose, apple, plum and pear) in the Book of ceremonies of the Byzantine Emperor Constantine VII Porphyrogennetos."
-    alias history_b = "Medieval quince preserves, which went by the French name cotignac, produced in a clear version and a fruit pulp version, began to lose their medieval seasoning of spices in the 16th century. In the 17th century, La Varenne provided recipes for both thick and clear cotignac."
-    alias history_c = "In 1524, Henry VIII, King of England, received a 'box of marmalade' from Mr. Hull of Exeter. This was probably marmelada, a solid quince paste from Portugal, still made and sold in southern Europe today. It became a favourite treat of Anne Boleyn and her ladies in waiting."
+    comptime history_a = "The Romans learned from the Greeks that quinces slowly cooked with honey would 'set' when cool. The Apicius gives a recipe for preserving whole quinces, stems and leaves attached, in a bath of honey diluted with defrutum: Roman marmalade. Preserves of quince and lemon appear (along with rose, apple, plum and pear) in the Book of ceremonies of the Byzantine Emperor Constantine VII Porphyrogennetos."
+    comptime history_b = "Medieval quince preserves, which went by the French name cotignac, produced in a clear version and a fruit pulp version, began to lose their medieval seasoning of spices in the 16th century. In the 17th century, La Varenne provided recipes for both thick and clear cotignac."
+    comptime history_c = "In 1524, Henry VIII, King of England, received a 'box of marmalade' from Mr. Hull of Exeter. This was probably marmelada, a solid quince paste from Portugal, still made and sold in southern Europe today. It became a favourite treat of Anne Boleyn and her ladies in waiting."
 
     return join_horizontal(
         Position.TOP,

@@ -3,7 +3,7 @@ from testing import TestSuite
 from mog.size import get_dimensions, get_height, get_width
 
 
-alias test_string = "This\nis\na\ntest\nstring"
+comptime test_string = "This\nis\na\ntest\nstring"
 
 
 fn test_get_height() raises:

@@ -1,3 +1,4 @@
+"""Terminal styling and layout library for Mojo."""
 from mist import Profile
 from mog._properties import Emphasis, Axis, Padding, Margin
 from mog.align import align_text_horizontal, align_text_vertical, Alignment

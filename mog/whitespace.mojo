@@ -137,7 +137,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable, Copyable, Movable):
                 result.write(NEWLINE)
 
             # Is this line shorter than the longest line?
-            var short = max(0, content_width - ansi.printable_rune_width(lines[i]))
+            var short = max(UInt(0), content_width - ansi.printable_rune_width(lines[i]))
             if alignment == Position.LEFT:
                 result.write(lines[i], self.render(UInt(gap + short)))
             elif alignment == Position.RIGHT:
@@ -145,7 +145,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable, Copyable, Movable):
             else:
                 # somewhere in the middle
                 var total_gap = gap + short
-                var split = UInt(Int(round(total_gap * alignment.value)))
+                var split = UInt(Int(round(Float64(total_gap) * alignment.value)))
                 var right = total_gap - split
                 var left = total_gap - right
                 result.write(self.render(left), lines[i], self.render(right))

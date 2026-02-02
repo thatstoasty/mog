@@ -8,7 +8,7 @@ from mog.position import Position
 # TODO: Refactor this module to reuse some of the logic instead of duplicating functions.
 fn _get_lines_mem[origin: ImmutOrigin](
     pos: Position,
-    strs: VariadicListMem[String, origin],
+    strs: VariadicListMem[origin=origin, element_type=String],
 ) -> Tuple[List[List[StringSlice[origin]]], List[UInt]]:
     """Split a variadic list of strings into lines.
 
@@ -50,11 +50,11 @@ fn _get_lines_mem[origin: ImmutOrigin](
             var top_point = end - Int(end * pos.value)
             var bottom_point = end - top_point
 
-            var top_lines = extra_lines[top_point:end]
+            var top_lines = List(extra_lines[top_point:end])
             var bottom_lines = extra_lines[bottom_point:end]
             top_lines.extend(blocks[i].copy())
             blocks[i] = top_lines^
-            blocks[i].extend(bottom_lines^)
+            blocks[i].extend(bottom_lines)
 
     return blocks^, max_widths^
 
@@ -201,18 +201,18 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
             var top_point = end - Int(end * pos.value)
             var bottom_point = end - top_point
 
-            var top_lines = extra_lines[top_point:end]
+            var top_lines = List(extra_lines[top_point:end])
             var bottom_lines = extra_lines[bottom_point:end]
             top_lines.extend(blocks[i].copy())
             blocks[i] = top_lines^
-            blocks[i].extend(bottom_lines^)
+            blocks[i].extend(bottom_lines)
 
     return _merge_lines(blocks, max_widths)
 
 
 fn _get_lines_mem_width[origin: ImmutOrigin](
     pos: Position,
-    strs: VariadicListMem[String, origin],
+    strs: VariadicListMem[origin=origin, String],
 ) -> Tuple[List[List[StringSlice[origin]]], UInt]:
     """Split a string into lines.
 
@@ -267,7 +267,7 @@ fn _merge_blocks_vertically[origin: ImmutOrigin](
                 if w < 1:
                     result.write(blocks[i][j])
                 else:
-                    var split = UInt(Int(w * pos.value))
+                    var split = UInt(Int(Float64(w) * pos.value))
                     var right = w - split
                     var left = w - right
 

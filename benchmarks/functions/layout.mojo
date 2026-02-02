@@ -76,7 +76,7 @@ fn build_tabs() -> String:
         tab_style.render("Basalt"),
         tab_style.render("Prism"),
     )
-    var gap = tab_gap.render(" " * Int(max(0, width - get_width(row) - 2)))
+    var gap = tab_gap.render(" " * Int(max(UInt(0), width - get_width(row) - 2)))
     return join_horizontal(Position.BOTTOM, row, gap)
 
 
@@ -239,7 +239,7 @@ fn build_status_bar() -> String:
     var encoding = encoding_style.render("UTF-8")
     var fish_cake = fish_cake_style.render("🍥 Fish Cake")
     var status_val = status_text_style.set_width(
-        width - get_width(status_key) - get_width(encoding) - get_width(fish_cake)
+        UInt16(UInt(width) - get_width(status_key) - get_width(encoding) - get_width(fish_cake))
     ).render("Ravishing")
 
     var bar = join_horizontal(
@@ -250,7 +250,7 @@ fn build_status_bar() -> String:
         fish_cake,
     )
 
-    return status_bar_style.set_width(width).render(bar)
+    return status_bar_style.set_width(UInt16(width)).render(bar)
 
 
 fn render_layout():

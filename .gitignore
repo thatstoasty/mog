@@ -176,5 +176,6 @@ output
 
 # Mojo
 *.mojopkg
+kgen.*
 
 .DS_Store

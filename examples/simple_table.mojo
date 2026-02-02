@@ -51,10 +51,10 @@ def main():
     print(
         "Headerless Execution Time: ",
         headerless_execution_time,
-        headerless_execution_time / 1e9,
+        Float64(headerless_execution_time) / 1e9,
     )
     print(
         "Headered Execution Time: ",
         headered_execution_time,
-        headered_execution_time / 1e9,
+        Float64(headered_execution_time) / 1e9,
     )

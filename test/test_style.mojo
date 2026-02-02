@@ -473,7 +473,6 @@ fn test_padding() raises:
     testing.assert_equal(border_style.set_padding(1).render("hello"), "+++++++++\n+       +\n+ hello +\n+       +\n+++++++++")
 
     # Top/bottom and left/right
-    print(repr(ansi_style.set_padding(1, 2).render("hello")))
     testing.assert_equal(ansi_style.set_padding(1, 2).render("hello"), "         \n  hello  \n         ")
     testing.assert_equal(border_style.set_padding(1, 2).render("hello"), "+++++++++++\n+         +\n+  hello  +\n+         +\n+++++++++++")
 

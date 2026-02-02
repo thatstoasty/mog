@@ -50,4 +50,4 @@ fn get_dimensions(text: StringSlice) -> Dimensions:
     Returns:
         The width and height of the string in cells.
     """
-    return Dimensions(width=get_width(text), height=get_height(text))
+    return Dimensions(width=UInt16(get_width(text)), height=UInt16(get_height(text)))

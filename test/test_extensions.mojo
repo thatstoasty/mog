@@ -25,7 +25,7 @@ fn test_get_lines() raises:
     var lines = result[0].copy()
     var widest_line = result[1]
     testing.assert_equal(len(lines), 2)
-    testing.assert_equal(lines, List[StringSlice[StaticConstantOrigin]]("hello", "world"))
+    testing.assert_equal(lines, ["hello", "world"])
     testing.assert_equal(widest_line, 5)
 
 
@@ -34,7 +34,7 @@ fn test_get_lines_empty_string() raises:
     var lines = result[0].copy()
     var widest_line = result[1]
     testing.assert_equal(len(lines), 1)
-    testing.assert_equal(lines, List[StringSlice[StaticConstantOrigin]](""))
+    testing.assert_equal(lines, [""])
     testing.assert_equal(widest_line, 0)
 
 

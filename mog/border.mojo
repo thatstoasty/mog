@@ -1,7 +1,7 @@
 from mist.transform.ansi import printable_rune_width
 from iter import enumerate
 
-struct Border(Copyable, ImplicitlyCopyable, Movable, EqualityComparable):
+struct Border(Copyable, ImplicitlyCopyable, Movable, Equatable ):
     """A border to use to wrap around text."""
 
     var top: String

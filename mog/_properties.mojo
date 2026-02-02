@@ -3,7 +3,7 @@ from mog.position import Position
 
 @fieldwise_init
 @register_passable("trivial")
-struct PropKey(Copyable, EqualityComparable, Movable):
+struct PropKey(Copyable, Equatable , Movable):
     """Property keys for the style."""
 
     var _value: UInt8
@@ -109,9 +109,6 @@ struct PropKey(Copyable, EqualityComparable, Movable):
     fn __eq__(self, other: PropKey) -> Bool:
         return self._value == other._value
 
-    fn __ne__(self, other: PropKey) -> Bool:
-        return self._value != other._value
-
 
 @register_passable("trivial")
 struct Properties(Copyable, Movable):
@@ -181,7 +178,7 @@ struct Padding(Copyable, Movable):
         self.left = x_width
 
 
-struct Margin(Copyable, ImplicitlyCopyable, Movable):
+struct Margin(ImplicitlyCopyable):
     var top: UInt16
     """The margin level at the top of the text."""
     var right: UInt16
@@ -235,7 +232,7 @@ struct Margin(Copyable, ImplicitlyCopyable, Movable):
 
 
 @register_passable("trivial")
-struct Dimensions(Copyable, Movable):
+struct Dimensions(Copyable):
     var height: UInt16
     """The height of the text."""
     var width: UInt16
@@ -246,7 +243,7 @@ struct Dimensions(Copyable, Movable):
         self.width = width
 
 
-struct Coloring(Copyable, ImplicitlyCopyable, Movable):
+struct Coloring(ImplicitlyCopyable):
     var foreground: AnyTerminalColor
     """The foreground color."""
     var background: AnyTerminalColor
@@ -264,7 +261,7 @@ struct Coloring(Copyable, ImplicitlyCopyable, Movable):
         return Self(foreground=self.foreground.copy(), background=self.background.copy())
 
 
-struct BorderColor(Copyable, ImplicitlyCopyable, Movable):
+struct BorderColor(ImplicitlyCopyable):
     var foreground_top: AnyTerminalColor
     """The foreground color of the top border."""
     var foreground_right: AnyTerminalColor
@@ -326,7 +323,7 @@ struct BorderColor(Copyable, ImplicitlyCopyable, Movable):
 
 
 @fieldwise_init
-struct Side(ImplicitlyCopyable, Copyable, Movable, EqualityComparable):
+struct Side(ImplicitlyCopyable, Equatable):
     var value: UInt8
 
     comptime TOP = Self(0)
@@ -339,7 +336,7 @@ struct Side(ImplicitlyCopyable, Copyable, Movable, EqualityComparable):
 
 
 @fieldwise_init
-struct Emphasis(ImplicitlyCopyable, Copyable, Movable, EqualityComparable):
+struct Emphasis(ImplicitlyCopyable, Equatable):
     var value: UInt8
     comptime BOLD = Self(0)
     """Whether the text is bold."""
@@ -367,7 +364,7 @@ struct Emphasis(ImplicitlyCopyable, Copyable, Movable, EqualityComparable):
 
 
 @fieldwise_init
-struct Axis(ImplicitlyCopyable, Copyable, Movable, EqualityComparable):
+struct Axis(ImplicitlyCopyable, Equatable):
     var value: UInt8
     comptime HORIZONTAL = Self(0)
     """Whether the axis is horizontal."""

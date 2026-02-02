@@ -21,7 +21,7 @@ def test_horizontal_joined_paragraphs():
         alignment=Alignment(horizontal=Position.CENTER),
     ).set_border_foreground(mog.Color(0x39E506))
     var style_build_duration = perf_counter_ns() - style_build_start
-    print("Style build duration: ", style_build_duration, style_build_duration / 1e9)
+    print("Style build duration: ", style_build_duration, Float64(style_build_duration) / 1e9)
     var start_time = perf_counter_ns()
 
     print(style.render("You should be able to join blocks of different heights"))
@@ -71,7 +71,7 @@ def test_horizontal_joined_paragraphs():
         )
     )
     var execution_time = perf_counter_ns() - start_time
-    print("Block execution time: ", execution_time, execution_time / 1e9)
+    print("Block execution time: ", execution_time, Float64(execution_time) / 1e9)
 
 
 def test_borderless_paragraph():

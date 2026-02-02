@@ -6,19 +6,20 @@ import mog
 
 
 fn test_sum() raises:
-    testing.assert_equal(sum(List[UInt](1, 2, 3, 4, 5)), 15)
+    var numbers: List[UInt] = [1, 2, 3, 4, 5]
+    testing.assert_equal(sum(numbers), 15)
 
 
 fn test_median() raises:
-    var numbers = List[UInt](1, 2, 3, 4, 5)
+    var numbers: List[UInt] = [1, 2, 3, 4, 5]
     testing.assert_equal(median(numbers), 3)
 
-    numbers = List[UInt](1, 2, 3, 4)
+    numbers = [1, 2, 3, 4]
     testing.assert_equal(median(numbers), 2)
 
 
 fn test_largest() raises:
-    var numbers = List[UInt](1, 2, 3, 4, 5)
+    var numbers: List[UInt] = [1, 2, 3, 4, 5]
     var result = largest(numbers)
     testing.assert_equal(result[0], 4)
     testing.assert_equal(result[1], 5)

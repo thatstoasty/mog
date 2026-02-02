@@ -618,7 +618,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
             result.write(self._border_style.render(self._border.left))
 
         for i in range(UInt(len(headers))):
-            var style = self.style(0, i).set_max_height(1).set_width(widths[i]).set_max_width(widths[i])
+            var style = self.style(0, i).set_max_height(1).set_width(UInt16(widths[i])).set_max_width(UInt16(widths[i]))
 
             result.write(style.render(truncate(headers[i], widths[i], "…")))
             if (i < UInt(len(headers)) - 1) and (self._border_column):
@@ -673,7 +673,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
 
         var c: UInt = 0
         while c < self.data.columns():
-            var style = self.style(index + 1, c).set_height(height).set_max_height(height).set_width(widths[c]).set_max_width(widths[c])
+            var style = self.style(index + 1, c).set_height(UInt16(height)).set_max_height(UInt16(height)).set_width((UInt16(widths[c]))).set_max_width((UInt16(widths[c])))
             cells.append(style.render(truncate(self.data[index, c], (widths[c] * height), "…")))
             if c < self.data.columns() - 1 and self._border_column:
                 cells.append(left)
@@ -685,9 +685,9 @@ struct Table(Copyable, Movable, Stringable, Writable):
 
         # TODO: removesuffix doesn't seem to work with all utf8 chars, maybe it'll be fixed upstream soon.
         # It wasn't recognizing the last character as a newline.
-        for ref cell in cells:
-            if cell[-1] == "\n":
-                cell = cell[:-1]
+        for i in range(len(cells)):
+            if cells[i].endswith("\n"):
+                cells[i] = String(cells[i][:-1].removesuffix("\n"))
 
         result.write(join_horizontal(Position.TOP, cells), "\n")
 

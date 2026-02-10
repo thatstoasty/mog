@@ -1,8 +1,8 @@
 import mist
-import mist.color
+import mist.style.color
 import testing
 from testing import TestSuite
-from mist.color import ANSI256Color, RGBColor
+from mist.style.color import ANSI256Color, RGBColor
 from mog.color import AdaptiveColor, ANSIColor, Color, CompleteAdaptiveColor, CompleteColor, NoColor
 from mog.renderer import Renderer
 

@@ -1,4 +1,4 @@
-import mist._hue as hue
+import mist.style._hue as hue
 from mist.transform.ansi import printable_rune_width
 from mog.align import Alignment
 from mog.border import HIDDEN_BORDER, NORMAL_BORDER, ROUNDED_BORDER, Border

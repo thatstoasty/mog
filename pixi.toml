@@ -28,26 +28,26 @@ build_and_publish = [{ task = "build" }, { task = "publish" }]
 
 [package]
 name = "mog"
-version = "26.1.0"
+version = "26.1.1"
 
 [package.build]
 backend = { name = "pixi-build-mojo", version = "*" }
 
 [dependencies]
 mojo = ">=0.26.1.0,<0.26.2.0"
-mist = ">=26.1.0,<26.2.0"
+mist = ">=26.1.2,<26.2.0"
 
 [package.build-dependencies]
 mojo-compiler = ">=0.26.1.0,<0.26.2.0"
-mist = ">=26.1.0,<26.2.0"
+mist = ">=26.1.2,<26.2.0"
 
 [package.host-dependencies]
 mojo = ">=0.26.1.0,<0.26.2.0"
-mist = ">=26.1.0,<26.2.0"
+mist = ">=26.1.2,<26.2.0"
 
 [package.run-dependencies]
 mojo = ">=0.26.1.0,<0.26.2.0"
-mist = ">=26.1.0,<26.2.0"
+mist = ">=26.1.2,<26.2.0"
 
 [feature.util.dependencies]
 isort = ">=6.0.1,<7"

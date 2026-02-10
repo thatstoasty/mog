@@ -201,11 +201,11 @@ struct CompleteColor(TerminalColor):
         * 16 - 255: `mist.ANSI256Color`
         * 256 - 0xffffff: `mist.RGBColor`
         """
-        if renderer.profile == mist.profile.Profile.TRUE_COLOR:
+        if renderer.profile == mist.Profile.TRUE_COLOR:
             return Color(self.true_color).color(renderer)
-        elif renderer.profile == mist.profile.Profile.ANSI256:
+        elif renderer.profile == mist.Profile.ANSI256:
             return Color(self.ansi256).color(renderer)
-        elif renderer.profile == mist.profile.Profile.ANSI:
+        elif renderer.profile == mist.Profile.ANSI:
             return Color(self.ansi).color(renderer)
         else:
             return mist.NoColor()

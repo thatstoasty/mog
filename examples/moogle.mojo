@@ -1,4 +1,4 @@
-import mist._hue as hue
+import mist.style._hue as hue
 
 import mog
 

@@ -301,8 +301,7 @@ fn main():
         .border(ROUNDED_BORDER)
         .border_foreground(mog.Color(228))
         .border_background(mog.Color(63))
-        .border_top(True)
-        .border_left(True)
+        .border_side_rendering(bottom=False, right=False)
     )
     
     style = (

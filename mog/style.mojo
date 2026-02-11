@@ -897,21 +897,21 @@ struct Style(ImplicitlyCopyable):
         return self.unset_emphasis(Emphasis.UNDERLINE_SPACES)
     
     fn strikethrough_spaces(self, value: Bool = True) -> Self:
-        """Set the text to have spaces strikethough.
+        """Set the text to have spaces strikethrough.
 
         Args:
             value: Value to set the rule to.
 
         Returns:
-            A new Style with the strikethough spaces rule set.
+            A new Style with the strikethrough spaces rule set.
         """
         return self.set_emphasis(Emphasis.STRIKETHROUGH_SPACES, value=value)
     
     fn unset_strikethrough_spaces(self) -> Self:
-        """Unset the strikethough spaces text style.
+        """Unset the strikethrough spaces text style.
 
         Returns:
-            A new Style with the strikethough spaces rule unset.
+            A new Style with the strikethrough spaces rule unset.
         """
         return self.unset_emphasis(Emphasis.STRIKETHROUGH_SPACES)
     

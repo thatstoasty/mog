@@ -802,21 +802,21 @@ struct Style(ImplicitlyCopyable):
         return self.unset_emphasis(Emphasis.UNDERLINE)
     
     fn strikethrough(self, value: Bool = True) -> Self:
-        """Set the text to be strikethough.
+        """Set the text to be strikethrough.
 
         Args:
             value: Value to set the rule to.
 
         Returns:
-            A new Style with the strikethough rule set.
+            A new Style with the strikethrough rule set.
         """
         return self.set_emphasis(Emphasis.STRIKETHROUGH, value=value)
     
     fn unset_strikethrough(self) -> Self:
-        """Unset the strikethough text style.
+        """Unset the strikethrough text style.
 
         Returns:
-            A new Style with the strikethough rule unset.
+            A new Style with the strikethrough rule unset.
         """
         return self.unset_emphasis(Emphasis.STRIKETHROUGH)
     

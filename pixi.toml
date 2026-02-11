@@ -28,7 +28,7 @@ build_and_publish = [{ task = "build" }, { task = "publish" }]
 
 [package]
 name = "mog"
-version = "26.1.1"
+version = "26.1.2"
 
 [package.build]
 backend = { name = "pixi-build-mojo", version = "*" }

@@ -12,7 +12,7 @@ fn test_with_whitespace_background() raises:
     # Use a renderer with a specific profile to ensure consistent output.
     testing.assert_equal(
         WhitespaceRenderer(
-            style=ANSI_STYLE.set_background_color(mog.Color(2))
+            style=ANSI_STYLE.background(mog.Color(2))
         ).place(10, 3, Alignment(horizontal=Position.RIGHT, vertical=Position.BOTTOM), "hello"),
         "\x1b[42m          \x1b[0m\n\x1b[42m          \x1b[0m\n\x1b[42m     \x1b[0mhello",
         '\x1b[42m     \x1b[0m'
@@ -22,7 +22,7 @@ fn test_with_whitespace_background() raises:
 fn test_with_whitespace_foreground() raises:
     testing.assert_equal(
         WhitespaceRenderer(
-            style=ANSI_STYLE.set_foreground_color(mog.Color(2))
+            style=ANSI_STYLE.foreground(mog.Color(2))
         ).place(10, 3, Alignment(horizontal=Position.LEFT, vertical=Position.CENTER), "hello"),
         "\x1b[32m          \x1b[0m\nhello\x1b[32m     \x1b[0m\n\x1b[32m          \x1b[0m"
     )
@@ -39,7 +39,7 @@ fn test_with_whitespace_chars() raises:
 fn test_multiple_whitespace_options() raises:
     testing.assert_equal(
         WhitespaceRenderer(
-            style=ANSI_STYLE.set_background_color(mog.Color(2)),
+            style=ANSI_STYLE.background(mog.Color(2)),
             chars="<>"
         ).place(10, 3, Alignment(horizontal=Position.CENTER, vertical=Position.CENTER), "hello"),
         "\x1b[42m<><><><><>\x1b[0m\n\x1b[42m<>\x1b[0mhello\x1b[42m<><\x1b[0m\n\x1b[42m<><><><><>\x1b[0m"

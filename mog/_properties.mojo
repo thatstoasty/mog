@@ -3,7 +3,7 @@ from mog.position import Position
 
 @fieldwise_init
 @register_passable("trivial")
-struct PropKey(Copyable, Equatable , Movable):
+struct PropKey(ImplicitlyCopyable, Equatable):
     """Property keys for the style."""
 
     var _value: UInt8
@@ -111,7 +111,7 @@ struct PropKey(Copyable, Equatable , Movable):
 
 
 @register_passable("trivial")
-struct Properties(Copyable, Movable):
+struct Properties(ImplicitlyCopyable):
     """Properties for a style."""
 
     var value: SIMD[DType.bool, 64]
@@ -149,7 +149,7 @@ struct Properties(Copyable, Movable):
 
 
 @register_passable("trivial")
-struct Padding(Copyable, Movable):
+struct Padding(ImplicitlyCopyable):
     var top: UInt16
     """The padding level at the top of the text."""
     var right: UInt16
@@ -218,21 +218,9 @@ struct Margin(ImplicitlyCopyable):
         self.left = x_width
         self.background = background^
 
-    fn __moveinit__(out self, deinit other: Self):
-        self.top = other.top
-        self.right = other.right
-        self.bottom = other.bottom
-        self.left = other.left
-        self.background = other.background^
-
-    fn copy(self) -> Self:
-        return Self(
-            top=self.top, right=self.right, bottom=self.bottom, left=self.left, background=self.background.copy()
-        )
-
 
 @register_passable("trivial")
-struct Dimensions(Copyable):
+struct Dimensions(ImplicitlyCopyable):
     var height: UInt16
     """The height of the text."""
     var width: UInt16
@@ -252,13 +240,6 @@ struct Coloring(ImplicitlyCopyable):
     fn __init__(out self, var foreground: AnyTerminalColor = NoColor(), var background: AnyTerminalColor = NoColor()):
         self.foreground = foreground^
         self.background = background^
-
-    fn __moveinit__(out self, deinit other: Self):
-        self.foreground = other.foreground^
-        self.background = other.background^
-
-    fn copy(self) -> Self:
-        return Self(foreground=self.foreground.copy(), background=self.background.copy())
 
 
 struct BorderColor(ImplicitlyCopyable):
@@ -298,28 +279,6 @@ struct BorderColor(ImplicitlyCopyable):
         self.background_right = background_right^
         self.background_bottom = background_bottom^
         self.background_left = background_left^
-
-    fn __moveinit__(out self, deinit other: Self):
-        self.foreground_top = other.foreground_top^
-        self.foreground_right = other.foreground_right^
-        self.foreground_bottom = other.foreground_bottom^
-        self.foreground_left = other.foreground_left^
-        self.background_top = other.background_top^
-        self.background_right = other.background_right^
-        self.background_bottom = other.background_bottom^
-        self.background_left = other.background_left^
-
-    fn copy(self) -> Self:
-        return Self(
-            foreground_top=self.foreground_top.copy(),
-            foreground_right=self.foreground_right.copy(),
-            foreground_bottom=self.foreground_bottom.copy(),
-            foreground_left=self.foreground_left.copy(),
-            background_top=self.background_top.copy(),
-            background_right=self.background_right.copy(),
-            background_bottom=self.background_bottom.copy(),
-            background_left=self.background_left.copy(),
-        )
 
 
 @fieldwise_init

@@ -6,7 +6,7 @@ from mog.renderer import Renderer
 
 
 @fieldwise_init
-struct WhitespaceRenderer(ImplicitlyCopyable, Copyable, Movable):
+struct WhitespaceRenderer(ImplicitlyCopyable):
     """Whitespace renderer."""
 
     var renderer: Renderer
@@ -28,20 +28,9 @@ struct WhitespaceRenderer(ImplicitlyCopyable, Copyable, Movable):
             chars: The characters to render.
         """
         # TODO: Assume dark background for now, until I add support to mist for querying background color.
-        self.renderer = style.renderer
+        self.renderer = style._renderer
         self.style = style.copy()
         self.chars = chars.copy()
-
-    fn copy(self) -> Self:
-        """Copies the whitespace renderer.
-
-        Returns:
-            A copy of the whitespace renderer.
-        """
-        return Self(
-            style=self.style.copy(),
-            chars=self.chars,
-        )
 
     fn render(self, width: UInt) -> String:
         """Render whitespaces.

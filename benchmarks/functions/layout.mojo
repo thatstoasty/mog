@@ -64,9 +64,9 @@ fn build_tabs() -> String:
     )
 
     comptime tab_color = mog.AdaptiveColor(light=0x874BFD, dark=0xFF713C)
-    var tab_style = mog.Style(border=tab_border).set_border_foreground(tab_color).set_padding(0, 1)
-    var active_tab = tab_style.set_border(active_tab_border)
-    var tab_gap = tab_style.set_border_side_rendering(top=False, right=False, bottom=True, left=False)
+    var tab_style = mog.Style(border=tab_border).border_foreground(tab_color).padding(0, 1)
+    var active_tab = tab_style.border(active_tab_border)
+    var tab_gap = tab_style.border_side_rendering(top=False, right=False, bottom=True, left=False)
 
     var row = join_horizontal(
         Position.TOP,
@@ -94,7 +94,7 @@ fn build_description() -> String:
     for i in range(len(colors)):
         var offset = 2
         var c = mog.Color(colors[i][0].hex())
-        title.write(title_style.set_margin(left=i * offset).set_background_color(c).render())
+        title.write(title_style.margin(left=i * offset).background(c).render())
         if i < len(colors) - 1:
             title.write("\n")
 
@@ -104,7 +104,7 @@ fn build_description() -> String:
     ).render("•")
     var url = mog.Style(foreground=special)
     var desc_style = mog.Style(margin=Margin(top=1))
-    var info_style = mog.Style(border=NORMAL_BORDER).set_border_side_rendering(right=False, bottom=False, left=False).set_border_foreground(subtle)
+    var info_style = mog.Style(border=NORMAL_BORDER).border_side_rendering(right=False, bottom=False, left=False).border_foreground(subtle)
 
     var description = join_vertical(
         Position.LEFT,
@@ -119,7 +119,7 @@ fn build_dialog_box() -> String:
         border=ROUNDED_BORDER,
         padding=Padding(top=1, right=1, left=1),
         alignment=Alignment(Position.CENTER),
-    ).set_border_foreground(mog.Color(0xFF713C))
+    ).border_foreground(mog.Color(0xFF713C))
 
     var button_style = mog.Style(
         foreground=mog.Color(0xFFF7DB),
@@ -128,12 +128,12 @@ fn build_dialog_box() -> String:
         margin=Margin(top=1),
     )
 
-    var active_button_style = button_style.set_foreground_color(mog.Color(0xFFF7DB)).set_background_color(mog.Color(0xF25D94)).set_margin(right=2).set_emphasis(Emphasis.UNDERLINE)
+    var active_button_style = button_style.foreground(mog.Color(0xFFF7DB)).background(mog.Color(0xF25D94)).margin(right=2).set_emphasis(Emphasis.UNDERLINE)
 
     var ok_button = active_button_style.render("Yes")
     var cancel_button = button_style.render("No")
 
-    var question = mog.Style(width=50).set_text_alignment(Position.CENTER).render("Are you sure you want to deploy?")
+    var question = mog.Style(width=50).text_alignment(Position.CENTER).render("Are you sure you want to deploy?")
 
     var buttons = join_horizontal(Position.TOP, ok_button, cancel_button)
     var ui = join_vertical(Position.CENTER, question, buttons)
@@ -152,12 +152,12 @@ fn build_lists() -> String:
         width=column_width + 1,
         border=NORMAL_BORDER,
         margin=Margin(right=2),
-    ).set_border_side_rendering(top=False, bottom=False, left=False).set_border_foreground(subtle)
+    ).border_side_rendering(top=False, bottom=False, left=False).border_foreground(subtle)
 
     var list_header = mog.Style(
         border=NORMAL_BORDER,
         margin=Margin(right=2),
-    ).set_border_side_rendering(top=False, right=False, left=False).set_border_foreground(subtle)
+    ).border_side_rendering(top=False, right=False, left=False).border_foreground(subtle)
 
     var list_item = mog.Style(padding=Padding(left=2))
     var check_mark = mog.Style(foreground=special, padding=Padding(right=1)).render("✔")
@@ -172,7 +172,7 @@ fn build_lists() -> String:
 
     for i in range(len(colors)):
         for j in range(len(colors[i])):
-            builder.write(color_style.set_background_color(mog.Color(colors[i][j].hex())).render())
+            builder.write(color_style.background(mog.Color(colors[i][j].hex())).render())
         builder.write("\n")
 
     var lists = join_horizontal(
@@ -188,7 +188,7 @@ fn build_lists() -> String:
                 list_item.render("Pomelo"),
             ),
         ),
-        list_style.set_width(column_width - 1).render(
+        list_style.width(column_width - 1).render(
             join_vertical(
                 Position.LEFT,
                 list_header.render("Programming Languages"),
@@ -212,7 +212,7 @@ fn build_history() -> String:
         margin=Margin(right=3),
         foreground=mog.Color(0xFFFDF5),
         background=highlight,
-    ).set_text_alignment(Axis.HORIZONTAL, Position.LEFT)
+    ).text_alignment(Axis.HORIZONTAL, Position.LEFT)
 
     comptime history_a = "The Romans learned from the Greeks that quinces slowly cooked with honey would 'set' when cool. The Apicius gives a recipe for preserving whole quinces, stems and leaves attached, in a bath of honey diluted with defrutum: Roman marmalade. Preserves of quince and lemon appear (along with rose, apple, plum and pear) in the Book of ceremonies of the Byzantine Emperor Constantine VII Porphyrogennetos."
     comptime history_b = "Medieval quince preserves, which went by the French name cotignac, produced in a clear version and a fruit pulp version, began to lose their medieval seasoning of spices in the 16th century. In the 17th century, La Varenne provided recipes for both thick and clear cotignac."
@@ -220,9 +220,9 @@ fn build_history() -> String:
 
     return join_horizontal(
         Position.TOP,
-        history_style.set_text_alignment(Axis.HORIZONTAL, Position.RIGHT).render(history_a),
-        history_style.set_text_alignment(Axis.HORIZONTAL, Position.CENTER).render(history_b),
-        history_style.set_margin(right=0).render(history_c),
+        history_style.text_alignment(Axis.HORIZONTAL, Position.RIGHT).render(history_a),
+        history_style.text_alignment(Axis.HORIZONTAL, Position.CENTER).render(history_b),
+        history_style.margin(right=0).render(history_c),
     )
 
 
@@ -231,14 +231,14 @@ fn build_status_bar() -> String:
     var status_bar_style = mog.Style(foreground=mog.Color(0xC1C6B2), background=mog.Color(0x353533))
     var status_style = mog.Style(foreground=mog.Color(0xFFFDF5), background=mog.Color(0xFF5F87), padding=Padding(1, 0))
 
-    var encoding_style = status_nugget_style.set_background_color(mog.Color(0xA550DF)).set_text_alignment(Axis.HORIZONTAL, Position.RIGHT)
-    var status_text_style = status_bar_style.set_padding(left=1)
-    var fish_cake_style = status_nugget_style.set_background_color(mog.Color(0x6124DF))
+    var encoding_style = status_nugget_style.background(mog.Color(0xA550DF)).text_alignment(Axis.HORIZONTAL, Position.RIGHT)
+    var status_text_style = status_bar_style.padding(left=1)
+    var fish_cake_style = status_nugget_style.background(mog.Color(0x6124DF))
 
     var status_key = status_style.render("STATUS")
     var encoding = encoding_style.render("UTF-8")
     var fish_cake = fish_cake_style.render("🍥 Fish Cake")
-    var status_val = status_text_style.set_width(
+    var status_val = status_text_style.width(
         UInt16(UInt(width) - get_width(status_key) - get_width(encoding) - get_width(fish_cake))
     ).render("Ravishing")
 
@@ -250,7 +250,7 @@ fn build_status_bar() -> String:
         fish_cake,
     )
 
-    return status_bar_style.set_width(UInt16(width)).render(bar)
+    return status_bar_style.width(UInt16(width)).render(bar)
 
 
 fn render_layout():

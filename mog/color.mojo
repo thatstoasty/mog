@@ -3,7 +3,7 @@ from mog.renderer import Renderer
 from utils.variant import Variant
 
 
-trait TerminalColor(Copyable, ImplicitlyCopyable, Movable):
+trait TerminalColor(ImplicitlyCopyable):
     """Color intended to be rendered in the terminal."""
 
     fn color(self, renderer: Renderer) -> mist.AnyColor:
@@ -255,7 +255,8 @@ struct CompleteAdaptiveColor(TerminalColor):
         return self.light.color(renderer)
 
 
-struct AnyTerminalColor(Copyable, ImplicitlyCopyable, Movable):
+@fieldwise_init
+struct AnyTerminalColor(ImplicitlyCopyable):
     """A type that can hold any terminal color."""
 
     var value: Variant[
@@ -267,25 +268,6 @@ struct AnyTerminalColor(Copyable, ImplicitlyCopyable, Movable):
         CompleteAdaptiveColor,
     ]
     """Internal `Color` value."""
-
-    @implicit
-    fn __init__(
-        out self,
-        color: Variant[
-            NoColor,
-            Color,
-            ANSIColor,
-            AdaptiveColor,
-            CompleteColor,
-            CompleteAdaptiveColor,
-        ],
-    ):
-        """Initializes the `AnyTerminalColor` with a `Variant` of terminal colors.
-
-        Args:
-            color: The `Variant` of terminal colors to initialize with.
-        """
-        self.value = color
 
     @implicit
     fn __init__(out self, color: NoColor):
@@ -341,22 +323,6 @@ struct AnyTerminalColor(Copyable, ImplicitlyCopyable, Movable):
         """
         self.value = color.copy()
 
-    fn __moveinit__(out self, deinit other: Self):
-        """Moves the `AnyTerminalColor` from another instance.
-
-        Args:
-            other: The `AnyTerminalColor` to move from.
-        """
-        self.value = other.value^
-
-    fn copy(self) -> Self:
-        """Creates a copy of the `AnyTerminalColor`.
-
-        Returns:
-            A new `AnyTerminalColor` with the same value.
-        """
-        return Self(self.value)
-
     fn to_mist_color(self, renderer: Renderer) -> mist.AnyColor:
         """Converts an `AnyTerminalColor` to an `AnyColor`.
 
@@ -405,6 +371,14 @@ struct AnyTerminalColor(Copyable, ImplicitlyCopyable, Movable):
         return self.value[T]
     
     fn is_same_type(self, other: Self) -> Bool:
+        """Checks if the value is the same type as another `AnyTerminalColor`.
+
+        Args:
+            other: The other `AnyTerminalColor` to compare with.
+
+        Returns:
+            True if the value is the same type as the other, False otherwise.
+        """
         if self.value.isa[Color]() and other.value.isa[Color]():
             return True
         elif self.value.isa[ANSIColor]() and other.value.isa[ANSIColor]():

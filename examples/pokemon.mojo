@@ -6,8 +6,8 @@ from mog import Profile, Padding, Emphasis
 
 # TODO: There's an issue with rows being taller than 1 line. Adding vertical padding will break the table.
 comptime style = mog.Style(Profile.TRUE_COLOR, padding=Padding(1, 0))
-comptime header_style = style.set_emphasis(Emphasis.BOLD).set_foreground_color(mog.Color(252))
-comptime selected_style = style.set_foreground_color(mog.Color(0x01BE85)).set_background_color(mog.Color(0x00432F))
+comptime header_style = style.set_emphasis(Emphasis.BOLD).foreground(mog.Color(252))
+comptime selected_style = style.foreground(mog.Color(0x01BE85)).background(mog.Color(0x00432F))
 
 
 comptime TYPE_COLORS: Dict[String, mog.Color] = {
@@ -46,14 +46,14 @@ fn style_func(data: mog.Data, row: UInt, col: UInt) -> mog.Style:
     var is_even = (row % 2 == 0)
     if col == 2 or col == 3:
         if is_even:
-            return style.set_foreground_color(materialize[DIM_TYPE_COLORS]().get(data[row - 1, col], mog.Color(0xFFFFFF)))
+            return style.foreground(materialize[DIM_TYPE_COLORS]().get(data[row - 1, col], mog.Color(0xFFFFFF)))
         else:
-            return style.set_foreground_color(materialize[TYPE_COLORS]().get(data[row - 1, col], mog.Color(0xFFFFFF)))
+            return style.foreground(materialize[TYPE_COLORS]().get(data[row - 1, col], mog.Color(0xFFFFFF)))
 
     if is_even:
-        return style.set_foreground_color(mog.Color(245))
+        return style.foreground(mog.Color(245))
 
-    return style.set_foreground_color(mog.Color(252))
+    return style.foreground(mog.Color(252))
 
 
 fn main():
@@ -68,7 +68,7 @@ fn main():
 
     var table = mog.Table(
         width=100,
-        border_style=mog.Style().set_foreground_color(mog.Color(238)),
+        border_style=mog.Style().foreground(mog.Color(238)),
         headers=capitalize_headers(headers),
         data=mog.Data(
             ["1", "Bulbasaur", "Grass", "Poison", "フシギダネ", "Bulbasaur"],

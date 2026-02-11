@@ -186,7 +186,7 @@ fn main():
         .italic() \
         .faint() \
         .blink() \
-        .crossout() \
+        .strikethrough() \
         .underline() \
         .reverse()
 ```

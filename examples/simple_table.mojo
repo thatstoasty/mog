@@ -13,9 +13,9 @@ from mog.table.table import default_styles
 fn dummy_style_func(data: Data, row: UInt, col: UInt) -> Style:
     var style = mog.Style(alignment=Alignment(Position.CENTER), padding=Padding(1, 0))
     if row == 0:
-        return style.set_foreground_color(mog.Color(0xC9A0DC))
+        return style.foreground(mog.Color(0xC9A0DC))
     elif row % 2 == 0:
-        return style.set_foreground_color(mog.Color(0xE58006))
+        return style.foreground(mog.Color(0xE58006))
     else:
         return style^
 

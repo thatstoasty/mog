@@ -19,7 +19,7 @@ def test_horizontal_joined_paragraphs():
         emphasis=Emphasis.BOLD,
         padding=Padding(1),
         alignment=Alignment(horizontal=Position.CENTER),
-    ).set_border_foreground(mog.Color(0x39E506))
+    ).border_foreground(mog.Color(0x39E506))
     var style_build_duration = perf_counter_ns() - style_build_start
     print("Style build duration: ", style_build_duration, Float64(style_build_duration) / 1e9)
     var start_time = perf_counter_ns()

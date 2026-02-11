@@ -58,7 +58,7 @@ fn default_styles(data: Data, row: UInt, col: UInt) -> Style:
 
 
 # TODO: Parametrize on data field, so other structs that implement `Data` can be used. For now it only support `StringData`.
-struct Table(Copyable, Movable, Stringable, Writable):
+struct Table(Copyable, Stringable, Writable):
     """Used to model and render tabular data as a table.
 
     #### Examples:
@@ -217,17 +217,6 @@ struct Table(Copyable, Movable, Stringable, Writable):
             height=self.height,
         )
 
-    # @staticmethod
-    # fn new() -> Self:
-    #     """Returns a new Table, this is to bypass the compiler limitation on these args having default values.
-    #     It seems like argument default values are handled at compile time, and mog Styles are not compile time constants,
-    #     UNLESS a profile is specified ahead of time.
-
-    #     Returns:
-    #         A new Table.
-    #     """
-    #     return Table[styler=default_styles](border_style=mog.Style())
-
     fn clear_rows(self) -> Self:
         """Clears the table rows.
 
@@ -247,63 +236,6 @@ struct Table(Copyable, Movable, Stringable, Writable):
             The style for the cell.
         """
         return self._styler(self.data, row, col)
-
-    # fn rows(self, *rows: List[String]) -> Self:
-    #     """Returns the style for a cell based on it's position (row, column).
-
-    #     Args:
-    #         rows: The rows to add to the table.
-
-    #     Returns:
-    #         The updated table.
-    #     """
-    #     var new = self.copy()
-    #     for i in range(len(rows)):
-    #         new.data.append(rows[i].copy())
-    #     return new^
-
-    # fn rows(self, rows: List[List[String]]) -> Self:
-    #     """Appends the data from `rows` to the table.
-
-    #     Args:
-    #         rows: The rows to add to the table.
-
-    #     Returns:
-    #         The updated table.
-    #     """
-    #     var new = self.copy()
-    #     for row in rows:
-    #         new.data.append(row.copy())
-    #     return new^
-
-    # fn row(self, *row: String) -> Self:
-    #     """Appends a row to the table data.
-
-    #     Args:
-    #         row: The row to append to the table.
-
-    #     Returns:
-    #         The updated table.
-    #     """
-    #     var new = self.copy()
-    #     var temp = List[String](capacity=len(row))
-    #     for element in row:
-    #         temp.append(element)
-    #     new.data.append(temp^)
-    #     return new^
-
-    # fn row(self, var row: List[String]) -> Self:
-    #     """Appends a row to the table data.
-
-    #     Args:
-    #         row: The row to append to the table.
-
-    #     Returns:
-    #         The updated table.
-    #     """
-    #     var new = self.copy()
-    #     new.data.append(row^)
-    #     return new^
 
     fn set_headers(self, *headers: String) -> Self:
         """Sets the table headers.
@@ -618,7 +550,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
             result.write(self._border_style.render(self._border.left))
 
         for i in range(UInt(len(headers))):
-            var style = self.style(0, i).set_max_height(1).set_width(UInt16(widths[i])).set_max_width(UInt16(widths[i]))
+            var style = self.style(0, i).max_height(1).width(UInt16(widths[i])).max_width(UInt16(widths[i]))
 
             result.write(style.render(truncate(headers[i], widths[i], "…")))
             if (i < UInt(len(headers)) - 1) and (self._border_column):
@@ -673,7 +605,7 @@ struct Table(Copyable, Movable, Stringable, Writable):
 
         var c: UInt = 0
         while c < self.data.columns():
-            var style = self.style(index + 1, c).set_height(UInt16(height)).set_max_height(UInt16(height)).set_width((UInt16(widths[c]))).set_max_width((UInt16(widths[c])))
+            var style = self.style(index + 1, c).height(UInt16(height)).max_height(UInt16(height)).width((UInt16(widths[c]))).max_width((UInt16(widths[c])))
             cells.append(style.render(truncate(self.data[index, c], (widths[c] * height), "…")))
             if c < self.data.columns() - 1 and self._border_column:
                 cells.append(left)
@@ -683,8 +615,6 @@ struct Table(Copyable, Movable, Stringable, Writable):
         if self._border_right:
             cells.append((self._border_style.render(self._border.right) + "\n") * Int(height))
 
-        # TODO: removesuffix doesn't seem to work with all utf8 chars, maybe it'll be fixed upstream soon.
-        # It wasn't recognizing the last character as a newline.
         for i in range(len(cells)):
             if cells[i].endswith("\n"):
                 cells[i] = String(cells[i][:-1].removesuffix("\n"))

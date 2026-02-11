@@ -1,5 +1,5 @@
 @fieldwise_init
-struct Data(Copyable, Movable):
+struct Data(Copyable):
     """Table data.
 
     #### Example Usage:
@@ -50,8 +50,6 @@ struct Data(Copyable, Movable):
         self._rows = r^
         self._columns = widest
 
-    # TODO: Can't return ref String because it depends on the origin of a struct attribute
-    # and Traits do not support variables yet.
     fn __getitem__(self, row: UInt, column: UInt) -> ref [self._rows[row][column]] String:
         """Returns the contents of the cell at the given index.
 

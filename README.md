@@ -14,11 +14,41 @@ Style definitions for nice terminal layouts.
 * Ported from/Inspired by: <https://github.com/charmbracelet/lipgloss/tree/master>
   * If you're a Go developer, please check out their CLI tooling and libraries. They're amazing!
 
-## Installation
+## Adding the `mog` package to your project
 
-1. First, you'll need to configure your `pixi.toml` file to include my Conda channel. Add `"https://repo.prefix.dev/mojo-community"` to the list of channels.
-2. Next, add `mog` to your project's dependencies by running `pixi add mog`.
-3. Finally, run `pixi install` to install in `mog` and its dependencies. You should see the `.mojopkg` files in `$CONDA_PREFIX/lib/mojo/` which usually resolves to `.pixi/envs/default/lib/mojo`.
+First, you'll need to configure your `pixi.toml` file to include my `mojo-community` Conda channel. Add `"https://repo.prefix.dev/mojo-community"` to the list of channels.
+
+### Installing it from the `mojo-community` Conda channel
+
+Run the following commands in your terminal:
+
+```bash
+pixi add mog && pixi install
+```
+
+This will add `mog` to your project's dependencies and install it along with its dependencies.
+
+### Building it from source
+
+There's two ways to build `mog` from source: directly from the Git repository or by cloning the repository locally.
+
+#### Building from source: Git
+
+Run the following commands in your terminal:
+
+```bash
+pixi add -g "https://github.com/thatstoasty/mog.git" && pixi install
+```
+
+#### Building from source: Local
+
+```bash
+# Clone the repository to your local machine
+git clone https://github.com/thatstoasty/mog.git
+
+# Add the package to your project from the local path
+pixi add -s ./path/to/mog && pixi install
+```
 
 ![Mog example](https://github.com/thatstoasty/mog/blob/main/doc/images/layout.png)
 
@@ -45,15 +75,14 @@ Alternatively, you can use a functional chaining pattern to configure styles.
 
 ```mojo
 import mog
-from mog import Emphasis
 
 fn main():
     var style = mog.Style() \
-        .set_emphasis(Emphasis.BOLD) \
-        .set_foreground_color(mog.Color(0xFAFAFA)) \
-        .set_background_color(mog.Color(0x7D56F4)) \
-        .set_padding(top=2, left=4) \
-        .set_width(22)
+        .bold() \
+        .foreground(mog.Color(0xFAFAFA)) \
+        .background(mog.Color(0x7D56F4)) \
+        .padding(top=2, left=4) \
+        .width(22)
     
     print(style.render("Hello, Mojo!"))
 ```
@@ -93,10 +122,10 @@ fn main():
     color = mog.Color(0x3C3C3C) # dark gray
 ```
 
-...as well as a 1-bit ASCII profile, which is black and white only.
+as well as a 1-bit ASCII profile, which is black and white only.
 
 The terminal's color profile is automatically detected and colors outside
-the gamut of the current palette will be automatically coerced to their closest
+the current palette will be automatically coerced to their closest
 available value.
 
 For now, the library assumes a dark background. You can set this to light by modifying the style's profile field.
@@ -153,13 +182,13 @@ from mog import Emphasis
 
 fn main():
     var style = mog.Style() \
-        .set_emphasis(Emphasis.BOLD) \
-        .set_emphasis(Emphasis.ITALIC) \
-        .set_emphasis(Emphasis.FAINT) \
-        .set_emphasis(Emphasis.BLINK) \
-        .set_emphasis(Emphasis.CROSSOUT) \
-        .set_emphasis(Emphasis.UNDERLINE) \
-        .set_emphasis(Emphasis.REVERSE)
+        .bold() \
+        .italic() \
+        .faint() \
+        .blink() \
+        .crossout() \
+        .underline() \
+        .reverse()
 ```
 
 ## Block-Level Formatting
@@ -172,16 +201,12 @@ from mog import Padding, Margin
 
 fn main():
     # Padding
-    mog.Style(
-        padding=Padding(top=2, right=4, bottom=2, left=4)
-    )
-    mog.Style().set_padding(Padding(top=2, right=4, bottom=2, left=4))
+    mog.Style(padding=Padding(top=2, right=4, bottom=2, left=4))
+    mog.Style().padding(top=2, right=4, bottom=2, left=4)
 
     # Margins
-    mog.Style(
-        margin=Margin(top=2, right=4, bottom=2, left=4)
-    )
-    mog.Style().set_margin(Margin(top=2, right=4, bottom=2, left=4))
+    mog.Style(margin=Margin(top=2, right=4, bottom=2, left=4))
+    mog.Style().margin(top=2, right=4, bottom=2, left=4)
 
 ```
 
@@ -193,16 +218,16 @@ import mog
 
 fn main():
     # 2 cells on all sides
-    var style = mog.Style().set_padding(2)
+    var style = mog.Style().padding(2)
     mog.Style(padding=Padding(2)) # equivalent
 
     # 2 cells on the top and bottom, 4 cells on the left and right
-    style = mog.Style().set_margin(4, 2)
+    style = mog.Style().margin(4, 2)
     mog.Style(margin=Margin(4, 2)) # equivalent
 
     # Clockwise, starting from the top: 2 cells on the top, 4 on the right, 3 on
     # the bottom, and 1 on the left
-    style = mog.Style().set_margin(2, 4, 3, 1)
+    style = mog.Style().margin(top=2, right=4, bottom=3, left=1)
 ```
 
 ## Aligning Text
@@ -216,9 +241,9 @@ from mog import Position, Axis, Alignment
 fn main():
     var style = (
         mog.Style(width=22)
-        .set_text_alignment(Axis.HORIZONTAL, Position.LEFT) # align text to the left on the horizontal axis
-        .set_text_alignment(Position.LEFT, Position.RIGHT) # left on the horizontal axis and to the right on the vertical axis
-        .set_text_alignment(Position.CENTER) # center on both axes
+        .text_alignment(Axis.HORIZONTAL, Position.LEFT) # align text to the left on the horizontal axis
+        .text_alignment(Position.LEFT, Position.RIGHT) # left on the horizontal axis and to the right on the vertical axis
+        .text_alignment(Position.CENTER) # center on both axes
     )
 
     # equivalent
@@ -235,10 +260,13 @@ Setting a minimum width and height is simple and straightforward.
 import mog
 
 fn main():
-    var style = mog.Style(value="What’s for lunch?") \
-        .width(24) \
-        .height(32) \
+    var style = (
+        mog.Style()
+        .value("What’s for lunch?")
+        .width(24)
+        .height(32)
         .foreground(mog.Color(63))
+    )
     
     # equivalent
     mog.Style(
@@ -255,32 +283,34 @@ Adding borders is easy:
 
 ```mojo
 import mog
+from mog import NORMAL_BORDER, ROUNDED_BORDER
 
 fn main():
     # Add a purple, rectangular border
-    var style = mog.Style() \
-        .set_border(NORMAL_BORDER) \
-        .set_border_foreground(mog.Color(63))
+    var style = (
+        mog.Style()
+        .border(NORMAL_BORDER)
+        .border_foreground(mog.Color(63))
+    )
     
-    mog.Style(
-        border=NORMAL_BORDER,
-    ).set_border_foreground(mog.Color(63)) # equivalent
+    mog.Style(border=NORMAL_BORDER).border_foreground(mog.Color(63)) # equivalent
 
     # Set a rounded, yellow-on-purple border to the top and left
-    var another_style = mog.Style() \
-        .set_border(ROUNDED_BORDER) \
-        .set_border_foreground(mog.Color(228)) \
-        .set_border_background(mog.Color(63)) \
-        .set_border_top(True) \
-        .set_border_left(True)
+    var another_style = (
+        mog.Style()
+        .border(ROUNDED_BORDER)
+        .border_foreground(mog.Color(228))
+        .border_background(mog.Color(63))
+        .border_top(True)
+        .border_left(True)
+    )
     
-    mog.Style(
-        border=ROUNDED_BORDER,
-    ).set_border_foreground(
-        mog.Color(228)
-    ).set_border_background(
-        mog.Color(63)
-    ).set_border_side_rendering(bottom=False, right=False) # equivalent
+    style = (
+        mog.Style(border=ROUNDED_BORDER)
+        .border_foreground(mog.Color(228))
+        .border_background(mog.Color(63))
+        .border_side_rendering(bottom=False, right=False)
+    ) # equivalent
 
     # Make your own border
     var my_border = Border(
@@ -305,10 +335,10 @@ from mog import Emphasis
 
 fn main():
     var style = mog.Style() \
-        .set_emphasis(Emphasis.BOLD) \
-        .unset_emphasis(Emphasis.BOLD) \
-        .set_background_color(mog.Color(227)) \
-        .unset_background_color()
+        .bold() \
+        .unset_bold() \
+        .background(mog.Color(227)) \
+        .unset_background()
 ```
 
 When a rule is unset, the rule will not impact the rendering of the text.
@@ -328,16 +358,16 @@ from mog import Emphasis
 
 fn main():
     # Bold is set, and the value is set to True. Text output is bold.
-    var style = mog.Style().set_emphasis(Emphasis.BOLD)
+    var style = mog.Style().bold()
 
     # Bold is set, and the value is set to False. Text output is not bold.
-    var style = mog.Style().set_emphasis(Emphasis.BOLD, False)
+    var style = mog.Style().bold(False)
 
     # Bold is not set, and the value is set to True. Text output is not bold.
-    var style = mog.Style().set_emphasis(Emphasis.BOLD, True).unset_emphasis(Emphasis.BOLD)
+    var style = mog.Style().bold(True).unset_bold()
 
     # Bold is not set, and the value is set to False. Text output is not bold.
-    var style = mog.Style().set_emphasis(Emphasis.BOLD, False).unset_emphasis(Emphasis.BOLD)
+    var style = mog.Style().bold(False).unset_bold()
 ```
 
 ## Enforcing Rules
@@ -355,10 +385,10 @@ fn main():
     print(style.inline().render("yadda yadda"))
 
     # Also limit rendering to five cells
-    print(style.inline().set_max_width(5).render("yadda yadda"))
+    print(style.inline().max_width(5).render("yadda yadda"))
 
     # Limit rendering to a 5x5 cell block
-    print(style.set_max_width(5).set_max_height(5).render("yadda yadda"))
+    print(style.max_width(5).max_height(5).render("yadda yadda"))
 
     # Alternatively, you can set the max dimensions at initialization time.
     style = mog.Style(max_width=5, max_height=5).inline()
@@ -383,9 +413,9 @@ import mog
 
 fn main():
     var style = mog.Style() # tabs will render as 4 spaces, the default
-    style = style.set_tab_width(2) # render tabs as 2 spaces
-    style = style.set_tab_width(0) # remove tabs entirely
-    style = style.set_tab_width(mog.NO_TAB_CONVERSION) # leave tabs intact
+    style = style.tab_width(2) # render tabs as 2 spaces
+    style = style.tab_width(0) # remove tabs entirely
+    style = style.tab_width(mog.NO_TAB_CONVERSION) # leave tabs intact
 
     # Alternatively, you can set the tab width at initialization time.
     style = mog.Style(tab_width=2) # render tabs as 2 spaces
@@ -423,7 +453,7 @@ fn main():
     var custom_renderer = mog.Renderer(mog.Profile.ANSI)
 
     # Create a new style using the custom renderer.
-    var style = mog.Style().set_background_color(mog.AdaptiveColor(light=63, dark=228))
+    var style = mog.Style().background(mog.AdaptiveColor(light=63, dark=228))
     var custom_style = style.renderer(custom_renderer)
 
     # Render some output using the styles.
@@ -473,8 +503,8 @@ import mog
 fn main():
     # render a block of text.
     var style = mog.Style() \
-        .set_width(40) \
-        .set_padding(2)
+        .width(40) \
+        .padding(2)
     var block = style.render(some_long_string)
 
     # Get the actual, physical dimensions of the text block.

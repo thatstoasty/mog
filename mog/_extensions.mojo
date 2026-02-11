@@ -1,5 +1,3 @@
-from sys import stderr
-
 import mist
 from mist.transform.ansi import printable_rune_width
 
@@ -65,7 +63,7 @@ fn get_widest_line[origin: ImmutOrigin](lines: List[StringSlice[origin]]) -> UIn
     return widest
 
 
-fn pad(text: String, n: Int, style: mist.Style) -> String:
+fn pad(text: StringSlice, n: Int, style: mist.Style) -> String:
     """Pad text with spaces.
 
     Args:
@@ -77,11 +75,11 @@ fn pad(text: String, n: Int, style: mist.Style) -> String:
         The padded text.
     """
     if n == 0:
-        return text
+        return String(text)
 
     var spaces = style.render(WHITESPACE * abs(n))
     var result = String(capacity=Int(len(text) * 1.5))
-    var lines = text.as_string_slice().get_immutable().splitlines()
+    var lines = text.splitlines()
     for i in range(len(lines)):
         if n > 0:
             result.write(lines[i], spaces)
@@ -95,7 +93,7 @@ fn pad(text: String, n: Int, style: mist.Style) -> String:
 
 
 @always_inline
-fn pad_left(text: String, n: Int, style: mist.Style) -> String:
+fn pad_left(text: StringSlice, n: Int, style: mist.Style) -> String:
     """Pad text with spaces to the left.
 
     Args:
@@ -110,7 +108,7 @@ fn pad_left(text: String, n: Int, style: mist.Style) -> String:
 
 
 @always_inline
-fn pad_right(text: String, n: Int, style: mist.Style) -> String:
+fn pad_right(text: StringSlice, n: Int, style: mist.Style) -> String:
     """Pad text with spaces to the right.
 
     Args:

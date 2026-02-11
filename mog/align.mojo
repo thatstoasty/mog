@@ -5,7 +5,7 @@ from mog.position import Position
 
 
 @register_passable("trivial")
-struct Alignment(Copyable, Movable):
+struct Alignment(ImplicitlyCopyable):
     var horizontal: Position
     """The horizontal alignment of the text."""
     var vertical: Position

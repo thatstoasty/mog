@@ -290,7 +290,7 @@ fn _apply_margins(style: Style, var text: String, inline: Bool) -> String:
     )
 
     # Add left and right margin
-    text = pad_right(pad_left(text^, Int(style._margin.left), styler), Int(style._margin.right), styler)
+    text = pad_right(pad_left(text, Int(style._margin.left), styler), Int(style._margin.right), styler)
 
     # Top/bottom margin
     var top_margin = Int(style._margin.top)

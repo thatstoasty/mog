@@ -1,6 +1,6 @@
 import mist
-import testing
-from testing import TestSuite
+from std import testing
+from std.testing import TestSuite
 from mog._extensions import get_lines, get_widest_line, pad_left, pad_right
 
 

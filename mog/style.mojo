@@ -41,20 +41,19 @@ comptime NO_TAB_CONVERSION = -1
 """Used to disable the replacement of tabs with spaces at render time."""
 
 
-struct Stylers:
+@fieldwise_init
+struct Stylers(Movable):
+    """A collection of stylers to use when rendering text with a style.
+
+    We need to use different stylers for spaces and non-space characters when
+    certain properties are set on the style, such as COLOR_WHITESPACE, UNDERLINE_SPACES, STRIKETHROUGH_SPACES, etc.
+    """
     var common: mist.Style
+    """The styler to use for non-space characters."""
     var space: mist.Style
+    """The styler to use for space characters. Only used if the style has COLOR_WHITESPACE enabled or if UNDERLINE_SPACES or STRIKETHROUGH_SPACES is enabled and UNDERLINE_SPACES or STRIKETHROUGH_SPACES is set to apply to spaces."""
     var whitespace: mist.Style
-
-    fn __init__(out self, var common: mist.Style, var space: mist.Style, var whitespace: mist.Style):
-        self.common = common^
-        self.space = space^
-        self.whitespace = whitespace^
-
-    fn __moveinit__(out self, deinit other: Self):
-        self.common = other.common^
-        self.space = other.space^
-        self.whitespace = other.whitespace^
+    """The styler to use for whitespace characters. Only used if the style has COLOR_WHITESPACE enabled."""
 
 
 fn _apply_styles(text: String, use_space_styler: Bool, styles: Stylers) -> String:
@@ -68,7 +67,7 @@ fn _apply_styles(text: String, use_space_styler: Bool, styles: Stylers) -> Strin
     Returns:
         The styled text.
     """
-    var result = String(capacity=Int(len(text) * 1.5))
+    var result = String(capacity=Int(Float64(len(text)) * 1.5))
 
     var lines = text.split(NEWLINE)
     for i in range(len(lines)):
@@ -218,7 +217,7 @@ fn _apply_border(style: Style, text: String) -> String:
         elif not has_right:
             border.bottom_right = ""
 
-    var result = String(capacity=Int(len(text) * 1.5))
+    var result = String(capacity=Int(Float64(len(text)) * 1.5))
     # Render top
     if has_top:
         result.write(
@@ -528,17 +527,17 @@ struct Style(ImplicitlyCopyable):
         self._border = NO_BORDER.copy()
 
         if width:
-            self._width = width.value()
+            self._width = UInt16(width.value())
             self._properties.set[PropKey.WIDTH](True)
         if height:
-            self._height = height.value()
+            self._height = UInt16(height.value())
             self._properties.set[PropKey.HEIGHT](True)
 
         if max_width:
-            self._max_width = max_width.value()
+            self._max_width = UInt16(max_width.value())
             self._properties.set[PropKey.MAX_WIDTH](True)
         if max_height:
-            self._max_height = max_height.value()
+            self._max_height = UInt16(max_height.value())
             self._properties.set[PropKey.MAX_HEIGHT](True)
 
         if not foreground.is_same_type(NoColor()):
@@ -552,8 +551,7 @@ struct Style(ImplicitlyCopyable):
             self._border = border.value().copy()
             self._properties.set[PropKey.BORDER_STYLE](True)
             
-            @parameter
-            for key in [PropKey.BORDER_TOP, PropKey.BORDER_RIGHT, PropKey.BORDER_BOTTOM, PropKey.BORDER_LEFT]:
+            comptime for key in [PropKey.BORDER_TOP, PropKey.BORDER_RIGHT, PropKey.BORDER_BOTTOM, PropKey.BORDER_LEFT]:
                 self._set_attribute[key](value=True)
         
         if emphasis:
@@ -2048,9 +2046,7 @@ struct Style(ImplicitlyCopyable):
         """
         # If style has internal string, add it first. Join arbitrary list of texts into a single string.
         var input_text = self._value.copy()
-
-        @parameter
-        for i in range(texts.__len__()):
+        comptime for i in range(texts.__len__()):
             input_text.write(texts[i])
             if i != len(texts) - 1:
                 input_text.write(" ")
@@ -2118,7 +2114,7 @@ struct Style(ImplicitlyCopyable):
         # Truncate according to max_width
         if self._max_width > 0:
             var text_lines = result.split(NEWLINE)
-            var truncated = String(capacity=Int(len(result) * 1.5))
+            var truncated = String(capacity=Int(Float64(len(result)) * 1.5))
             for i in range(len(text_lines)):
                 if i != 0:
                     truncated.write(NEWLINE)

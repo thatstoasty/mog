@@ -2,7 +2,7 @@ import mist
 from mist.transform.ansi import printable_rune_width
 
 
-fn get_lines[origin: ImmutOrigin](text: StringSlice[origin]) -> Tuple[List[StringSlice[origin]], UInt]:
+fn get_lines[origin: ImmutOrigin](text: StringSlice[origin]) -> Tuple[List[StringSlice[origin].Immutable], UInt]:
     """Split a string into lines.
 
     Args:
@@ -78,7 +78,7 @@ fn pad(text: StringSlice, n: Int, style: mist.Style) -> String:
         return String(text)
 
     var spaces = style.render(WHITESPACE * abs(n))
-    var result = String(capacity=Int(len(text) * 1.5))
+    var result = String(capacity=Int(Float64(len(text)) * 1.5))
     var lines = text.splitlines()
     for i in range(len(lines)):
         if n > 0:

@@ -1,62 +1,8 @@
-import math
+from std import math
 
 from mist.transform.ansi import printable_rune_width
 from mog._extensions import get_widest_line
 from mog.position import Position
-
-
-# TODO: Refactor this module to reuse some of the logic instead of duplicating functions.
-fn _get_lines_mem[origin: ImmutOrigin](
-    pos: Position,
-    strs: VariadicListMem[origin=origin, element_type=String],
-) -> Tuple[List[List[StringSlice[origin]]], List[UInt]]:
-    """Split a variadic list of strings into lines.
-
-    Args:
-        pos: The position to split the string.
-        strs: The variadic list of strings to split.
-
-    Returns:
-        A tuple containing the lines and the width of the widest line.
-    """
-    # Groups of strings broken into multiple lines
-    var blocks = List[List[StringSlice[origin]]](capacity=len(strs))
-
-    # Max line widths for the above text blocks
-    var max_widths = List[UInt](capacity=len(strs))
-    var max_height = 0
-
-    # Break text blocks into lines and get max widths for each text block
-    for s in strs:
-        var lines = s.split(NEWLINE)
-        var widest = get_widest_line(lines)
-        var line_length = len(lines)
-        blocks.append(lines^)
-        max_widths.append(widest)
-        if line_length > max_height:
-            max_height = line_length
-
-    for i in range(len(blocks)):
-        if len(blocks[i]) >= max_height:
-            continue
-        var extra_lines = List[StringSlice[origin]](length=max_height - len(blocks[i]), fill=StringSlice[origin]())
-        if pos == Position.TOP:
-            blocks[i].extend(other=extra_lines^)
-        elif pos == Position.BOTTOM:
-            extra_lines.extend(blocks[i].copy())
-            blocks[i] = extra_lines^
-        else:
-            var end = len(extra_lines)
-            var top_point = end - Int(end * pos.value)
-            var bottom_point = end - top_point
-
-            var top_lines = List(extra_lines[top_point:end])
-            var bottom_lines = extra_lines[bottom_point:end]
-            top_lines.extend(blocks[i].copy())
-            blocks[i] = top_lines^
-            blocks[i].extend(bottom_lines)
-
-    return blocks^, max_widths^
 
 
 fn _merge_lines[origin: ImmutOrigin](
@@ -72,7 +18,6 @@ fn _merge_lines[origin: ImmutOrigin](
     Returns:
         The merged string.
     """
-    # Merge lines
     var result = String()
     # remember, all blocks have the same number of members now
     for i in range(len(blocks[0])):
@@ -100,6 +45,7 @@ fn join_horizontal(pos: Position, *strs: String) -> String:
     #### Examples:
     ```mojo
     import mog
+    from mog import Position
 
     fn main():
         var block_b = "...\\n...\\n..."
@@ -109,7 +55,7 @@ fn join_horizontal(pos: Position, *strs: String) -> String:
         var text = mog.join_horizontal(0.2, block_a, block_b)
 
         # Join on the top edge
-        text = mog.join_horizontal(mog.top, block_a, block_b)
+        text = mog.join_horizontal(Position.TOP, block_a, block_b)
     ```
 
     Args:
@@ -125,9 +71,44 @@ fn join_horizontal(pos: Position, *strs: String) -> String:
     if len(strs) == 1:
         return String(strs[0])
 
-    # TODO: Can't move from tuple without copy, so just use getitem to reference it instead
-    var result = _get_lines_mem(pos, strs)
-    return _merge_lines(result[0], result[1])
+    # Groups of strings broken into multiple lines
+    var blocks = List[List[StringSlice[strs.origin]]](capacity=len(strs))
+
+    # Max line widths for the above text blocks
+    var max_widths = List[UInt](capacity=len(strs))
+    var max_height = 0
+
+    # Break text blocks into lines and get max widths for each text block
+    for s in strs:
+        var lines = s.split(NEWLINE)
+        var widest = get_widest_line(lines)
+        var line_length = len(lines)
+        blocks.append(lines^)
+        max_widths.append(widest)
+        if line_length > max_height:
+            max_height = line_length
+
+    for i in range(len(blocks)):
+        if len(blocks[i]) >= max_height:
+            continue
+        var extra_lines = List[StringSlice[strs.origin]](length=max_height - len(blocks[i]), fill=StringSlice[strs.origin]())
+        if pos == Position.TOP:
+            blocks[i].extend(other=extra_lines^)
+        elif pos == Position.BOTTOM:
+            extra_lines.extend(blocks[i].copy())
+            blocks[i] = extra_lines^
+        else:
+            var end = len(extra_lines)
+            var top_point = end - Int(Float64(end) * pos.value)
+            var bottom_point = end - top_point
+
+            var top_lines = List(extra_lines[top_point:end])
+            var bottom_lines = extra_lines[bottom_point:end]
+            top_lines.extend(blocks[i].copy())
+            blocks[i] = top_lines^
+            blocks[i].extend(bottom_lines)
+
+    return _merge_lines(blocks, max_widths)
 
 
 fn join_horizontal(pos: Position, strs: List[String]) -> String:
@@ -142,16 +123,17 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
     #### Examples:
     ```mojo
     import mog
+    from mog import Position
 
     fn main():
         var block_b = "...\\n...\\n..."
         var block_a = "...\\n...\\n...\\n...\\n..."
 
         # Join 20% from the top
-        var text = mog.join_horizontal(0.2, block_a, block_b)
+        var text = mog.join_horizontal(0.2, [block_a, block_b])
 
         # Join on the top edge
-        text = mog.join_horizontal(mog.top, block_a, block_b)
+        text = mog.join_horizontal(Position.TOP, [block_a, block_b])
     ```
 
     Args:
@@ -189,7 +171,7 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
         if len(blocks[i]) >= max_height:
             continue
         var extra_lines = List[StringSlice[origin_of(strs)]](capacity=max_height - len(blocks[i]))
-        extra_lines.resize(max_height - len(blocks[i]), blocks[0][0][0:0])
+        extra_lines.resize(max_height - len(blocks[i]), blocks[0][0][byte=0:0])
 
         if pos == Position.TOP:
             blocks[i].extend(extra_lines^)
@@ -198,7 +180,7 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
             blocks[i] = extra_lines^
         else:
             var end = len(extra_lines)
-            var top_point = end - Int(end * pos.value)
+            var top_point = end - Int(Float64(end) * pos.value)
             var bottom_point = end - top_point
 
             var top_lines = List(extra_lines[top_point:end])
@@ -208,34 +190,6 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
             blocks[i].extend(bottom_lines)
 
     return _merge_lines(blocks, max_widths)
-
-
-fn _get_lines_mem_width[origin: ImmutOrigin](
-    pos: Position,
-    strs: VariadicListMem[origin=origin, String],
-) -> Tuple[List[List[StringSlice[origin]]], UInt]:
-    """Split a string into lines.
-
-    Args:
-        pos: The position to split the string.
-        strs: The variadic list of strings to split.
-
-    Returns:
-        A tuple containing the lines and the width of the widest line.
-    """
-    # Groups of strings broken into multiple lines
-    var blocks = List[List[StringSlice[origin]]](capacity=len(strs))
-
-    # Max line widths for the above text blocks
-    var max_width: UInt = 0
-    for s in strs:
-        var lines = s.split(NEWLINE)
-        var widest = get_widest_line(lines)
-        blocks.append(lines.copy())
-        if widest > max_width:
-            max_width = widest
-
-    return blocks^, max_width
 
 
 fn _merge_blocks_vertically[origin: ImmutOrigin](
@@ -291,6 +245,7 @@ fn join_vertical(pos: Position, *strs: String) -> String:
     #### Examples:
     ```mojo
     import mog
+    from mog import Position
 
     fn main():
         var block_b = "...\\n...\\n..."
@@ -300,7 +255,7 @@ fn join_vertical(pos: Position, *strs: String) -> String:
         var text = mog.join_vertical(0.2, block_a, block_b)
 
         # Join on the right edge
-        text = mog.join_vertical(mog.right, block_a, block_b)
+        text = mog.join_vertical(Position.RIGHT, block_a, block_b)
     ```
 
     Args:
@@ -317,8 +272,19 @@ fn join_vertical(pos: Position, *strs: String) -> String:
         return String(strs[0])
 
     # TODO: Can't move from tuple without copy, so just use getitem to reference it instead
-    var result = _get_lines_mem_width(pos, strs)
-    return _merge_blocks_vertically(result[0], result[1], pos)
+    # Groups of strings broken into multiple lines
+    var blocks = List[List[StringSlice[strs.origin]]](capacity=len(strs))
+
+    # Max line widths for the above text blocks
+    var max_width: UInt = 0
+    for s in strs:
+        var lines = s.split(NEWLINE)
+        var widest = get_widest_line(lines)
+        blocks.append(lines.copy())
+        if widest > max_width:
+            max_width = widest
+
+    return _merge_blocks_vertically(blocks, max_width, pos)
 
 
 fn join_vertical(pos: Position, strs: List[String]) -> String:
@@ -333,16 +299,17 @@ fn join_vertical(pos: Position, strs: List[String]) -> String:
     #### Examples:
     ```mojo
     import mog
+    from mog import Position
 
     fn main():
         var block_b = "...\\n...\\n..."
         var block_a = "...\\n...\\n...\\n...\\n..."
 
         # Join 20% from the top
-        var text = mog.join_vertical(0.2, block_a, block_b)
+        var text = mog.join_vertical(0.2, [block_a, block_b])
 
         # Join on the right edge
-        text = mog.join_vertical(mog.right, block_a, block_b)
+        text = mog.join_vertical(Position.RIGHT, [block_a, block_b])
     ```
 
     Args:

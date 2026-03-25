@@ -1,5 +1,5 @@
-import testing
-from testing import TestSuite
+from std import testing
+from std.testing import TestSuite
 from mog.whitespace import WhitespaceRenderer
 
 import mog

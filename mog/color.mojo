@@ -1,6 +1,6 @@
 import mist
 from mog.renderer import Renderer
-from utils.variant import Variant
+from std.utils.variant import Variant
 
 
 trait TerminalColor(ImplicitlyCopyable):
@@ -24,8 +24,7 @@ trait TerminalColor(ImplicitlyCopyable):
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct NoColor(TerminalColor):
+struct NoColor(TerminalColor, TrivialRegisterPassable):
     """Used to specify the absence of color styling. When this is active
     foreground colors will be rendered with the terminal's default text color,
     and background colors will not be drawn at all.
@@ -49,8 +48,7 @@ struct NoColor(TerminalColor):
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct Color(TerminalColor):
+struct Color(TerminalColor, TrivialRegisterPassable):
     """Specifies a color by hex or ANSI value. For example.
 
     ### Args:
@@ -84,8 +82,7 @@ struct Color(TerminalColor):
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct ANSIColor(TerminalColor):
+struct ANSIColor(TerminalColor, TrivialRegisterPassable):
     """Color specified by an ANSI color value. It's merely syntactic
     sugar for the more general Color function. Invalid colors will render as
     black.
@@ -122,8 +119,7 @@ struct ANSIColor(TerminalColor):
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct AdaptiveColor(TerminalColor):
+struct AdaptiveColor(TerminalColor, TrivialRegisterPassable):
     """Provides color options for light and dark backgrounds. The
     appropriate color will be returned at runtime based on the darkness of the
     terminal background color.
@@ -164,8 +160,7 @@ struct AdaptiveColor(TerminalColor):
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct CompleteColor(TerminalColor):
+struct CompleteColor(TerminalColor, TrivialRegisterPassable):
     """Specifies exact values for truecolor, ANSI256, and ANSI color
     profiles. Automatic color degradation will not be performed.
 
@@ -212,7 +207,7 @@ struct CompleteColor(TerminalColor):
 
 
 @fieldwise_init
-struct CompleteAdaptiveColor(TerminalColor):
+struct CompleteAdaptiveColor(TerminalColor, TrivialRegisterPassable):
     """Specifies exact values for truecolor, ANSI256, and ANSI color
     profiles, with separate options for light and dark backgrounds. Automatic
     color degradation will not be performed.

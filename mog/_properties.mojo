@@ -2,8 +2,7 @@ from mog.position import Position
 
 
 @fieldwise_init
-@register_passable("trivial")
-struct PropKey(ImplicitlyCopyable, Equatable):
+struct PropKey(ImplicitlyCopyable, Equatable, TrivialRegisterPassable):
     """Property keys for the style."""
 
     var _value: UInt8
@@ -110,8 +109,7 @@ struct PropKey(ImplicitlyCopyable, Equatable):
         return self._value == other._value
 
 
-@register_passable("trivial")
-struct Properties(ImplicitlyCopyable):
+struct Properties(ImplicitlyCopyable, TrivialRegisterPassable):
     """Properties for a style."""
 
     var value: SIMD[DType.bool, 64]
@@ -148,8 +146,7 @@ struct Properties(ImplicitlyCopyable):
         return self.value[Int(key._value)]
 
 
-@register_passable("trivial")
-struct Padding(ImplicitlyCopyable):
+struct Padding(ImplicitlyCopyable, TrivialRegisterPassable):
     var top: UInt16
     """The padding level at the top of the text."""
     var right: UInt16
@@ -219,8 +216,8 @@ struct Margin(ImplicitlyCopyable):
         self.background = background^
 
 
-@register_passable("trivial")
-struct Dimensions(ImplicitlyCopyable):
+struct Dimensions(ImplicitlyCopyable, TrivialRegisterPassable):
+    """Dimensions of the text area."""
     var height: UInt16
     """The height of the text."""
     var width: UInt16
@@ -232,6 +229,7 @@ struct Dimensions(ImplicitlyCopyable):
 
 
 struct Coloring(ImplicitlyCopyable):
+    """Coloring properties for the text."""
     var foreground: AnyTerminalColor
     """The foreground color."""
     var background: AnyTerminalColor
@@ -243,6 +241,7 @@ struct Coloring(ImplicitlyCopyable):
 
 
 struct BorderColor(ImplicitlyCopyable):
+    """Border coloring properties for the text."""
     var foreground_top: AnyTerminalColor
     """The foreground color of the top border."""
     var foreground_right: AnyTerminalColor
@@ -296,7 +295,9 @@ struct Side(ImplicitlyCopyable, Equatable):
 
 @fieldwise_init
 struct Emphasis(ImplicitlyCopyable, Equatable):
+    """Emphasis properties for the text."""
     var value: UInt8
+    """Internal value representing the emphasis property."""
     comptime BOLD = Self(0)
     """Whether the text is bold."""
     comptime ITALIC = Self(1)
@@ -324,7 +325,9 @@ struct Emphasis(ImplicitlyCopyable, Equatable):
 
 @fieldwise_init
 struct Axis(ImplicitlyCopyable, Equatable):
+    """Axis for alignment and placement."""
     var value: UInt8
+    """Internal value representing the axis."""
     comptime HORIZONTAL = Self(0)
     """Whether the axis is horizontal."""
     comptime VERTICAL = Self(1)

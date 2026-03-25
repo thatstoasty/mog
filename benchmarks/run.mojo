@@ -1,7 +1,5 @@
-import pathlib
-
-import benchmark
-from benchmark import Bench, BenchConfig, Bencher, BenchId, BenchMetric, ThroughputMeasure
+from std import pathlib, benchmark
+from std.benchmark import Bench, BenchConfig, Bencher, BenchId, BenchMetric, ThroughputMeasure
 from functions.basic_styling import basic_comptime_styling, basic_styling, basic_styling_big_file
 from functions.layout import render_layout
 

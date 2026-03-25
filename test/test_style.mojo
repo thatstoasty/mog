@@ -1,5 +1,5 @@
-import testing
-from testing import TestSuite
+from std import testing
+from std.testing import TestSuite
 
 import mog
 from mog.style import _maybe_convert_tabs, _apply_border

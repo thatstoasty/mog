@@ -1,4 +1,4 @@
-import mist.transform.ansi
+from mist.transform import ansi
 from mog._properties import Dimensions
 
 

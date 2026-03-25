@@ -1,4 +1,4 @@
-from time import perf_counter_ns
+from std.time import perf_counter_ns
 
 from mog.border import ASCII_BORDER, HIDDEN_BORDER, ROUNDED_BORDER, STAR_BORDER, Border
 from mog.join import join_horizontal, join_vertical

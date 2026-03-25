@@ -1,6 +1,11 @@
 import mist
 from mist.transform.ansi import printable_rune_width
 
+comptime DEFAULT_BUFFER_SIZE = 1024
+"""Default buffer size to use when creating new strings. This is used to avoid excessive reallocations."""
+comptime SMALL_BUFFER_SIZE = 128
+"""A smaller buffer size to use when creating new strings. This is used for small strings to avoid wasting memory."""
+
 
 fn get_lines[origin: ImmutOrigin](text: StringSlice[origin]) -> Tuple[List[StringSlice[origin].Immutable], UInt]:
     """Split a string into lines.

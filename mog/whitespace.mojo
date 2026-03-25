@@ -1,5 +1,5 @@
 from mist.transform import ansi
-from mog._extensions import get_lines, get_widest_line
+from mog._extensions import get_lines, get_widest_line, DEFAULT_BUFFER_SIZE
 from mog.align import Alignment
 from mog.position import Position
 from mog.renderer import Renderer
@@ -42,7 +42,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
             The rendered whitespace.
         """
         var j: UInt = 0
-        var result = String()
+        var result = String(capacity=DEFAULT_BUFFER_SIZE)
 
         # Cycle through runes and print them into the whitespace.
         var i: UInt = 0

@@ -7,6 +7,7 @@ from mog.size import get_height, get_width
 from mog.style import Style
 from mog.table.rows import Data
 from mog.table.util import largest, median, sum
+from mog._extensions import DEFAULT_BUFFER_SIZE, SMALL_BUFFER_SIZE
 
 
 comptime StyleFn = fn (data: Data, row: UInt, col: UInt) -> Style
@@ -290,7 +291,7 @@ struct Table(Copyable, Writable):
         if not has_headers and not has_rows:
             return
 
-        var result = String()
+        var result = String(capacity=DEFAULT_BUFFER_SIZE)
         # Add empty cells to the headers, until it's the same length as the longest
         # row (only if there are at headers in the first place).
         var headers = self._headers.copy()
@@ -481,7 +482,7 @@ struct Table(Copyable, Writable):
         Returns:
             The constructed top border as a string.
         """
-        var result = String()
+        var result = String(capacity=SMALL_BUFFER_SIZE)
         if self._border_left:
             result.write(self._border_style.render(self._border.top_left))
 
@@ -507,7 +508,7 @@ struct Table(Copyable, Writable):
         Returns:
             The constructed bottom border as a string.
         """
-        var result = String()
+        var result = String(capacity=SMALL_BUFFER_SIZE)
         if self._border_left:
             result.write(self._border_style.render(self._border.bottom_left))
 
@@ -534,7 +535,7 @@ struct Table(Copyable, Writable):
         Returns:
             The constructed headers as a string.
         """
-        var result = String()
+        var result = String(capacity=SMALL_BUFFER_SIZE)
         if self._border_left:
             result.write(self._border_style.render(self._border.left))
 
@@ -582,7 +583,7 @@ struct Table(Copyable, Writable):
         Returns:
             The constructed row as a string.
         """
-        var result = String()
+        var result = String(capacity=DEFAULT_BUFFER_SIZE)
 
         var has_headers = len(headers) > 0
         var height = heights[index + UInt(has_headers)]

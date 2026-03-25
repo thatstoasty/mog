@@ -354,7 +354,7 @@ struct AnyTerminalColor(ImplicitlyCopyable):
         """
         return self.value.isa[T]()
 
-    fn __getitem__[T: TerminalColor](ref self) -> ref [self.value] T:
+    fn __getitem_param__[T: TerminalColor](ref self) -> ref [self.value] T:
         """Gets the value as the given type.
 
         Parameters:

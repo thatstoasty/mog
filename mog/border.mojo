@@ -1,5 +1,5 @@
 from mist.transform.ansi import printable_rune_width
-from iter import enumerate
+from std.iter import enumerate
 
 struct Border(ImplicitlyCopyable, Equatable):
     """A border to use to wrap around text."""

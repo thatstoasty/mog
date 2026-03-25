@@ -1,4 +1,4 @@
-from benchmark.compiler import keep
+from std.benchmark.compiler import keep
 
 import mog
 from mog import Padding, Emphasis, Profile

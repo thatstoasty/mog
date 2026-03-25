@@ -1,6 +1,6 @@
 import mist
-import testing
-from testing import TestSuite
+from std import testing
+from std.testing import TestSuite
 from mog.align import align_text_horizontal, align_text_vertical
 
 from mog import Position

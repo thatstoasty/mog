@@ -1,5 +1,5 @@
-import testing
-from testing import TestSuite
+from std import testing
+from std.testing import TestSuite
 
 from mog import Position, join_horizontal, join_vertical
 

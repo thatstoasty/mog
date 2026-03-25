@@ -4,8 +4,11 @@ from mog._extensions import get_widest_line
 from mog.position import Position
 
 
-@register_passable("trivial")
-struct Alignment(ImplicitlyCopyable):
+struct Alignment(ImplicitlyCopyable, TrivialRegisterPassable):
+    """Alignment represents the horizontal and vertical alignment of text.
+    
+    Defaults to top-left alignment.
+    """
     var horizontal: Position
     """The horizontal alignment of the text."""
     var vertical: Position
@@ -45,7 +48,7 @@ fn align_text_horizontal(
             return style.value().render(spaces)
         return spaces^
 
-    var aligned = String(capacity=Int(len(text) * 1.25))
+    var aligned = String(capacity=Int(Float64(len(text)) * 1.25))
     for i in range(len(lines)):
         var line = String(lines[i])
         var line_width = Int(printable_rune_width(line))
@@ -96,10 +99,10 @@ fn align_text_vertical(text: StringSlice, pos: Position, height: UInt16) -> Stri
         The aligned text.
     """
     var text_height = text.count(NEWLINE) + 1
-    if height < text_height:
+    if Int(height) < text_height:
         return String(text)
 
-    var remaining_height = Int(height - text_height)
+    var remaining_height = Int(height) - text_height
     if pos == Position.TOP:
         return String(text, NEWLINE * remaining_height)
 

@@ -10,7 +10,7 @@ homepage = "https://github.com/thatstoasty/mog"
 repository = "https://github.com/thatstoasty/mog"
 preview = ["pixi-build"]
 
-[feature.util.tasks]
+[tasks]
 tests = "sh -c 'find test -name \"test_*.mojo\" -exec mojo -D ASSERT=all -I . {} \\;'"
 benchmarks = "mojo -D ASSERT=all -I . benchmarks/run.mojo"
 examples = "sh -c 'find examples -name \"*.mojo\" -exec mojo -D ASSERT=all -I . {} \\;'"
@@ -18,8 +18,7 @@ examples = "sh -c 'find examples -name \"*.mojo\" -exec mojo -D ASSERT=all -I . 
 # Linting and Formatting
 lint_docs = "mojo doc --Werror --diagnose-missing-doc-strings -o /dev/null ./mist"
 mojo_format = "mojo format mog --line-length 120"
-sort_imports = "isort **/*.mojo -m 3 --line-length 120 --lines-after-imports 2 --trailing-comma"
-format = [{ task = "mojo_format" }, { task = "sort_imports" }]
+format = [{ task = "mojo_format" }]
 
 # Build and publish
 build = { cmd = "pixi build -o ." }
@@ -28,30 +27,23 @@ build_and_publish = [{ task = "build" }, { task = "publish" }]
 
 [package]
 name = "mog"
-version = "26.1.2"
+version = "26.2.0"
 
 [package.build]
 backend = { name = "pixi-build-mojo", version = "*" }
 
 [dependencies]
-mojo = ">=0.26.1.0,<0.26.2.0"
-mist = ">=26.1.2,<26.2.0"
+mojo = ">=0.26.2.0,<0.26.3.0"
+mist = ">=26.2.0,<26.3.0"
 
 [package.build-dependencies]
-mojo-compiler = ">=0.26.1.0,<0.26.2.0"
-mist = ">=26.1.2,<26.2.0"
+mojo-compiler = ">=0.26.2.0,<0.26.3.0"
+mist = ">=26.2.0,<26.3.0"
 
 [package.host-dependencies]
-mojo = ">=0.26.1.0,<0.26.2.0"
-mist = ">=26.1.2,<26.2.0"
+mojo-compiler = ">=0.26.2.0,<0.26.3.0"
+mist = ">=26.2.0,<26.3.0"
 
 [package.run-dependencies]
-mojo = ">=0.26.1.0,<0.26.2.0"
-mist = ">=26.1.2,<26.2.0"
-
-[feature.util.dependencies]
-isort = ">=6.0.1,<7"
-
-[environments]
-default = { solve-group = "default" }
-util = { features = ["util"], solve-group = "default" }
+mojo-compiler = ">=0.26.2.0,<0.26.3.0"
+mist = ">=26.2.0,<26.3.0"

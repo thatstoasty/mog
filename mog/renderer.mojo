@@ -5,8 +5,7 @@ from mog.position import Position
 # Working on terminal background querying, currently it defaults to dark background terminal.
 # If you need to set it to light, you can do so manually via the `set_dark_background` method.
 @fieldwise_init
-@register_passable("trivial")
-struct Renderer:
+struct Renderer(ImplicitlyCopyable, TrivialRegisterPassable):
     """Contains context for the color profile of the terminal and it's background.
 
     ### Attributes:

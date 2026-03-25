@@ -58,7 +58,7 @@ fn default_styles(data: Data, row: UInt, col: UInt) -> Style:
 
 
 # TODO: Parametrize on data field, so other structs that implement `Data` can be used. For now it only support `StringData`.
-struct Table(Copyable, Stringable, Writable):
+struct Table(Copyable, Writable):
     """Used to model and render tabular data as a table.
 
     #### Examples:
@@ -279,11 +279,8 @@ struct Table(Copyable, Stringable, Writable):
     #     new._styler = styler
     #     return new^
 
-    fn write_to[W: Writer, //](self, mut writer: W):
+    fn write_to(self, mut writer: Some[Writer]):
         """Writes the table to the writer.
-
-        Parameters:
-            W: The type of writer to write to.
 
         Args:
             writer: The writer to write to.
@@ -439,14 +436,6 @@ struct Table(Copyable, Stringable, Writable):
         writer.write(
             mog.Style(Profile.ASCII, max_height=Int(self._compute_height(heights)), max_width=Int(self.width)).render(result)
         )
-
-    fn __str__(self) -> String:
-        """Returns the table as a String.
-
-        Returns:
-            The table as a string.
-        """
-        return String(self)
 
     fn _compute_width(self, widths: List[UInt]) -> UInt:
         """Computes the width of the table in it's current configuration.
@@ -617,7 +606,7 @@ struct Table(Copyable, Stringable, Writable):
 
         for i in range(len(cells)):
             if cells[i].endswith("\n"):
-                cells[i] = String(cells[i][:-1].removesuffix("\n"))
+                cells[i] = String(cells[i].removesuffix("\n"))
 
         result.write(join_horizontal(Position.TOP, cells), "\n")
 

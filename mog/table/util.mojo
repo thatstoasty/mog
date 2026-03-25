@@ -1,4 +1,4 @@
-fn sum(numbers: Span[UInt]) -> UInt:
+fn sum(numbers: Span[UInt, ...]) -> UInt:
     """Returns the sum of all integers in a list.
 
     Args:
@@ -35,7 +35,7 @@ fn median[origin: MutOrigin](numbers: Span[UInt, origin]) -> UInt:
     return numbers[Int(len(numbers) / 2)]
 
 
-fn largest(numbers: Span[UInt]) -> Tuple[UInt, UInt]:
+fn largest(numbers: Span[UInt, ...]) -> Tuple[UInt, UInt]:
     """Returns the largest element and it's index from a list of integers.
 
     Args:

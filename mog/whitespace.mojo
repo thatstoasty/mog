@@ -1,4 +1,4 @@
-import mist.transform.ansi
+from mist.transform import ansi
 from mog._extensions import get_lines, get_widest_line
 from mog.align import Alignment
 from mog.position import Position
@@ -120,7 +120,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
         if gap <= 0:
             return text
 
-        var result = String(capacity=Int(len(text) * 1.25))
+        var result = String(capacity=Int(Float64(len(text)) * 1.25))
         for i in range(len(lines)):
             if i != 0:
                 result.write(NEWLINE)
@@ -167,7 +167,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
             return text
 
         var empty_line = self.render(get_widest_line(text))
-        var result = String(capacity=Int(len(text) * 1.25))
+        var result = String(capacity=Int(Float64(len(text)) * 1.25))
         if alignment == Position.TOP:
             result.write(text, NEWLINE)
 

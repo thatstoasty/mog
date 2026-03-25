@@ -1,5 +1,3 @@
-from collections import Dict
-
 import mog
 from mog import Profile, Padding, Emphasis
 

@@ -44,6 +44,8 @@ fn largest(numbers: Span[UInt, ...]) -> Tuple[UInt, UInt]:
     Returns:
         A tuple containing the index and the largest element.
     """
+    debug_assert(len(numbers) > 0, "Cannot find largest element of an empty list.")
+
     var largest: UInt = 0
     var index: UInt = 0
     for i in range(UInt(len(numbers))):

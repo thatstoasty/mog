@@ -7,7 +7,7 @@ comptime SMALL_BUFFER_SIZE = 128
 """A smaller buffer size to use when creating new strings. This is used for small strings to avoid wasting memory."""
 
 
-fn get_lines[origin: ImmutOrigin](text: StringSlice[origin]) -> Tuple[List[StringSlice[origin].Immutable], UInt]:
+fn get_lines[origin: ImmutOrigin, //](text: StringSlice[origin]) -> Tuple[List[StringSlice[origin].Immutable], UInt]:
     """Split a string into lines.
 
     Args:
@@ -26,7 +26,7 @@ fn get_lines[origin: ImmutOrigin](text: StringSlice[origin]) -> Tuple[List[Strin
     return lines^, widest_line
 
 
-fn get_widest_line[origin: ImmutOrigin](text: StringSlice[origin]) -> UInt:
+fn get_widest_line[origin: ImmutOrigin, //](text: StringSlice[origin]) -> UInt:
     """Split a string into lines.
 
     Args:
@@ -47,7 +47,7 @@ fn get_widest_line[origin: ImmutOrigin](text: StringSlice[origin]) -> UInt:
     return widest
 
 
-fn get_widest_line[origin: ImmutOrigin](lines: List[StringSlice[origin]]) -> UInt:
+fn get_widest_line[origin: ImmutOrigin, //](lines: List[StringSlice[origin]]) -> UInt:
     """Get the width of the widest line.
 
     Args:

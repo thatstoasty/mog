@@ -1,11 +1,11 @@
 from std import math
 
 from mist.transform.ansi import printable_rune_width
-from mog._extensions import get_widest_line
+from mog._extensions import get_widest_line, DEFAULT_BUFFER_SIZE
 from mog.position import Position
 
 
-fn _merge_lines[origin: ImmutOrigin](
+fn _merge_lines[origin: ImmutOrigin, //](
     blocks: List[List[StringSlice[origin]]],
     max_widths: List[UInt]
 ) -> String:
@@ -18,7 +18,7 @@ fn _merge_lines[origin: ImmutOrigin](
     Returns:
         The merged string.
     """
-    var result = String()
+    var result = String(capacity=DEFAULT_BUFFER_SIZE)
     # remember, all blocks have the same number of members now
     for i in range(len(blocks[0])):
         for j in range(len(blocks)):
@@ -192,7 +192,7 @@ fn join_horizontal(pos: Position, strs: List[String]) -> String:
     return _merge_lines(blocks, max_widths)
 
 
-fn _merge_blocks_vertically[origin: ImmutOrigin](
+fn _merge_blocks_vertically[origin: ImmutOrigin, //](
     blocks: List[List[StringSlice[origin]]],
     max_width: UInt,
     pos: Position
@@ -207,7 +207,7 @@ fn _merge_blocks_vertically[origin: ImmutOrigin](
     Returns:
         The merged string.
     """
-    var result = String()
+    var result = String(capacity=DEFAULT_BUFFER_SIZE)
     for i in range(len(blocks)):
         for j in range(len(blocks[i])):
             # blocks[i][j] is equivalent to a line
@@ -240,7 +240,7 @@ fn join_vertical(pos: Position, *strs: String) -> String:
     the right.
 
     If you just want to align to the left, right or center you may as well just
-    use the helper constants Left, Center, and Right.
+    use the helper constants `Position.LEFT`, `Position.CENTER`, and `Position.RIGHT`.
 
     #### Examples:
     ```mojo
@@ -257,7 +257,7 @@ fn join_vertical(pos: Position, *strs: String) -> String:
         # Join on the right edge
         text = mog.join_vertical(Position.RIGHT, block_a, block_b)
     ```
-
+    
     Args:
         pos: The position to join the strings.
         strs: The strings to join.
@@ -271,7 +271,6 @@ fn join_vertical(pos: Position, *strs: String) -> String:
     if len(strs) == 1:
         return String(strs[0])
 
-    # TODO: Can't move from tuple without copy, so just use getitem to reference it instead
     # Groups of strings broken into multiple lines
     var blocks = List[List[StringSlice[strs.origin]]](capacity=len(strs))
 
@@ -294,7 +293,7 @@ fn join_vertical(pos: Position, strs: List[String]) -> String:
     the right.
 
     If you just want to align to the left, right or center you may as well just
-    use the helper constants Left, Center, and Right.
+    use the helper constants `Position.LEFT`, `Position.CENTER`, and `Position.RIGHT`.
 
     #### Examples:
     ```mojo

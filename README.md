@@ -16,17 +16,11 @@ Style definitions for nice terminal layouts.
 
 ## Adding the `mog` package to your project
 
-First, you'll need to configure your `pixi.toml` file to include my `mojo-community` Conda channel. Add `"https://repo.prefix.dev/mojo-community"` to the list of channels.
-
-### Installing it from the `mojo-community` Conda channel
-
-Run the following commands in your terminal:
+First, you'll need to enable the `pixi-build` preview by adding this to the `workspace` section of your `pixi.toml` file.
 
 ```bash
-pixi add mog && pixi install
+preview = ["pixi-build"]
 ```
-
-This will add `mog` to your project's dependencies and install it along with its dependencies.
 
 ### Building it from source
 
@@ -37,7 +31,7 @@ There's two ways to build `mog` from source: directly from the Git repository or
 Run the following commands in your terminal:
 
 ```bash
-pixi add -g "https://github.com/thatstoasty/mog.git" && pixi install
+pixi add -g "https://github.com/thatstoasty/mog.git" --tag v0.1.0 && pixi install
 ```
 
 #### Building from source: Local

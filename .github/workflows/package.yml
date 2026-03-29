@@ -1,0 +1,26 @@
+name: Test package creation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  package:
+    name: Package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Pixi
+        uses: prefix-dev/setup-pixi@main
+        with:
+          pixi-version: latest
+          cache: true
+
+      - name: Try Building The Package
+        run: pixi run build

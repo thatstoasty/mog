@@ -7,7 +7,7 @@ comptime SMALL_BUFFER_SIZE = 128
 """A smaller buffer size to use when creating new strings. This is used for small strings to avoid wasting memory."""
 
 
-fn get_lines[origin: ImmutOrigin, //](text: StringSlice[origin]) -> Tuple[List[StringSlice[origin].Immutable], UInt]:
+def get_lines[origin: ImmutOrigin, //](text: StringSlice[origin]) -> Tuple[List[StringSlice[origin].Immutable], UInt]:
     """Split a string into lines.
 
     Args:
@@ -26,7 +26,7 @@ fn get_lines[origin: ImmutOrigin, //](text: StringSlice[origin]) -> Tuple[List[S
     return lines^, widest_line
 
 
-fn get_widest_line[origin: ImmutOrigin, //](text: StringSlice[origin]) -> UInt:
+def get_widest_line[origin: ImmutOrigin, //](text: StringSlice[origin]) -> UInt:
     """Split a string into lines.
 
     Args:
@@ -35,7 +35,7 @@ fn get_widest_line[origin: ImmutOrigin, //](text: StringSlice[origin]) -> UInt:
     Returns:
         The width of the widest line.
     """
-    if len(text) == 0:
+    if text.byte_length() == 0:
         return 0
 
     var widest: UInt = 0
@@ -47,7 +47,7 @@ fn get_widest_line[origin: ImmutOrigin, //](text: StringSlice[origin]) -> UInt:
     return widest
 
 
-fn get_widest_line[origin: ImmutOrigin, //](lines: List[StringSlice[origin]]) -> UInt:
+def get_widest_line[origin: ImmutOrigin, //](lines: List[StringSlice[origin]]) -> UInt:
     """Get the width of the widest line.
 
     Args:
@@ -68,7 +68,7 @@ fn get_widest_line[origin: ImmutOrigin, //](lines: List[StringSlice[origin]]) ->
     return widest
 
 
-fn pad(text: StringSlice, n: Int, style: mist.Style) -> String:
+def pad(text: StringSlice, n: Int, style: mist.Style) -> String:
     """Pad text with spaces.
 
     Args:
@@ -83,7 +83,7 @@ fn pad(text: StringSlice, n: Int, style: mist.Style) -> String:
         return String(text)
 
     var spaces = style.render(WHITESPACE * abs(n))
-    var result = String(capacity=Int(Float64(len(text)) * 1.5))
+    var result = String(capacity=Int(Float64(text.byte_length()) * 1.5))
     var lines = text.splitlines()
     for i in range(len(lines)):
         if n > 0:
@@ -98,7 +98,7 @@ fn pad(text: StringSlice, n: Int, style: mist.Style) -> String:
 
 
 @always_inline
-fn pad_left(text: StringSlice, n: Int, style: mist.Style) -> String:
+def pad_left(text: StringSlice, n: Int, style: mist.Style) -> String:
     """Pad text with spaces to the left.
 
     Args:
@@ -113,7 +113,7 @@ fn pad_left(text: StringSlice, n: Int, style: mist.Style) -> String:
 
 
 @always_inline
-fn pad_right(text: StringSlice, n: Int, style: mist.Style) -> String:
+def pad_right(text: StringSlice, n: Int, style: mist.Style) -> String:
     """Pad text with spaces to the right.
 
     Args:

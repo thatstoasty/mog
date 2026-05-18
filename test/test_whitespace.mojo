@@ -8,7 +8,7 @@ from mog import Alignment, Position, Profile
 
 comptime ANSI_STYLE = mog.Style(Profile.ANSI)
 
-fn test_with_whitespace_background() raises:
+def test_with_whitespace_background() raises:
     # Use a renderer with a specific profile to ensure consistent output.
     testing.assert_equal(
         WhitespaceRenderer(
@@ -19,7 +19,7 @@ fn test_with_whitespace_background() raises:
     )
 
 
-fn test_with_whitespace_foreground() raises:
+def test_with_whitespace_foreground() raises:
     testing.assert_equal(
         WhitespaceRenderer(
             style=ANSI_STYLE.foreground(mog.Color(2))
@@ -28,7 +28,7 @@ fn test_with_whitespace_foreground() raises:
     )
 
 
-fn test_with_whitespace_chars() raises:
+def test_with_whitespace_chars() raises:
     testing.assert_equal(
         WhitespaceRenderer(
             style=ANSI_STYLE, chars="<>"
@@ -36,7 +36,7 @@ fn test_with_whitespace_chars() raises:
         "<><><><><>\n<>hello<><\n<><><><><>"
     )
 
-fn test_multiple_whitespace_options() raises:
+def test_multiple_whitespace_options() raises:
     testing.assert_equal(
         WhitespaceRenderer(
             style=ANSI_STYLE.background(mog.Color(2)),
@@ -48,24 +48,24 @@ fn test_multiple_whitespace_options() raises:
 
 comptime TRUE_COLOR_RENDERER = WhitespaceRenderer(style=mog.Style(Profile.TRUE_COLOR))
 
-fn test_place_horizontal() raises:
+def test_place_horizontal() raises:
     testing.assert_equal(TRUE_COLOR_RENDERER.place_horizontal("Hello, World!", 18, Position.CENTER), "  Hello, World!   ")
 
     # Text longer than width, return same string
     testing.assert_equal(TRUE_COLOR_RENDERER.place_horizontal("Hello, World!", 10, Position.CENTER), "Hello, World!")
 
 
-fn test_place_horizontal_left() raises:
+def test_place_horizontal_left() raises:
 
     testing.assert_equal(TRUE_COLOR_RENDERER.place_horizontal("Hello, World!", 18, Position.LEFT), "Hello, World!     ")
 
 
-fn test_place_horizontal_right() raises:
+def test_place_horizontal_right() raises:
 
     testing.assert_equal(TRUE_COLOR_RENDERER.place_horizontal("Hello, World!", 18, Position.RIGHT), "     Hello, World!")
 
 
-fn test_place_horizontal_fractional() raises:
+def test_place_horizontal_fractional() raises:
 
     # 0 ---------- 1
     # left ----- right
@@ -73,7 +73,7 @@ fn test_place_horizontal_fractional() raises:
     testing.assert_equal(TRUE_COLOR_RENDERER.place_horizontal("Hello, World!", 18, Position(0.8)), "    Hello, World! ")
 
 
-fn test_place_vertical() raises:
+def test_place_vertical() raises:
 
     testing.assert_equal(TRUE_COLOR_RENDERER.place_vertical("Hello, World!", 3, Position.CENTER), "             \nHello, World!\n             ")
 
@@ -81,17 +81,17 @@ fn test_place_vertical() raises:
     testing.assert_equal(TRUE_COLOR_RENDERER.place_vertical("\nHello, World!\n", 1, Position.CENTER), "\nHello, World!\n")
 
 
-fn test_place_vertical_top() raises:
+def test_place_vertical_top() raises:
 
     testing.assert_equal(TRUE_COLOR_RENDERER.place_vertical("Hello, World!", 3, Position.TOP), "Hello, World!\n             \n             ")
 
 
-fn test_place_vertical_bottom() raises:
+def test_place_vertical_bottom() raises:
 
     testing.assert_equal(TRUE_COLOR_RENDERER.place_vertical("Hello, World!", 3, Position.BOTTOM), "             \n             \nHello, World!")
 
 
-fn test_place_vertical_fractional() raises:
+def test_place_vertical_fractional() raises:
 
     testing.assert_equal(
         TRUE_COLOR_RENDERER.place_vertical("Hello, World!", 5, Position(0.2)),
@@ -103,7 +103,7 @@ fn test_place_vertical_fractional() raises:
     )
 
 
-fn test_place() raises:
+def test_place() raises:
 
     testing.assert_equal(TRUE_COLOR_RENDERER.place(18, 3, Alignment(horizontal=Position.CENTER, vertical=Position.CENTER), "Hello, World!"), "                  \n  Hello, World!   \n                  ")
 
@@ -117,7 +117,7 @@ fn test_place() raises:
     testing.assert_equal(TRUE_COLOR_RENDERER.place(1, 1, Alignment(horizontal=Position.CENTER, vertical=Position.CENTER), "Hello, World!"), "Hello, World!")
 
 
-fn main() raises -> None:
+def main() raises -> None:
     # TestSuite.discover_tests[__functions_in_module()]().run()
     var suite = TestSuite()
     suite.test[test_with_whitespace_background]()

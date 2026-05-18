@@ -4,7 +4,7 @@
 
 Style definitions for nice terminal layouts.
 
-![Mojo Version](https://img.shields.io/badge/Mojo%F0%9F%94%A5-26.2-orange)
+![Mojo Version](https://img.shields.io/badge/Mojo%F0%9F%94%A5-1.0.0b1-orange)
 ![Build Status](https://github.com/thatstoasty/mog/actions/workflows/build.yml/badge.svg)
 ![Test Status](https://github.com/thatstoasty/mog/actions/workflows/test.yml/badge.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -31,7 +31,7 @@ There's two ways to build `mog` from source: directly from the Git repository or
 Run the following commands in your terminal:
 
 ```bash
-pixi add -g "https://github.com/thatstoasty/mog.git" --tag v0.1.0 && pixi install
+pixi add -g "https://github.com/thatstoasty/mog.git" --tag v0.2.0 && pixi install
 ```
 
 #### Building from source: Local
@@ -53,7 +53,7 @@ Users familiar with CSS will feel at home with Mog.
 import mog
 from mog import Emphasis, Padding
 
-fn main():
+def main():
     var style = mog.Style(
         width=22,
         foreground=mog.Color(0xFAFAFA),
@@ -70,7 +70,7 @@ Alternatively, you can use a functional chaining pattern to configure styles.
 ```mojo
 import mog
 
-fn main():
+def main():
     var style = mog.Style() \
         .bold() \
         .foreground(mog.Color(0xFAFAFA)) \
@@ -110,7 +110,7 @@ mog.Color(202) # orange
 ```mojo
 import mog
 
-fn main():
+def main():
     var color = mog.Color(0x0000FF) # 100% blue
     color = mog.Color(0x04B575) # green
     color = mog.Color(0x3C3C3C) # dark gray
@@ -131,7 +131,7 @@ You can also specify color options for light and dark backgrounds:
 ```mojo
 import mog
 
-fn main():
+def main():
     var color = mog.AdaptiveColor(light=236, dark=248)
 ```
 
@@ -143,7 +143,7 @@ profiles.
 ```mojo
 import mog
 
-fn main():
+def main():
     var color = mog.CompleteColor(true_color=0x0000FF, ansi256=86, ansi=5)
 ```
 
@@ -158,7 +158,7 @@ light and dark backgrounds without automatic color degradation.
 ```mojo
 import mog
 
-fn main():
+def main():
     var color = mog.CompleteAdaptiveColor(
         light = mog.CompleteColor(true_color=0xd7ffae, ansi256=193, ansi=11),
         dark = mog.CompleteColor(true_color=0xd75fee, ansi256=163, ansi=5),
@@ -174,7 +174,7 @@ fn main():
 import mog
 from mog import Emphasis
 
-fn main():
+def main():
     var style = mog.Style() \
         .bold() \
         .italic() \
@@ -193,7 +193,7 @@ fn main():
 import mog
 from mog import Padding, Margin
 
-fn main():
+def main():
     # Padding
     mog.Style(padding=Padding(top=2, right=4, bottom=2, left=4))
     mog.Style().padding(top=2, right=4, bottom=2, left=4)
@@ -210,7 +210,7 @@ format as CSS:
 ```mojo
 import mog
 
-fn main():
+def main():
     # 2 cells on all sides
     var style = mog.Style().padding(2)
     mog.Style(padding=Padding(2)) # equivalent
@@ -232,7 +232,7 @@ You can align paragraphs of text to the left, right, or center.
 import mog
 from mog import Position, Axis, Alignment
 
-fn main():
+def main():
     var style = (
         mog.Style(width=22)
         .text_alignment(Axis.HORIZONTAL, Position.LEFT) # align text to the left on the horizontal axis
@@ -253,7 +253,7 @@ Setting a minimum width and height is simple and straightforward.
 ```mojo
 import mog
 
-fn main():
+def main():
     var style = (
         mog.Style()
         .value("What’s for lunch?")
@@ -279,7 +279,7 @@ Adding borders is easy:
 import mog
 from mog import NORMAL_BORDER, ROUNDED_BORDER
 
-fn main():
+def main():
     # Add a purple, rectangular border
     var style = (
         mog.Style()
@@ -326,7 +326,7 @@ All rules can be unset:
 import mog
 from mog import Emphasis
 
-fn main():
+def main():
     var style = mog.Style() \
         .bold() \
         .unset_bold() \
@@ -349,7 +349,7 @@ This leads to the following behavior:
 import mog
 from mog import Emphasis
 
-fn main():
+def main():
     # Bold is set, and the value is set to True. Text output is bold.
     var style = mog.Style().bold()
 
@@ -372,7 +372,7 @@ and `max_width`, and `max_height` come in:
 ```mojo
 import mog
 
-fn main():
+def main():
     var style = mog.Style()
     # Force rendering onto a single line, ignoring margins, padding, and borders.
     print(style.inline().render("yadda yadda"))
@@ -404,7 +404,7 @@ basis, however:
 ```mojo
 import mog
 
-fn main():
+def main():
     var style = mog.Style() # tabs will render as 4 spaces, the default
     style = style.tab_width(2) # render tabs as 2 spaces
     style = style.tab_width(0) # remove tabs entirely
@@ -424,7 +424,7 @@ You can render text with a style using the `render` method:
 import mog
 from mog import Emphasis
 
-fn main():
+def main():
     var style = mog.Style(value="Hello,", emphasis=Emphasis.BOLD)
     print(style.render("Mojo.")) # Hello, Mojo.
     print(style.render("Python.")) # Hello, Python.
@@ -441,7 +441,7 @@ in a server-client situation.
 ```mojo
 import mog
 
-fn main():
+def main():
     # Create a renderer for the client.
     var custom_renderer = mog.Renderer(mog.Profile.ANSI)
 
@@ -468,7 +468,7 @@ Compose your text blocks easily using `join_horizontal` and `join_vertical`.
 ```mojo
 import mog
 
-fn main():
+def main():
     var paragraph_a = "Hello, world!"
     var paragraph_b = "How are you?"
     var paragraph_c = "I'm doing well.\nThank you."
@@ -493,7 +493,7 @@ and unicode codepoints being 0-2 cells wide.
 ```mojo
 import mog
 
-fn main():
+def main():
     # render a block of text.
     var style = mog.Style() \
         .width(40) \
@@ -515,7 +515,7 @@ Sometimes you’ll simply want to place a block of text in whitespace.
 ```mojo
 from mog import place, place_horizontal, place_vertical
 
-fn main():
+def main():
     # Center a paragraph horizontally in a space 80 cells wide. The height of
     # the block returned will be as tall as the input paragraph.
     block = place_horizontal(80, mog.center, fancy_styled_paragraph)
@@ -533,7 +533,7 @@ The `place` functions use a default `Renderer`, which attempts to detect the col
 ```mojo
 import mog
 
-fn main():
+def main():
     # Set the color profile to ANSI (0-15 colors) and the background to light manually.
     var renderer = mog.Renderer(mog.ANSI, dark_background=False)
     var block = renderer.place_horizontal(80, mog.center, fancy_styled_paragraph)
@@ -551,7 +551,7 @@ Use the table package to style and render the table.
 import mog
 from mog.table import Data
 
-fn main():
+def main():
     ...
     var t = mog.Table(
         data=Data(

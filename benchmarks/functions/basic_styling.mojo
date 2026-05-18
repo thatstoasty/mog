@@ -3,7 +3,7 @@ from std.benchmark.compiler import keep
 import mog
 from mog import Padding, Emphasis, Profile
 
-fn basic_styling():
+def basic_styling():
     var style = mog.Style(
         width=22,
         foreground=mog.Color(0xFAFAFA),
@@ -26,12 +26,12 @@ comptime file_style = mog.Style(
 )
 
 
-fn basic_comptime_styling():
+def basic_comptime_styling():
     var output = file_style.render("Hello, Mojo")
     _ = output^
 
 
-fn basic_styling_big_file():
+def basic_styling_big_file():
     var content: String = ""
     try:
         with open("./benchmarks/data/big.txt", "r") as file:

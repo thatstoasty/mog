@@ -6,7 +6,7 @@ from std.utils.variant import Variant
 trait TerminalColor(ImplicitlyCopyable):
     """Color intended to be rendered in the terminal."""
 
-    fn color(self, renderer: Renderer) -> mist.AnyColor:
+    def color(self, renderer: Renderer) -> mist.AnyColor:
         """Returns the color value based on the terminal color profile.
 
         Args:
@@ -31,11 +31,14 @@ struct NoColor(TerminalColor, TrivialRegisterPassable):
 
     ### Examples:
     ```mojo
-    var style = mog.Style(background=mog.NoColor())
+    import mog
+
+    def main():
+        var style = mog.Style(background=mog.NoColor())
     ```
     """
 
-    fn color(self, renderer: Renderer) -> mist.AnyColor:
+    def color(self, renderer: Renderer) -> mist.AnyColor:
         """Returns a `mist.NoColor`.
 
         Args:
@@ -56,15 +59,17 @@ struct Color(TerminalColor, TrivialRegisterPassable):
 
     ### Examples:
     ```mojo
-    var ansi_color = mog.Color(21)
-    var hex_color = mog.Color(0x0000ff)
+    import mog
+    def main():
+        var ansi_color = mog.Color(21)
+        var hex_color = mog.Color(0x0000ff)
     ```
     """
 
     var value: UInt32
     """The color value to use. This can be an ANSI color value or a hex color value."""
 
-    fn color(self, renderer: Renderer) -> mist.AnyColor:
+    def color(self, renderer: Renderer) -> mist.AnyColor:
         """Returns the color value based on the terminal color profile.
 
         Args:
@@ -92,16 +97,19 @@ struct ANSIColor(TerminalColor, TrivialRegisterPassable):
 
     ### Examples:
     ```mojo
-    # These two statements are equivalent.
-    var color_a = mog.ANSIColor(21)
-    var color_b = mog.Color(21)
+    import mog
+    
+    def main():
+        # These two statements are equivalent.
+        var color_a = mog.ANSIColor(21)
+        var color_b = mog.Color(21)
     ```
     """
 
     var value: UInt32
     """The color value to use. This is an ANSI color value."""
 
-    fn color(self, renderer: Renderer) -> mist.AnyColor:
+    def color(self, renderer: Renderer) -> mist.AnyColor:
         """Returns the color value based on the terminal color profile.
 
         Args:
@@ -130,7 +138,10 @@ struct AdaptiveColor(TerminalColor, TrivialRegisterPassable):
 
     ### Examples:
     ```mojo
-    var color = mog.AdaptiveColor(light=0x0000ff, dark=0x000099)
+    import mog
+
+    def main():
+        var color = mog.AdaptiveColor(light=0x0000ff, dark=0x000099)
     ```
     """
 
@@ -139,7 +150,7 @@ struct AdaptiveColor(TerminalColor, TrivialRegisterPassable):
     var dark: UInt32
     """The color to use when the terminal background is dark."""
 
-    fn color(self, renderer: Renderer) -> mist.AnyColor:
+    def color(self, renderer: Renderer) -> mist.AnyColor:
         """Returns the appropriate color based on the terminal background color.
 
         Args:
@@ -171,7 +182,10 @@ struct CompleteColor(TerminalColor, TrivialRegisterPassable):
 
     ### Examples:
     ```mojo
-    var color = mog.CompleteColor(true_color=0x0000ff, ansi256=21, ansi=4)
+    import mog
+
+    def main():
+        var color = mog.CompleteColor(true_color=0x0000ff, ansi256=21, ansi=4)
     ```
     """
 
@@ -182,7 +196,7 @@ struct CompleteColor(TerminalColor, TrivialRegisterPassable):
     var ansi: UInt32
     """The color to use when the terminal supports 16 colors."""
 
-    fn color(self, renderer: Renderer) -> mist.AnyColor:
+    def color(self, renderer: Renderer) -> mist.AnyColor:
         """Returns the appropriate color based on the terminal color profile.
 
         Args:
@@ -218,10 +232,13 @@ struct CompleteAdaptiveColor(TerminalColor, TrivialRegisterPassable):
 
     ### Examples:
     ```mojo
-    var color = mog.CompleteAdaptiveColor(
-        light=mog.CompleteColor(true_color=0x0000ff, ansi256=21, ansi=4),
-        dark=mog.CompleteColor(true_color=0x000099, ansi256=22, ansi=5),
-    )
+    import mog
+
+    def main():
+        var color = mog.CompleteAdaptiveColor(
+            light=mog.CompleteColor(true_color=0x0000ff, ansi256=21, ansi=4),
+            dark=mog.CompleteColor(true_color=0x000099, ansi256=22, ansi=5),
+        )
     ```
     """
 
@@ -230,7 +247,7 @@ struct CompleteAdaptiveColor(TerminalColor, TrivialRegisterPassable):
     var dark: CompleteColor
     """The `CompleteColor` to use when the terminal background is dark."""
 
-    fn color(self, renderer: Renderer) -> mist.AnyColor:
+    def color(self, renderer: Renderer) -> mist.AnyColor:
         """Returns the appropriate color based on the terminal background color.
 
         Args:
@@ -265,7 +282,7 @@ struct AnyTerminalColor(ImplicitlyCopyable):
     """Internal `Color` value."""
 
     @implicit
-    fn __init__(out self, color: NoColor):
+    def __init__(out self, color: NoColor):
         """Initializes the `AnyTerminalColor` with a `NoColor`.
 
         Args:
@@ -274,7 +291,7 @@ struct AnyTerminalColor(ImplicitlyCopyable):
         self.value = color
 
     @implicit
-    fn __init__(out self, color: Color):
+    def __init__(out self, color: Color):
         """Initializes the `AnyTerminalColor` with a `Color`.
 
         Args:
@@ -283,7 +300,7 @@ struct AnyTerminalColor(ImplicitlyCopyable):
         self.value = color
 
     @implicit
-    fn __init__(out self, color: ANSIColor):
+    def __init__(out self, color: ANSIColor):
         """Initializes the `AnyTerminalColor` with an `ANSIColor`.
 
         Args:
@@ -292,7 +309,7 @@ struct AnyTerminalColor(ImplicitlyCopyable):
         self.value = color
 
     @implicit
-    fn __init__(out self, color: AdaptiveColor):
+    def __init__(out self, color: AdaptiveColor):
         """Initializes the `AnyTerminalColor` with an `AdaptiveColor`.
 
         Args:
@@ -301,7 +318,7 @@ struct AnyTerminalColor(ImplicitlyCopyable):
         self.value = color
 
     @implicit
-    fn __init__(out self, color: CompleteColor):
+    def __init__(out self, color: CompleteColor):
         """Initializes the `AnyTerminalColor` with a `CompleteColor`.
 
         Args:
@@ -310,7 +327,7 @@ struct AnyTerminalColor(ImplicitlyCopyable):
         self.value = color
 
     @implicit
-    fn __init__(out self, color: CompleteAdaptiveColor):
+    def __init__(out self, color: CompleteAdaptiveColor):
         """Initializes the `AnyTerminalColor` with a `CompleteAdaptiveColor`.
 
         Args:
@@ -318,7 +335,7 @@ struct AnyTerminalColor(ImplicitlyCopyable):
         """
         self.value = color.copy()
 
-    fn to_mist_color(self, renderer: Renderer) -> mist.AnyColor:
+    def to_mist_color(self, renderer: Renderer) -> mist.AnyColor:
         """Converts an `AnyTerminalColor` to an `AnyColor`.
 
         Args:
@@ -343,7 +360,7 @@ struct AnyTerminalColor(ImplicitlyCopyable):
 
         return mist.NoColor()
 
-    fn isa[T: TerminalColor](self) -> Bool:
+    def isa[T: TerminalColor](self) -> Bool:
         """Checks if the value is of the given type.
 
         Parameters:
@@ -354,7 +371,7 @@ struct AnyTerminalColor(ImplicitlyCopyable):
         """
         return self.value.isa[T]()
 
-    fn __getitem_param__[T: TerminalColor](ref self) -> ref [self.value] T:
+    def __getitem_param__[T: TerminalColor](ref self) -> ref [self.value] T:
         """Gets the value as the given type.
 
         Parameters:
@@ -365,7 +382,7 @@ struct AnyTerminalColor(ImplicitlyCopyable):
         """
         return self.value[T]
     
-    fn is_same_type(self, other: Self) -> Bool:
+    def is_same_type(self, other: Self) -> Bool:
         """Checks if the value is the same type as another `AnyTerminalColor`.
 
         Args:

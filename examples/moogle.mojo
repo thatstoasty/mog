@@ -3,7 +3,7 @@ import mist.style._hue as hue
 import mog
 
 
-fn render_pixels(style: mog.Style, width: Int) -> String:
+def render_pixels(style: mog.Style, width: Int) -> String:
     return style.render("  " * width)
 
 
@@ -20,7 +20,7 @@ comptime NAME = """          .         .
  ,8'       `8        `8.`8888.` 8888     ,88'      8888     ,88'  
 ,8'         `         `8.`8888.  `8888888P'         `8888888P'    """
 
-fn main():
+def main():
     pass
     # # Colors
     # var BACKGROUND = mog.Style()

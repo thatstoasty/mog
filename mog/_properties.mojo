@@ -105,7 +105,7 @@ struct PropKey(ImplicitlyCopyable, Equatable, TrivialRegisterPassable):
     comptime STRIKETHROUGH_SPACES = Self(42)
     """Crossout spaces between words."""
 
-    fn __eq__(self, other: PropKey) -> Bool:
+    def __eq__(self, other: PropKey) -> Bool:
         return self._value == other._value
 
 
@@ -115,7 +115,7 @@ struct Properties(ImplicitlyCopyable, TrivialRegisterPassable):
     var value: SIMD[DType.bool, 64]
     """Array of attributes with 1 or 0 values to determine if a property is set."""
 
-    fn __init__(out self, value: SIMD[DType.bool, 64] = SIMD[DType.bool, 64]()):
+    def __init__(out self, value: SIMD[DType.bool, 64] = SIMD[DType.bool, 64]()):
         """Initialize a new Properties object.
 
         Args:
@@ -123,7 +123,7 @@ struct Properties(ImplicitlyCopyable, TrivialRegisterPassable):
         """
         self.value = value
 
-    fn set[key: PropKey](mut self, value: Bool) -> None:
+    def set[key: PropKey](mut self, value: Bool) -> None:
         """Set a property.
 
         Parameters:
@@ -134,7 +134,7 @@ struct Properties(ImplicitlyCopyable, TrivialRegisterPassable):
         """
         self.value[Int(key._value)] = value
 
-    fn has[key: PropKey](self) -> Bool:
+    def has[key: PropKey](self) -> Bool:
         """Check if a property is set.
 
         Parameters:
@@ -156,19 +156,19 @@ struct Padding(ImplicitlyCopyable, TrivialRegisterPassable):
     var left: UInt16
     """The padding level to the left of the text."""
 
-    fn __init__(out self, *, top: UInt16 = 0, right: UInt16 = 0, bottom: UInt16 = 0, left: UInt16 = 0):
+    def __init__(out self, *, top: UInt16 = 0, right: UInt16 = 0, bottom: UInt16 = 0, left: UInt16 = 0):
         self.top = top
         self.right = right
         self.bottom = bottom
         self.left = left
     
-    fn __init__(out self, width: UInt16):
+    def __init__(out self, width: UInt16):
         self.top = width
         self.right = width
         self.bottom = width
         self.left = width
     
-    fn __init__(out self, x_width: UInt16, y_width: UInt16):
+    def __init__(out self, x_width: UInt16, y_width: UInt16):
         self.top = y_width
         self.right = x_width
         self.bottom = y_width
@@ -187,7 +187,7 @@ struct Margin(ImplicitlyCopyable):
     var background: AnyTerminalColor
     """The background color of the margin."""
 
-    fn __init__(
+    def __init__(
         out self,
         top: UInt16 = 0,
         right: UInt16 = 0,
@@ -201,14 +201,14 @@ struct Margin(ImplicitlyCopyable):
         self.left = left
         self.background = background^
     
-    fn __init__(out self, width: UInt16, var background: AnyTerminalColor = NoColor()):
+    def __init__(out self, width: UInt16, var background: AnyTerminalColor = NoColor()):
         self.top = width
         self.right = width
         self.bottom = width
         self.left = width
         self.background = background^
     
-    fn __init__(out self, x_width: UInt16, y_width: UInt16, var background: AnyTerminalColor = NoColor()):
+    def __init__(out self, x_width: UInt16, y_width: UInt16, var background: AnyTerminalColor = NoColor()):
         self.top = y_width
         self.right = x_width
         self.bottom = y_width
@@ -223,7 +223,7 @@ struct Dimensions(ImplicitlyCopyable, TrivialRegisterPassable):
     var width: UInt16
     """The width of the text."""
 
-    fn __init__(out self, height: UInt16 = 0, width: UInt16 = 0):
+    def __init__(out self, height: UInt16 = 0, width: UInt16 = 0):
         self.height = height
         self.width = width
 
@@ -235,7 +235,7 @@ struct Coloring(ImplicitlyCopyable):
     var background: AnyTerminalColor
     """The background color."""
 
-    fn __init__(out self, var foreground: AnyTerminalColor = NoColor(), var background: AnyTerminalColor = NoColor()):
+    def __init__(out self, var foreground: AnyTerminalColor = NoColor(), var background: AnyTerminalColor = NoColor()):
         self.foreground = foreground^
         self.background = background^
 
@@ -259,7 +259,7 @@ struct BorderColor(ImplicitlyCopyable):
     var background_left: AnyTerminalColor
     """The background color of the left border."""
 
-    fn __init__(
+    def __init__(
         out self,
         var foreground_top: AnyTerminalColor = NoColor(),
         var foreground_right: AnyTerminalColor = NoColor(),
@@ -289,7 +289,7 @@ struct Side(ImplicitlyCopyable, Equatable):
     comptime BOTTOM = Self(2)
     comptime LEFT = Self(3)
 
-    fn __eq__(self, other: Self) -> Bool:
+    def __eq__(self, other: Self) -> Bool:
         return self.value == other.value
 
 
@@ -319,7 +319,7 @@ struct Emphasis(ImplicitlyCopyable, Equatable):
     comptime COLOR_WHITESPACE = Self(9)
     """Whether whitespace background is colored."""
 
-    fn __eq__(self, other: Self) -> Bool:
+    def __eq__(self, other: Self) -> Bool:
         return self.value == other.value
 
 
@@ -333,5 +333,5 @@ struct Axis(ImplicitlyCopyable, Equatable):
     comptime VERTICAL = Self(1)
     """Whether the axis is vertical."""
 
-    fn __eq__(self, other: Self) -> Bool:
+    def __eq__(self, other: Self) -> Bool:
         return self.value == other.value

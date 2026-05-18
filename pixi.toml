@@ -1,7 +1,7 @@
 [workspace]
 description = "Style definitions for nice terminal layouts."
 authors = ["Mikhail Tavarez <miktavarez@gmail.com>"]
-channels = ["https://repo.prefix.dev/mojo-community", "conda-forge", "https://conda.modular.com/max", "https://prefix.dev/pixi-build-backends"]
+channels = ["conda-forge", "https://conda.modular.com/max"]
 platforms = ["osx-arm64", "linux-64", "linux-aarch64"]
 license = "MIT"
 license-file = "LICENSE"
@@ -27,23 +27,23 @@ build_and_publish = [{ task = "build" }, { task = "publish" }]
 
 [package]
 name = "mog"
-version = "0.1.0"
+version = "0.2.0"
 
 [package.build]
-backend = { name = "pixi-build-mojo", version = "*" }
+backend = { name = "pixi-build-mojo", version = "0.1.*" }
 
 [dependencies]
-mojo = ">=0.26.2.0,<0.26.3.0"
-mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.1.0" }
+mojo = ">=1.0.0b1,<2"
+mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.2.1" }
 
 [package.build-dependencies]
-mojo-compiler = ">=0.26.2.0,<0.26.3.0"
-mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.1.0" }
+mojo-compiler = ">=1.0.0b1,<1.0.0b2"
+mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.2.1" }
 
 [package.host-dependencies]
-mojo-compiler = ">=0.26.2.0,<0.26.3.0"
-mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.1.0" }
+mojo-compiler = ">=1.0.0b1,<1.0.0b2"
+mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.2.1" }
 
 [package.run-dependencies]
-mojo-compiler = ">=0.26.2.0,<0.26.3.0"
-mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.1.0" }
+mojo-compiler = ">=1.0.0b1,<1.0.0b2"
+mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.2.1" }

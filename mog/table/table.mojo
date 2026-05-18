@@ -10,7 +10,7 @@ from mog.table.util import largest, median, sum
 from mog._extensions import DEFAULT_BUFFER_SIZE, SMALL_BUFFER_SIZE
 
 
-comptime StyleFn = fn (data: Data, row: UInt, col: UInt) -> Style
+comptime Styledef = def (data: Data, row: UInt, col: UInt) -> Style
 """Styling function that determines the style of a Cell.
 
 It takes the row and column of the cell as an input and determines the
@@ -21,7 +21,7 @@ lipgloss Style to use for that cell position.
 import mog
 from mog import Emphasis
 
-fn styler(data: mog.Data, row: UInt, col: UInt) -> mog.Style:
+def styler(data: mog.Data, row: UInt, col: UInt) -> mog.Style:
     if row == 0:
         return mog.Style(emphasis=Emphasis.BOLD)
     elif row % 2 == 0:
@@ -29,7 +29,7 @@ fn styler(data: mog.Data, row: UInt, col: UInt) -> mog.Style:
     else:
         return mog.Style(emphasis=Emphasis.FAINT)
 
-fn main():
+def main():
     var t = mog.Table(
         headers=["Name", "Age"],
         data=mog.Data(
@@ -44,7 +44,7 @@ fn main():
 """
 
 
-fn default_styles(data: Data, row: UInt, col: UInt) -> Style:
+def default_styles(data: Data, row: UInt, col: UInt) -> Style:
     """Returns a new Style with no attributes.
 
     Args:
@@ -55,7 +55,7 @@ fn default_styles(data: Data, row: UInt, col: UInt) -> Style:
     Returns:
         A new Style with no attributes.
     """
-    return mog.Style()
+    return Style()
 
 
 # TODO: Parametrize on data field, so other structs that implement `Data` can be used. For now it only support `StringData`.
@@ -67,7 +67,7 @@ struct Table(Copyable, Writable):
     import mog
     from mog import Emphasis
 
-    fn styler(data: mog.Data, row: UInt, col: UInt) -> mog.Style:
+    def styler(data: mog.Data, row: UInt, col: UInt) -> mog.Style:
         if row == 0:
             return mog.Style(emphasis=Emphasis.BOLD)
         elif row % 2 == 0:
@@ -75,7 +75,7 @@ struct Table(Copyable, Writable):
         else:
             return mog.Style(emphasis=Emphasis.FAINT)
 
-    fn main():
+    def main():
         var t = mog.Table(
             headers=["Name", "Age"],
             data=mog.Data(
@@ -120,7 +120,7 @@ struct Table(Copyable, Writable):
     var _offset: UInt
     """The offset of the table."""
 
-    fn __init__(
+    def __init__(
         out self,
         *,
         style_function: StyleFn = default_styles,
@@ -158,7 +158,7 @@ struct Table(Copyable, Writable):
         """
         self._styler = style_function
         self._border = border.copy()
-        self._border_style = border_style.value().copy() if border_style else mog.Style()
+        self._border_style = border_style.value().copy() if border_style else Style()
         self._border_top = border_top
         self._border_bottom = border_bottom
         self._border_left = border_left
@@ -172,7 +172,7 @@ struct Table(Copyable, Writable):
         self.height = height
         self._offset = 0
 
-    fn copy(self) -> Self:
+    def copy(self) -> Self:
         """Returns a copy of the Table.
 
         Returns:
@@ -195,7 +195,7 @@ struct Table(Copyable, Writable):
             height=self.height,
         )
 
-    fn copy_without_data(self) -> Self:
+    def copy_without_data(self) -> Self:
         """Returns a copy of the Table with an empty Data attribute.
 
         Returns:
@@ -218,7 +218,7 @@ struct Table(Copyable, Writable):
             height=self.height,
         )
 
-    fn clear_rows(self) -> Self:
+    def clear_rows(self) -> Self:
         """Clears the table rows.
 
         Returns:
@@ -226,7 +226,7 @@ struct Table(Copyable, Writable):
         """
         return self.copy_without_data()
 
-    fn style(self, row: UInt, col: UInt) -> Style:
+    def style(self, row: UInt, col: UInt) -> Style:
         """Returns the style for a cell based on it's position (row, column).
 
         Args:
@@ -238,7 +238,7 @@ struct Table(Copyable, Writable):
         """
         return self._styler(self.data, row, col)
 
-    fn set_headers(self, *headers: String) -> Self:
+    def set_headers(self, *headers: String) -> Self:
         """Sets the table headers.
 
         Args:
@@ -254,7 +254,7 @@ struct Table(Copyable, Writable):
         new._headers = temp^
         return new^
 
-    fn set_headers(self, var headers: List[String]) -> Self:
+    def set_headers(self, var headers: List[String]) -> Self:
         """Sets the table headers.
 
         Args:
@@ -267,7 +267,7 @@ struct Table(Copyable, Writable):
         new._headers = headers^
         return new^
 
-    # fn set_style(self, styler: StyleFunction) -> Self:
+    # def set_style(self, styler: StyleFunction) -> Self:
     #     """Sets the table headers.
 
     #     Args:
@@ -280,7 +280,7 @@ struct Table(Copyable, Writable):
     #     new._styler = styler
     #     return new^
 
-    fn write_to(self, mut writer: Some[Writer]):
+    def write_to(self, mut writer: Some[Writer]):
         """Writes the table to the writer.
 
         Args:
@@ -435,10 +435,10 @@ struct Table(Copyable, Writable):
             result.write(self._construct_bottom_border(widths))
 
         writer.write(
-            mog.Style(Profile.ASCII, max_height=Int(self._compute_height(heights)), max_width=Int(self.width)).render(result)
+            Style(Profile.ASCII, max_height=Int(self._compute_height(heights)), max_width=Int(self.width)).render(result)
         )
 
-    fn _compute_width(self, widths: List[UInt]) -> UInt:
+    def _compute_width(self, widths: List[UInt]) -> UInt:
         """Computes the width of the table in it's current configuration.
 
         Args:
@@ -453,7 +453,7 @@ struct Table(Copyable, Writable):
 
         return width
 
-    fn _compute_height(self, heights: List[UInt]) -> UInt:
+    def _compute_height(self, heights: List[UInt]) -> UInt:
         """Computes the height of the table in it's current configuration.
 
         Args:
@@ -472,7 +472,7 @@ struct Table(Copyable, Writable):
             + self.data.rows() * UInt(self._border_row)
         )
 
-    fn _construct_top_border(self, widths: List[UInt]) -> String:
+    def _construct_top_border(self, widths: List[UInt]) -> String:
         """Constructs the top border for the table given it's current
         border configuration and data.
 
@@ -498,7 +498,7 @@ struct Table(Copyable, Writable):
 
         return result
 
-    fn _construct_bottom_border(self, widths: List[UInt]) -> String:
+    def _construct_bottom_border(self, widths: List[UInt]) -> String:
         """Constructs the bottom border for the table given it's current
         border configuration and data.
 
@@ -524,7 +524,7 @@ struct Table(Copyable, Writable):
 
         return result
 
-    fn _construct_headers(self, widths: List[UInt], headers: List[String]) -> String:
+    def _construct_headers(self, widths: List[UInt], headers: List[String]) -> String:
         """Constructs the headers for the table given it's current
         header configuration and data.
 
@@ -570,7 +570,7 @@ struct Table(Copyable, Writable):
 
         return result
 
-    fn _construct_row(self, index: UInt, widths: List[UInt], heights: List[UInt], headers: List[String]) -> String:
+    def _construct_row(self, index: UInt, widths: List[UInt], heights: List[UInt], headers: List[String]) -> String:
         """Constructs the row for the table given an index and row data
         based on the current configuration.
 

@@ -18,7 +18,7 @@ comptime highlight = mog.AdaptiveColor(light=0x874BFD, dark=0xFF713C)
 comptime special = mog.AdaptiveColor(light=0x43BF6D, dark=0x73F59F)
 
 
-fn color_grid(x_steps: Int, y_steps: Int) -> List[List[hue.Color]]:
+def color_grid(x_steps: Int, y_steps: Int) -> List[List[hue.Color]]:
     comptime x0y0 = hue.Color(0xF25D94)
     comptime x1y0 = hue.Color(0xEDFF82)
     comptime x0y1 = hue.Color(0x643AFF)
@@ -40,7 +40,7 @@ fn color_grid(x_steps: Int, y_steps: Int) -> List[List[hue.Color]]:
     return grid^
 
 
-fn build_tabs() -> String:
+def build_tabs() -> String:
     comptime active_tab_border = Border(
         top="─",
         bottom=" ",
@@ -80,7 +80,7 @@ fn build_tabs() -> String:
     return join_horizontal(Position.BOTTOM, row, gap)
 
 
-fn build_description() -> String:
+def build_description() -> String:
     var colors = color_grid(1, 5)
     var title = String()
     var title_style = mog.Style(
@@ -114,7 +114,7 @@ fn build_description() -> String:
     return join_horizontal(Position.TOP, title, description)
 
 
-fn build_dialog_box() -> String:
+def build_dialog_box() -> String:
     var dialog_box_style = mog.Style(
         border=ROUNDED_BORDER,
         padding=Padding(top=1, right=1, left=1),
@@ -146,7 +146,7 @@ fn build_dialog_box() -> String:
     )
 
 
-fn build_lists() -> String:
+def build_lists() -> String:
     var list_style = mog.Style(
         height=8,
         width=column_width + 1,
@@ -204,7 +204,7 @@ fn build_lists() -> String:
     return join_horizontal(Position.TOP, lists, builder)
 
 
-fn build_history() -> String:
+def build_history() -> String:
     var history_style = mog.Style(
         height=20,
         width=column_width,
@@ -226,7 +226,7 @@ fn build_history() -> String:
     )
 
 
-fn build_status_bar() -> String:
+def build_status_bar() -> String:
     var status_nugget_style = mog.Style(foreground=mog.Color(0xFFFDF5), padding=Padding(1, 0))
     var status_bar_style = mog.Style(foreground=mog.Color(0xC1C6B2), background=mog.Color(0x353533))
     var status_style = mog.Style(foreground=mog.Color(0xFFFDF5), background=mog.Color(0xFF5F87), padding=Padding(1, 0))
@@ -253,7 +253,7 @@ fn build_status_bar() -> String:
     return status_bar_style.width(UInt16(width)).render(bar)
 
 
-fn render_layout():
+def render_layout():
     # The page style
     var builder = String(capacity=4096)
     var doc_style = mog.Style(padding=Padding(top=1, right=2, bottom=1, left=2))

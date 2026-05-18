@@ -24,7 +24,7 @@ struct Position(Equatable, ImplicitlyCopyable, TrivialRegisterPassable):
     """Aligns to the left."""
 
     @implicit
-    fn __init__(out self, value: Float64):
+    def __init__(out self, value: Float64):
         """Initializes a Position.
 
         Args:
@@ -35,7 +35,7 @@ struct Position(Equatable, ImplicitlyCopyable, TrivialRegisterPassable):
         """
         self.value = value
 
-    fn __eq__(self, other: Self) -> Bool:
+    def __eq__(self, other: Self) -> Bool:
         """Check if two positions are equal.
 
         Args:

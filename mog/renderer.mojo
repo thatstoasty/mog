@@ -18,7 +18,7 @@ struct Renderer(ImplicitlyCopyable, TrivialRegisterPassable):
     var dark_background: Bool
     """Whether or not the renderer will render to a dark background."""
 
-    fn __init__(
+    def __init__(
         out self,
         profile: Optional[mist.Profile] = None,
         *,
@@ -36,7 +36,7 @@ struct Renderer(ImplicitlyCopyable, TrivialRegisterPassable):
             self.profile = profile.value()
         self.dark_background = dark_background
 
-    fn has_dark_background(self) -> Bool:
+    def has_dark_background(self) -> Bool:
         """Returns whether or not the renderer will render to a dark
         background. A dark background can either be auto-detected, or set explicitly
         on the renderer.
@@ -46,7 +46,7 @@ struct Renderer(ImplicitlyCopyable, TrivialRegisterPassable):
         """
         return self.dark_background
 
-    fn as_mist_style(self) -> mist.Style:
+    def as_mist_style(self) -> mist.Style:
         """Returns a the `mist.Style` using the same profile as the for the style.
 
         Returns:

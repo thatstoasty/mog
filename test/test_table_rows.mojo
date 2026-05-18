@@ -4,7 +4,7 @@ from std.testing import TestSuite
 from mog.table import Data
 
 
-fn test_string_data_append() raises:
+def test_string_data_append() raises:
     var data = Data(
         ["Name", "Age"],
         ["My Name", "30"],
@@ -23,7 +23,7 @@ fn test_string_data_append() raises:
     testing.assert_equal(data.columns(), 3)
 
 
-fn test_string_data_add() raises:
+def test_string_data_add() raises:
     var data = Data(
         ["Name", "Age"],
         ["My Name", "30"],
@@ -39,7 +39,7 @@ fn test_string_data_add() raises:
     testing.assert_equal(new[4, 0], "No Name")
 
 
-fn test_string_data_iadd() raises:
+def test_string_data_iadd() raises:
     var data = Data(
         ["Name", "Age"],
         ["My Name", "30"],
@@ -55,5 +55,5 @@ fn test_string_data_iadd() raises:
     testing.assert_equal(data[4, 0], "No Name")
 
 
-fn main() raises -> None:
+def main() raises -> None:
     TestSuite.discover_tests[__functions_in_module()]().run()

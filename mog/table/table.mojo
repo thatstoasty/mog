@@ -10,7 +10,7 @@ from mog.table.util import largest, median, sum
 from mog._extensions import DEFAULT_BUFFER_SIZE, SMALL_BUFFER_SIZE
 
 
-comptime Styledef = def (data: Data, row: UInt, col: UInt) -> Style
+comptime StyleFn = def (data: Data, row: UInt, col: UInt) -> Style
 """Styling function that determines the style of a Cell.
 
 It takes the row and column of the cell as an input and determines the

@@ -6,59 +6,59 @@ from functions.layout import render_layout
 import mog
 
 
-fn get_gbs_measure(input: String) raises -> ThroughputMeasure:
+def get_gbs_measure(input: String) raises -> ThroughputMeasure:
     return ThroughputMeasure(BenchMetric.bytes, input.byte_length())
 
 
-fn run[func: fn (mut Bencher) raises capturing, name: String](mut m: Bench) raises:
+def run[func: def (mut Bencher) raises capturing, name: String](mut m: Bench) raises:
     m.bench_function[func](BenchId(name))
 
 
-fn run[func: fn (mut Bencher, String) raises capturing, name: String](mut m: Bench, data: String) raises:
+def run[func: def (mut Bencher, String) raises capturing, name: String](mut m: Bench, data: String) raises:
     m.bench_with_input[String, func](BenchId(name), data, [get_gbs_measure(data)])
 
 
 @parameter
-fn test_render_layout(mut b: Bencher) raises:
+def test_render_layout(mut b: Bencher) raises:
     @always_inline
     @parameter
-    fn do() raises:
+    def do() raises:
         _ = render_layout()
 
     b.iter[do]()
 
 
 @parameter
-fn test_basic_styling(mut b: Bencher) raises:
+def test_basic_styling(mut b: Bencher) raises:
     @always_inline
     @parameter
-    fn do() raises:
+    def do() raises:
         _ = basic_styling()
 
     b.iter[do]()
 
 
 @parameter
-fn test_basic_comptime_styling(mut b: Bencher) raises:
+def test_basic_comptime_styling(mut b: Bencher) raises:
     @always_inline
     @parameter
-    fn do() raises:
+    def do() raises:
         _ = basic_comptime_styling()
 
     b.iter[do]()
 
 
 @parameter
-fn bench_get_width(mut b: Bencher, s: String) raises:
+def bench_get_width(mut b: Bencher, s: String) raises:
     @always_inline
     @parameter
-    fn do() raises:
+    def do() raises:
         _ = mog.get_width(s)
 
     b.iter[do]()
 
 
-fn main() raises:
+def main() raises:
     var config = BenchConfig()
     config.verbose_timing = True
     config.flush_denormals = True

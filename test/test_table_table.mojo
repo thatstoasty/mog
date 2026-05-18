@@ -4,7 +4,7 @@
 # from mog.table import Table
 
 
-# fn test_table_render() raises:
+# def test_table_render() raises:
 #     var s = mog.Style(mog.ANSI).foreground(mog.Color(240))
 #     var table = Table.new().row("Bubble Tea", s.render("Milky"))
 #     table.width = 50
@@ -14,6 +14,6 @@
 #         "Bubble Tea Milky\nMilk Tea Also milky\nActual milk Milky as well\n",
 #     )
 
-fn main() raises -> None:
+def main() raises -> None:
     # TestSuite.discover_tests[__functions_in_module()]().run()
     pass

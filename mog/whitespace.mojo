@@ -3,6 +3,7 @@ from mog._extensions import get_lines, get_widest_line, DEFAULT_BUFFER_SIZE
 from mog.align import Alignment
 from mog.position import Position
 from mog.renderer import Renderer
+from mog.style import Style
 
 
 @fieldwise_init
@@ -11,14 +12,14 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
 
     var renderer: Renderer
     """The renderer which determines the color profile."""
-    var style: mog.Style
+    var style: Style
     """Terminal styling for the whitespace."""
     var chars: String
     """The characters to render for whitespace. Defaults to a space."""
 
-    fn __init__(
+    def __init__(
         out self,
-        style: mog.Style,
+        style: Style,
         chars: String = " ",
     ):
         """Initializes a new whitespace renderer.
@@ -32,7 +33,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
         self.style = style.copy()
         self.chars = chars.copy()
 
-    fn render(self, width: UInt) -> String:
+    def render(self, width: UInt) -> String:
         """Render whitespaces.
 
         Args:
@@ -66,7 +67,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
 
         return self.style.render(result)
 
-    fn place(
+    def place(
         self,
         width: UInt,
         height: UInt,
@@ -93,7 +94,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
             alignment.vertical,
         )
 
-    fn place_horizontal(
+    def place_horizontal(
         self,
         text: String,
         width: UInt,
@@ -120,7 +121,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
         if gap <= 0:
             return text
 
-        var result = String(capacity=Int(Float64(len(text)) * 1.25))
+        var result = String(capacity=Int(Float64(text.byte_length()) * 1.25))
         for i in range(len(lines)):
             if i != 0:
                 result.write(NEWLINE)
@@ -141,7 +142,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
 
         return result^
 
-    fn place_vertical(
+    def place_vertical(
         self,
         text: String,
         height: UInt,
@@ -167,7 +168,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
             return text
 
         var empty_line = self.render(get_widest_line(text))
-        var result = String(capacity=Int(Float64(len(text)) * 1.25))
+        var result = String(capacity=Int(Float64(text.byte_length()) * 1.25))
         if alignment == Position.TOP:
             result.write(text, NEWLINE)
 

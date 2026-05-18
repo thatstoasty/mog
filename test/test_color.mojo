@@ -5,6 +5,7 @@ from std.testing import TestSuite
 from mist.style.color import ANSI256Color, RGBColor
 from mog.color import AdaptiveColor, ANSIColor, Color, CompleteAdaptiveColor, CompleteColor, NoColor
 from mog.renderer import Renderer
+import mog
 
 
 comptime true_color_renderer = Renderer(mog.Profile.TRUE_COLOR)
@@ -17,14 +18,14 @@ comptime ascii_renderer = Renderer(mog.Profile.ASCII)
 comptime light_ascii_renderer = Renderer(mog.Profile.ASCII, dark_background=False)
 
 
-fn test_no_color() raises:
+def test_no_color() raises:
     testing.assert_true(NoColor().color(true_color_renderer).isa[color.NoColor]())
     testing.assert_true(NoColor().color(ansi256_color_renderer).isa[color.NoColor]())
     testing.assert_true(NoColor().color(ansi_color_renderer).isa[color.NoColor]())
     testing.assert_true(NoColor().color(ascii_renderer).isa[color.NoColor]())
 
 
-fn test_color() raises:
+def test_color() raises:
     comptime example_color = Color(0)
     testing.assert_true(example_color.color(true_color_renderer).isa[color.ANSIColor]())
     testing.assert_true(example_color.color(ansi256_color_renderer).isa[color.ANSIColor]())
@@ -32,7 +33,7 @@ fn test_color() raises:
     testing.assert_true(example_color.color(ascii_renderer).isa[color.NoColor]())
 
 
-fn test_ansi_color() raises:
+def test_ansi_color() raises:
     comptime example_color = ANSIColor(0)
     testing.assert_true(example_color.color(true_color_renderer).isa[color.ANSIColor]())
     testing.assert_true(example_color.color(ansi256_color_renderer).isa[color.ANSIColor]())
@@ -40,7 +41,7 @@ fn test_ansi_color() raises:
     testing.assert_true(example_color.color(ascii_renderer).isa[color.NoColor]())
 
 
-fn test_adaptive_color() raises:
+def test_adaptive_color() raises:
     comptime example_color = AdaptiveColor(light=0, dark=1)
 
     # Test dark background renderer
@@ -51,7 +52,7 @@ fn test_adaptive_color() raises:
     testing.assert_equal(example_color.color(light_true_color_renderer)[color.ANSIColor].value, 0)
 
 
-fn test_complete_color() raises:
+def test_complete_color() raises:
     comptime example_color = CompleteColor(true_color=0xffffff, ansi256=255, ansi=0)
 
     # Test true color renderer
@@ -70,7 +71,7 @@ fn test_complete_color() raises:
     testing.assert_true(example_color.color(ascii_renderer).isa[mist.NoColor]())
 
 
-fn test_complete_adaptive_color() raises:
+def test_complete_adaptive_color() raises:
     comptime example_color = CompleteAdaptiveColor(
         light=CompleteColor(true_color=0xffffff, ansi256=255, ansi=0),
         dark=CompleteColor(true_color=0xffff00, ansi256=100, ansi=13)
@@ -98,5 +99,5 @@ fn test_complete_adaptive_color() raises:
     testing.assert_true(example_color.color(ascii_renderer).isa[color.NoColor]())
 
 
-fn main() raises -> None:
+def main() raises -> None:
     TestSuite.discover_tests[__functions_in_module()]().run()

@@ -2,7 +2,7 @@ from mist.transform import ansi
 from mog._properties import Dimensions
 
 
-fn get_width(text: StringSlice) -> UInt:
+def get_width(text: StringSlice) -> UInt:
     """Returns the cell width of characters in the string. ANSI sequences are
     ignored and characters wider than one cell (such as Chinese characters and
     emojis) are appropriately measured.
@@ -24,7 +24,7 @@ fn get_width(text: StringSlice) -> UInt:
     return width
 
 
-fn get_height(text: StringSlice) -> UInt:
+def get_height(text: StringSlice) -> UInt:
     """Returns height of a string in cells. This is done simply by
     counting \\n characters. If your strings use \\r\\n for newlines you should
     convert them to \\n first, or simply write a separate function for measuring
@@ -39,7 +39,7 @@ fn get_height(text: StringSlice) -> UInt:
     return UInt(text.count(NEWLINE) + 1)
 
 
-fn get_dimensions(text: StringSlice) -> Dimensions:
+def get_dimensions(text: StringSlice) -> Dimensions:
     """Returns the width and height of the string in cells. ANSI sequences are
     ignored and characters wider than one cell (such as Chinese characters and
     emojis) are appropriately measured.

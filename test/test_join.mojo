@@ -4,7 +4,7 @@ from std.testing import TestSuite
 from mog import Position, join_horizontal, join_vertical
 
 
-fn test_horizontal_join() raises:
+def test_horizontal_join() raises:
     comptime a = "Hello World!\nThis is an example."
     comptime b = "I could be more creative.\nBut, I'm out of ideas."
 
@@ -34,7 +34,7 @@ fn test_horizontal_join() raises:
     )
 
 
-fn test_vertical_join() raises:
+def test_vertical_join() raises:
     comptime a = "Hello World!\nThis is an example."
     comptime b = "I could be more creative.\nBut, I'm out of ideas."
 
@@ -63,5 +63,5 @@ fn test_vertical_join() raises:
     )
 
 
-fn main() raises -> None:
+def main() raises -> None:
     TestSuite.discover_tests[__functions_in_module()]().run()

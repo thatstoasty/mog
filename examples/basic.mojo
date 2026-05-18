@@ -2,7 +2,7 @@ import mog
 from mog import Padding, Emphasis
 
 
-fn main():
+def main():
     var style = mog.Style(
         width=22,
         foreground=mog.Color(0xFAFAFA),

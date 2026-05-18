@@ -31,7 +31,7 @@ struct Border(ImplicitlyCopyable, Equatable):
     var middle_bottom: String
     """The character to use for the bottom edge of the middle."""
 
-    fn __init__(
+    def __init__(
         out self,
         top: String = "",
         bottom: String = "",
@@ -78,7 +78,7 @@ struct Border(ImplicitlyCopyable, Equatable):
         self.middle_top = middle_top
         self.middle_bottom = middle_bottom
 
-    fn __eq__(self, other: Border) -> Bool:
+    def __eq__(self, other: Border) -> Bool:
         """Check if two borders are equal.
 
         Args:
@@ -283,7 +283,7 @@ comptime HIDDEN_BORDER = Border(
 comptime NO_BORDER = Border()
 
 
-fn render_horizontal_edge(left: StringSlice, var middle: String, right: StringSlice, width: UInt) -> String:
+def render_horizontal_edge(left: StringSlice, var middle: String, right: StringSlice, width: UInt) -> String:
     """Render the horizontal (top or bottom) portion of a border.
 
     Args:

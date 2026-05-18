@@ -10,7 +10,7 @@ from mog.table import Data, Table
 from mog.table.table import default_styles
 
 
-fn dummy_style_func(data: Data, row: UInt, col: UInt) -> Style:
+def dummy_style_func(data: Data, row: UInt, col: UInt) -> Style:
     var style = mog.Style(alignment=Alignment(Position.CENTER), padding=Padding(1, 0))
     if row == 0:
         return style.foreground(mog.Color(0xC9A0DC))

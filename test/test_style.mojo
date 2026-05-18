@@ -9,17 +9,17 @@ from mog import Position, Profile, Emphasis, Axis
 comptime ansi_style = mog.Style(Profile.ANSI)
 
 
-fn test_renderer() raises:
+def test_renderer() raises:
     comptime style = ansi_style.renderer(mog.Renderer(Profile.TRUE_COLOR))
     testing.assert_equal(style._renderer.profile, Profile.TRUE_COLOR)
 
 
-fn test_value() raises:
+def test_value() raises:
     comptime style = ansi_style.value("Hello")
     testing.assert_equal(style.render(",", "user!"), "Hello, user!")
 
 
-fn test_tab_width() raises:
+def test_tab_width() raises:
     # fnault tab width
     testing.assert_equal(ansi_style.render("\tHello world!"), "    Hello world!")
 
@@ -28,12 +28,12 @@ fn test_tab_width() raises:
     testing.assert_equal(style.render("\tHello world!"), " Hello world!")
 
 
-fn test_unset_tab_width() raises:
+def test_unset_tab_width() raises:
     comptime style = ansi_style.tab_width(1).unset_tab_width()
     testing.assert_equal(style.render("\tHello world!"), "    Hello world!")
 
 
-fn test_underline_spaces() raises:
+def test_underline_spaces() raises:
     comptime style = ansi_style.underline_spaces()
     testing.assert_equal(style.render("  Hello world!  "), "\x1b[4m \x1b[0m\x1b[4m \x1b[0mHello\x1b[4m \x1b[0mworld!\x1b[4m \x1b[0m\x1b[4m \x1b[0m")
 
@@ -41,17 +41,17 @@ fn test_underline_spaces() raises:
     testing.assert_equal(style.set_emphasis(Emphasis.UNDERLINE_SPACES, value=False).render("  Hello world!  "), "  Hello world!  ")
 
 
-fn test_get_underline_spaces() raises:
+def test_get_underline_spaces() raises:
     comptime style = ansi_style.underline_spaces()
     testing.assert_true(style.check_emphasis(Emphasis.UNDERLINE_SPACES))
 
 
-fn test_unset_underline_spaces() raises:
+def test_unset_underline_spaces() raises:
     comptime style = ansi_style.set_emphasis(Emphasis.UNDERLINE_SPACES).unset_emphasis(Emphasis.UNDERLINE_SPACES)
     testing.assert_equal(style.render("hello"), "hello")
 
 
-fn test_strikethrough_spaces() raises:
+def test_strikethrough_spaces() raises:
     comptime style = ansi_style.set_emphasis(Emphasis.STRIKETHROUGH_SPACES)
     testing.assert_equal(style.render("  Hello world!  "), "\x1b[9m \x1b[0m\x1b[9m \x1b[0mHello\x1b[9m \x1b[0mworld!\x1b[9m \x1b[0m\x1b[9m \x1b[0m")
 
@@ -59,17 +59,17 @@ fn test_strikethrough_spaces() raises:
     testing.assert_equal(style.set_emphasis(Emphasis.STRIKETHROUGH_SPACES, value=False).render("  Hello world!  "), "  Hello world!  ")
 
 
-fn test_get_strikethrough_spaces() raises:
+def test_get_strikethrough_spaces() raises:
     comptime style = ansi_style.set_emphasis(Emphasis.STRIKETHROUGH_SPACES)
     testing.assert_true(style.check_emphasis(Emphasis.STRIKETHROUGH_SPACES))
 
 
-fn test_unset_strikethrough_spaces() raises:
+def test_unset_strikethrough_spaces() raises:
     comptime style = ansi_style.set_emphasis(Emphasis.STRIKETHROUGH_SPACES).unset_emphasis(Emphasis.STRIKETHROUGH_SPACES)
     testing.assert_equal(style.render("hello"), "hello")
 
 
-fn test_underline() raises:
+def test_underline() raises:
     comptime style = ansi_style.set_emphasis(Emphasis.UNDERLINE)
     testing.assert_true(style.render("hello"), "\x1b[4mhello\x1b[0m")
 
@@ -77,17 +77,17 @@ fn test_underline() raises:
     testing.assert_equal(style.set_emphasis(Emphasis.UNDERLINE, value=False).render("hello"), "hello")
 
 
-fn test_get_underline() raises:
+def test_get_underline() raises:
     comptime style = ansi_style.set_emphasis(Emphasis.UNDERLINE)
     testing.assert_true(style.check_emphasis(Emphasis.UNDERLINE))
 
 
-fn test_unset_underline() raises:
+def test_unset_underline() raises:
     comptime style = ansi_style.set_emphasis(Emphasis.UNDERLINE).unset_emphasis(Emphasis.UNDERLINE)
     testing.assert_equal(style.render("hello"), "hello")
 
 
-fn test_bold() raises:
+def test_bold() raises:
     comptime style = ansi_style.set_emphasis(Emphasis.BOLD)
     testing.assert_equal(style.render("hello"), "\x1b[1mhello\x1b[0m")
 
@@ -95,22 +95,22 @@ fn test_bold() raises:
     testing.assert_equal(style.set_emphasis(Emphasis.BOLD, value=False).render("hello"), "hello")
 
 
-fn test_get_bold() raises:
+def test_get_bold() raises:
     comptime style = ansi_style.set_emphasis(Emphasis.BOLD)
     testing.assert_true(style.check_emphasis(Emphasis.BOLD))
 
 
-fn test_unset_bold() raises:
+def test_unset_bold() raises:
     comptime style = ansi_style.set_emphasis(Emphasis.BOLD).unset_emphasis(Emphasis.BOLD)
     testing.assert_equal(style.render("hello"), "hello")
 
 
-fn test_get_italic() raises:
+def test_get_italic() raises:
     comptime style = ansi_style.set_emphasis(Emphasis.ITALIC)
     testing.assert_true(style.check_emphasis(Emphasis.ITALIC))
 
 
-fn test_italic() raises:
+def test_italic() raises:
     comptime style = ansi_style.set_emphasis(Emphasis.ITALIC)
     testing.assert_equal(style.render("hello"), "\x1b[3mhello\x1b[0m")
 
@@ -118,17 +118,17 @@ fn test_italic() raises:
     testing.assert_equal(style.set_emphasis(Emphasis.ITALIC, value=False).render("hello"), "hello")
 
 
-fn test_unset_italic() raises:
+def test_unset_italic() raises:
     comptime style = ansi_style.set_emphasis(Emphasis.ITALIC).unset_emphasis(Emphasis.ITALIC)
     testing.assert_equal(style.render("hello"), "hello")
 
 
-fn test_get_inline() raises:
+def test_get_inline() raises:
     comptime style = ansi_style.inline()
     testing.assert_true(style.check_if_inline())
 
 
-fn test_inline() raises:
+def test_inline() raises:
     # Inline will ignore border, padding, and margin rendering.
     comptime style = ansi_style.inline().border(mog.PLUS_BORDER).padding(1).margin(1)
     testing.assert_equal(style.render("hello"), "hello")
@@ -137,17 +137,17 @@ fn test_inline() raises:
     testing.assert_equal(style.inline(False).render("hello"), "           \n +++++++++ \n +       + \n + hello + \n +       + \n +++++++++ \n           ")
 
 
-fn test_unset_inline() raises:
+def test_unset_inline() raises:
     comptime style = ansi_style.inline().unset_inline()
     testing.assert_equal(style.render("hello"), "hello")
 
 
-fn test_get_reverse() raises:
+def test_get_reverse() raises:
     comptime style = ansi_style.set_emphasis(Emphasis.REVERSE)
     testing.assert_true(style.check_emphasis(Emphasis.REVERSE))
 
 
-fn test_reverse() raises:
+def test_reverse() raises:
     comptime style = ansi_style.set_emphasis(Emphasis.REVERSE)
     testing.assert_equal(style.render("hello"), "\x1b[7mhello\x1b[0m")
 
@@ -155,17 +155,17 @@ fn test_reverse() raises:
     testing.assert_equal(style.set_emphasis(Emphasis.REVERSE, value=False).render("hello"), "hello")
 
 
-fn test_unset_reverse() raises:
+def test_unset_reverse() raises:
     comptime style = ansi_style.set_emphasis(Emphasis.REVERSE).unset_emphasis(Emphasis.REVERSE)
     testing.assert_equal(style.render("hello"), "hello")
 
 
-fn test_get_blink() raises:
+def test_get_blink() raises:
     comptime style = ansi_style.set_emphasis(Emphasis.BLINK)
     testing.assert_true(style.check_emphasis(Emphasis.BLINK))
 
 
-fn test_blink() raises:
+def test_blink() raises:
     comptime style = ansi_style.set_emphasis(Emphasis.BLINK)
     testing.assert_equal(style.render("hello"), "\x1b[5mhello\x1b[0m")
 
@@ -173,17 +173,17 @@ fn test_blink() raises:
     testing.assert_equal(style.set_emphasis(Emphasis.BLINK, value=False).render("hello"), "hello")
 
 
-fn test_unset_blink() raises:
+def test_unset_blink() raises:
     comptime style = ansi_style.set_emphasis(Emphasis.BLINK).unset_emphasis(Emphasis.BLINK)
     testing.assert_equal(style.render("hello"), "hello")
 
 
-fn test_get_faint() raises:
+def test_get_faint() raises:
     comptime style = ansi_style.set_emphasis(Emphasis.FAINT)
     testing.assert_true(style.check_emphasis(Emphasis.FAINT))
 
 
-fn test_faint() raises:
+def test_faint() raises:
     comptime style = ansi_style.set_emphasis(Emphasis.FAINT)
     testing.assert_equal(style.render("hello"), "\x1b[2mhello\x1b[0m")
 
@@ -191,12 +191,12 @@ fn test_faint() raises:
     testing.assert_equal(style.set_emphasis(Emphasis.FAINT, value=False).render("hello"), "hello")
 
 
-fn test_unset_faint() raises:
+def test_unset_faint() raises:
     comptime style = ansi_style.set_emphasis(Emphasis.FAINT).unset_emphasis(Emphasis.FAINT)
     testing.assert_equal(style.render("hello"), "hello")
 
 
-fn test_width() raises:
+def test_width() raises:
     comptime style = ansi_style.width(10)
     testing.assert_equal(style.render("hello\nworld\n!"), "hello     \nworld     \n!         ")
 
@@ -204,12 +204,12 @@ fn test_width() raises:
     testing.assert_equal(style.render("hello world! This text is long."), "hello     \nworld!    \nThis text \nis long.  ")
 
 
-fn test_unset_width() raises:
+def test_unset_width() raises:
     comptime style = ansi_style.width(10).unset_width()
     testing.assert_equal(style.render("hello"), "hello")
 
 
-fn test_height() raises:
+def test_height() raises:
     comptime style = ansi_style.height(5)
     testing.assert_equal(style.render("hello\nworld\n!"), "hello\nworld\n!    \n     \n     ")
 
@@ -217,12 +217,12 @@ fn test_height() raises:
     testing.assert_equal(style.render("hello\nworld\n!\n\n\n\n\n"), "hello\nworld\n!    \n     \n     \n     \n     \n     ")
 
 
-fn test_unset_height() raises:
+def test_unset_height() raises:
     comptime style = ansi_style.height(3).unset_height()
     testing.assert_equal(style.render("hello"), "hello")
 
 
-fn test_max_width() raises:
+def test_max_width() raises:
     comptime style = ansi_style.max_width(10)
     testing.assert_equal(style.render("hello\nworld\n!"), "hello\nworld\n!    ")
 
@@ -230,12 +230,12 @@ fn test_max_width() raises:
     testing.assert_equal(style.render("hello      truncated\nworld\n!"), "hello     \nworld     \n!         ")
 
 
-fn test_unset_max_width() raises:
+def test_unset_max_width() raises:
     comptime style = ansi_style.max_width(10).unset_max_width()
     testing.assert_equal(style.render("hello"), "hello")
 
 
-fn test_max_height() raises:
+def test_max_height() raises:
     comptime style = ansi_style.max_height(5)
     # Max height does not pad with additional lines
     testing.assert_equal(style.render("hello\nworld\n!"), "hello\nworld\n!    ")
@@ -244,36 +244,36 @@ fn test_max_height() raises:
     testing.assert_equal(style.render("hello\nworld\n!\n\n\n\n\n"), "hello\nworld\n!    \n     \n     ")
 
 
-fn test_unset_max_height() raises:
+def test_unset_max_height() raises:
     comptime style = ansi_style.max_height(3).unset_max_height()
     testing.assert_equal(style.render("hello"), "hello")
 
 
-fn test_horizontal_alignment() raises:
+def test_horizontal_alignment() raises:
     comptime style = ansi_style.width(9)
     testing.assert_equal(style.text_alignment(Axis.HORIZONTAL, Position.LEFT).render("hello"), "hello    ")
     testing.assert_equal(style.text_alignment(Axis.HORIZONTAL, Position.RIGHT).render("hello"), "    hello")
     testing.assert_equal(style.text_alignment(Axis.HORIZONTAL, Position.CENTER).render("hello"), "  hello  ")
 
 
-fn test_unset_horizontal_alignment() raises:
+def test_unset_horizontal_alignment() raises:
     comptime style = ansi_style.width(9).text_alignment(Axis.HORIZONTAL, Position.CENTER).unset_text_alignment(Axis.HORIZONTAL)
     testing.assert_equal(style.render("hello"), "hello    ")
 
 
-fn test_vertical_alignment() raises:
+def test_vertical_alignment() raises:
     comptime style = ansi_style.height(3)
     testing.assert_equal(style.text_alignment(Axis.VERTICAL, Position.TOP).render("hello"), "hello\n     \n     ")
     testing.assert_equal(style.text_alignment(Axis.VERTICAL, Position.BOTTOM).render("hello"), "     \n     \nhello")
     testing.assert_equal(style.text_alignment(Axis.VERTICAL, Position.CENTER).render("hello"), "     \nhello\n     ")
 
 
-fn test_unset_vertical_alignment() raises:
+def test_unset_vertical_alignment() raises:
     comptime style = ansi_style.height(3).text_alignment(Axis.VERTICAL, Position.CENTER).unset_text_alignment(Axis.VERTICAL)
     testing.assert_equal(style.render("hello"), "hello\n     \n     ")
 
 
-fn test_alignment() raises:
+def test_alignment() raises:
     comptime style = ansi_style.width(9)
     testing.assert_equal(style.text_alignment(Axis.HORIZONTAL, Position.LEFT).render("hello"), "hello    ")
     testing.assert_equal(style.text_alignment(Axis.HORIZONTAL, Position.RIGHT).render("hello"), "    hello")
@@ -285,32 +285,32 @@ fn test_alignment() raises:
     testing.assert_equal(height_style.text_alignment(Position.LEFT, Position.CENTER).render("hello"), "         \nhello    \n         ")
 
 
-fn test_foreground() raises:
+def test_foreground() raises:
     comptime style = ansi_style.foreground(mog.Color(12))
     testing.assert_equal(style.render("hello"), "\x1b[94mhello\x1b[0m")
 
 
-fn test_unset_foreground() raises:
+def test_unset_foreground() raises:
     comptime style = ansi_style.foreground(mog.Color(12)).unset_foreground()
     testing.assert_equal(style.render("hello"), "hello")
 
 
-fn test_background() raises:
+def test_background() raises:
     comptime style = ansi_style.background(mog.Color(12))
     testing.assert_equal(style.render("hello"), "\x1b[104mhello\x1b[0m")
 
 
-fn test_unset_background() raises:
+def test_unset_background() raises:
     comptime style = ansi_style.background(mog.Color(12)).unset_background()
     testing.assert_equal(style.render("hello"), "hello")
 
 
-fn test_border() raises:
+def test_border() raises:
     comptime style = ansi_style.border(mog.PLUS_BORDER)
     testing.assert_equal(style.render("hello"), "+++++++\n+hello+\n+++++++")
 
 
-fn test_border_top() raises:
+def test_border_top() raises:
     comptime style = ansi_style.border(mog.PLUS_BORDER).border_side_rendering(left=False, right=False, bottom=False)
     testing.assert_equal(style.render("hello"), "+++++\nhello")
 
@@ -318,12 +318,12 @@ fn test_border_top() raises:
     # testing.assert_equal(style.border_top(False).render("hello"), "hello")
 
 
-# fn test_unset_border_top() raises:
+# def test_unset_border_top() raises:
 #     comptime style = ansi_style.border(mog.PLUS_BORDER, False, False, False, False).border_top().unset_border_top()
 #     testing.assert_equal(style.render("hello"), "hello")
 
 
-fn test_border_left() raises:
+def test_border_left() raises:
     comptime style = ansi_style.border(mog.PLUS_BORDER).border_side_rendering(top=False, right=False, bottom=False)
     testing.assert_equal(style.render("hello"), "+hello")
 
@@ -331,12 +331,12 @@ fn test_border_left() raises:
     # testing.assert_equal(style.border_left(False).render("hello"), "      \nhello\n      ")
 
 
-# fn test_unset_border_left() raises:
+# def test_unset_border_left() raises:
 #     comptime style = ansi_style.border(mog.PLUS_BORDER, False, False, False, False).border_left().unset_border_left()
 #     testing.assert_equal(style.render("hello"), "hello")
 
 
-fn test_border_right() raises:
+def test_border_right() raises:
     comptime style = ansi_style.border(mog.PLUS_BORDER).border_side_rendering(top=False, left=False, bottom=False)
     testing.assert_equal(style.render("hello"), "hello+")
 
@@ -344,12 +344,12 @@ fn test_border_right() raises:
     # testing.assert_equal(style.border_right(False).render("hello"), "hello")
 
 # TODO: All border unsets not working correctly! At least it seems like it. All sides set to false, then activating one and deactivating it makes all sides render!?
-# fn test_unset_border_right() raises:
+# def test_unset_border_right() raises:
 #     comptime style = ansi_style.border(mog.PLUS_BORDER, False, False, False, False).border_right().unset_border_right()
 #     testing.assert_equal(style.render("hello"), "hello")
 
 
-fn test_border_bottom() raises:
+def test_border_bottom() raises:
     comptime style = ansi_style.border(mog.PLUS_BORDER).border_side_rendering(top=False, left=False, right=False)
     testing.assert_equal(style.render("hello"), "hello\n+++++")
 
@@ -357,12 +357,12 @@ fn test_border_bottom() raises:
     # testing.assert_equal(style.border_bottom(False).render("hello"), "     \nhello\n     ")
 
 
-# fn test_unset_border_bottom() raises:
+# def test_unset_border_bottom() raises:
 #     comptime style = ansi_style.border(mog.PLUS_BORDER, False, False, False, False).border_bottom().unset_border_bottom()
 #     testing.assert_equal(style.render("hello"), "hello")
 
 
-fn test_border_foreground() raises:
+def test_border_foreground() raises:
     comptime style = ansi_style.border(mog.PLUS_BORDER)
 
     # One for all sides
@@ -378,39 +378,39 @@ fn test_border_foreground() raises:
     testing.assert_equal(style.border_foreground(mog.Color(12), mog.Color(13), mog.Color(14), mog.Color(15)).render("hello"), "\x1b[94m+++++++\x1b[0m\n\x1b[97m+\x1b[0mhello\x1b[95m+\x1b[0m\n\x1b[96m+++++++\x1b[0m")
 
 
-# fn test_border_top_foreground() raises:
+# def test_border_top_foreground() raises:
 #     testing.assert_equal(ansi_style.border(mog.PLUS_BORDER).border_top_foreground(mog.Color(12)).render("hello"), "\x1b[94m+++++++\x1b[0m\n+hello+\n+++++++")
 
 
-# fn test_unset_border_top_foreground() raises:
+# def test_unset_border_top_foreground() raises:
 #     pass
 
 
-# fn test_border_left_foreground() raises:
+# def test_border_left_foreground() raises:
 #     testing.assert_equal(ansi_style.border(mog.PLUS_BORDER).border_left_foreground(mog.Color(12)).render("hello"), "+++++++\n\x1b[94m+\x1b[0mhello+\n+++++++")
 
 
-# fn test_unset_border_left_foreground() raises:
+# def test_unset_border_left_foreground() raises:
 #     pass
 
 
-# fn test_border_right_foreground() raises:
+# def test_border_right_foreground() raises:
 #     testing.assert_equal(ansi_style.border(mog.PLUS_BORDER).border_right_foreground(mog.Color(12)).render("hello"), "+++++++\n+hello\x1b[94m+\x1b[0m\n+++++++")
 
 
-# fn test_unset_border_right_foreground() raises:
+# def test_unset_border_right_foreground() raises:
 #     pass
 
 
-# fn test_border_bottom_foreground() raises:
+# def test_border_bottom_foreground() raises:
 #     testing.assert_equal(ansi_style.border(mog.PLUS_BORDER).border_bottom_foreground(mog.Color(12)).render("hello"), "+++++++\n+hello+\n\x1b[94m+++++++\x1b[0m")
 
 
-# fn test_unset_border_bottom_foreground() raises:
+# def test_unset_border_bottom_foreground() raises:
 #     pass
 
 
-fn test_border_background() raises:
+def test_border_background() raises:
     comptime style = ansi_style.border(mog.PLUS_BORDER)
 
     # One for all sides
@@ -426,43 +426,43 @@ fn test_border_background() raises:
     testing.assert_equal(style.border_background(mog.Color(12), mog.Color(13), mog.Color(14), mog.Color(15)).render("hello"), "\x1b[104m+++++++\x1b[0m\n\x1b[107m+\x1b[0mhello\x1b[105m+\x1b[0m\n\x1b[106m+++++++\x1b[0m")
 
 
-fn test_border_top_background() raises:
+def test_border_top_background() raises:
     comptime style = ansi_style.border(mog.PLUS_BORDER).border_top_background(mog.Color(12))
     testing.assert_equal(style.render("hello"), "\x1b[104m+++++++\x1b[0m\n+hello+\n+++++++")
 
 
-fn test_unset_border_top_background() raises:
+def test_unset_border_top_background() raises:
     pass
 
 
-fn test_border_left_background() raises:
+def test_border_left_background() raises:
     comptime style = ansi_style.border(mog.PLUS_BORDER).border_left_background(mog.Color(12))
     testing.assert_equal(style.render("hello"), "+++++++\n\x1b[104m+\x1b[0mhello+\n+++++++")
 
 
-fn test_unset_border_left_background() raises:
+def test_unset_border_left_background() raises:
     pass
 
 
-fn test_border_right_background() raises:
+def test_border_right_background() raises:
     comptime style = ansi_style.border(mog.PLUS_BORDER).border_right_background(mog.Color(12))
     testing.assert_equal(style.render("hello"), "+++++++\n+hello\x1b[104m+\x1b[0m\n+++++++")
 
 
-fn test_unset_border_right_background() raises:
+def test_unset_border_right_background() raises:
     pass
 
 
-fn test_border_bottom_background() raises:
+def test_border_bottom_background() raises:
     comptime style = ansi_style.border(mog.PLUS_BORDER).border_bottom_background(mog.Color(12))
     testing.assert_equal(style.render("hello"), "+++++++\n+hello+\n\x1b[104m+++++++\x1b[0m")
 
 
-fn test_unset_border_bottom_background() raises:
+def test_unset_border_bottom_background() raises:
     pass
 
 
-fn test_padding() raises:
+def test_padding() raises:
     """Test padding on all sides, top/bottom and left/right, top, left/right, bottom, and all sides.
     Note: padding is applied inside of the text area. As opposed to margin which is applied outside the text area.
     """
@@ -485,47 +485,47 @@ fn test_padding() raises:
     testing.assert_equal(border_style.padding(top=1, right=2, bottom=3, left=4).render("hello"), "+++++++++++++\n+           +\n+    hello  +\n+           +\n+           +\n+           +\n+++++++++++++")
 
 
-# fn test_padding_top() raises:
+# def test_padding_top() raises:
 #     comptime border_style = ansi_style.border(mog.PLUS_BORDER)
 #     testing.assert_equal(ansi_style.padding_top(1).render("hello"), "     \nhello")
 #     testing.assert_equal(border_style.padding_top(1).render("hello"), "+++++++\n+     +\n+hello+\n+++++++")
 
 
-# fn test_unset_padding_top() raises:
+# def test_unset_padding_top() raises:
 #     pass
 
 
-# fn test_padding_left() raises:
+# def test_padding_left() raises:
 #     comptime border_style = ansi_style.border(mog.PLUS_BORDER)
 #     testing.assert_equal(ansi_style.padding_left(1).render("hello"), " hello")
 #     testing.assert_equal(border_style.padding_left(1).render("hello"), "++++++++\n+ hello+\n++++++++")
 
 
-# fn test_unset_padding_left() raises:
+# def test_unset_padding_left() raises:
 #     pass
 
 
-# fn test_padding_right() raises:
+# def test_padding_right() raises:
 #     comptime border_style = ansi_style.border(mog.PLUS_BORDER)
 #     testing.assert_equal(ansi_style.padding_right(1).render("hello"), "hello ")
 #     testing.assert_equal(border_style.padding_right(1).render("hello"), "++++++++\n+hello +\n++++++++")
 
 
-# fn test_unset_padding_right() raises:
+# def test_unset_padding_right() raises:
 #     pass
 
 
-# fn test_padding_bottom() raises:
+# def test_padding_bottom() raises:
 #     comptime border_style = ansi_style.border(mog.PLUS_BORDER)
 #     testing.assert_equal(ansi_style.padding_bottom(1).render("hello"), "hello\n     ")
 #     testing.assert_equal(border_style.padding_bottom(1).render("hello"), "+++++++\n+hello+\n+     +\n+++++++")
 
 
-# fn test_unset_padding_bottom() raises:
+# def test_unset_padding_bottom() raises:
 #     pass
 
 
-fn test_margin() raises:
+def test_margin() raises:
     """Test margin on all sides, top/bottom and left/right, top, left/right, bottom, and all sides.
     Note: margins are applied outside of the text area. As opposed to padding which is applied inside the text area.
     """
@@ -548,47 +548,47 @@ fn test_margin() raises:
     testing.assert_equal(border_style.margin(top=1, right=2, bottom=3, left=4).render("hello"), "             \n    +++++++  \n    +hello+  \n    +++++++  \n             \n             \n             ")
 
 
-# fn test_margin_top() raises:
+# def test_margin_top() raises:
 #     comptime border_style = ansi_style.border(mog.PLUS_BORDER)
 #     testing.assert_equal(ansi_style.margin_top(1).render("hello"), "     \nhello")
 #     testing.assert_equal(border_style.margin_top(1).render("hello"), "       \n+++++++\n+hello+\n+++++++")
 
 
-# fn test_unset_margin_top() raises:
+# def test_unset_margin_top() raises:
 #     pass
 
 
-# fn test_margin_left() raises:
+# def test_margin_left() raises:
 #     comptime border_style = ansi_style.border(mog.PLUS_BORDER)
 #     testing.assert_equal(ansi_style.margin_left(1).render("hello"), " hello")
 #     testing.assert_equal(border_style.margin_left(1).render("hello"), " +++++++\n +hello+\n +++++++")
 
 
-# fn test_unset_margin_left() raises:
+# def test_unset_margin_left() raises:
 #     pass
 
 
-# fn test_margin_right() raises:
+# def test_margin_right() raises:
 #     comptime border_style = ansi_style.border(mog.PLUS_BORDER)
 #     testing.assert_equal(ansi_style.margin_right(1).render("hello"), "hello ")
 #     testing.assert_equal(border_style.margin_right(1).render("hello"), "+++++++ \n+hello+ \n+++++++ ")
 
 
-# fn test_unset_margin_right() raises:
+# def test_unset_margin_right() raises:
 #     pass
 
 
-# fn test_margin_bottom() raises:
+# def test_margin_bottom() raises:
 #     comptime border_style = ansi_style.border(mog.PLUS_BORDER)
 #     testing.assert_equal(ansi_style.margin_bottom(1).render("hello"), "hello\n     ")
 #     testing.assert_equal(border_style.margin_bottom(1).render("hello"), "+++++++\n+hello+\n+++++++\n       ")
 
 
-# fn test_unset_margin_bottom() raises:
+# def test_unset_margin_bottom() raises:
 #     pass
 
 
-fn test_maybe_convert_tabs() raises:
+def test_maybe_convert_tabs() raises:
     # fnault tab width of 4
     testing.assert_equal(_maybe_convert_tabs(ansi_style, "\tHello world!"), "    Hello world!")
 
@@ -599,11 +599,11 @@ fn test_maybe_convert_tabs() raises:
     testing.assert_equal(_maybe_convert_tabs(ansi_style.tab_width(-1), "\tHello world!"), "\tHello world!")
 
 
-fn test_style_border() raises:
+def test_style_border() raises:
     pass
 
 
-fn test_apply_border() raises:
+def test_apply_border() raises:
     # Uses no border by fnault
     testing.assert_equal(_apply_border(ansi_style, "hello"), "hello")
 
@@ -622,13 +622,13 @@ fn test_apply_border() raises:
 
 
 
-# fn test_apply_margin() raises:
+# def test_apply_margin() raises:
 #     pass
 
 
-# fn test_render() raises:
+# def test_render() raises:
 #     pass
 
 
-fn main() raises -> None:
+def main() raises -> None:
     TestSuite.discover_tests[__functions_in_module()]().run()

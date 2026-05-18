@@ -6,7 +6,7 @@ struct Data(Copyable):
     ```mojo
     import mog
 
-    fn main():
+    def main():
         var data = mog.Data(
             ["Name", "Age"],
             ["My Name", "30"],
@@ -22,12 +22,12 @@ struct Data(Copyable):
     var _columns: UInt
     """The number of columns in the table."""
 
-    fn __init__(out self):
+    def __init__(out self):
         """Initializes a new Data instance."""
         self._rows = List[List[String]]()
         self._columns = 0
 
-    fn __init__(out self, var rows: List[List[String]]):
+    def __init__(out self, var rows: List[List[String]]):
         """Initializes a new Data instance.
 
         Args:
@@ -36,7 +36,7 @@ struct Data(Copyable):
         self._rows = rows^
         self._columns = UInt(len(self._rows))
 
-    fn __init__(out self, *rows: List[String]):
+    def __init__(out self, *rows: List[String]):
         """Initializes a new Data instance.
 
         Args:
@@ -50,7 +50,7 @@ struct Data(Copyable):
         self._rows = r^
         self._columns = widest
 
-    fn __getitem__(self, row: UInt, column: UInt) -> ref [self._rows[row][column]] String:
+    def __getitem__(self, row: UInt, column: UInt) -> ref [self._rows[row][column]] String:
         """Returns the contents of the cell at the given index.
 
         Args:
@@ -62,7 +62,7 @@ struct Data(Copyable):
         """
         return self._rows[row][column]
 
-    fn rows(self) -> UInt:
+    def rows(self) -> UInt:
         """Returns the number of rows in the table.
 
         Returns:
@@ -70,7 +70,7 @@ struct Data(Copyable):
         """
         return UInt(len(self._rows))
 
-    fn columns(self) -> UInt:
+    def columns(self) -> UInt:
         """Returns the number of columns in the table.
 
         Returns:
@@ -78,7 +78,7 @@ struct Data(Copyable):
         """
         return UInt(self._columns)
 
-    fn add_row(mut self, var row: List[String]):
+    def add_row(mut self, var row: List[String]):
         """Appends the given row to the table.
 
         Args:
@@ -87,7 +87,7 @@ struct Data(Copyable):
         self._columns = max(self._columns, UInt(len(row)))
         self._rows.append(row^)
 
-    fn add_row(mut self, *elements: String):
+    def add_row(mut self, *elements: String):
         """Appends the given row to the table.
 
         Args:
@@ -99,7 +99,7 @@ struct Data(Copyable):
             row.append(element)
         self._rows.append(row^)
 
-    fn add_rows(mut self, var rows: List[List[String]]):
+    def add_rows(mut self, var rows: List[List[String]]):
         """Appends the given rows to the table.
 
         Args:
@@ -109,7 +109,7 @@ struct Data(Copyable):
             self._columns = max(self._columns, UInt(len(row)))
             self._rows.append(row.copy())
 
-    fn add_rows(mut self, *rows: List[String]):
+    def add_rows(mut self, *rows: List[String]):
         """Returns the style for a cell based on it's position (row, column).
 
         Args:
@@ -121,7 +121,7 @@ struct Data(Copyable):
             self._rows.append(row.copy())
         self._columns = widest
 
-    fn __add__(self, other: Self) -> Self:
+    def __add__(self, other: Self) -> Self:
         """Concatenates two Data instances.
 
         Args:
@@ -132,7 +132,7 @@ struct Data(Copyable):
         """
         return Data(self._rows + other._rows.copy(), max(self.columns(), other.columns()))
 
-    fn __iadd__(mut self, other: Self):
+    def __iadd__(mut self, other: Self):
         """Concatenates two Data instances in place.
 
         Args:

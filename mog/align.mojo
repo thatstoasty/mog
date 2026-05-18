@@ -14,16 +14,16 @@ struct Alignment(ImplicitlyCopyable, TrivialRegisterPassable):
     var vertical: Position
     """The vertical alignment of the text."""
 
-    fn __init__(out self, *, horizontal: Position = Position.LEFT, vertical: Position = Position.TOP):
+    def __init__(out self, *, horizontal: Position = Position.LEFT, vertical: Position = Position.TOP):
         self.horizontal = horizontal
         self.vertical = vertical
     
-    fn __init__(out self, alignment: Position):
+    def __init__(out self, alignment: Position):
         self.horizontal = alignment
         self.vertical = alignment
 
 
-fn align_text_horizontal(
+def align_text_horizontal(
     text: StringSlice, pos: Position, width: UInt16, style: Optional[mist.Style] = None
 ) -> String:
     """Aligns the text on the horizontal axis. If the string is multi-lined, we also make all lines
@@ -48,7 +48,7 @@ fn align_text_horizontal(
             return style.value().render(spaces)
         return spaces^
 
-    var aligned = String(capacity=Int(Float64(len(text)) * 1.25))
+    var aligned = String(capacity=Int(Float64(text.byte_length()) * 1.25))
     for i in range(len(lines)):
         var line = String(lines[i])
         var line_width = Int(printable_rune_width(line))
@@ -85,7 +85,7 @@ fn align_text_horizontal(
     return aligned^
 
 
-fn align_text_vertical(text: StringSlice, pos: Position, height: UInt16) -> String:
+def align_text_vertical(text: StringSlice, pos: Position, height: UInt16) -> String:
     """Aligns the text on the vertical axis. If the string is shorter than the height, it's padded
     with newlines. If the string is taller than the height, return the original
     string.

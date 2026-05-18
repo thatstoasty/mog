@@ -34,7 +34,7 @@ comptime DIM_TYPE_COLORS: Dict[String, mog.Color] = {
 }
 
 
-fn style_func(data: mog.Data, row: UInt, col: UInt) -> mog.Style:
+def style_func(data: mog.Data, row: UInt, col: UInt) -> mog.Style:
     if row == 0:
         return header_style
 
@@ -54,10 +54,10 @@ fn style_func(data: mog.Data, row: UInt, col: UInt) -> mog.Style:
     return style.foreground(mog.Color(252))
 
 
-fn main():
+def main():
     var headers: List[StaticString] = ["#", "Name", "Type 1", "Type 2", "Japanese", "Official Rom."]
 
-    fn capitalize_headers(data: List[StaticString]) -> List[String]:
+    def capitalize_headers(data: List[StaticString]) -> List[String]:
         var upper = List[String]()
         for element in data:
             upper.append(element.upper())

@@ -33,10 +33,7 @@ def main():
         border_left=True,
         border_right=True,
         border_top=True,
-        data=Data(
-            ["French", "Bonjour", "Salut"],
-            ["Russian", "Zdravstvuyte", "Privet"]
-        ),
+        data=Data(["French", "Bonjour", "Salut"], ["Russian", "Zdravstvuyte", "Privet"]),
         width=50,
     )
     var headerless_start_time = perf_counter_ns()

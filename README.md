@@ -4,7 +4,7 @@
 
 Style definitions for nice terminal layouts.
 
-![Mojo Version](https://img.shields.io/badge/Mojo%F0%9F%94%A5-1.0.0b1-orange)
+![Mojo Version](https://img.shields.io/badge/Mojo%F0%9F%94%A5-1.0.0b2-orange)
 ![Build Status](https://github.com/thatstoasty/mog/actions/workflows/build.yml/badge.svg)
 ![Test Status](https://github.com/thatstoasty/mog/actions/workflows/test.yml/badge.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -31,7 +31,7 @@ There's two ways to build `mog` from source: directly from the Git repository or
 Run the following commands in your terminal:
 
 ```bash
-pixi add -g "https://github.com/thatstoasty/mog.git" --tag v0.2.0 && pixi install
+pixi add -g "https://github.com/thatstoasty/mog.git" --tag v0.2.1 && pixi install
 ```
 
 #### Building from source: Local
@@ -488,7 +488,7 @@ def main():
 
 When building layouts, you'll want to know the the width and/or height of text blocks.
 `Mog` provides functions to get the dimensions of the text block, accounting for ANSI sequences
-and unicode codepoints being 0-2 cells wide.
+and unicode graphemes being 0-2 cells wide.
 
 ```mojo
 import mog

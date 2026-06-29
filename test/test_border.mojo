@@ -14,5 +14,6 @@ def test_zero_width() raises:
 def test_middle_replacement() raises:
     testing.assert_equal(render_horizontal_edge("<", "", ">", 10), "<         >")
 
+
 def main() raises -> None:
     TestSuite.discover_tests[__functions_in_module()]().run()

@@ -1,3 +1,4 @@
+"""A module for measuring the size of a text block in the terminal."""
 from mist.transform import ansi
 from mog._properties import Dimensions
 

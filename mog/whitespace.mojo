@@ -1,3 +1,4 @@
+"""A module for rendering whitespace in the terminal."""
 from mist.transform import ansi
 from mog._extensions import get_lines, get_widest_line, DEFAULT_BUFFER_SIZE
 from mog.align import Alignment
@@ -29,7 +30,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
             chars: The characters to render.
         """
         # TODO: Assume dark background for now, until I add support to mist for querying background color.
-        self.renderer = style._renderer
+        self.renderer = style._renderer.copy()
         self.style = style.copy()
         self.chars = chars.copy()
 

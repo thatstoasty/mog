@@ -9,7 +9,7 @@ def test_string_data_append() raises:
         ["Name", "Age"],
         ["My Name", "30"],
         ["Your Name", "25"],
-        ["Their Name", "35"]
+        ["Their Name", "35"],
     )
     testing.assert_equal(data.rows(), 4)
     testing.assert_equal(data.columns(), 2)
@@ -28,7 +28,7 @@ def test_string_data_add() raises:
         ["Name", "Age"],
         ["My Name", "30"],
         ["Your Name", "25"],
-        ["Their Name", "35"]
+        ["Their Name", "35"],
     )
     var data2 = Data(
         ["No Name", "0", "999"],
@@ -44,7 +44,7 @@ def test_string_data_iadd() raises:
         ["Name", "Age"],
         ["My Name", "30"],
         ["Your Name", "25"],
-        ["Their Name", "35"]
+        ["Their Name", "35"],
     )
     var data2 = Data(
         ["No Name", "0", "999"],

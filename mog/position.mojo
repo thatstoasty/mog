@@ -1,3 +1,6 @@
+"""A module for representing positions along an axis."""
+
+
 struct Position(Equatable, ImplicitlyCopyable, TrivialRegisterPassable):
     """Position represents a position along a horizontal or vertical axis. It's in
     situations where an axis is involved, like alignment, joining, placement and

@@ -24,8 +24,8 @@ def color_grid(x_steps: Int, y_steps: Int) -> List[List[hue.Color]]:
     comptime x0y1 = hue.Color(0x643AFF)
     comptime x1y1 = hue.Color(0x14F9D5)
 
-    var x0: List[hue.Color] = [x0y0.blend_luv(x0y1, Float64(i)/Float64(y_steps)) for i in range(y_steps)]
-    var x1: List[hue.Color] = [x1y0.blend_luv(x1y1, Float64(i)/Float64(y_steps)) for i in range(y_steps)]
+    var x0: List[hue.Color] = [x0y0.blend_luv(x0y1, Float64(i) / Float64(y_steps)) for i in range(y_steps)]
+    var x1: List[hue.Color] = [x1y0.blend_luv(x1y1, Float64(i) / Float64(y_steps)) for i in range(y_steps)]
 
     var grid = List[List[hue.Color]](capacity=y_steps)
     var x = 0
@@ -34,7 +34,7 @@ def color_grid(x_steps: Int, y_steps: Int) -> List[List[hue.Color]]:
         grid.append(List[hue.Color](capacity=x_steps))
         var y = 0
         while y < x_steps:
-            grid[x].append(y0.blend_luv(x1[x], Float64(y)/Float64(x_steps)))
+            grid[x].append(y0.blend_luv(x1[x], Float64(y) / Float64(x_steps)))
             y += 1
         x += 1
     return grid^
@@ -104,7 +104,11 @@ def build_description() -> String:
     ).render("•")
     var url = mog.Style(foreground=special)
     var desc_style = mog.Style(margin=Margin(top=1))
-    var info_style = mog.Style(border=NORMAL_BORDER).border_side_rendering(right=False, bottom=False, left=False).border_foreground(subtle)
+    var info_style = (
+        mog.Style(border=NORMAL_BORDER)
+        .border_side_rendering(right=False, bottom=False, left=False)
+        .border_foreground(subtle)
+    )
 
     var description = join_vertical(
         Position.LEFT,
@@ -128,7 +132,12 @@ def build_dialog_box() -> String:
         margin=Margin(top=1),
     )
 
-    var active_button_style = button_style.foreground(mog.Color(0xFFF7DB)).background(mog.Color(0xF25D94)).margin(right=2).set_emphasis(Emphasis.UNDERLINE)
+    var active_button_style = (
+        button_style.foreground(mog.Color(0xFFF7DB))
+        .background(mog.Color(0xF25D94))
+        .margin(right=2)
+        .set_emphasis(Emphasis.UNDERLINE)
+    )
 
     var ok_button = active_button_style.render("Yes")
     var cancel_button = button_style.render("No")
@@ -147,23 +156,30 @@ def build_dialog_box() -> String:
 
 
 def build_lists() -> String:
-    var list_style = mog.Style(
-        height=8,
-        width=column_width + 1,
-        border=NORMAL_BORDER,
-        margin=Margin(right=2),
-    ).border_side_rendering(top=False, bottom=False, left=False).border_foreground(subtle)
+    var list_style = (
+        mog.Style(
+            height=8,
+            width=column_width + 1,
+            border=NORMAL_BORDER,
+            margin=Margin(right=2),
+        )
+        .border_side_rendering(top=False, bottom=False, left=False)
+        .border_foreground(subtle)
+    )
 
-    var list_header = mog.Style(
-        border=NORMAL_BORDER,
-        margin=Margin(right=2),
-    ).border_side_rendering(top=False, right=False, left=False).border_foreground(subtle)
+    var list_header = (
+        mog.Style(
+            border=NORMAL_BORDER,
+            margin=Margin(right=2),
+        )
+        .border_side_rendering(top=False, right=False, left=False)
+        .border_foreground(subtle)
+    )
 
     var list_item = mog.Style(padding=Padding(left=2))
     var check_mark = mog.Style(foreground=special, padding=Padding(right=1)).render("✔")
     var list_done = mog.Style(
-        emphasis=Emphasis.STRIKETHROUGH,
-        foreground=mog.AdaptiveColor(light=0x969B86, dark=0x696969)
+        emphasis=Emphasis.STRIKETHROUGH, foreground=mog.AdaptiveColor(light=0x969B86, dark=0x696969)
     )
 
     var colors = color_grid(14, 8)
@@ -214,9 +230,22 @@ def build_history() -> String:
         background=highlight,
     ).text_alignment(Axis.HORIZONTAL, Position.LEFT)
 
-    comptime history_a = "The Romans learned from the Greeks that quinces slowly cooked with honey would 'set' when cool. The Apicius gives a recipe for preserving whole quinces, stems and leaves attached, in a bath of honey diluted with defrutum: Roman marmalade. Preserves of quince and lemon appear (along with rose, apple, plum and pear) in the Book of ceremonies of the Byzantine Emperor Constantine VII Porphyrogennetos."
-    comptime history_b = "Medieval quince preserves, which went by the French name cotignac, produced in a clear version and a fruit pulp version, began to lose their medieval seasoning of spices in the 16th century. In the 17th century, La Varenne provided recipes for both thick and clear cotignac."
-    comptime history_c = "In 1524, Henry VIII, King of England, received a 'box of marmalade' from Mr. Hull of Exeter. This was probably marmelada, a solid quince paste from Portugal, still made and sold in southern Europe today. It became a favourite treat of Anne Boleyn and her ladies in waiting."
+    comptime history_a = (
+        "The Romans learned from the Greeks that quinces slowly cooked with honey would 'set' when cool. The Apicius"
+        " gives a recipe for preserving whole quinces, stems and leaves attached, in a bath of honey diluted with"
+        " defrutum: Roman marmalade. Preserves of quince and lemon appear (along with rose, apple, plum and pear) in"
+        " the Book of ceremonies of the Byzantine Emperor Constantine VII Porphyrogennetos."
+    )
+    comptime history_b = (
+        "Medieval quince preserves, which went by the French name cotignac, produced in a clear version and a fruit"
+        " pulp version, began to lose their medieval seasoning of spices in the 16th century. In the 17th century, La"
+        " Varenne provided recipes for both thick and clear cotignac."
+    )
+    comptime history_c = (
+        "In 1524, Henry VIII, King of England, received a 'box of marmalade' from Mr. Hull of Exeter. This was probably"
+        " marmelada, a solid quince paste from Portugal, still made and sold in southern Europe today. It became a"
+        " favourite treat of Anne Boleyn and her ladies in waiting."
+    )
 
     return join_horizontal(
         Position.TOP,
@@ -231,7 +260,9 @@ def build_status_bar() -> String:
     var status_bar_style = mog.Style(foreground=mog.Color(0xC1C6B2), background=mog.Color(0x353533))
     var status_style = mog.Style(foreground=mog.Color(0xFFFDF5), background=mog.Color(0xFF5F87), padding=Padding(1, 0))
 
-    var encoding_style = status_nugget_style.background(mog.Color(0xA550DF)).text_alignment(Axis.HORIZONTAL, Position.RIGHT)
+    var encoding_style = status_nugget_style.background(mog.Color(0xA550DF)).text_alignment(
+        Axis.HORIZONTAL, Position.RIGHT
+    )
     var status_text_style = status_bar_style.padding(left=1)
     var fish_cake_style = status_nugget_style.background(mog.Color(0x6124DF))
 

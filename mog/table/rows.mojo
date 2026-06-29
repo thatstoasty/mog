@@ -1,3 +1,6 @@
+"""A module for working with table data."""
+
+
 @fieldwise_init
 struct Data(Copyable):
     """Table data.
@@ -50,7 +53,7 @@ struct Data(Copyable):
         self._rows = r^
         self._columns = widest
 
-    def __getitem__(self, row: UInt, column: UInt) -> ref [self._rows[row][column]] String:
+    def __getitem__(self, row: UInt, column: UInt) -> ref[self._rows[row][column]] String:
         """Returns the contents of the cell at the given index.
 
         Args:

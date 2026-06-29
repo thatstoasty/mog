@@ -1,7 +1,10 @@
+"""A module for rendering borders in the terminal."""
+
 from mist.transform.ansi import printable_rune_width
 from std.iter import enumerate
 
-struct Border(ImplicitlyCopyable, Equatable):
+
+struct Border(Equatable, ImplicitlyCopyable):
     """A border to use to wrap around text."""
 
     var top: String
@@ -119,7 +122,7 @@ comptime ASCII_BORDER = Border(
     middle_top="*",
     middle_bottom="*",
 )
-
+"""A border that uses ASCII characters."""
 
 comptime STAR_BORDER = Border(
     top="*",
@@ -136,7 +139,7 @@ comptime STAR_BORDER = Border(
     middle_top="*",
     middle_bottom="*",
 )
-
+"""A border that uses asterisks for all edges."""
 
 comptime PLUS_BORDER = Border(
     top="+",
@@ -153,7 +156,7 @@ comptime PLUS_BORDER = Border(
     middle_top="+",
     middle_bottom="+",
 )
-
+"""A border that uses plus signs for all edges."""
 
 comptime NORMAL_BORDER = Border(
     top="─",
@@ -170,7 +173,7 @@ comptime NORMAL_BORDER = Border(
     middle_top="┬",
     middle_bottom="┴",
 )
-
+"""A border that uses line drawing characters for all edges."""
 
 comptime ROUNDED_BORDER = Border(
     top="─",
@@ -187,7 +190,7 @@ comptime ROUNDED_BORDER = Border(
     middle_top="┬",
     middle_bottom="┴",
 )
-
+"""A border that uses rounded corners."""
 
 comptime BLOCK_BORDER = Border(
     top="█",
@@ -203,7 +206,7 @@ comptime BLOCK_BORDER = Border(
     middle="█",
     middle_top="█",
 )
-
+"""A border that uses block characters for all edges."""
 
 comptime OUTER_HALF_BLOCK_BORDER = Border(
     top="▀",
@@ -215,7 +218,7 @@ comptime OUTER_HALF_BLOCK_BORDER = Border(
     bottom_left="▙",
     bottom_right="▟",
 )
-
+"""Outer half thick block border."""
 
 comptime INNER_HALF_BLOCK_BORDER = Border(
     top="▄",
@@ -227,7 +230,7 @@ comptime INNER_HALF_BLOCK_BORDER = Border(
     bottom_left="▝",
     bottom_right="▘",
 )
-
+"""Inner half thick block border."""
 
 comptime THICK_BORDER = Border(
     top="━",
@@ -244,7 +247,7 @@ comptime THICK_BORDER = Border(
     middle_top="┳",
     middle_bottom="┻",
 )
-
+"""Thick line border."""
 
 comptime DOUBLE_BORDER = Border(
     top="═",
@@ -261,7 +264,7 @@ comptime DOUBLE_BORDER = Border(
     middle_top="╦",
     middle_bottom="╩",
 )
-
+"""Double line border."""
 
 comptime HIDDEN_BORDER = Border(
     top=" ",
@@ -278,9 +281,10 @@ comptime HIDDEN_BORDER = Border(
     middle_top=" ",
     middle_bottom=" ",
 )
-
+"""A border that is invisible, all edges are one space."""
 
 comptime NO_BORDER = Border()
+"""No border, all edges are empty strings."""
 
 
 def render_horizontal_edge(left: StringSlice, var middle: String, right: StringSlice, width: UInt) -> String:
@@ -308,19 +312,19 @@ def render_horizontal_edge(left: StringSlice, var middle: String, right: StringS
     var i = left_width + right_width
     var j = 0
     while i < width + right_width:
-        # We loop over codepoints instead of indexing (middle[j]), because String and StringSlice
+        # We loop over graphemes instead of indexing (middle[j]), because String and StringSlice
         # indexing is by byte, not by character! Which leads to bugs with multi-byte UTF-8 characters.
         # This can probably be changed back once String indexing is improved.
-        var codepoints = middle.codepoint_slices()
-        for idx, codepoint in enumerate(codepoints):
+        var graphemes = middle.graphemes()
+        for idx, grapheme in enumerate(graphemes):
             if idx == j:
-                output.write(codepoint)
+                output.write(grapheme)
                 j += 1
 
-                if j >= len(codepoints):
+                if j >= len(graphemes):
                     j = 0
 
-                i += printable_rune_width(codepoint)
+                i += printable_rune_width(grapheme)
 
     output.write(right)
     return output^

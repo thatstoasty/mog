@@ -3,7 +3,14 @@ from mist.style import color
 from std import testing
 from std.testing import TestSuite
 from mist.style.color import ANSI256Color, RGBColor
-from mog.color import AdaptiveColor, ANSIColor, Color, CompleteAdaptiveColor, CompleteColor, NoColor
+from mog.color import (
+    AdaptiveColor,
+    ANSIColor,
+    Color,
+    CompleteAdaptiveColor,
+    CompleteColor,
+    NoColor,
+)
 from mog.renderer import Renderer
 import mog
 
@@ -53,12 +60,12 @@ def test_adaptive_color() raises:
 
 
 def test_complete_color() raises:
-    comptime example_color = CompleteColor(true_color=0xffffff, ansi256=255, ansi=0)
+    comptime example_color = CompleteColor(true_color=0xFFFFFF, ansi256=255, ansi=0)
 
     # Test true color renderer
     testing.assert_true(example_color.color(true_color_renderer).isa[RGBColor]())
-    testing.assert_equal(example_color.color(true_color_renderer)[RGBColor].value, 0xffffff)
-    
+    testing.assert_equal(example_color.color(true_color_renderer)[RGBColor].value, 0xFFFFFF)
+
     # Test ansi256 color renderer
     testing.assert_true(example_color.color(ansi256_color_renderer).isa[ANSI256Color]())
     testing.assert_equal(example_color.color(ansi256_color_renderer)[ANSI256Color].value, 255)
@@ -73,21 +80,30 @@ def test_complete_color() raises:
 
 def test_complete_adaptive_color() raises:
     comptime example_color = CompleteAdaptiveColor(
-        light=CompleteColor(true_color=0xffffff, ansi256=255, ansi=0),
-        dark=CompleteColor(true_color=0xffff00, ansi256=100, ansi=13)
+        light=CompleteColor(true_color=0xFFFFFF, ansi256=255, ansi=0),
+        dark=CompleteColor(true_color=0xFFFF00, ansi256=100, ansi=13),
     )
 
     # Test true color renderer
     testing.assert_true(example_color.color(true_color_renderer).isa[color.RGBColor]())
-    testing.assert_equal(example_color.color(true_color_renderer)[color.RGBColor].value, 0xffff00)
+    testing.assert_equal(example_color.color(true_color_renderer)[color.RGBColor].value, 0xFFFF00)
     testing.assert_true(example_color.color(light_true_color_renderer).isa[color.RGBColor]())
-    testing.assert_equal(example_color.color(light_true_color_renderer)[color.RGBColor].value, 0xffffff)
-    
+    testing.assert_equal(
+        example_color.color(light_true_color_renderer)[color.RGBColor].value,
+        0xFFFFFF,
+    )
+
     # Test ansi256 color renderer
     testing.assert_true(example_color.color(ansi256_color_renderer).isa[color.ANSI256Color]())
-    testing.assert_equal(example_color.color(ansi256_color_renderer)[color.ANSI256Color].value, 100)
+    testing.assert_equal(
+        example_color.color(ansi256_color_renderer)[color.ANSI256Color].value,
+        100,
+    )
     testing.assert_true(example_color.color(light_ansi256_color_renderer).isa[color.ANSI256Color]())
-    testing.assert_equal(example_color.color(light_ansi256_color_renderer)[color.ANSI256Color].value, 255)
+    testing.assert_equal(
+        example_color.color(light_ansi256_color_renderer)[color.ANSI256Color].value,
+        255,
+    )
 
     # Test ansi color renderer
     testing.assert_true(example_color.color(ansi_color_renderer).isa[color.ANSIColor]())

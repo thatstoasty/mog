@@ -1,3 +1,5 @@
+"""A module for aligning text in the terminal."""
+
 import mist
 from mist.transform.ansi import printable_rune_width
 from mog._extensions import get_widest_line
@@ -6,19 +8,31 @@ from mog.position import Position
 
 struct Alignment(ImplicitlyCopyable, TrivialRegisterPassable):
     """Alignment represents the horizontal and vertical alignment of text.
-    
+
     Defaults to top-left alignment.
     """
+
     var horizontal: Position
     """The horizontal alignment of the text."""
     var vertical: Position
     """The vertical alignment of the text."""
 
     def __init__(out self, *, horizontal: Position = Position.LEFT, vertical: Position = Position.TOP):
+        """Initializes a new Alignment.
+
+        Args:
+            horizontal: The horizontal alignment.
+            vertical: The vertical alignment.
+        """
         self.horizontal = horizontal
         self.vertical = vertical
-    
+
     def __init__(out self, alignment: Position):
+        """Initializes a new Alignment instance with the same alignment for both horizontal and vertical axes.
+
+        Args:
+            alignment: The alignment to use.
+        """
         self.horizontal = alignment
         self.vertical = alignment
 

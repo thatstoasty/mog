@@ -2,7 +2,7 @@ from mog.position import Position
 
 
 @fieldwise_init
-struct PropKey(ImplicitlyCopyable, Equatable, TrivialRegisterPassable):
+struct PropKey(Equatable, ImplicitlyCopyable, TrivialRegisterPassable):
     """Property keys for the style."""
 
     var _value: UInt8
@@ -161,13 +161,13 @@ struct Padding(ImplicitlyCopyable, TrivialRegisterPassable):
         self.right = right
         self.bottom = bottom
         self.left = left
-    
+
     def __init__(out self, width: UInt16):
         self.top = width
         self.right = width
         self.bottom = width
         self.left = width
-    
+
     def __init__(out self, x_width: UInt16, y_width: UInt16):
         self.top = y_width
         self.right = x_width
@@ -200,14 +200,14 @@ struct Margin(ImplicitlyCopyable):
         self.bottom = bottom
         self.left = left
         self.background = background^
-    
+
     def __init__(out self, width: UInt16, var background: AnyTerminalColor = NoColor()):
         self.top = width
         self.right = width
         self.bottom = width
         self.left = width
         self.background = background^
-    
+
     def __init__(out self, x_width: UInt16, y_width: UInt16, var background: AnyTerminalColor = NoColor()):
         self.top = y_width
         self.right = x_width
@@ -218,6 +218,7 @@ struct Margin(ImplicitlyCopyable):
 
 struct Dimensions(ImplicitlyCopyable, TrivialRegisterPassable):
     """Dimensions of the text area."""
+
     var height: UInt16
     """The height of the text."""
     var width: UInt16
@@ -230,6 +231,7 @@ struct Dimensions(ImplicitlyCopyable, TrivialRegisterPassable):
 
 struct Coloring(ImplicitlyCopyable):
     """Coloring properties for the text."""
+
     var foreground: AnyTerminalColor
     """The foreground color."""
     var background: AnyTerminalColor
@@ -242,6 +244,7 @@ struct Coloring(ImplicitlyCopyable):
 
 struct BorderColor(ImplicitlyCopyable):
     """Border coloring properties for the text."""
+
     var foreground_top: AnyTerminalColor
     """The foreground color of the top border."""
     var foreground_right: AnyTerminalColor
@@ -281,7 +284,7 @@ struct BorderColor(ImplicitlyCopyable):
 
 
 @fieldwise_init
-struct Side(ImplicitlyCopyable, Equatable):
+struct Side(Equatable, ImplicitlyCopyable):
     var value: UInt8
 
     comptime TOP = Self(0)
@@ -294,8 +297,9 @@ struct Side(ImplicitlyCopyable, Equatable):
 
 
 @fieldwise_init
-struct Emphasis(ImplicitlyCopyable, Equatable):
+struct Emphasis(Equatable, ImplicitlyCopyable):
     """Emphasis properties for the text."""
+
     var value: UInt8
     """Internal value representing the emphasis property."""
     comptime BOLD = Self(0)
@@ -324,8 +328,9 @@ struct Emphasis(ImplicitlyCopyable, Equatable):
 
 
 @fieldwise_init
-struct Axis(ImplicitlyCopyable, Equatable):
+struct Axis(Equatable, ImplicitlyCopyable):
     """Axis for alignment and placement."""
+
     var value: UInt8
     """Internal value representing the axis."""
     comptime HORIZONTAL = Self(0)

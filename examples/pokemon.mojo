@@ -41,7 +41,7 @@ def style_func(data: mog.Data, row: UInt, col: UInt) -> mog.Style:
     if data[row - 1, 1] == "Pikachu":
         return selected_style
 
-    var is_even = (row % 2 == 0)
+    var is_even = row % 2 == 0
     if col == 2 or col == 3:
         if is_even:
             return style.foreground(materialize[DIM_TYPE_COLORS]().get(data[row - 1, col], mog.Color(0xFFFFFF)))

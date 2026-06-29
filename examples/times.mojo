@@ -99,6 +99,7 @@ def test_borderless_paragraph():
         )
     )
 
+
 def main():
     test_horizontal_joined_paragraphs()
     test_borderless_paragraph()

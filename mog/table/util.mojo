@@ -1,3 +1,6 @@
+"""Utility functions for working with lists of integers."""
+
+
 def sum(numbers: Span[UInt, ...]) -> UInt:
     """Returns the sum of all integers in a list.
 
@@ -14,8 +17,11 @@ def sum(numbers: Span[UInt, ...]) -> UInt:
     return sum
 
 
-def median[origin: MutOrigin](numbers: Span[UInt, origin]) -> UInt:
+def median[origin: MutOrigin, //](numbers: Span[UInt, origin]) -> UInt:
     """Returns the median of a list of integers.
+
+    Parameters:
+        origin: The origin of the span.
 
     Args:
         numbers: The list of integers.

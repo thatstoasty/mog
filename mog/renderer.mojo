@@ -1,3 +1,4 @@
+"""A module for rendering text in the terminal."""
 import mist
 from mog.position import Position
 

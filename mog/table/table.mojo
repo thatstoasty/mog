@@ -1,3 +1,5 @@
+"""A module for rendering tables in the terminal."""
+
 from mist import Profile
 from mist.transform import truncate
 from mog.border import ROUNDED_BORDER, Border
@@ -10,7 +12,7 @@ from mog.table.util import largest, median, sum
 from mog._extensions import DEFAULT_BUFFER_SIZE, SMALL_BUFFER_SIZE
 
 
-comptime StyleFn = def (data: Data, row: UInt, col: UInt) thin -> Style
+comptime StyleFn = def(data: Data, row: UInt, col: UInt) thin -> Style
 """Styling function that determines the style of a Cell.
 
 It takes the row and column of the cell as an input and determines the
@@ -435,7 +437,9 @@ struct Table(Copyable, Writable):
             result.write(self._construct_bottom_border(widths))
 
         writer.write(
-            Style(Profile.ASCII, max_height=Int(self._compute_height(heights)), max_width=Int(self.width)).render(result)
+            Style(Profile.ASCII, max_height=Int(self._compute_height(heights)), max_width=Int(self.width)).render(
+                result
+            )
         )
 
     def _compute_width(self, widths: List[UInt]) -> UInt:
@@ -595,7 +599,13 @@ struct Table(Copyable, Writable):
 
         var c: UInt = 0
         while c < self.data.columns():
-            var style = self.style(index + 1, c).height(UInt16(height)).max_height(UInt16(height)).width((UInt16(widths[c]))).max_width((UInt16(widths[c])))
+            var style = (
+                self.style(index + 1, c)
+                .height(UInt16(height))
+                .max_height(UInt16(height))
+                .width((UInt16(widths[c])))
+                .max_width((UInt16(widths[c])))
+            )
             cells.append(style.render(truncate(self.data[index, c], (widths[c] * height), "…")))
             if c < self.data.columns() - 1 and self._border_column:
                 cells.append(left)

@@ -1,3 +1,4 @@
+"""A module for representing colors in the terminal."""
 import mist
 from mog.renderer import Renderer
 from std.utils.variant import Variant
@@ -98,7 +99,7 @@ struct ANSIColor(TerminalColor, TrivialRegisterPassable):
     ### Examples:
     ```mojo
     import mog
-    
+
     def main():
         # These two statements are equivalent.
         var color_a = mog.ANSIColor(21)
@@ -371,7 +372,7 @@ struct AnyTerminalColor(ImplicitlyCopyable):
         """
         return self.value.isa[T]()
 
-    def __getitem_param__[T: TerminalColor](ref self) -> ref [self.value] T:
+    def __getitem_param__[T: TerminalColor](ref self) -> ref[self.value] T:
         """Gets the value as the given type.
 
         Parameters:
@@ -381,7 +382,7 @@ struct AnyTerminalColor(ImplicitlyCopyable):
             The value as the given type.
         """
         return self.value[T]
-    
+
     def is_same_type(self, other: Self) -> Bool:
         """Checks if the value is the same type as another `AnyTerminalColor`.
 
@@ -403,5 +404,5 @@ struct AnyTerminalColor(ImplicitlyCopyable):
             return True
         elif self.value.isa[NoColor]() and other.value.isa[NoColor]():
             return True
-        
+
         return False

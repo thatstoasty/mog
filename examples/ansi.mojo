@@ -9,6 +9,6 @@ def main():
             ["Mistborn", s.render("Great")],
             ["The Will of the Many", s.render("Excellent")],
             ["Wheel of Time", s.render("Fantastic")],
-        )
+        ),
     )
     print(table)

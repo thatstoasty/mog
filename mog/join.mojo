@@ -1,3 +1,4 @@
+"""A module for joining text blocks in the terminal."""
 from std import math
 
 from mist.transform.ansi import printable_rune_width
@@ -163,11 +164,7 @@ def join_horizontal(pos: Position, strs: List[String]) -> String:
     return _merge_lines(blocks, max_widths, max_height, pos)
 
 
-def _merge_blocks_vertically(
-    blocks: List[List[String]],
-    max_width: UInt,
-    pos: Position
-) -> String:
+def _merge_blocks_vertically(blocks: List[List[String]], max_width: UInt, pos: Position) -> String:
     """Merge a block (List of List of lines) of lines into a single String.
 
     Args:
@@ -228,7 +225,7 @@ def join_vertical(pos: Position, *strs: String) -> String:
         # Join on the right edge
         text = mog.join_vertical(Position.RIGHT, block_a, block_b)
     ```
-    
+
     Args:
         pos: The position to join the strings.
         strs: The strings to join.

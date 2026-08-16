@@ -54,7 +54,7 @@ comptime NO_TAB_CONVERSION = -1
 
 
 @fieldwise_init
-struct Stylers(Movable):
+struct Stylers(Movable, Writable):
     """A collection of stylers to use when rendering text with a style.
 
     We need to use different stylers for spaces and non-space characters when

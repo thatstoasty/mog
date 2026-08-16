@@ -17,33 +17,27 @@ examples = "sh -c 'find examples -name \"*.mojo\" -exec mojo -D ASSERT=all -I . 
 
 # Linting and Formatting
 lint_docs = "mojo doc --Werror --diagnose-missing-doc-strings -o /dev/null ./mog"
-mojo_format = "mojo format mog test examples benchmarks --line-length 120"
-format = [{ task = "mojo_format" }]
-
-# Build and publish
-build = { cmd = "pixi build -o ." }
-publish = { cmd = "find . -name 'mog-*.conda' | xargs pixi upload https://prefix.dev/api/v1/upload/mojo-community" }
-build_and_publish = [{ task = "build" }, { task = "publish" }]
+format = "mojo format mog test examples benchmarks --line-length 120"
 
 [package]
 name = "mog"
-version = "0.2.1"
+version = "0.3.0"
 
 [package.build]
-backend = { name = "pixi-build-mojo", version = "0.1.*" }
+backend = { name = "pixi-build-mojo", version = "0.*" }
 
 [dependencies]
-mojo = ">=1.0.0b2,<2"
-mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.2.2" }
+mojo = ">=1.0.0,<1.1.0"
+mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.1" }
 
 [package.build-dependencies]
-mojo-compiler = ">=1.0.0b2,<1.0.0b3"
-mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.2.2" }
+mojo-compiler = ">=1.0.0,<1.1.0"
+mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.1" }
 
 [package.host-dependencies]
-mojo-compiler = ">=1.0.0b2,<1.0.0b3"
+mojo-compiler = ">=1.0.0,<1.1.0"
 mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.2.2" }
 
 [package.run-dependencies]
-mojo-compiler = ">=1.0.0b2,<1.0.0b3"
-mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.2.2" }
+mojo-compiler = ">=1.0.0,<1.1.0"
+mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.1" }

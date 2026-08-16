@@ -2,7 +2,7 @@
 from std import math
 
 from mist.transform.ansi import printable_rune_width
-from mog._extensions import get_widest_line, DEFAULT_BUFFER_SIZE
+from mog._extensions import get_widest_line, DEFAULT_BUFFER_SIZE, NEWLINE, WHITESPACE
 from mog.position import Position
 
 

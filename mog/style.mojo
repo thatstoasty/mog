@@ -2,7 +2,7 @@
 import mist
 from mist.transform import truncate, word_wrap, wrap
 from mist.transform.ansi import printable_rune_width
-from mog._extensions import get_lines, get_widest_line, pad_left, pad_right
+from mog._extensions import get_lines, get_widest_line, pad_left, pad_right, WHITESPACE, NEWLINE
 from mog._properties import (
     BorderColor,
     Coloring,
@@ -69,7 +69,7 @@ struct Stylers(Movable):
     """The styler to use for whitespace characters. Only used if the style has COLOR_WHITESPACE enabled."""
 
 
-def _apply_styles(text: String, use_space_styler: Bool, styles: Stylers) -> String:
+def _apply_styles[origin: ImmOrigin, //](text: StringSlice[origin], use_space_styler: Bool, styles: Stylers) -> String:
     """Apply styles to text.
 
     Args:
@@ -104,7 +104,7 @@ def _apply_styles(text: String, use_space_styler: Bool, styles: Stylers) -> Stri
     return result
 
 
-def _wrap_words(text: String, width: UInt16, left_padding: UInt16, right_padding: UInt16) -> String:
+def _wrap_words[origin: ImmOrigin, //](text: StringSlice[origin], width: UInt16, left_padding: UInt16, right_padding: UInt16) -> String:
     var wrap_at = width - left_padding - right_padding
     return wrap(word_wrap(text, UInt(wrap_at)), UInt(wrap_at))
 
@@ -132,7 +132,7 @@ def _maybe_convert_tabs(style: Style, var text: String) -> String:
         return text.replace("\t", (WHITESPACE * Int(DEFAULT_TAB_WIDTH)))
 
 
-def _style_border(style: Style, border: String, fg: AnyTerminalColor, bg: AnyTerminalColor) -> String:
+def _style_border[origin: ImmOrigin, //](style: Style, border: StringSlice[origin], fg: AnyTerminalColor, bg: AnyTerminalColor) -> String:
     """Style a border with foreground and background colors.
 
     Args:
@@ -145,17 +145,17 @@ def _style_border(style: Style, border: String, fg: AnyTerminalColor, bg: AnyTer
         The styled border.
     """
     if fg.isa[NoColor]() and bg.isa[NoColor]():
-        return border
+        return String(border)
 
     return (
         style._renderer.as_mist_style()
-        .foreground(color=fg.to_mist_color(style._renderer))
-        .background(color=bg.to_mist_color(style._renderer))
+        .foreground(color=fg.color(style._renderer))
+        .background(color=bg.color(style._renderer))
         .render(border)
     )
 
 
-def _apply_border(style: Style, text: String) -> String:
+def _apply_border[origin: ImmOrigin, //](style: Style, text: StringSlice[origin]) -> String:
     """Apply a border to the text.
 
     Args:
@@ -188,7 +188,7 @@ def _apply_border(style: Style, text: String) -> String:
 
     # If no border is set or all borders are been disabled, abort.
     if is_no_border or (not has_top and not has_right and not has_bottom and not has_left):
-        return text
+        return String(text)
 
     var lines = text.split(NEWLINE)
     var width = get_widest_line(lines)
@@ -288,7 +288,7 @@ def _apply_border(style: Style, text: String) -> String:
     return result^
 
 
-def _apply_margins(style: Style, var text: String, inline: Bool) -> String:
+def _apply_margins[origin: ImmOrigin, //](style: Style, text: StringSpan[origin], inline: Bool) -> String:
     """Apply margins to the text.
 
     Args:
@@ -300,23 +300,23 @@ def _apply_margins(style: Style, var text: String, inline: Bool) -> String:
         The text with the margins applied.
     """
     var styler = style._renderer.as_mist_style().background(
-        color=style._margin.background.to_mist_color(style._renderer)
+        color=style._margin.background.color(style._renderer)
     )
 
     # Add left and right margin
-    text = pad_right(pad_left(text, Int(style._margin.left), styler), Int(style._margin.right), styler)
+    var padded = pad_right(pad_left(text, Int(style._margin.left), styler), Int(style._margin.right), styler)
 
     # Top/bottom margin
     var top_margin = Int(style._margin.top)
     var bottom_margin = Int(style._margin.bottom)
     if not inline:
-        var width = Int(get_widest_line(text))
+        var width = Int(get_widest_line(padded))
         if top_margin > 0:
-            text = String((WHITESPACE * width + NEWLINE) * top_margin, text)
+            padded = String((WHITESPACE * width + NEWLINE) * top_margin, padded)
         if bottom_margin > 0:
-            text.write((NEWLINE + WHITESPACE * width) * bottom_margin)
+            padded.write((NEWLINE + WHITESPACE * width) * bottom_margin)
 
-    return text^
+    return padded^
 
 
 def _get_styles(style: Style) -> Stylers:
@@ -339,8 +339,8 @@ def _get_styles(style: Style) -> Stylers:
     if style.check_emphasis(Emphasis.STRIKETHROUGH):
         stylers.common = stylers.common.strikethrough()
 
-    var fg_color = style._foreground.to_mist_color(style._renderer)
-    var bg_color = style._background.to_mist_color(style._renderer)
+    var fg_color = style._foreground.color(style._renderer)
+    var bg_color = style._background.color(style._renderer)
     stylers.common = stylers.common.foreground(color=fg_color).background(color=bg_color)
 
     # Do we need to style spaces separately?
@@ -370,7 +370,7 @@ def _get_styles(style: Style) -> Stylers:
 
 # TODO: When we have properties, use it for most of these attributes which are currently
 # using leading underscore to not collide with the setter function.
-struct Style(ImplicitlyCopyable):
+struct Style(Writable, ImplicitlyCopyable):
     """Terminal styler.
 
     #### Usage:
@@ -2150,6 +2150,8 @@ struct Style(ImplicitlyCopyable):
         # Truncate according to max_height
         if self._max_height > 0:
             var final_lines = result.splitlines()
-            result = NEWLINE.join(final_lines[0 : min(Int(self._max_height), len(final_lines))])
+            var truncated_height = min(Int(self._max_height), len(final_lines))
+            var joined_lines = NEWLINE.join(final_lines[0 : truncated_height])
+            result = joined_lines^
 
         return result^

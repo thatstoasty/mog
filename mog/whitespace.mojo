@@ -1,6 +1,6 @@
 """A module for rendering whitespace in the terminal."""
 from mist.transform import ansi
-from mog._extensions import get_lines, get_widest_line, DEFAULT_BUFFER_SIZE
+from mog._extensions import get_lines, get_widest_line, DEFAULT_BUFFER_SIZE, WHITESPACE, NEWLINE
 from mog.align import Alignment
 from mog.position import Position
 from mog.renderer import Renderer
@@ -68,12 +68,12 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
 
         return self.style.render(result)
 
-    def place(
+    def place[origin: ImmOrigin, //](
         self,
         width: UInt,
         height: UInt,
         alignment: Alignment,
-        text: String,
+        text: StringSpan[origin],
     ) -> String:
         """Places a string or text block vertically in an unstyled box of a given
         width or height.
@@ -95,9 +95,9 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
             alignment.vertical,
         )
 
-    def place_horizontal(
+    def place_horizontal[origin: ImmOrigin, //](
         self,
-        text: String,
+        text: StringSpan[origin],
         width: UInt,
         alignment: Position = Position.LEFT,
     ) -> String:
@@ -120,7 +120,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
         var content_width = get_widest_line(lines)
         var gap = width - content_width
         if gap <= 0:
-            return text
+            return String(text)
 
         var result = String(capacity=Int(Float64(text.byte_length()) * 1.25))
         for i in range(len(lines)):
@@ -143,11 +143,11 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
 
         return result^
 
-    def place_vertical(
+    def place_vertical[origin: ImmOrigin, //](
         self,
-        text: String,
+        text: StringSpan[origin],
         height: UInt,
-        alignment: Position = Position(0),
+        alignment: Position = Position.TOP,
     ) -> String:
         """Places a string or text block vertically in an unstyled block
         of a given height. If the given height is shorter than the height of the
@@ -166,7 +166,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
         var content_height = UInt(text.count(NEWLINE) + 1)
         var gap = height - content_height
         if gap <= 0:
-            return text
+            return String(text)
 
         var empty_line = self.render(get_widest_line(text))
         var result = String(capacity=Int(Float64(text.byte_length()) * 1.25))

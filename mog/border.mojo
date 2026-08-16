@@ -4,7 +4,7 @@ from mist.transform.ansi import printable_rune_width
 from std.iter import enumerate
 
 
-struct Border(Equatable, ImplicitlyCopyable):
+struct Border(Equatable, Writable, ImplicitlyCopyable):
     """A border to use to wrap around text."""
 
     var top: String
@@ -80,31 +80,6 @@ struct Border(Equatable, ImplicitlyCopyable):
         self.middle = middle
         self.middle_top = middle_top
         self.middle_bottom = middle_bottom
-
-    def __eq__(self, other: Border) -> Bool:
-        """Check if two borders are equal.
-
-        Args:
-            other: The other border to compare.
-
-        Returns:
-            Whether the two borders are equal.
-        """
-        return (
-            self.top == other.top
-            and self.bottom == other.bottom
-            and self.left == other.left
-            and self.right == other.right
-            and self.top_left == other.top_left
-            and self.top_right == other.top_right
-            and self.bottom_left == other.bottom_left
-            and self.bottom_right == other.bottom_right
-            and self.middle_left == other.middle_left
-            and self.middle_right == other.middle_right
-            and self.middle == other.middle
-            and self.middle_top == other.middle_top
-            and self.middle_bottom == other.middle_bottom
-        )
 
 
 comptime ASCII_BORDER = Border(
@@ -287,7 +262,7 @@ comptime NO_BORDER = Border()
 """No border, all edges are empty strings."""
 
 
-def render_horizontal_edge(left: StringSlice, var middle: String, right: StringSlice, width: UInt) -> String:
+def render_horizontal_edge[lhs_origin: ImmOrigin, rhs_origin: ImmOrigin, //](left: StringSlice[lhs_origin], var middle: String, right: StringSlice[rhs_origin], width: UInt) -> String:
     """Render the horizontal (top or bottom) portion of a border.
 
     Args:

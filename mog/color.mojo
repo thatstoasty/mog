@@ -4,7 +4,7 @@ from mog.renderer import Renderer
 from std.utils.variant import Variant
 
 
-trait TerminalColor(ImplicitlyCopyable):
+trait TerminalColor(Equatable, Writable, ImplicitlyCopyable):
     """Color intended to be rendered in the terminal."""
 
     def color(self, renderer: Renderer) -> mist.AnyColor:
@@ -269,10 +269,10 @@ struct CompleteAdaptiveColor(TerminalColor, TrivialRegisterPassable):
 
 
 @fieldwise_init
-struct AnyTerminalColor(ImplicitlyCopyable):
+struct AnyTerminalColor(Writable, ImplicitlyCopyable):
     """A type that can hold any terminal color."""
 
-    var value: Variant[
+    comptime _type = Variant[
         NoColor,
         Color,
         ANSIColor,
@@ -280,6 +280,7 @@ struct AnyTerminalColor(ImplicitlyCopyable):
         CompleteColor,
         CompleteAdaptiveColor,
     ]
+    var value: Self._type
     """Internal `Color` value."""
 
     @implicit
@@ -336,7 +337,7 @@ struct AnyTerminalColor(ImplicitlyCopyable):
         """
         self.value = color.copy()
 
-    def to_mist_color(self, renderer: Renderer) -> mist.AnyColor:
+    def color(self, renderer: Renderer) -> mist.AnyColor:
         """Converts an `AnyTerminalColor` to an `AnyColor`.
 
         Args:
@@ -348,16 +349,11 @@ struct AnyTerminalColor(ImplicitlyCopyable):
         Notes:
             Useful for converting a `mog.TerminalColor` to a `mist.Color` for use in a `mist.Style`.
         """
-        if self.value.isa[Color]():
-            return self.value[Color].color(renderer)
-        elif self.value.isa[ANSIColor]():
-            return self.value[ANSIColor].color(renderer)
-        elif self.value.isa[AdaptiveColor]():
-            return self.value[AdaptiveColor].color(renderer)
-        elif self.value.isa[CompleteColor]():
-            return self.value[CompleteColor].color(renderer)
-        elif self.value.isa[CompleteAdaptiveColor]():
-            return self.value[CompleteAdaptiveColor].color(renderer)
+        comptime for i in range(len(self._type.Ts)):
+            comptime T = self._type.Ts[i]
+            if self.value.isa[T]():
+                comptime assert conforms_to(T, TerminalColor), "`T` must conform to `TerminalColor`."
+                return self.value[T].color(renderer)
 
         return mist.NoColor()
 
@@ -372,7 +368,7 @@ struct AnyTerminalColor(ImplicitlyCopyable):
         """
         return self.value.isa[T]()
 
-    def __getitem_param__[T: TerminalColor](ref self) -> ref[self.value] T:
+    def __getitem_param__[T: TerminalColor](ref self) -> ref[origin_of(self.value)._get_owned_interior["value"]] T:
         """Gets the value as the given type.
 
         Parameters:
@@ -392,17 +388,9 @@ struct AnyTerminalColor(ImplicitlyCopyable):
         Returns:
             True if the value is the same type as the other, False otherwise.
         """
-        if self.value.isa[Color]() and other.value.isa[Color]():
-            return True
-        elif self.value.isa[ANSIColor]() and other.value.isa[ANSIColor]():
-            return True
-        elif self.value.isa[AdaptiveColor]() and other.value.isa[AdaptiveColor]():
-            return True
-        elif self.value.isa[CompleteColor]() and other.value.isa[CompleteColor]():
-            return True
-        elif self.value.isa[CompleteAdaptiveColor]() and other.value.isa[CompleteAdaptiveColor]():
-            return True
-        elif self.value.isa[NoColor]() and other.value.isa[NoColor]():
-            return True
+        comptime for i in range(len(self._type.Ts)):
+            comptime T = self._type.Ts[i]
+            if self.value.isa[T]() and other.value.isa[T]():
+                return True
 
         return False

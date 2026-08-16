@@ -2,11 +2,11 @@
 
 import mist
 from mist.transform.ansi import printable_rune_width
-from mog._extensions import get_widest_line
+from mog._extensions import get_widest_line, NEWLINE, WHITESPACE
 from mog.position import Position
 
 
-struct Alignment(ImplicitlyCopyable, TrivialRegisterPassable):
+struct Alignment(Equatable, Writable, TrivialRegisterPassable):
     """Alignment represents the horizontal and vertical alignment of text.
 
     Defaults to top-left alignment.
@@ -19,6 +19,8 @@ struct Alignment(ImplicitlyCopyable, TrivialRegisterPassable):
 
     def __init__(out self, *, horizontal: Position = Position.LEFT, vertical: Position = Position.TOP):
         """Initializes a new Alignment.
+
+        Defaults to top-left alignment.
 
         Args:
             horizontal: The horizontal alignment.
@@ -37,8 +39,8 @@ struct Alignment(ImplicitlyCopyable, TrivialRegisterPassable):
         self.vertical = alignment
 
 
-def align_text_horizontal(
-    text: StringSlice, pos: Position, width: UInt16, style: Optional[mist.Style] = None
+def align_text_horizontal[origin: ImmOrigin, //](
+    text: StringSlice[origin], pos: Position, width: UInt16, style: Optional[mist.Style] = None
 ) -> String:
     """Aligns the text on the horizontal axis. If the string is multi-lined, we also make all lines
     the same width by padding them with spaces. The mist style is used to style the spaces added.
@@ -99,7 +101,7 @@ def align_text_horizontal(
     return aligned^
 
 
-def align_text_vertical(text: StringSlice, pos: Position, height: UInt16) -> String:
+def align_text_vertical[origin: ImmOrigin, //](text: StringSlice[origin], pos: Position, height: UInt16) -> String:
     """Aligns the text on the vertical axis. If the string is shorter than the height, it's padded
     with newlines. If the string is taller than the height, return the original
     string.

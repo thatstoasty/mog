@@ -67,7 +67,7 @@ def test_get_lines_empty_string() raises:
 
 
 def test_get_widest_line() raises:
-    widest_line = get_widest_line("hello\nworld!")
+    var widest_line = get_widest_line("hello\nworld!")
     testing.assert_equal(widest_line, 6)
 
     widest_line = get_widest_line("\n\n\n\n")

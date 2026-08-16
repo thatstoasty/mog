@@ -1,7 +1,7 @@
 """A module for representing positions along an axis."""
 
 
-struct Position(Equatable, ImplicitlyCopyable, TrivialRegisterPassable):
+struct Position(Equatable, Writable, TrivialRegisterPassable):
     """Position represents a position along a horizontal or vertical axis. It's in
     situations where an axis is involved, like alignment, joining, placement and
     so on.
@@ -37,14 +37,3 @@ struct Position(Equatable, ImplicitlyCopyable, TrivialRegisterPassable):
             A Position instance.
         """
         self.value = value
-
-    def __eq__(self, other: Self) -> Bool:
-        """Check if two positions are equal.
-
-        Args:
-            other: The other position to compare with.
-
-        Returns:
-            True if the positions are equal, False otherwise.
-        """
-        return self.value == other.value

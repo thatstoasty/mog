@@ -1,7 +1,7 @@
 """Utility functions for working with lists of integers."""
 
 
-def sum(numbers: Span[UInt, ...]) -> UInt:
+def sum[origin: ImmOrigin, //](numbers: Span[UInt, origin]) -> UInt:
     """Returns the sum of all integers in a list.
 
     Args:
@@ -41,7 +41,7 @@ def median[origin: MutOrigin, //](numbers: Span[UInt, origin]) -> UInt:
     return numbers[Int(len(numbers) / 2)]
 
 
-def largest(numbers: Span[UInt, ...]) -> Tuple[UInt, UInt]:
+def largest[origin: ImmOrigin, //](numbers: Span[UInt, origin]) -> Tuple[UInt, UInt]:
     """Returns the largest element and it's index from a list of integers.
 
     Args:

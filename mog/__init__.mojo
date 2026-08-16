@@ -24,8 +24,3 @@ from mog.renderer import Renderer
 from mog.size import get_dimensions, get_height, get_width
 from mog.style import NO_TAB_CONVERSION, Style
 from mog.table import Data, Table, default_styles
-
-comptime WHITESPACE = " "
-"""A single space character used for padding and alignment."""
-comptime NEWLINE = "\n"
-"""A single newline character used for line breaks."""

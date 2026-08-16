@@ -1,9 +1,10 @@
 """A module for measuring the size of a text block in the terminal."""
 from mist.transform import ansi
+from mog._extensions import NEWLINE
 from mog._properties import Dimensions
 
 
-def get_width(text: StringSlice) -> UInt:
+def get_width[origin: ImmOrigin, //](text: StringSlice[origin]) -> UInt:
     """Returns the cell width of characters in the string. ANSI sequences are
     ignored and characters wider than one cell (such as Chinese characters and
     emojis) are appropriately measured.
@@ -25,7 +26,7 @@ def get_width(text: StringSlice) -> UInt:
     return width
 
 
-def get_height(text: StringSlice) -> UInt:
+def get_height[origin: ImmOrigin, //](text: StringSlice[origin]) -> UInt:
     """Returns height of a string in cells. This is done simply by
     counting \\n characters. If your strings use \\r\\n for newlines you should
     convert them to \\n first, or simply write a separate function for measuring
@@ -40,7 +41,7 @@ def get_height(text: StringSlice) -> UInt:
     return UInt(text.count(NEWLINE) + 1)
 
 
-def get_dimensions(text: StringSlice) -> Dimensions:
+def get_dimensions[origin: ImmOrigin, //](text: StringSlice[origin]) -> Dimensions:
     """Returns the width and height of the string in cells. ANSI sequences are
     ignored and characters wider than one cell (such as Chinese characters and
     emojis) are appropriately measured.

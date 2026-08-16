@@ -1,8 +1,8 @@
 from mog.position import Position
-
+from mog.color import AnyTerminalColor, NoColor
 
 @fieldwise_init
-struct PropKey(Equatable, ImplicitlyCopyable, TrivialRegisterPassable):
+struct PropKey(Equatable, Writable, TrivialRegisterPassable):
     """Property keys for the style."""
 
     var _value: UInt8
@@ -105,11 +105,8 @@ struct PropKey(Equatable, ImplicitlyCopyable, TrivialRegisterPassable):
     comptime STRIKETHROUGH_SPACES = Self(42)
     """Crossout spaces between words."""
 
-    def __eq__(self, other: PropKey) -> Bool:
-        return self._value == other._value
 
-
-struct Properties(ImplicitlyCopyable, TrivialRegisterPassable):
+struct Properties(Equatable, Writable, TrivialRegisterPassable):
     """Properties for a style."""
 
     var value: SIMD[DType.bool, 64]
@@ -146,7 +143,9 @@ struct Properties(ImplicitlyCopyable, TrivialRegisterPassable):
         return self.value[Int(key._value)]
 
 
-struct Padding(ImplicitlyCopyable, TrivialRegisterPassable):
+struct Padding(Equatable, Writable, TrivialRegisterPassable):
+    """Padding of the text area."""
+
     var top: UInt16
     """The padding level at the top of the text."""
     var right: UInt16
@@ -175,7 +174,9 @@ struct Padding(ImplicitlyCopyable, TrivialRegisterPassable):
         self.left = x_width
 
 
-struct Margin(ImplicitlyCopyable):
+struct Margin(Equatable, Writable, ImplicitlyCopyable):
+    """Margin of the text area."""
+
     var top: UInt16
     """The margin level at the top of the text."""
     var right: UInt16
@@ -216,7 +217,7 @@ struct Margin(ImplicitlyCopyable):
         self.background = background^
 
 
-struct Dimensions(ImplicitlyCopyable, TrivialRegisterPassable):
+struct Dimensions(Equatable, Writable, TrivialRegisterPassable):
     """Dimensions of the text area."""
 
     var height: UInt16
@@ -229,7 +230,7 @@ struct Dimensions(ImplicitlyCopyable, TrivialRegisterPassable):
         self.width = width
 
 
-struct Coloring(ImplicitlyCopyable):
+struct Coloring(Equatable, Writable, ImplicitlyCopyable):
     """Coloring properties for the text."""
 
     var foreground: AnyTerminalColor
@@ -242,7 +243,7 @@ struct Coloring(ImplicitlyCopyable):
         self.background = background^
 
 
-struct BorderColor(ImplicitlyCopyable):
+struct BorderColor(Equatable, Writable, ImplicitlyCopyable):
     """Border coloring properties for the text."""
 
     var foreground_top: AnyTerminalColor
@@ -284,20 +285,22 @@ struct BorderColor(ImplicitlyCopyable):
 
 
 @fieldwise_init
-struct Side(Equatable, ImplicitlyCopyable):
+struct Side(Equatable, TrivialRegisterPassable, Writable):
     var value: UInt8
+    """Internal value representing the Side property."""
 
     comptime TOP = Self(0)
+    """Indicates the top side of the text area."""
     comptime RIGHT = Self(1)
+    """Indicates the right side of the text area."""
     comptime BOTTOM = Self(2)
+    """Indicates the bottom side of the text area."""
     comptime LEFT = Self(3)
-
-    def __eq__(self, other: Self) -> Bool:
-        return self.value == other.value
+    """Indicates the left side of the text area."""
 
 
 @fieldwise_init
-struct Emphasis(Equatable, ImplicitlyCopyable):
+struct Emphasis(Equatable, TrivialRegisterPassable, Writable):
     """Emphasis properties for the text."""
 
     var value: UInt8
@@ -323,12 +326,9 @@ struct Emphasis(Equatable, ImplicitlyCopyable):
     comptime COLOR_WHITESPACE = Self(9)
     """Whether whitespace background is colored."""
 
-    def __eq__(self, other: Self) -> Bool:
-        return self.value == other.value
-
 
 @fieldwise_init
-struct Axis(Equatable, ImplicitlyCopyable):
+struct Axis(Equatable, TrivialRegisterPassable, Writable):
     """Axis for alignment and placement."""
 
     var value: UInt8
@@ -337,6 +337,3 @@ struct Axis(Equatable, ImplicitlyCopyable):
     """Whether the axis is horizontal."""
     comptime VERTICAL = Self(1)
     """Whether the axis is vertical."""
-
-    def __eq__(self, other: Self) -> Bool:
-        return self.value == other.value

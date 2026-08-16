@@ -1,8 +1,8 @@
 import mist
-from mist.style import color
+from mist import color
 from std import testing
 from std.testing import TestSuite
-from mist.style.color import ANSI256Color, RGBColor
+from mist.color import ANSI256Color, RGBColor
 from mog.color import (
     AdaptiveColor,
     ANSIColor,

@@ -9,7 +9,7 @@ from mog.size import get_height, get_width
 from mog.style import Style
 from mog.table.rows import Data
 from mog.table.util import largest, median, sum
-from mog._extensions import DEFAULT_BUFFER_SIZE, SMALL_BUFFER_SIZE
+from mog._extensions import DEFAULT_BUFFER_SIZE, SMALL_BUFFER_SIZE, NEWLINE
 
 
 comptime StyleFn = def(data: Data, row: UInt, col: UInt) thin -> Style
@@ -403,7 +403,7 @@ struct Table(Copyable, Writable):
                 differences[i] = widths[i] - column_medians[i]
 
             while width > self.width:
-                index, _ = largest(differences)
+                var index, _ = largest(differences)
                 if differences[index] < 1:
                     break
 
@@ -415,7 +415,7 @@ struct Table(Copyable, Writable):
             # Table is still too wide, begin shrinking the columns based on the
             # largest column.
             while width > self.width:
-                index, _ = largest(widths)
+                var index, _ = largest(widths)
                 if widths[index] < 1:
                     break
 
@@ -500,7 +500,7 @@ struct Table(Copyable, Writable):
         if self._border_right:
             result.write(self._border_style.render(self._border.top_right))
 
-        return result
+        return result^
 
     def _construct_bottom_border(self, widths: List[UInt]) -> String:
         """Constructs the bottom border for the table given it's current
@@ -526,7 +526,7 @@ struct Table(Copyable, Writable):
         if self._border_right:
             result.write(self._border_style.render(self._border.bottom_right))
 
-        return result
+        return result^
 
     def _construct_headers(self, widths: List[UInt], headers: List[String]) -> String:
         """Constructs the headers for the table given it's current
@@ -554,7 +554,7 @@ struct Table(Copyable, Writable):
             if self._border_right:
                 result.write(self._border_style.render(self._border.right))
 
-            result.write("\n")
+            result.write(NEWLINE)
             if self._border_left:
                 result.write(self._border_style.render(self._border.middle_left))
 
@@ -572,7 +572,7 @@ struct Table(Copyable, Writable):
         if self._border_right and not self._border_header:
             result.write(self._border_style.render(self._border.right))
 
-        return result
+        return result^
 
     def _construct_row(self, index: UInt, widths: List[UInt], heights: List[UInt], headers: List[String]) -> String:
         """Constructs the row for the table given an index and row data
@@ -593,7 +593,7 @@ struct Table(Copyable, Writable):
         var height = heights[index + UInt(has_headers)]
 
         var cells = List[String]()
-        var left = (self._border_style.render(self._border.left) + "\n") * Int(height)
+        var left = (self._border_style.render(self._border.left) + NEWLINE) * Int(height)
         if self._border_left:
             cells.append(left)
 
@@ -613,13 +613,14 @@ struct Table(Copyable, Writable):
             c += 1
 
         if self._border_right:
-            cells.append((self._border_style.render(self._border.right) + "\n") * Int(height))
+            cells.append((self._border_style.render(self._border.right) + NEWLINE) * Int(height))
 
         for i in range(len(cells)):
-            if cells[i].endswith("\n"):
-                cells[i] = String(cells[i].removesuffix("\n"))
+            if cells[i].endswith(NEWLINE):
+                var trimmed = String(cells[i].removesuffix(NEWLINE))
+                cells[i] = trimmed^
 
-        result.write(join_horizontal(Position.TOP, cells), "\n")
+        result.write(join_horizontal(Position.TOP, cells), NEWLINE)
 
         if self._border_row and index < self.data.rows() - 1:
             result.write(self._border_style.render(self._border.middle_left))
@@ -630,6 +631,6 @@ struct Table(Copyable, Writable):
                     result.write(self._border_style.render(self._border.middle))
 
                 i += 1
-            result.write(self._border_style.render(self._border.middle_right) + "\n")
+            result.write(self._border_style.render(self._border.middle_right), NEWLINE)
 
-        return result
+        return result^

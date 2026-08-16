@@ -5,9 +5,13 @@ comptime DEFAULT_BUFFER_SIZE = 1024
 """Default buffer size to use when creating new strings. This is used to avoid excessive reallocations."""
 comptime SMALL_BUFFER_SIZE = 128
 """A smaller buffer size to use when creating new strings. This is used for small strings to avoid wasting memory."""
+comptime WHITESPACE = " "
+"""A single space character used for padding and alignment."""
+comptime NEWLINE = "\n"
+"""A single newline character used for line breaks."""
 
 
-def get_lines[origin: ImmutOrigin, //](text: StringSlice[origin]) -> Tuple[List[StringSlice[origin].Immutable], UInt]:
+def get_lines[origin: ImmOrigin, //](text: StringSlice[origin]) -> Tuple[List[StringSlice[origin].Immutable], UInt]:
     """Split a string into lines.
 
     Args:
@@ -26,7 +30,7 @@ def get_lines[origin: ImmutOrigin, //](text: StringSlice[origin]) -> Tuple[List[
     return lines^, widest_line
 
 
-def get_widest_line[origin: ImmutOrigin, //](text: StringSlice[origin]) -> UInt:
+def get_widest_line[origin: ImmOrigin, //](text: StringSlice[origin]) -> UInt:
     """Split a string into lines.
 
     Args:
@@ -47,7 +51,7 @@ def get_widest_line[origin: ImmutOrigin, //](text: StringSlice[origin]) -> UInt:
     return widest
 
 
-def get_widest_line[origin: ImmutOrigin, //](lines: List[StringSlice[origin]]) -> UInt:
+def get_widest_line[origin: ImmOrigin, //](lines: List[StringSlice[origin]]) -> UInt:
     """Get the width of the widest line.
 
     Args:
@@ -68,7 +72,7 @@ def get_widest_line[origin: ImmutOrigin, //](lines: List[StringSlice[origin]]) -
     return widest
 
 
-def pad(text: StringSlice, n: Int, style: mist.Style) -> String:
+def pad[origin: ImmOrigin, //](text: StringSlice[origin], n: Int, style: mist.Style) -> String:
     """Pad text with spaces.
 
     Args:
@@ -98,7 +102,7 @@ def pad(text: StringSlice, n: Int, style: mist.Style) -> String:
 
 
 @always_inline
-def pad_left(text: StringSlice, n: Int, style: mist.Style) -> String:
+def pad_left[origin: ImmOrigin, //](text: StringSlice[origin], n: Int, style: mist.Style) -> String:
     """Pad text with spaces to the left.
 
     Args:
@@ -113,7 +117,7 @@ def pad_left(text: StringSlice, n: Int, style: mist.Style) -> String:
 
 
 @always_inline
-def pad_right(text: StringSlice, n: Int, style: mist.Style) -> String:
+def pad_right[origin: ImmOrigin, //](text: StringSlice[origin], n: Int, style: mist.Style) -> String:
     """Pad text with spaces to the right.
 
     Args:

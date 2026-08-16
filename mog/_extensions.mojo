@@ -11,7 +11,7 @@ comptime NEWLINE = "\n"
 """A single newline character used for line breaks."""
 
 
-def get_lines[origin: ImmOrigin, //](text: StringSlice[origin]) -> Tuple[List[StringSlice[origin].Immutable], UInt]:
+def get_lines[origin: ImmOrigin, //](text: StringSpan[origin]) -> Tuple[List[StringSpan[origin].Immutable], UInt]:
     """Split a string into lines.
 
     Args:
@@ -30,7 +30,7 @@ def get_lines[origin: ImmOrigin, //](text: StringSlice[origin]) -> Tuple[List[St
     return lines^, widest_line
 
 
-def get_widest_line[origin: ImmOrigin, //](text: StringSlice[origin]) -> UInt:
+def get_widest_line[origin: ImmOrigin, //](text: StringSpan[origin]) -> UInt:
     """Split a string into lines.
 
     Args:
@@ -51,7 +51,7 @@ def get_widest_line[origin: ImmOrigin, //](text: StringSlice[origin]) -> UInt:
     return widest
 
 
-def get_widest_line[origin: ImmOrigin, //](lines: List[StringSlice[origin]]) -> UInt:
+def get_widest_line[origin: ImmOrigin, //](lines: List[StringSpan[origin]]) -> UInt:
     """Get the width of the widest line.
 
     Args:
@@ -72,7 +72,7 @@ def get_widest_line[origin: ImmOrigin, //](lines: List[StringSlice[origin]]) -> 
     return widest
 
 
-def pad[origin: ImmOrigin, //](text: StringSlice[origin], n: Int, style: mist.Style) -> String:
+def pad[origin: ImmOrigin, //](text: StringSpan[origin], n: Int, style: mist.Style) -> String:
     """Pad text with spaces.
 
     Args:
@@ -102,7 +102,7 @@ def pad[origin: ImmOrigin, //](text: StringSlice[origin], n: Int, style: mist.St
 
 
 @always_inline
-def pad_left[origin: ImmOrigin, //](text: StringSlice[origin], n: Int, style: mist.Style) -> String:
+def pad_left[origin: ImmOrigin, //](text: StringSpan[origin], n: Int, style: mist.Style) -> String:
     """Pad text with spaces to the left.
 
     Args:
@@ -117,7 +117,7 @@ def pad_left[origin: ImmOrigin, //](text: StringSlice[origin], n: Int, style: mi
 
 
 @always_inline
-def pad_right[origin: ImmOrigin, //](text: StringSlice[origin], n: Int, style: mist.Style) -> String:
+def pad_right[origin: ImmOrigin, //](text: StringSpan[origin], n: Int, style: mist.Style) -> String:
     """Pad text with spaces to the right.
 
     Args:

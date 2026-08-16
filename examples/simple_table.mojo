@@ -10,7 +10,8 @@ from mog.table import Data, Table
 from mog.table.table import default_styles
 
 
-def dummy_style_func(data: Data, row: UInt, col: UInt) -> Style:
+def dummy_style_func[columns: Int](data: Data[columns], row: UInt, col: UInt) -> Style
+    where columns > 0:
     var style = mog.Style(alignment=Alignment(Position.CENTER), padding=Padding(1, 0))
     if row == 0:
         return style.foreground(mog.Color(0xC9A0DC))
@@ -22,9 +23,13 @@ def dummy_style_func(data: Data, row: UInt, col: UInt) -> Style:
 
 def main():
     var border_style = mog.Style(foreground=mog.Color(0x39E506))
+    var data = Data([
+        ["French", "Bonjour", "Salut"],
+        ["Russian", "Zdravstvuyte", "Privet"]
+    ])
 
     var table = Table(
-        style_function=dummy_style_func,
+        style_function=dummy_style_func[data.columns],
         border=ROUNDED_BORDER,
         border_style=border_style,
         border_bottom=True,
@@ -33,14 +38,14 @@ def main():
         border_left=True,
         border_right=True,
         border_top=True,
-        data=Data(["French", "Bonjour", "Salut"], ["Russian", "Zdravstvuyte", "Privet"]),
+        data=data^,
         width=50,
     )
     var headerless_start_time = perf_counter_ns()
     print(table)
     var headerless_execution_time = perf_counter_ns() - headerless_start_time
 
-    table = table.set_headers("LANGUAGE", "FORMAL", "INFORMAL")
+    table = table.set_headers(["LANGUAGE", "FORMAL", "INFORMAL"])
     var headered_start_time = perf_counter_ns()
     print(table)
     var headered_execution_time = perf_counter_ns() - headered_start_time

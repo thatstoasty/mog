@@ -69,7 +69,7 @@ struct Stylers(Movable):
     """The styler to use for whitespace characters. Only used if the style has COLOR_WHITESPACE enabled."""
 
 
-def _apply_styles[origin: ImmOrigin, //](text: StringSlice[origin], use_space_styler: Bool, styles: Stylers) -> String:
+def _apply_styles[origin: ImmOrigin, //](text: StringSpan[origin], use_space_styler: Bool, styles: Stylers) -> String:
     """Apply styles to text.
 
     Args:
@@ -104,7 +104,7 @@ def _apply_styles[origin: ImmOrigin, //](text: StringSlice[origin], use_space_st
     return result
 
 
-def _wrap_words[origin: ImmOrigin, //](text: StringSlice[origin], width: UInt16, left_padding: UInt16, right_padding: UInt16) -> String:
+def _wrap_words[origin: ImmOrigin, //](text: StringSpan[origin], width: UInt16, left_padding: UInt16, right_padding: UInt16) -> String:
     var wrap_at = width - left_padding - right_padding
     return wrap(word_wrap(text, UInt(wrap_at)), UInt(wrap_at))
 
@@ -132,7 +132,7 @@ def _maybe_convert_tabs(style: Style, var text: String) -> String:
         return text.replace("\t", (WHITESPACE * Int(DEFAULT_TAB_WIDTH)))
 
 
-def _style_border[origin: ImmOrigin, //](style: Style, border: StringSlice[origin], fg: AnyTerminalColor, bg: AnyTerminalColor) -> String:
+def _style_border[origin: ImmOrigin, //](style: Style, border: StringSpan[origin], fg: AnyTerminalColor, bg: AnyTerminalColor) -> String:
     """Style a border with foreground and background colors.
 
     Args:
@@ -155,7 +155,7 @@ def _style_border[origin: ImmOrigin, //](style: Style, border: StringSlice[origi
     )
 
 
-def _apply_border[origin: ImmOrigin, //](style: Style, text: StringSlice[origin]) -> String:
+def _apply_border[origin: ImmOrigin, //](style: Style, text: StringSpan[origin]) -> String:
     """Apply a border to the text.
 
     Args:

@@ -1,12 +1,10 @@
 import mog
 from mog import Profile, Padding, Emphasis
 
-
 # TODO: There's an issue with rows being taller than 1 line. Adding vertical padding will break the table.
 comptime style = mog.Style(Profile.TRUE_COLOR, padding=Padding(1, 0))
 comptime header_style = style.set_emphasis(Emphasis.BOLD).foreground(mog.Color(252))
 comptime selected_style = style.foreground(mog.Color(0x01BE85)).background(mog.Color(0x00432F))
-
 
 comptime TYPE_COLORS: Dict[String, mog.Color] = {
     "Bug": mog.Color(0xD7FF87),
@@ -19,7 +17,6 @@ comptime TYPE_COLORS: Dict[String, mog.Color] = {
     "Poison": mog.Color(0x7D5AFC),
     "Water": mog.Color(0x00E2C7),
 }
-
 
 comptime DIM_TYPE_COLORS: Dict[String, mog.Color] = {
     "Bug": mog.Color(0x97AD64),
@@ -34,7 +31,8 @@ comptime DIM_TYPE_COLORS: Dict[String, mog.Color] = {
 }
 
 
-def style_func(data: mog.Data, row: UInt, col: UInt) -> mog.Style:
+def style_func[columns: Int](data: mog.Data[columns], row: UInt, col: UInt) -> mog.Style
+    where columns > 0:
     if row == 0:
         return header_style
 
@@ -55,50 +53,51 @@ def style_func(data: mog.Data, row: UInt, col: UInt) -> mog.Style:
 
 
 def main():
-    var headers: List[StaticString] = ["#", "Name", "Type 1", "Type 2", "Japanese", "Official Rom."]
+    var headers = ["#", "Name", "Type 1", "Type 2", "Japanese", "Official Rom."]
 
-    def capitalize_headers(data: List[StaticString]) -> List[String]:
-        var upper = List[String]()
-        for element in data:
-            upper.append(element.upper())
-
+    def capitalize_headers(data: Array[String, 6]) -> Array[String, 6]:
+        var upper = Array[String, 6](fill="")
+        comptime for i in range(data.length):
+            upper[i] = data[i].upper()
         return upper^
+    
+    var data = mog.Data([
+        ["1", "Bulbasaur", "Grass", "Poison", "フシギダネ", "Bulbasaur"],
+        ["2", "Ivysaur", "Grass", "Poison", "フシギソウ", "Ivysaur"],
+        ["3", "Venusaur", "Grass", "Poison", "フシギバナ", "Venusaur"],
+        ["4", "Charmander", "Fire", "", "ヒトカゲ", "Hitokage"],
+        ["5", "Charmeleon", "Fire", "", "リザード", "Lizardo"],
+        ["5", "Charmeleon", "Fire", "Flying", "リザードン", "Lizardon"],
+        ["7", "Squirtle", "Water", "", "ゼニガメ", "Zenigame"],
+        ["8", "Wartortle", "Water", "", "カメール", "Kameil"],
+        ["9", "Blastoise", "Water", "", "カメックス", "Kamex"],
+        ["10", "Caterpie", "Bug", "", "キャタピー", "Caterpie"],
+        ["11", "Metapod", "Bug", "", "トランセル", "Trancell"],
+        ["12", "Butterfree", "Bug", "Flying", "バタフリー", "Butterfree"],
+        ["13", "Weedle", "Bug", "Poison", "ビードル", "Beedle"],
+        ["14", "Kakuna", "Bug", "Poison", "コクーン", "Cocoon"],
+        ["15", "Beedrill", "Bug", "Poison", "スピアー", "Spear"],
+        ["16", "Pidgey", "Normal", "Flying", "ポッポ", "Poppo"],
+        ["17", "Pidgeotto", "Normal", "Flying", "ピジョン", "Pigeon"],
+        ["18", "Pidgeot", "Normal", "Flying", "ピジョット", "Pigeot"],
+        ["19", "Rattata", "Normal", "", "コラッタ", "Koratta"],
+        ["20", "Raticate", "Normal", "", "ラッタ", "Ratta"],
+        ["21", "Spearow", "Normal", "Flying", "オニスズメ", "Onisuzume"],
+        ["22", "Fearow", "Normal", "Flying", "オニドリル", "Onidrill"],
+        ["23", "Ekans", "Poison", "", "アーボ", "Arbo"],
+        ["24", "Arbok", "Poison", "", "アーボック", "Arbok"],
+        ["25", "Pikachu", "Electric", "", "ピカチュウ", "Pikachu"],
+        ["26", "Raichu", "Electric", "", "ライチュウ", "Raichu"],
+        ["27", "Sandshrew", "Ground", "", "サンド", "Sand"],
+        ["28", "Sandslash", "Ground", "", "サンドパン", "Sandpan"],
+    ])
 
     var table = mog.Table(
         width=100,
         border_style=mog.Style().foreground(mog.Color(238)),
         headers=capitalize_headers(headers),
-        data=mog.Data(
-            ["1", "Bulbasaur", "Grass", "Poison", "フシギダネ", "Bulbasaur"],
-            ["2", "Ivysaur", "Grass", "Poison", "フシギソウ", "Ivysaur"],
-            ["3", "Venusaur", "Grass", "Poison", "フシギバナ", "Venusaur"],
-            ["4", "Charmander", "Fire", "", "ヒトカゲ", "Hitokage"],
-            ["5", "Charmeleon", "Fire", "", "リザード", "Lizardo"],
-            ["5", "Charmeleon", "Fire", "Flying", "リザードン", "Lizardon"],
-            ["7", "Squirtle", "Water", "", "ゼニガメ", "Zenigame"],
-            ["8", "Wartortle", "Water", "", "カメール", "Kameil"],
-            ["9", "Blastoise", "Water", "", "カメックス", "Kamex"],
-            ["10", "Caterpie", "Bug", "", "キャタピー", "Caterpie"],
-            ["11", "Metapod", "Bug", "", "トランセル", "Trancell"],
-            ["12", "Butterfree", "Bug", "Flying", "バタフリー", "Butterfree"],
-            ["13", "Weedle", "Bug", "Poison", "ビードル", "Beedle"],
-            ["14", "Kakuna", "Bug", "Poison", "コクーン", "Cocoon"],
-            ["15", "Beedrill", "Bug", "Poison", "スピアー", "Spear"],
-            ["16", "Pidgey", "Normal", "Flying", "ポッポ", "Poppo"],
-            ["17", "Pidgeotto", "Normal", "Flying", "ピジョン", "Pigeon"],
-            ["18", "Pidgeot", "Normal", "Flying", "ピジョット", "Pigeot"],
-            ["19", "Rattata", "Normal", "", "コラッタ", "Koratta"],
-            ["20", "Raticate", "Normal", "", "ラッタ", "Ratta"],
-            ["21", "Spearow", "Normal", "Flying", "オニスズメ", "Onisuzume"],
-            ["22", "Fearow", "Normal", "Flying", "オニドリル", "Onidrill"],
-            ["23", "Ekans", "Poison", "", "アーボ", "Arbo"],
-            ["24", "Arbok", "Poison", "", "アーボック", "Arbok"],
-            ["25", "Pikachu", "Electric", "", "ピカチュウ", "Pikachu"],
-            ["26", "Raichu", "Electric", "", "ライチュウ", "Raichu"],
-            ["27", "Sandshrew", "Ground", "", "サンド", "Sand"],
-            ["28", "Sandslash", "Ground", "", "サンドパン", "Sandpan"],
-        ),
-        style_function=style_func,
+        data=data^,
+        style_function=style_func[data.columns],
     )
 
     print(table)

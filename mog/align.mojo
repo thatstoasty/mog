@@ -40,7 +40,7 @@ struct Alignment(Equatable, Writable, TrivialRegisterPassable):
 
 
 def align_text_horizontal[origin: ImmOrigin, //](
-    text: StringSlice[origin], pos: Position, width: UInt16, style: Optional[mist.Style] = None
+    text: StringSpan[origin], pos: Position, width: UInt16, style: Optional[mist.Style] = None
 ) -> String:
     """Aligns the text on the horizontal axis. If the string is multi-lined, we also make all lines
     the same width by padding them with spaces. The mist style is used to style the spaces added.
@@ -101,7 +101,7 @@ def align_text_horizontal[origin: ImmOrigin, //](
     return aligned^
 
 
-def align_text_vertical[origin: ImmOrigin, //](text: StringSlice[origin], pos: Position, height: UInt16) -> String:
+def align_text_vertical[origin: ImmOrigin, //](text: StringSpan[origin], pos: Position, height: UInt16) -> String:
     """Aligns the text on the vertical axis. If the string is shorter than the height, it's padded
     with newlines. If the string is taller than the height, return the original
     string.

@@ -12,7 +12,7 @@ from mog.table.util import largest, median, sum
 from mog._extensions import DEFAULT_BUFFER_SIZE, SMALL_BUFFER_SIZE, NEWLINE
 
 
-comptime StyleFn = def(data: Data, row: UInt, col: UInt) thin -> Style
+comptime StyleFn[columns: Int] where columns > 0 = def(data: Data[columns], row: UInt, col: UInt) thin -> Style
 """Styling function that determines the style of a Cell.
 
 It takes the row and column of the cell as an input and determines the
@@ -46,7 +46,8 @@ def main():
 """
 
 
-def default_styles(data: Data, row: UInt, col: UInt) -> Style:
+def default_styles[columns: Int](data: Data[columns], row: UInt, col: UInt) -> Style
+    where columns > 0:
     """Returns a new Style with no attributes.
 
     Args:
@@ -61,7 +62,7 @@ def default_styles(data: Data, row: UInt, col: UInt) -> Style:
 
 
 # TODO: Parametrize on data field, so other structs that implement `Data` can be used. For now it only support `StringData`.
-struct Table(Copyable, Writable):
+struct Table[columns: Int](Copyable, Writable) where columns > 0:
     """Used to model and render tabular data as a table.
 
     #### Examples:
@@ -80,18 +81,19 @@ struct Table(Copyable, Writable):
     def main():
         var t = mog.Table(
             headers=["Name", "Age"],
-            data=mog.Data(
+            data=mog.Data([
                 ["Kini", "4"],
                 ["Eli", "1"],
                 ["Iris", "102"],
-            ),
+            ]),
             style_function=styler
         )
         print(t)
     ```
     """
 
-    var _styler: StyleFn
+    comptime DataType = Data[Self.columns]
+    var _styler: StyleFn[Self.columns]
     """The style function that determines the style of a cell. It returns a `mog.Style` for a given row and column position."""
     var _border: Border
     """The border style to use for the table."""
@@ -111,10 +113,10 @@ struct Table(Copyable, Writable):
     """Whether to render the row divider borders for each row of the table."""
     var _border_style: Style
     """The style to use for the border."""
-    var _headers: List[String]
-    """The headers of the table."""
-    var data: Data
+    var data: Data[Self.columns]
     """The data of the table."""
+    var _headers: Optional[Array[String, Self.columns]] 
+    """The headers of the table."""
     var width: UInt
     """The width of the table."""
     var height: UInt
@@ -125,7 +127,7 @@ struct Table(Copyable, Writable):
     def __init__(
         out self,
         *,
-        style_function: StyleFn = default_styles,
+        style_function: StyleFn[Self.columns] = default_styles[Self.columns],
         border_style: Optional[Style] = None,
         border: Border = ROUNDED_BORDER,
         border_top: Bool = True,
@@ -135,8 +137,8 @@ struct Table(Copyable, Writable):
         border_header: Bool = True,
         border_column: Bool = True,
         border_row: Bool = False,
-        var headers: List[String] = List[String](),
-        var data: Data = Data(),
+        var headers: Array[String, Self.columns] = None,
+        var data: Self.DataType = {},
         width: UInt = 0,
         height: UInt = 0,
     ):
@@ -174,28 +176,97 @@ struct Table(Copyable, Writable):
         self.height = height
         self._offset = 0
 
+    # TODO: Duplicate init without headers field bc Mojo can't infer Self.columns on an optional
+    # even though data uses the same parameter.
+    def __init__(
+        out self,
+        *,
+        style_function: StyleFn[Self.columns] = default_styles[Self.columns],
+        border_style: Optional[Style] = None,
+        border: Border = ROUNDED_BORDER,
+        border_top: Bool = True,
+        border_bottom: Bool = True,
+        border_left: Bool = True,
+        border_right: Bool = True,
+        border_header: Bool = True,
+        border_column: Bool = True,
+        border_row: Bool = False,
+        var data: Self.DataType = {},
+        width: UInt = 0,
+        height: UInt = 0,
+    ):
+        """Initializes a new Table.
+
+        Args:
+            style_function: The style function that determines the style of a cell.
+            border_style: The style to use for the border.
+            border: The border style to use for the table.
+            border_top: Whether to render the top border of the table.
+            border_bottom: Whether to render the bottom border of the table.
+            border_left: Whether to render the left border of the table.
+            border_right: Whether to render the right border of the table.
+            border_header: Whether to render the header border of the table.
+            border_column: Whether to render the column border of the table.
+            border_row: Whether to render the row divider borders for each row of the table.
+            data: The data of the table.
+            width: The width of the table.
+            height: The height of the table.
+        """
+        self._styler = style_function
+        self._border = border.copy()
+        self._border_style = border_style.value().copy() if border_style else Style()
+        self._border_top = border_top
+        self._border_bottom = border_bottom
+        self._border_left = border_left
+        self._border_right = border_right
+        self._border_header = border_header
+        self._border_column = border_column
+        self._border_row = border_row
+        self._headers = None
+        self.data = data^
+        self.width = width
+        self.height = height
+        self._offset = 0
+
     def copy(self) -> Self:
         """Returns a copy of the Table.
 
         Returns:
             A copy of the Table.
         """
-        return Self(
-            style_function=self._styler,
-            border_style=self._border_style.copy(),
-            border=self._border,
-            border_top=self._border_top,
-            border_bottom=self._border_bottom,
-            border_left=self._border_left,
-            border_right=self._border_right,
-            border_header=self._border_header,
-            border_column=self._border_column,
-            border_row=self._border_row,
-            headers=self._headers.copy(),
-            data=self.data.copy(),
-            width=self.width,
-            height=self.height,
-        )
+        if self._headers:
+            return Self(
+                style_function=self._styler,
+                border_style=self._border_style.copy(),
+                border=self._border,
+                border_top=self._border_top,
+                border_bottom=self._border_bottom,
+                border_left=self._border_left,
+                border_right=self._border_right,
+                border_header=self._border_header,
+                border_column=self._border_column,
+                border_row=self._border_row,
+                headers=self._headers.value().copy(),
+                data=self.data.copy(),
+                width=self.width,
+                height=self.height,
+            )
+        else:
+            return Self(
+                style_function=self._styler,
+                border_style=self._border_style.copy(),
+                border=self._border,
+                border_top=self._border_top,
+                border_bottom=self._border_bottom,
+                border_left=self._border_left,
+                border_right=self._border_right,
+                border_header=self._border_header,
+                border_column=self._border_column,
+                border_row=self._border_row,
+                data=self.data.copy(),
+                width=self.width,
+                height=self.height,
+            )
 
     def copy_without_data(self) -> Self:
         """Returns a copy of the Table with an empty Data attribute.
@@ -203,22 +274,39 @@ struct Table(Copyable, Writable):
         Returns:
             A copy of the Table.
         """
-        return Self(
-            style_function=self._styler,
-            border_style=self._border_style.copy(),
-            border=self._border,
-            border_top=self._border_top,
-            border_bottom=self._border_bottom,
-            border_left=self._border_left,
-            border_right=self._border_right,
-            border_header=self._border_header,
-            border_column=self._border_column,
-            border_row=self._border_row,
-            headers=self._headers.copy(),
-            data=Data(),
-            width=self.width,
-            height=self.height,
-        )
+        if self._headers:
+            return Self(
+                style_function=self._styler,
+                border_style=self._border_style.copy(),
+                border=self._border,
+                border_top=self._border_top,
+                border_bottom=self._border_bottom,
+                border_left=self._border_left,
+                border_right=self._border_right,
+                border_header=self._border_header,
+                border_column=self._border_column,
+                border_row=self._border_row,
+                headers=self._headers.value().copy(),
+                data=Self.DataType(),
+                width=self.width,
+                height=self.height,
+            )
+        else:
+            return Self(
+                style_function=self._styler,
+                border_style=self._border_style.copy(),
+                border=self._border,
+                border_top=self._border_top,
+                border_bottom=self._border_bottom,
+                border_left=self._border_left,
+                border_right=self._border_right,
+                border_header=self._border_header,
+                border_column=self._border_column,
+                border_row=self._border_row,
+                data=Self.DataType(),
+                width=self.width,
+                height=self.height,
+            )
 
     def clear_rows(self) -> Self:
         """Clears the table rows.
@@ -240,23 +328,7 @@ struct Table(Copyable, Writable):
         """
         return self._styler(self.data, row, col)
 
-    def set_headers(self, *headers: String) -> Self:
-        """Sets the table headers.
-
-        Args:
-            headers: The headers to set.
-
-        Returns:
-            The updated table.
-        """
-        var new = self.copy()
-        var temp = List[String](capacity=len(headers))
-        for element in headers:
-            temp.append(element)
-        new._headers = temp^
-        return new^
-
-    def set_headers(self, var headers: List[String]) -> Self:
+    def set_headers(self, var headers: Array[String, Self.columns]) -> Self:
         """Sets the table headers.
 
         Args:
@@ -268,6 +340,11 @@ struct Table(Copyable, Writable):
         var new = self.copy()
         new._headers = headers^
         return new^
+    
+    def headers_length(self) -> Int:
+        if self._headers:
+            return len(self._headers.value())
+        return 0
 
     # def set_style(self, styler: StyleFunction) -> Self:
     #     """Sets the table headers.
@@ -288,7 +365,7 @@ struct Table(Copyable, Writable):
         Args:
             writer: The writer to write to.
         """
-        var has_headers = len(self._headers) > 0
+        var has_headers = self._headers is not None
         var has_rows = self.data.rows() > 0
         if not has_headers and not has_rows:
             return
@@ -296,36 +373,33 @@ struct Table(Copyable, Writable):
         var result = String(capacity=DEFAULT_BUFFER_SIZE)
         # Add empty cells to the headers, until it's the same length as the longest
         # row (only if there are at headers in the first place).
-        var headers = self._headers.copy()
-        if has_headers:
-            var i = UInt(len(headers))
-            while i < self.data.columns():
-                headers.append("")
-                i += 1
+        # var headers = self._headers.copy()
+        # if has_headers:
+        #     var i = UInt(len(headers))
+        #     while i < UInt(Self.columns):
+        #         headers.append("")
+        #         i += 1
 
         # Initialize the widths.
-        var widths_len = max(len(self._headers), Int(self.data.columns()))
-        var widths = List[UInt](capacity=widths_len)
-        for _ in range(widths_len):
-            widths.append(0)
+        var widths = Array[UInt, Self.columns](fill=0)
 
         # Initialize the heights.
         var heights_len = Int(has_headers) + Int(self.data.rows())
-        var heights = List[UInt](capacity=heights_len)
-        for _ in range(heights_len):
-            heights.append(0)
+        var heights: List[UInt] = [0 for _ in range(heights_len)]
 
         # The style function may affect width of the table. It's possible to set
         # the StyleFunction after the headers and rows. Update the widths for a final
         # time.
-        for i in range(UInt(len(headers))):
-            widths[i] = get_width(self.style(0, i).render(headers[i]))
-            heights[0] = get_height(self.style(0, i).render(headers[i]))
+        if self._headers:
+            for i in range(UInt(self._headers.value().length)):
+                widths[i] = get_width(self.style(0, i).render(self._headers.value()[i]))
+                heights[0] = get_height(self.style(0, i).render(self._headers.value()[i]))
 
         var row_number: UInt = 0
-        while row_number < self.data.rows():
+        var row_count = self.data.rows()
+        while row_number < row_count:
             var column_number: UInt = 0
-            while column_number < self.data.columns():
+            while column_number < UInt(Self.columns):
                 var rendered = self.style(row_number + 1, column_number).render(self.data[row_number, column_number])
                 var row_number_with_header_offset = row_number + UInt(has_headers)
                 heights[row_number_with_header_offset] = max(
@@ -426,11 +500,11 @@ struct Table(Copyable, Writable):
             result.write(self._construct_top_border(widths), NEWLINE)
 
         if has_headers:
-            result.write(self._construct_headers(widths, headers), NEWLINE)
+            result.write(self._construct_headers(widths, self._headers.value()), NEWLINE)
 
         var r = self._offset
         while r < self.data.rows():
-            result.write(self._construct_row(r, widths, heights, headers))
+            result.write(self._construct_row(r, widths, heights, self._headers))
             r += 1
 
         if self._border_bottom:
@@ -442,7 +516,7 @@ struct Table(Copyable, Writable):
             )
         )
 
-    def _compute_width(self, widths: List[UInt]) -> UInt:
+    def _compute_width(self, widths: Array[UInt, Self.columns]) -> UInt:
         """Computes the width of the table in it's current configuration.
 
         Args:
@@ -469,14 +543,14 @@ struct Table(Copyable, Writable):
         return (
             sum(heights)
             - 1
-            + UInt(len(self._headers) > 0)
+            + UInt(self.headers_length() > 0)
             + UInt(self._border_top)
             + UInt(self._border_bottom)
             + UInt(self._border_header)
             + self.data.rows() * UInt(self._border_row)
         )
 
-    def _construct_top_border(self, widths: List[UInt]) -> String:
+    def _construct_top_border(self, widths: Array[UInt, Self.columns]) -> String:
         """Constructs the top border for the table given it's current
         border configuration and data.
 
@@ -502,7 +576,7 @@ struct Table(Copyable, Writable):
 
         return result^
 
-    def _construct_bottom_border(self, widths: List[UInt]) -> String:
+    def _construct_bottom_border(self, widths: Array[UInt, Self.columns]) -> String:
         """Constructs the bottom border for the table given it's current
         border configuration and data.
 
@@ -528,7 +602,7 @@ struct Table(Copyable, Writable):
 
         return result^
 
-    def _construct_headers(self, widths: List[UInt], headers: List[String]) -> String:
+    def _construct_headers(self, widths: Array[UInt, Self.columns], headers: Array[String, Self.columns]) -> String:
         """Constructs the headers for the table given it's current
         header configuration and data.
 
@@ -574,7 +648,7 @@ struct Table(Copyable, Writable):
 
         return result^
 
-    def _construct_row(self, index: UInt, widths: List[UInt], heights: List[UInt], headers: List[String]) -> String:
+    def _construct_row(self, index: UInt, widths: Array[UInt, Self.columns], heights: List[UInt], headers: Optional[Array[String, Self.columns]]) -> String:
         """Constructs the row for the table given an index and row data
         based on the current configuration.
 
@@ -589,7 +663,7 @@ struct Table(Copyable, Writable):
         """
         var result = String(capacity=DEFAULT_BUFFER_SIZE)
 
-        var has_headers = len(headers) > 0
+        var has_headers = self._headers is not None
         var height = heights[index + UInt(has_headers)]
 
         var cells = List[String]()
@@ -598,7 +672,7 @@ struct Table(Copyable, Writable):
             cells.append(left)
 
         var c: UInt = 0
-        while c < self.data.columns():
+        while c < UInt(Self.columns):
             var style = (
                 self.style(index + 1, c)
                 .height(UInt16(height))
@@ -607,7 +681,7 @@ struct Table(Copyable, Writable):
                 .max_width((UInt16(widths[c])))
             )
             cells.append(style.render(truncate(self.data[index, c], (widths[c] * height), "…")))
-            if c < self.data.columns() - 1 and self._border_column:
+            if c < UInt(Self.columns) - 1 and self._border_column:
                 cells.append(left)
 
             c += 1

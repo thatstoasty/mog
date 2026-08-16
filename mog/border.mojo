@@ -262,7 +262,7 @@ comptime NO_BORDER = Border()
 """No border, all edges are empty strings."""
 
 
-def render_horizontal_edge[lhs_origin: ImmOrigin, rhs_origin: ImmOrigin, //](left: StringSlice[lhs_origin], var middle: String, right: StringSlice[rhs_origin], width: UInt) -> String:
+def render_horizontal_edge[lhs_origin: ImmOrigin, rhs_origin: ImmOrigin, //](left: StringSpan[lhs_origin], var middle: String, right: StringSpan[rhs_origin], width: UInt) -> String:
     """Render the horizontal (top or bottom) portion of a border.
 
     Args:
@@ -287,7 +287,7 @@ def render_horizontal_edge[lhs_origin: ImmOrigin, rhs_origin: ImmOrigin, //](lef
     var i = left_width + right_width
     var j = 0
     while i < width + right_width:
-        # We loop over graphemes instead of indexing (middle[j]), because String and StringSlice
+        # We loop over graphemes instead of indexing (middle[j]), because String and StringSpan
         # indexing is by byte, not by character! Which leads to bugs with multi-byte UTF-8 characters.
         # This can probably be changed back once String indexing is improved.
         var graphemes = middle.graphemes()

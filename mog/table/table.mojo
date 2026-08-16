@@ -371,14 +371,6 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
             return
 
         var result = String(capacity=DEFAULT_BUFFER_SIZE)
-        # Add empty cells to the headers, until it's the same length as the longest
-        # row (only if there are at headers in the first place).
-        # var headers = self._headers.copy()
-        # if has_headers:
-        #     var i = UInt(len(headers))
-        #     while i < UInt(Self.columns):
-        #         headers.append("")
-        #         i += 1
 
         # Initialize the widths.
         var widths = Array[UInt, Self.columns](fill=0)

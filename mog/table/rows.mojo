@@ -1,7 +1,7 @@
 """A module for working with table data."""
 
 
-struct Data[columns: Int](Copyable) where columns > 0:
+struct Data[columns: Int](Copyable, Writable) where columns > 0:
     """Table data.
 
     #### Example Usage:
@@ -22,13 +22,12 @@ struct Data[columns: Int](Copyable) where columns > 0:
     comptime RowType = Array[String, Self.columns]
     var _rows: List[Self.RowType]
     """The rows of the table."""
-    # var _columns: UInt
-    # """The number of columns in the table."""
 
     def __init__(out self):
         """Initializes a new Data instance."""
         self._rows = List[Self.RowType]()
 
+    @implicit
     def __init__(out self, var rows: List[Self.RowType]):
         """Initializes a new Data instance.
 

@@ -186,7 +186,7 @@ def test_place() raises:
 
 
 def main() raises -> None:
-    # TestSuite.discover_tests[__functions_in_module()]().run()
-    var suite = TestSuite()
-    suite.test[test_with_whitespace_background]()
-    suite^.run()
+    TestSuite.discover_tests[__functions_in_module()]().run()
+    # var suite = TestSuite()
+    # suite.test[test_with_whitespace_background]()
+    # suite^.run()

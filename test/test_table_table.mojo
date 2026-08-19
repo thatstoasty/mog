@@ -9,11 +9,11 @@ def test_table_render() raises:
     var data = Data([["Bubble Tea", s.render("Milky")]])
     var table = Table(data=data^)
     table.width = 50
-    print(table)
-    testing.assert_equal(
-        String(table),
-        "╭──────────────────────────┬─────────────────────╮\n│Bubble Tea                │[90mMilky[90m[90m[90m[90m[90m[90m[90m[90m[90m[90m[90m[90m[90m[90m[90m[90m[90m[90m[90m[0m                │\n╰──────────────────────────┴─────────────────────╯"
-    )
+    comptime result = """╭──────────────────────────┬─────────────────────╮
+│Bubble Tea                │\x1b[90mMilky\x1b[0m                │
+╰──────────────────────────┴─────────────────────╯"""
+    testing.assert_equal(s.render("Milky"), "\x1b[90mMilky\x1b[0m")
+    testing.assert_equal(String(table), result)
 
 
 def main() raises -> None:

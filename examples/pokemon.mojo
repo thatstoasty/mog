@@ -36,15 +36,15 @@ def style_func[columns: Int](data: mog.Data[columns], row: UInt, col: UInt) -> m
     if row == 0:
         return header_style
 
-    if data[row - 1, 1] == "Pikachu":
+    if data[1, row - 1] == "Pikachu":
         return selected_style
 
     var is_even = row % 2 == 0
     if col == 2 or col == 3:
         if is_even:
-            return style.foreground(materialize[DIM_TYPE_COLORS]().get(data[row - 1, col], mog.Color(0xFFFFFF)))
+            return style.foreground(materialize[DIM_TYPE_COLORS]().get(data[col, row - 1], mog.Color(0xFFFFFF)))
         else:
-            return style.foreground(materialize[TYPE_COLORS]().get(data[row - 1, col], mog.Color(0xFFFFFF)))
+            return style.foreground(materialize[TYPE_COLORS]().get(data[col, row - 1], mog.Color(0xFFFFFF)))
 
     if is_even:
         return style.foreground(mog.Color(245))

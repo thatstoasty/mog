@@ -28,16 +28,16 @@ backend = { name = "pixi-build-mojo", version = "0.*" }
 
 [dependencies]
 mojo = ">=1.0.0,<1.1.0"
-mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.1" }
+mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.2" }
 
 [package.build-dependencies]
 mojo-compiler = ">=1.0.0,<1.1.0"
-mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.1" }
+mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.2" }
 
 [package.host-dependencies]
 mojo-compiler = ">=1.0.0,<1.1.0"
-mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.2.2" }
+mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.2" }
 
 [package.run-dependencies]
 mojo-compiler = ">=1.0.0,<1.1.0"
-mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.1" }
+mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.2" }

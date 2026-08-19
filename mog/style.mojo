@@ -101,7 +101,7 @@ def _apply_styles[origin: ImmOrigin, //](text: StringSpan[origin], use_space_sty
         else:
             result.write(styles.common.render(lines[i]))
 
-    return result
+    return result^
 
 
 def _wrap_words[origin: ImmOrigin, //](text: StringSpan[origin], width: UInt16, left_padding: UInt16, right_padding: UInt16) -> String:
@@ -420,6 +420,8 @@ struct Style(Writable, ImplicitlyCopyable):
     """The height of the text area."""
     var _max_width: UInt16
     """The width of the text area."""
+    var _tail: String
+    """The tail to append to lines truncated by the max width rule."""
     var _alignment: Alignment
     """The alignment of the text."""
     var _padding: Padding
@@ -447,6 +449,7 @@ struct Style(Writable, ImplicitlyCopyable):
         height: UInt16,
         max_width: UInt16,
         max_height: UInt16,
+        var tail: String,
         alignment: Alignment,
         padding: Padding,
         var margin: Margin,
@@ -467,6 +470,7 @@ struct Style(Writable, ImplicitlyCopyable):
             height: TBD.
             max_width: TBD.
             max_height: TBD.
+            tail: The tail to append to lines truncated by the max width rule.
             alignment: The alignment of the text.
             padding: The padding levels.
             margin: The margin levels.
@@ -484,6 +488,7 @@ struct Style(Writable, ImplicitlyCopyable):
         self._height = height
         self._max_width = max_width
         self._max_height = max_height
+        self._tail = tail^
         self._alignment = alignment
         self._padding = padding
         self._margin = margin
@@ -499,6 +504,7 @@ struct Style(Writable, ImplicitlyCopyable):
         height: Optional[Int] = None,
         max_width: Optional[Int] = None,
         max_height: Optional[Int] = None,
+        var tail: String = "",
         foreground: AnyTerminalColor = NoColor(),
         background: AnyTerminalColor = NoColor(),
         border: Optional[Border] = None,
@@ -516,6 +522,7 @@ struct Style(Writable, ImplicitlyCopyable):
             height: TBD.
             max_width: TBD.
             max_height: TBD.
+            tail: The tail to append to lines truncated by the max width rule.
             foreground: Color of the text in the text area the style renders.
             background: Color of the background in the text area the style renders.
             border: TBD.
@@ -538,6 +545,7 @@ struct Style(Writable, ImplicitlyCopyable):
         self._height = 0
         self._max_width = 0
         self._max_height = 0
+        self._tail = tail^
         self._foreground = NoColor()
         self._background = NoColor()
         self._border = NO_BORDER.copy()
@@ -1110,12 +1118,14 @@ struct Style(Writable, ImplicitlyCopyable):
         new._unset_attribute[PropKey.HEIGHT]()
         return new^
 
-    def max_width(self, width: UInt16) -> Self:
+    def max_width(self, width: UInt16, var tail: String = "") -> Self:
         """Applies a max width to a given style. This enforces a max width of a line by truncating lines that are too long,
         and will pad all lines to the width of the widest line.
 
         Args:
             width: The maximum height to apply.
+            tail: Appended to each line that gets truncated, eg. an ellipsis. It is included in
+                the max width, so the truncated line plus the tail is at most `width` cells wide.
 
         Returns:
             A new Style with the maximum width rule set.
@@ -1135,6 +1145,7 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         new._max_width = width
+        new._tail = tail^
         new._properties.set[PropKey.MAX_WIDTH](True)
         return new^
 
@@ -1145,6 +1156,7 @@ struct Style(Writable, ImplicitlyCopyable):
             A new Style with the max width rule unset.
         """
         var new = self.copy()
+        new._tail = String()
         new._unset_attribute[PropKey.MAX_WIDTH]()
         return new^
 
@@ -2137,13 +2149,19 @@ struct Style(Writable, ImplicitlyCopyable):
             result = _apply_margins(self, _apply_border(self, result), inline)
 
         # Truncate according to max_width
-        if self._max_width > 0:
+        if self._max_width > 0 and get_widest_line(result) > UInt(self._max_width):
             var text_lines = result.split(NEWLINE)
             var truncated = String(capacity=Int(Float64(result.byte_length()) * 1.5))
             for i in range(len(text_lines)):
                 if i != 0:
                     truncated.write(NEWLINE)
-                truncated.write(truncate(text_lines[i], UInt(self._max_width)))
+
+                # Truncating rescans and rewrites any ANSI sequences on the line, so skip
+                # the lines that already fit.
+                if printable_rune_width(text_lines[i]) <= UInt(self._max_width):
+                    truncated.write(text_lines[i])
+                else:
+                    truncated.write(truncate(text_lines[i], UInt(self._max_width), self._tail))
 
             result = truncated^
 

@@ -1,7 +1,7 @@
 """A module for working with table data."""
 
 
-struct Data[columns: Int](Copyable, Writable) where columns > 0:
+struct Data[columns: Int](Copyable, Writable, Sized) where columns > 0:
     """Table data.
 
     #### Example Usage:
@@ -36,12 +36,12 @@ struct Data[columns: Int](Copyable, Writable) where columns > 0:
         """
         self._rows = rows^
 
-    def __getitem__(self, row: UInt, column: UInt) -> ref[self._rows[row][column]] String:
+    def __getitem__(self, column: UInt, row: UInt) -> ref[self._rows[row][column]] String:
         """Returns the contents of the cell at the given index.
 
         Args:
-            row: The row index.
             column: The column index.
+            row: The row index.
 
         Returns:
             The contents of the cell at the given index.
@@ -49,15 +49,12 @@ struct Data[columns: Int](Copyable, Writable) where columns > 0:
         return self._rows[row][column]
     
     def __len__(self) -> Int:
-        return len(self._rows)
-
-    def rows(self) -> UInt:
         """Returns the number of rows in the table.
 
         Returns:
             The number of rows in the table.
         """
-        return UInt(len(self._rows))
+        return len(self._rows)
 
     def append(mut self, var row: Self.RowType):
         """Appends the given row to the table.
@@ -66,15 +63,6 @@ struct Data[columns: Int](Copyable, Writable) where columns > 0:
             row: The row to append.
         """
         self._rows.append(row^)
-
-    def add_rows(mut self, var rows: List[Self.RowType]):
-        """Appends the given rows to the table.
-
-        Args:
-            rows: The rows to append.
-        """
-        for var row in rows^:
-            self._rows.append(row^)
 
     def __add__(self, deinit other: Self) -> Self:
         """Concatenates two Data instances.
@@ -86,6 +74,17 @@ struct Data[columns: Int](Copyable, Writable) where columns > 0:
             The concatenated Data instance.
         """
         return Data(self._rows + other._rows^)
+    
+    def __add__(self, var other: List[Self.RowType]) -> Self:
+        """Adds new rows.
+
+        Args:
+            other: Rows to add.
+
+        Returns:
+            The concatenated Data instance.
+        """
+        return Data(self._rows + other^)
 
     def __iadd__(mut self, deinit other: Self):
         """Concatenates two Data instances in place.
@@ -94,3 +93,11 @@ struct Data[columns: Int](Copyable, Writable) where columns > 0:
             other: The other Data instance to concatenate.
         """
         self._rows += other._rows^
+    
+    def __iadd__(mut self, var other: List[Self.RowType]):
+        """Adds new rows in place.
+
+        Args:
+            other: The rows to add.
+        """
+        self._rows += other^

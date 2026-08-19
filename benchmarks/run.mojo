@@ -8,6 +8,7 @@ import mog
 
 from functions.basic_styling import basic_comptime_styling, basic_styling, basic_styling_big_file
 from functions.layout import render_layout
+from functions.simple_table import render_table
 
 comptime BenchResults = Dict[String, Float64]
 
@@ -241,6 +242,16 @@ def test_render_layout(mut b: Bencher) raises:
 
 
 @parameter
+def test_render_table(mut b: Bencher) raises:
+    @always_inline
+    @parameter
+    def do() raises:
+        _ = render_table()
+
+    b.iter[do]()
+
+
+@parameter
 def test_basic_styling(mut b: Bencher) raises:
     @always_inline
     @parameter
@@ -285,6 +296,7 @@ def main() raises:
     run[test_render_layout, "Layout"](bench)
     run[test_basic_styling, "BasicStyle"](bench)
     run[test_basic_comptime_styling, "CompTimeBasicStyle"](bench)
+    run[test_render_table, "RenderTable"](bench)
 
     comptime data = "🍥🍥🍥🍥🍥🍥"
     run[bench_get_width, "GetWidth"](bench, data)

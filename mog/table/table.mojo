@@ -24,7 +24,8 @@ lipgloss Style to use for that cell position.
 import mog
 from mog import Emphasis
 
-def styler(data: mog.Data, row: UInt, col: UInt) -> mog.Style:
+def styler[columns: Int](data: mog.Data[columns], row: UInt, col: UInt) -> mog.Style
+    where columns > 0:
     if row == 0:
         return mog.Style(emphasis=Emphasis.BOLD)
     elif row % 2 == 0:
@@ -35,11 +36,11 @@ def styler(data: mog.Data, row: UInt, col: UInt) -> mog.Style:
 def main():
     var t = mog.Table(
         headers=["Name", "Age"],
-        data=mog.Data(
+        data=mog.Data([
             ["Kini", "4"],
             ["Eli", "1"],
             ["Iris", "102"],
-        ),
+        ]),
         style_function=styler
     )
     print(t)
@@ -74,7 +75,8 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
     import mog
     from mog import Emphasis
 
-    def styler(data: mog.Data, row: UInt, col: UInt) -> mog.Style:
+    def styler[columns: Int](data: mog.Data[columns], row: UInt, col: UInt) -> mog.Style
+        where columns > 0:
         if row == 0:
             return mog.Style(emphasis=Emphasis.BOLD)
         elif row % 2 == 0:
@@ -96,6 +98,8 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
     ```
     """
 
+    comptime column_count = UInt(Self.columns)
+    """Column count, but as a UInt."""
     comptime DataType = Data[Self.columns]
     var _styler: StyleFn[Self.columns]
     """The style function that determines the style of a cell. It returns a `mog.Style` for a given row and column position."""
@@ -121,9 +125,9 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
     """The data of the table."""
     var _headers: Optional[Array[String, Self.columns]] 
     """The headers of the table."""
-    var width: UInt
+    var width: UInt16
     """The width of the table."""
-    var height: UInt
+    var height: UInt16
     """The height of the table."""
     var _offset: UInt
     """The offset of the table."""
@@ -143,8 +147,8 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         border_row: Bool = False,
         var headers: Array[String, Self.columns] = None,
         var data: Self.DataType = {},
-        width: UInt = 0,
-        height: UInt = 0,
+        width: UInt16 = 0,
+        height: UInt16 = 0,
     ):
         """Initializes a new Table.
 
@@ -196,8 +200,8 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         border_column: Bool = True,
         border_row: Bool = False,
         var data: Self.DataType = {},
-        width: UInt = 0,
-        height: UInt = 0,
+        width: UInt16 = 0,
+        height: UInt16 = 0,
     ):
         """Initializes a new Table.
 
@@ -356,42 +360,37 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         Args:
             writer: The writer to write to.
         """
-        var has_headers = self._headers is not None
-        var has_rows = len(self.data) > 0
-        if not has_headers and not has_rows:
+        var header_offset = UInt(self._headers is not None)
+        var row_count = UInt(len(self.data))
+        if header_offset == 0 and row_count == 0:
             return
 
         var result = String(capacity=DEFAULT_BUFFER_SIZE)
 
         # Initialize the widths.
-        var widths = Array[UInt, Self.columns](fill=0)
+        var widths = Array[UInt16, Self.columns](fill=0)
 
         # Initialize the heights.
-        var heights = List[UInt](length=Int(has_headers) + len(self.data), fill=0)
+        var heights = List[UInt16](length=Int(header_offset + row_count), fill=0)
 
         # The style function may affect width of the table. It's possible to set
         # the StyleFunction after the headers and rows. Update the widths for a final
         # time.
         if self._headers:
-            for i in range(UInt(self._headers.value().length)):
+            for i in range(Self.column_count):
                 var header = self.style(i, 0).render(self._headers.unsafe_value()[i])
                 widths[i] = get_width(header)
                 heights[0] = get_height(header)
 
-        var row: UInt = 0
-        while row < UInt(len(self.data)):
-            var col: UInt = 0
-            while col < UInt(Self.columns):
+        for row in range(row_count):
+            comptime for col in range(Self.column_count):
                 var rendered = self.style(col, row + 1).render(self.data[col, row])
-                var row_with_header_offset = row + UInt(has_headers)
+                var row_with_header_offset = row + header_offset
                 heights[row_with_header_offset] = max(
                     heights[row_with_header_offset],
                     get_height(rendered),
                 )
                 widths[col] = max(widths[col], get_width(rendered))
-
-                col += 1
-            row += 1
 
         # Table Resizing Logic.
         #
@@ -429,24 +428,25 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         #
         # The biggest difference is 15 - 2, so we can shrink the 2nd column by 13.
         var width = self._compute_width(widths)
-        if width < self.width and self.width > 0:
+        var target = UInt(self.width)
+        if width < target and target > 0:
             # Table is too narrow, expand the columns evenly until it reaches the
             # desired width.
             var i = 0
-            while width < self.width:
+            while width < target:
                 widths[i] += 1
                 width += 1
-                i = (i + 1) % widths.length
+                i = (i + 1) % Self.columns
 
-        elif width > self.width and self.width > 0:
+        elif width > target and target > 0:
             # Table is too wide, calculate the median non-whitespace length of each
             # column, and shrink the columns based on the largest difference.
-            var column_medians = Array[UInt, widths.length](fill=0)
-            for i in range(UInt(widths.length)):
-                var trimmed_width = List[UInt](capacity=len(self.data))
+            var column_medians = Array[UInt16, Self.columns](fill=0)
+            comptime for i in range(Self.column_count):
+                var trimmed_width = List[UInt16](capacity=Int(row_count))
 
-                for r in range(UInt(len(self.data))):
-                    var rendered_cell = self.style(i, r + UInt(has_headers)).render(self.data[i, r])
+                for r in range(row_count):
+                    var rendered_cell = self.style(i, r + header_offset).render(self.data[i, r])
                     var non_whitespace_chars = get_width(rendered_cell.removesuffix(" "))
                     trimmed_width.append(non_whitespace_chars + 1)
 
@@ -454,26 +454,30 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
 
             # Find the biggest differences between the median and the column width.
             # Shrink the columns based on the largest difference.
-            var differences = Array[UInt, widths.length](fill=0)
-            for i in range(widths.length):
+            var differences = Array[UInt16, Self.columns](fill=0)
+            comptime for i in range(Self.columns):
                 if widths[i] > column_medians[i]:
                     differences[i] = widths[i] - column_medians[i]
 
-            while width > self.width:
+            while width > target:
                 var index, _ = largest(differences)
                 if differences[index] < 1:
                     break
 
-                var shrink = min(min(differences[index], width - self.width), widths[index])
-                widths[index] -= shrink
+                var shrink = min(min(UInt(differences[index]), width - target), UInt(widths[index]))
+                widths[index] -= UInt16(shrink)
                 width -= shrink
                 differences[index] = 0
 
             # Table is still too wide, begin shrinking the columns based on the
             # largest column.
-            while width > self.width:
+            while width > target:
                 var index, _ = largest(widths)
-                if widths[index] < 1:
+                # Stop before zeroing a column: a zero-width column still renders a cell's
+                # worth of content, so the table would end up wider than `width` claims.
+                # Leaving it at 1 lets the loop exit wide, which triggers the truncation
+                # backstop below.
+                if widths[index] <= 1:
                     break
 
                 widths[index] -= 1
@@ -482,26 +486,49 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         if self._border_top:
             result.write(self._construct_top_border(widths), NEWLINE)
 
-        if has_headers:
+        if header_offset > 0:
             result.write(self._construct_headers(widths, self._headers.value()), NEWLINE)
 
-        var r = self._offset
-        while r < UInt(len(self.data)):
-            result.write(self._construct_row(r, widths, heights, self._headers))
-            r += 1
+        for row in range(self._offset, row_count):
+            result.write(self._construct_row(row, widths, heights, self._headers))
 
         if self._border_bottom:
             result.write(self._construct_bottom_border(widths))
 
-        # The resize logic above already fits the columns to `self.width`, except when it
-        # bails out early because no column can give up any more cells. Only in that case
-        # is a table-wide truncation needed as a backstop.
-        var max_width = Int(self.width) if width > self.width else 0
-        writer.write(
-            Style(Profile.ASCII, max_height=Int(self._compute_height(heights)), max_width=max_width).render(result)
-        )
+        var height = Int(self._compute_height(heights))
 
-    def _compute_width(self, widths: Array[UInt, Self.columns]) -> UInt:
+        # The resize logic above already fits the columns to `self.width`, except when it
+        # bails out early because no column can give up any more cells. That is the only
+        # case needing a table-wide truncation, and the only case where the full `Style`
+        # pass earns its cost.
+        if target > 0 and width > target:
+            Style(Profile.ASCII, max_height=height, max_width=Int(self.width)).render(result, writer=writer)
+            return
+
+        # Otherwise every row was built to a common width, so the height rule is all that
+        # is left to enforce. Going through `Style` for that would re-align and re-style
+        # every line to no effect, so slice the lines directly instead.
+        var lines = result.splitlines()
+
+        @parameter
+        def rows_are_uniform() -> Bool:
+            if len(lines) == 0:
+                return True
+
+            var expected = get_width(lines[0])
+            for i in range(1, len(lines)):
+                if get_width(lines[i]) != expected:
+                    return False
+            return True
+
+        debug_assert[rows_are_uniform]("table rows should all be rendered to the same width")
+
+        if len(lines) > height:
+            writer.write(NEWLINE.join(lines[0:height]))
+        else:
+            writer.write(result)
+
+    def _compute_width(self, widths: Array[UInt16, Self.columns]) -> UInt:
         """Computes the width of the table in it's current configuration.
 
         Args:
@@ -512,11 +539,11 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         """
         var width = sum(widths) + UInt(self._border_left) + UInt(self._border_right)
         if self._border_column:
-            width += UInt(widths.length - 1)
+            width += UInt(Self.columns - 1)
 
         return width
 
-    def _compute_height(self, heights: List[UInt]) -> UInt:
+    def _compute_height(self, heights: List[UInt16]) -> UInt:
         """Computes the height of the table in it's current configuration.
 
         Args:
@@ -535,7 +562,7 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
             + UInt(len(self.data)) * UInt(self._border_row)
         )
 
-    def _construct_top_border(self, widths: Array[UInt, Self.columns]) -> String:
+    def _construct_top_border(self, widths: Array[UInt16, Self.columns]) -> String:
         """Constructs the top border for the table given it's current
         border configuration and data.
 
@@ -547,21 +574,19 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         """
         var result = String(capacity=SMALL_BUFFER_SIZE)
         if self._border_left:
-            result.write(self._border_style.render(self._border.top_left))
+            self._border_style.render(self._border.top_left, writer=result)
 
-        var i = 0
-        while i < widths.length:
-            result.write(self._border_style.render(self._border.top * Int(widths[i])))
-            if i < widths.length - 1 and self._border_column:
-                result.write(self._border_style.render(self._border.middle_top))
-            i += 1
+        comptime for col in range(Self.columns):
+            self._border_style.render(self._border.top * Int(widths[col]), writer=result)
+            if col < Self.columns - 1 and self._border_column:
+                self._border_style.render(self._border.middle_top, writer=result)
 
         if self._border_right:
-            result.write(self._border_style.render(self._border.top_right))
+            self._border_style.render(self._border.top_right, writer=result)
 
         return result^
 
-    def _construct_bottom_border(self, widths: Array[UInt, Self.columns]) -> String:
+    def _construct_bottom_border(self, widths: Array[UInt16, Self.columns]) -> String:
         """Constructs the bottom border for the table given it's current
         border configuration and data.
 
@@ -573,21 +598,19 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         """
         var result = String(capacity=SMALL_BUFFER_SIZE)
         if self._border_left:
-            result.write(self._border_style.render(self._border.bottom_left))
+            self._border_style.render(self._border.bottom_left, writer=result)
 
-        var i = 0
-        while i < widths.length:
-            result.write(self._border_style.render(self._border.bottom * Int(widths[i])))
-            if i < widths.length - 1 and self._border_column:
-                result.write(self._border_style.render(self._border.middle_bottom))
-            i += 1
+        comptime for col in range(Self.columns):
+            self._border_style.render(self._border.bottom * Int(widths[col]), writer=result)
+            if col < Self.columns - 1 and self._border_column:
+                self._border_style.render(self._border.middle_bottom, writer=result)
 
         if self._border_right:
-            result.write(self._border_style.render(self._border.bottom_right))
+            self._border_style.render(self._border.bottom_right, writer=result)
 
         return result^
 
-    def _construct_headers(self, widths: Array[UInt, Self.columns], headers: Array[String, Self.columns]) -> String:
+    def _construct_headers(self, widths: Array[UInt16, Self.columns], headers: Array[String, Self.columns]) -> String:
         """Constructs the headers for the table given it's current
         header configuration and data.
 
@@ -600,44 +623,43 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         """
         var result = String(capacity=SMALL_BUFFER_SIZE)
         if self._border_left:
-            result.write(self._border_style.render(self._border.left))
+            self._border_style.render(self._border.left, writer=result)
 
-        for i in range(UInt(len(headers))):
-            var style = self.style(i, 0).max_height(1).width(UInt16(widths[i])).max_width(UInt16(widths[i]), tail="…")
+        comptime for col in range(Self.column_count):
+            ref width = widths[col]
+            var style = self.style(col, 0).max_height(1).width(width).max_width(width, tail="…")
 
-            ref header = headers[i]
-            if printable_rune_width(header) > widths[i]:
-                result.write(style.render(truncate(header, widths[i], "…")))
+            ref header = headers[col]
+            if UInt16(printable_rune_width(header)) > width:
+                style.render(truncate(header, UInt(width), "…"), writer=result)
             else:
-                result.write(style.render(header))
-            if (i < UInt(len(headers)) - 1) and (self._border_column):
-                result.write(self._border_style.render(self._border.left))
+                style.render(header, writer=result)
+            if (col < Self.column_count - 1) and self._border_column:
+                self._border_style.render(self._border.left, writer=result)
 
         if self._border_header:
             if self._border_right:
-                result.write(self._border_style.render(self._border.right))
+                self._border_style.render(self._border.right, writer=result)
 
             result.write(NEWLINE)
             if self._border_left:
-                result.write(self._border_style.render(self._border.middle_left))
+                self._border_style.render(self._border.middle_left, writer=result)
 
-            var i = 0
-            while i < len(headers):
-                result.write(self._border_style.render(self._border.bottom * Int(widths[i])))
-                if i < len(headers) - 1 and self._border_column:
-                    result.write(self._border_style.render(self._border.middle))
-
-                i += 1
+            comptime for col in range(Self.columns):
+                self._border_style.render(self._border.bottom * Int(widths[col]), writer=result)
+                comptime if col < Self.columns - 1:
+                    if self._border_column:
+                        self._border_style.render(self._border.middle, writer=result)
 
             if self._border_right:
-                result.write(self._border_style.render(self._border.middle_right))
+                self._border_style.render(self._border.middle_right, writer=result)
 
         if self._border_right and not self._border_header:
-            result.write(self._border_style.render(self._border.right))
+            self._border_style.render(self._border.right, writer=result)
 
         return result^
 
-    def _construct_row(self, index: UInt, widths: Array[UInt, Self.columns], heights: List[UInt], headers: Optional[Array[String, Self.columns]]) -> String:
+    def _construct_row(self, index: UInt, widths: Array[UInt16, Self.columns], heights: List[UInt16], headers: Optional[Array[String, Self.columns]]) -> String:
         """Constructs the row for the table given an index and row data
         based on the current configuration.
 
@@ -652,36 +674,34 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         """
         var result = String(capacity=DEFAULT_BUFFER_SIZE)
 
-        var has_headers = self._headers is not None
-        var height = heights[index + UInt(has_headers)]
+        var header_offset = UInt(self._headers is not None)
+        var height = heights[index + header_offset]
 
         var cells = List[String]()
         var left = (self._border_style.render(self._border.left) + NEWLINE) * Int(height)
         if self._border_left:
             cells.append(left)
 
-        var c: UInt = 0
-        while c < UInt(Self.columns):
+        comptime for col in range(Self.column_count):
             var style = (
-                self.style(c, index + 1)
-                .height(UInt16(height))
-                .max_height(UInt16(height))
-                .width((UInt16(widths[c])))
-                .max_width((UInt16(widths[c])), tail="…")
+                self.style(col, index + 1)
+                .height(height)
+                .max_height(height)
+                .width((widths[col]))
+                .max_width((widths[col]), tail="…")
             )
             # A cell holds at most `width * height` cells. Content beyond that is dropped by
             # the height rule, so truncate it here to get an ellipsis on the overflow. The
             # width check keeps this from rescanning content that already fits.
-            ref content = self.data[c, index]
-            var capacity = widths[c] * height
+            ref content = self.data[col, index]
+            var capacity = UInt(widths[col] * height)
             if printable_rune_width(content) > capacity:
                 cells.append(style.render(truncate(content, capacity, "…")))
             else:
                 cells.append(style.render(content))
-            if c < UInt(Self.columns) - 1 and self._border_column:
-                cells.append(left)
-
-            c += 1
+            comptime if col < Self.column_count - 1:
+                if self._border_column:
+                    cells.append(left)
 
         if self._border_right:
             cells.append((self._border_style.render(self._border.right) + NEWLINE) * Int(height))
@@ -695,13 +715,12 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
 
         if self._border_row and index < UInt(len(self.data)) - 1:
             result.write(self._border_style.render(self._border.middle_left))
-            var i = 0
-            while i < widths.length:
-                result.write(self._border_style.render(self._border.middle * Int(widths[i])))
-                if i < widths.length - 1 and self._border_column:
-                    result.write(self._border_style.render(self._border.middle))
+            comptime for col in range(Self.columns):
+                result.write(self._border_style.render(self._border.middle * Int(widths[col])))
+                if col < Self.columns - 1:
+                    if self._border_column:
+                        result.write(self._border_style.render(self._border.middle))
 
-                i += 1
             result.write(self._border_style.render(self._border.middle_right), NEWLINE)
 
         return result^

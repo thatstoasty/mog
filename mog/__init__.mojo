@@ -24,3 +24,4 @@ from mog.renderer import Renderer
 from mog.size import get_dimensions, get_height, get_width
 from mog.style import NO_TAB_CONVERSION, Style
 from mog.table import Data, Table, default_styles
+from mog.whitespace import place, place_horizontal, place_vertical, WhitespaceRenderer

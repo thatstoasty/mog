@@ -2,6 +2,7 @@ from std import testing
 from std.testing import TestSuite
 
 import mog
+from mog.size import get_width, get_height
 from mog.style import _maybe_convert_tabs, _apply_border
 from mog import Position, Profile, Emphasis, Axis
 
@@ -778,6 +779,115 @@ def test_apply_border() raises:
 
 # def test_render() raises:
 #     pass
+
+
+def test_render_without_margins() raises:
+    """A style with no margins must render exactly as it would without the margin pass."""
+    var style = mog.Style().width(12)
+    testing.assert_equal(style.render("hello"), "hello       ")
+    testing.assert_equal(style.render("one\ntwo"), "one         \ntwo         ")
+    testing.assert_equal(mog.Style().render("hello"), "hello")
+
+
+def test_render_max_height_shorter_than_text() raises:
+    """Truncating to fewer lines than the text has."""
+    testing.assert_equal(mog.Style().max_height(2).render("a\nb\nc"), "a\nb")
+    testing.assert_equal(mog.Style().max_height(1).render("a\nb\nc"), "a")
+
+
+def test_render_max_height_longer_than_text() raises:
+    """When the text already fits, max_height must leave it byte for byte alone. It
+    does not pad the text out to the height; that is what `height` is for."""
+    testing.assert_equal(mog.Style().max_height(5).render("a\nb"), "a\nb")
+    testing.assert_equal(mog.Style().max_height(2).render("a\nb"), "a\nb")
+    testing.assert_equal(mog.Style().max_height(5).render("solo"), "solo")
+
+
+def test_render_width_wraps_only_when_needed() raises:
+    """Text narrower than the width passes through; wider text still wraps."""
+    testing.assert_equal(mog.Style().width(10).render("short"), "short     ")
+    testing.assert_equal(mog.Style().width(10).render("a much longer line here"), "a much    \nlonger    \nline here ")
+
+
+def test_render_width_wraps_wide_glyphs() raises:
+    """Display width, not byte length, decides whether wrapping happens. These glyphs
+    are 3 bytes and 2 cells each, so the text fits a width its byte count exceeds."""
+    testing.assert_equal(mog.Style().width(10).render("フシギダネ"), "フシギダネ")
+    testing.assert_equal(mog.Style().width(6).render("フシギダネ"), "フシギ\nダネ  ")
+
+
+def test_render_max_width_only_truncates_long_lines() raises:
+    testing.assert_equal(mog.Style().max_width(10).render("short"), "short")
+    testing.assert_equal(mog.Style().max_width(4).render("truncate me"), "trun")
+    testing.assert_equal(mog.Style().max_width(4, tail="…").render("truncate me"), "tru…")
+    # Alignment pads every line out to the widest one before truncation runs, so the
+    # short line arrives at max_width already padded, and comes back padded to 3.
+    testing.assert_equal(mog.Style().max_width(3).render("ab\nlonger"), "ab \nlon")
+
+
+def test_render_max_width_wide_glyphs() raises:
+    """Truncation counts cells, so a 3-byte 2-cell glyph is not cut mid-sequence."""
+    testing.assert_equal(mog.Style().max_width(4).render("フシギダネ"), "フシ")
+    testing.assert_equal(mog.Style().max_width(10).render("フシギダネ"), "フシギダネ")
+
+
+def test_render_without_border() raises:
+    """A style with no border renders identically to one that never consults a border."""
+    testing.assert_equal(mog.Style().render("hello"), "hello")
+    testing.assert_equal(mog.Style().width(7).render("hello"), "hello  ")
+    testing.assert_equal(mog.Style().border(mog.NO_BORDER).render("hello"), "hello")
+
+
+def test_affects_layout_false_for_appearance_only() raises:
+    """Colour and emphasis are zero-width escape sequences, so they cannot resize text."""
+    testing.assert_false(mog.Style().affects_layout())
+    testing.assert_false(mog.Style(mog.Profile.ANSI).bold().affects_layout())
+    testing.assert_false(mog.Style(mog.Profile.ANSI).faint().italic().affects_layout())
+    testing.assert_false(mog.Style(mog.Profile.ANSI).foreground(mog.Color(240)).affects_layout())
+    testing.assert_false(mog.Style(mog.Profile.ANSI).background(mog.Color(2)).affects_layout())
+    testing.assert_false(mog.Style().tab_width(8).affects_layout())
+
+
+def test_affects_layout_true_for_geometry() raises:
+    testing.assert_true(mog.Style().width(10).affects_layout())
+    testing.assert_true(mog.Style().height(3).affects_layout())
+    testing.assert_true(mog.Style().max_width(10).affects_layout())
+    testing.assert_true(mog.Style().max_height(3).affects_layout())
+    testing.assert_true(mog.Style().padding(1).affects_layout())
+    testing.assert_true(mog.Style().padding(left=1).affects_layout())
+    testing.assert_true(mog.Style().margin(1).affects_layout())
+    testing.assert_true(mog.Style().border(mog.ROUNDED_BORDER).affects_layout())
+    testing.assert_true(mog.Style().inline().affects_layout())
+    testing.assert_true(mog.Style(value="prefix").affects_layout())
+
+
+def test_affects_layout_agrees_with_rendering() raises:
+    """The predicate is only useful if a False answer really means the rendered text
+    measures the same as the raw text."""
+    var texts = ["hello", "one\ntwo", "フシギダネ", ""]
+    var styles = [
+        mog.Style(mog.Profile.ANSI),
+        mog.Style(mog.Profile.ANSI).bold(),
+        mog.Style(mog.Profile.ANSI).foreground(mog.Color(240)).italic(),
+        mog.Style(mog.Profile.ANSI).underline().background(mog.Color(2)),
+    ]
+    for s in range(len(styles)):
+        testing.assert_false(styles[s].affects_layout())
+        for t in range(len(texts)):
+            var rendered = styles[s].render(texts[t])
+            testing.assert_equal(get_width(rendered), get_width(texts[t]))
+            testing.assert_equal(get_height(rendered), get_height(texts[t]))
+
+
+def test_left_only_keyword_is_not_ignored() raises:
+    """Passing only `left=` must apply, like any other single side. These guards used to
+    test `right` twice and never `left`, so a left-only call returned the style
+    unchanged."""
+    testing.assert_equal(mog.Style().padding(left=2).render("x"), "  x")
+    testing.assert_equal(mog.Style().padding(right=2).render("x"), "x  ")
+    # The blank line added by top/bottom padding is itself padded out to the widest line.
+    testing.assert_equal(mog.Style().padding(top=1).render("x"), " \nx")
+    testing.assert_equal(mog.Style().padding(bottom=1).render("x"), "x\n ")
 
 
 def main() raises -> None:

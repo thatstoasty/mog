@@ -14,6 +14,7 @@ preview = ["pixi-build"]
 tests = "sh -c 'find test -name \"test_*.mojo\" -exec mojo -D ASSERT=all -I . {} \\;'"
 benchmarks = "mojo -D ASSERT=all -I . benchmarks/run.mojo --print-relative"
 examples = "sh -c 'find examples -name \"*.mojo\" -exec mojo -D ASSERT=all -I . {} \\;'"
+test_readme_examples = "python3 utils/test_readme_examples.py"
 
 # Linting and Formatting
 lint_docs = "mojo doc --Werror --diagnose-missing-doc-strings -o /dev/null ./mog"
@@ -28,16 +29,16 @@ backend = { name = "pixi-build-mojo", version = "0.*" }
 
 [dependencies]
 mojo = ">=1.0.0,<1.1.0"
-mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.2" }
+mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.3" }
 
 [package.build-dependencies]
 mojo-compiler = ">=1.0.0,<1.1.0"
-mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.2" }
+mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.3" }
 
 [package.host-dependencies]
 mojo-compiler = ">=1.0.0,<1.1.0"
-mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.2" }
+mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.3" }
 
 [package.run-dependencies]
 mojo-compiler = ">=1.0.0,<1.1.0"
-mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.2" }
+mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.3" }

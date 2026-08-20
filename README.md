@@ -4,7 +4,7 @@
 
 Style definitions for nice terminal layouts.
 
-![Mojo Version](https://img.shields.io/badge/Mojo%F0%9F%94%A5-1.0.0b2-orange)
+![Mojo Version](https://img.shields.io/badge/Mojo%F0%9F%94%A5-1.0.0-orange)
 ![Build Status](https://github.com/thatstoasty/mog/actions/workflows/build.yml/badge.svg)
 ![Test Status](https://github.com/thatstoasty/mog/actions/workflows/test.yml/badge.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -31,7 +31,7 @@ There's two ways to build `mog` from source: directly from the Git repository or
 Run the following commands in your terminal:
 
 ```bash
-pixi add -g "https://github.com/thatstoasty/mog.git" --tag v0.2.1 && pixi install
+pixi add mog --git "https://github.com/thatstoasty/mog.git" --tag "v0.3.0" && pixi install
 ```
 
 #### Building from source: Local
@@ -90,9 +90,10 @@ Mog supports the following color profiles:
 ```mojo
 import mog
 
-mog.Color(5) # magenta
-mog.Color(9)  # red
-mog.Color(12) # light blue
+def main():
+    mog.Color(5) # magenta
+    mog.Color(9)  # red
+    mog.Color(12) # light blue
 ```
 
 ### ANSI 256 Colors (8-bit)
@@ -100,9 +101,10 @@ mog.Color(12) # light blue
 ```mojo
 import mog
 
-mog.Color(86)  # aqua
-mog.Color(201) # hot pink
-mog.Color(202) # orange
+def main():
+    mog.Color(86)  # aqua
+    mog.Color(201) # hot pink
+    mog.Color(202) # orange
 ```
 
 ### True Color (16,777,216 colors; 24-bit)
@@ -163,7 +165,6 @@ def main():
         light = mog.CompleteColor(true_color=0xd7ffae, ansi256=193, ansi=11),
         dark = mog.CompleteColor(true_color=0xd75fee, ansi256=163, ansi=5),
     )
-
 ```
 
 ## Inline Formatting
@@ -209,15 +210,16 @@ format as CSS:
 
 ```mojo
 import mog
+from mog import Padding, Margin
 
 def main():
     # 2 cells on all sides
     var style = mog.Style().padding(2)
-    mog.Style(padding=Padding(2)) # equivalent
+    _ = mog.Style(padding=Padding(2)) # equivalent
 
     # 2 cells on the top and bottom, 4 cells on the left and right
     style = mog.Style().margin(4, 2)
-    mog.Style(margin=Margin(4, 2)) # equivalent
+    _ = mog.Style(margin=Margin(x_width=4, y_width=2)) # equivalent
 
     # Clockwise, starting from the top: 2 cells on the top, 4 on the right, 3 on
     # the bottom, and 1 on the left
@@ -241,9 +243,9 @@ def main():
     )
 
     # equivalent
-    mog.Style(alignment=Alignment(horizontal=Position.RIGHT))
-    mog.Style(alignment=Alignment(Position.LEFT, Position.RIGHT))
-    mog.Style(alignment=Alignment(Position.CENTER))
+    _ = mog.Style(alignment=Alignment(horizontal=Position.RIGHT))
+    _ = mog.Style(alignment=Alignment(horizontal=Position.LEFT, vertical=Position.RIGHT))
+    _ = mog.Style(alignment=Alignment(Position.CENTER))
 ```
 
 ## Width and Height
@@ -263,7 +265,7 @@ def main():
     )
     
     # equivalent
-    mog.Style(
+    _ = mog.Style(
         value="What’s for lunch?",
         width=24,
         height=32,
@@ -277,7 +279,7 @@ Adding borders is easy:
 
 ```mojo
 import mog
-from mog import NORMAL_BORDER, ROUNDED_BORDER
+from mog import NORMAL_BORDER, ROUNDED_BORDER, Border
 
 def main():
     # Add a purple, rectangular border
@@ -287,7 +289,7 @@ def main():
         .border_foreground(mog.Color(63))
     )
     
-    mog.Style(border=NORMAL_BORDER).border_foreground(mog.Color(63)) # equivalent
+    _ = mog.Style(border=NORMAL_BORDER).border_foreground(mog.Color(63)) # equivalent
 
     # Set a rounded, yellow-on-purple border to the top and left
     var another_style = (
@@ -354,13 +356,13 @@ def main():
     var style = mog.Style().bold()
 
     # Bold is set, and the value is set to False. Text output is not bold.
-    var style = mog.Style().bold(False)
+    style = mog.Style().bold(False)
 
     # Bold is not set, and the value is set to True. Text output is not bold.
-    var style = mog.Style().bold(True).unset_bold()
+    style = mog.Style().bold(True).unset_bold()
 
     # Bold is not set, and the value is set to False. Text output is not bold.
-    var style = mog.Style().bold(False).unset_bold()
+    style = mog.Style().bold(False).unset_bold()
 ```
 
 ## Enforcing Rules
@@ -409,11 +411,6 @@ def main():
     style = style.tab_width(2) # render tabs as 2 spaces
     style = style.tab_width(0) # remove tabs entirely
     style = style.tab_width(mog.NO_TAB_CONVERSION) # leave tabs intact
-
-    # Alternatively, you can set the tab width at initialization time.
-    style = mog.Style(tab_width=2) # render tabs as 2 spaces
-    style = mog.Style(tab_width=0) # remove tabs entirely
-    style = mog.Style(tab_width=mog.NO_TAB_CONVERSION) # leave tabs intact
 ```
 
 ## Rendering
@@ -467,6 +464,7 @@ Compose your text blocks easily using `join_horizontal` and `join_vertical`.
 
 ```mojo
 import mog
+from mog import Position
 
 def main():
     var paragraph_a = "Hello, world!"
@@ -474,14 +472,14 @@ def main():
     var paragraph_c = "I'm doing well.\nThank you."
 
     # Horizontally join three paragraphs along their bottom edges
-    mog.join_horizontal(mog.bottom, paragraph_a, paragraph_b, paragraph_c)
+    _ = mog.join_horizontal(Position.BOTTOM, paragraph_a, paragraph_b, paragraph_c)
 
     # Vertically join two paragraphs along their center axes
-    mog.join_vertical(mog.center, paragraph_a, paragraph_b)
+    _ = mog.join_vertical(Position.CENTER, paragraph_a, paragraph_b)
 
     # Horizontally join three paragraphs, with the shorter ones aligning 20%
     # from the top of the tallest
-    mog.join_horizontal(0.2, paragraph_a, paragraph_b, paragraph_c)
+    _ = mog.join_horizontal(0.2, paragraph_a, paragraph_b, paragraph_c)
 ```
 
 ### Measuring Width and Height
@@ -498,7 +496,7 @@ def main():
     var style = mog.Style() \
         .width(40) \
         .padding(2)
-    var block = style.render(some_long_string)
+    var block = style.render("...")
 
     # Get the actual, physical dimensions of the text block.
     var width = mog.get_width(block)
@@ -513,32 +511,34 @@ def main():
 Sometimes you’ll simply want to place a block of text in whitespace.
 
 ```mojo
-from mog import place, place_horizontal, place_vertical
+from mog import place, place_horizontal, place_vertical, Position, Alignment
 
 def main():
+    var fancy_styled_paragraph = "..."
     # Center a paragraph horizontally in a space 80 cells wide. The height of
     # the block returned will be as tall as the input paragraph.
-    block = place_horizontal(80, mog.center, fancy_styled_paragraph)
+    var block = place_horizontal(fancy_styled_paragraph, 80, Position.CENTER)
 
     # Place a paragraph at the bottom of a space 30 cells tall. The width of
     # the text block returned will be as wide as the input paragraph.
-    block = place_vertical(30, mog.bottom, fancy_styled_paragraph)
+    block = place_vertical(fancy_styled_paragraph, 30, Position.BOTTOM)
 
     # Place a paragraph in the bottom right corner of a 30x80 cell space.
-    block = place(30, 80, mog.right, mog.bottom, fancy_styled_paragraph)
+    block = place(fancy_styled_paragraph, 30, 80, Alignment(horizontal=Position.RIGHT, vertical=Position.BOTTOM))
 ```
 
 The `place` functions use a default `Renderer`, which attempts to detect the color profile supported and assumes a dark background terminal. If you'd like to explicitly set the color profile and background, you can create your own `Renderer`, use it's `place` methods.
 
 ```mojo
 import mog
+from mog import Position, Profile, Alignment
 
 def main():
-    # Set the color profile to ANSI (0-15 colors) and the background to light manually.
-    var renderer = mog.Renderer(mog.ANSI, dark_background=False)
-    var block = renderer.place_horizontal(80, mog.center, fancy_styled_paragraph)
-    block = renderer.place_vertical(30, mog.bottom, fancy_styled_paragraph)
-    block = renderer.place(30, 80, mog.right, mog.bottom, fancy_styled_paragraph)
+    var fancy_styled_paragraph = "..."
+    var renderer = mog.WhitespaceRenderer(mog.Style(Profile.ANSI))
+    var block = renderer.place_horizontal(fancy_styled_paragraph, 80, Position.CENTER)
+    block = renderer.place_vertical(fancy_styled_paragraph, 30, Position.BOTTOM)
+    block = renderer.place(fancy_styled_paragraph, 30, 80, Alignment(horizontal=Position.RIGHT, vertical=Position.BOTTOM))
 ```
 
 ### Rendering Tables
@@ -549,39 +549,27 @@ Use the table package to style and render the table.
 
 ```mojo
 import mog
-from mog.table import Data
+from mog import Data, NORMAL_BORDER
 
 def main():
-    ...
     var t = mog.Table(
-        data=Data(
+        data=Data([
             ["Chinese", "您好", "你好"],
             ["Japanese", "こんにちは", "やあ"],
             ["Arabic", "أهلين", "أهلا"],
             ["Russian", "Здравствуйте", "Привет"],
             ["Spanish", "Hola", "¿Qué tal?"],
-        ),
+        ]),
         border=NORMAL_BORDER,
         border_style=mog.Style().foreground(mog.Color(99)),
         headers=["LANGUAGE", "FORMAL", "INFORMAL"],
     )
 
     # You can also add tables row-by-row
-    t.data.add_row("English", "Hello, how are you?", "How's it going?")
-```
-
-Print the table.
-
-```mojo
-print(t)
+    t.data.append(["English", "Hello, how are you?", "How's it going?"])
+    print(t)
 ```
 
 Here's an example table rendering!
 
 ![Mog example](https://github.com/thatstoasty/mog/blob/main/doc/tapes/pokemon.gif)
-
----
-
-### Check out these other libraries in the Mojo Community
-
-* `A Mojo HTTP framework with wings` - [@saviorand/lightbug_http](https://github.com/saviorand/lightbug_http)

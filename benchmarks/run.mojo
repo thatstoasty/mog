@@ -115,6 +115,26 @@ def parse_report(report: String) raises -> BenchResults:
     return results^
 
 
+def fixed_width(value: String, length: Int) -> String:
+    """Returns the first `length` bytes of `value`, or all of it when it is shorter.
+
+    The numbers below are trimmed to fixed widths to keep the table columns aligned.
+    Slicing blindly overruns short values: an unchanged benchmark formats its diff as
+    `0.0` and its speedup as `1.0`, both 3 bytes long.
+
+    Args:
+        value: The formatted number to trim.
+        length: The maximum number of bytes to keep.
+
+    Returns:
+        The trimmed value.
+    """
+    if value.byte_length() <= length:
+        return value.copy()
+
+    return String(value[byte=0:length])
+
+
 def print_relative_performance(
     var old_results: BenchResults,
     var new_results: BenchResults,
@@ -139,10 +159,10 @@ def print_relative_performance(
             var speedup = new_val / old_val
 
             var sign = "+" if diff_pct >= 0 else ""
-            var diff_str = String(sign + String(diff_pct)[byte=0:5] + "%")
-            var speedup_str = String(String(speedup)[byte=0:4] + "x")
-            var old_str = String(String(old_val)[byte=0:6])
-            var new_str = String(String(new_val)[byte=0:6])
+            var diff_str = String(sign + fixed_width(String(diff_pct), 5) + "%")
+            var speedup_str = String(fixed_width(String(speedup), 4) + "x")
+            var old_str = fixed_width(String(old_val), 6)
+            var new_str = fixed_width(String(new_val), 6)
 
             # Pad output manually (inefficient but works without formatting lib)
             var pad_len = 10
@@ -170,8 +190,14 @@ def print_relative_performance(
 
             print("| " + name_pad + " | " + old_str + " | " + new_str + " | " + diff_str + " | " + speedup_str + " |")
         else:
+            # Pad to the same column width as the branch above, so a benchmark with no
+            # baseline still lines up with the rest of the table.
+            var new_str = fixed_width(String(new_val), 6)
+            while new_str.byte_length() < 10:
+                new_str = new_str + " "
+
             print(
-                "| " + name_pad + " | N/A        | " + String(new_val)[byte=0:6] + "     | N/A        | N/A         |"
+                "| " + name_pad + " | N/A        | " + new_str + " | N/A        | N/A         |"
             )
 
     print("---------------------------------------------------------------------------------------------------------")

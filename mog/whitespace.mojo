@@ -62,9 +62,9 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
 
         #  Fill any extra gaps white spaces. This might be necessary if any runes
         #  are more than one cell wide, which could leave a one-rune gap.
-        var short = width - ansi.printable_rune_width(result)
-        if short > 0:
-            result.write(WHITESPACE * Int(short))
+        var rendered_width = ansi.printable_rune_width(result)
+        if rendered_width < width:
+            result.write(WHITESPACE * Int(width - rendered_width))
 
         return self.style.render(result)
 
@@ -118,17 +118,25 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
         """
         var lines = text.split(NEWLINE)
         var content_width = get_widest_line(lines)
-        var gap = width - content_width
-        if gap <= 0:
+        # Compare before subtracting: these are unsigned, so text wider than the block
+        # would wrap to a huge gap and send `render` into an effectively endless loop.
+        if content_width >= width:
             return String(text)
+
+        var gap = width - content_width
 
         var result = String(capacity=Int(Float64(text.byte_length()) * 1.25))
         for i in range(len(lines)):
             if i != 0:
                 result.write(NEWLINE)
 
-            # Is this line shorter than the longest line?
-            var short = max(UInt(0), content_width - ansi.printable_rune_width(lines[i]))
+            # Is this line shorter than the longest line? `content_width` is the widest
+            # of these same lines, measured with the same function, so this subtraction
+            # cannot underflow. Wrapping it in `max(0, ...)` would suggest otherwise
+            # while doing nothing, since these are unsigned.
+            var line_width = ansi.printable_rune_width(lines[i])
+            debug_assert(line_width <= content_width, "line cannot be wider than the widest line")
+            var short = content_width - line_width
             if alignment == Position.LEFT:
                 result.write(lines[i], self.render(UInt(gap + short)))
             elif alignment == Position.RIGHT:
@@ -164,9 +172,10 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
             The string with the text placed in the block.
         """
         var content_height = UInt(text.count(NEWLINE) + 1)
-        var gap = height - content_height
-        if gap <= 0:
+        if content_height >= height:
             return String(text)
+
+        var gap = height - content_height
 
         var empty_line = self.render(get_widest_line(text))
         var result = String(capacity=Int(Float64(text.byte_length()) * 1.25))

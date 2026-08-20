@@ -76,7 +76,10 @@ def build_tabs() -> String:
         tab_style.render("Basalt"),
         tab_style.render("Prism"),
     )
-    var gap = tab_gap.render(" " * Int(max(UInt(0), width - get_width(row) - 2)))
+    # These are unsigned, so `max(0, ...)` cannot undo an underflow — a row wider than
+    # the budget would wrap to a huge gap and try to allocate it. Compare first instead.
+    var row_width = UInt(get_width(row)) + 2
+    var gap = tab_gap.render(" " * Int(width - row_width if width > row_width else 0))
     return join_horizontal(Position.BOTTOM, row, gap)
 
 
@@ -269,9 +272,8 @@ def build_status_bar() -> String:
     var status_key = status_style.render("STATUS")
     var encoding = encoding_style.render("UTF-8")
     var fish_cake = fish_cake_style.render("🍥 Fish Cake")
-    var status_val = status_text_style.width(
-        UInt16(UInt(width) - get_width(status_key) - get_width(encoding) - get_width(fish_cake))
-    ).render("Ravishing")
+    var used = UInt(get_width(status_key)) + UInt(get_width(encoding)) + UInt(get_width(fish_cake))
+    var status_val = status_text_style.width(UInt16(width - used if width > used else 0)).render("Ravishing")
 
     var bar = join_horizontal(
         Position.TOP,

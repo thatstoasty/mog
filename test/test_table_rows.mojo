@@ -31,7 +31,7 @@ def test_string_data_add() raises:
     var new = data + data2^
     testing.assert_equal(len(new), 5)
     testing.assert_equal(new.columns, 2)
-    testing.assert_equal(new[4, 0], "No Name")
+    testing.assert_equal(new[0, 4], "No Name")
 
 
 def test_string_data_iadd() raises:
@@ -47,7 +47,7 @@ def test_string_data_iadd() raises:
     data += data2^
     testing.assert_equal(len(data), 5)
     testing.assert_equal(data.columns, 2)
-    testing.assert_equal(data[4, 0], "No Name")
+    testing.assert_equal(data[0, 4], "No Name")
 
 
 def main() raises -> None:

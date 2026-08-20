@@ -2,7 +2,7 @@
 import mist
 from mist.transform import truncate, word_wrap, wrap
 from mist.transform.ansi import printable_rune_width
-from mog._extensions import get_lines, get_widest_line, pad_left, pad_right, WHITESPACE, NEWLINE
+from mog._extensions import get_lines, get_widest_line, pad_left, pad_right, WHITESPACE, NEWLINE, DEFAULT_BUFFER_SIZE
 from mog._properties import (
     BorderColor,
     Coloring,
@@ -2069,31 +2069,32 @@ struct Style(Writable, ImplicitlyCopyable):
 
         return underline_spaces or strikethrough_spaces
 
-    def render[*Ts: Writable](self, *texts: *Ts) -> String:
+    def render[*Ts: Writable, W: Writer](self, *texts: *Ts, mut writer: W, separator: StringSpan = " "):
         """Creates a `Style` with the text provided.
 
         Parameters:
             Ts: The types of the arguments that implement the Writable Trait.
+            W: The type of the writer.
 
         Args:
             texts: The strings to render.
-
-        Returns:
-            The rendered Style.
+            writer: The writer to write to.
+            separator: The separator to use when joining `texts`
         """
         # If style has internal string, add it first. Join arbitrary list of texts into a single string.
         var input_text = self._value.copy()
         comptime for i in range(texts.__len__()):
             input_text.write(texts[i])
             if i != len(texts) - 1:
-                input_text.write(" ")
+                input_text.write(separator)
 
         var reverse = self.check_emphasis(Emphasis.REVERSE)
         var color_whitespace = self._check_attr[PropKey.COLOR_WHITESPACE](default=True)
 
         # If no style properties are set, return the input text as is with tabs maybe converted.
         if not any(self._properties.value):
-            return _maybe_convert_tabs(self, input_text)
+            writer.write(_maybe_convert_tabs(self, input_text))
+            return
 
         var inline = self.check_if_inline()
         if inline:
@@ -2135,7 +2136,12 @@ struct Style(Writable, ImplicitlyCopyable):
             var alignment = self._alignment.vertical if self.is_set[PropKey.VERTICAL_ALIGNMENT]() else Position(0)
             result = align_text_vertical(result, alignment, height)
 
-        if self._width != 0 or get_widest_line(result) != 0:
+        # Aligning also pads every line out to the width of the widest one, so it runs for
+        # more than just an explicit alignment. The one case with nothing to do is a single
+        # line with no width to fill: there is no other line to match, and no target width.
+        # (`get_widest_line(result) != 0` here used to stand in for "has more than one
+        # line", but it is true of any non-empty text, so this never got skipped.)
+        if self._width != 0 or NEWLINE in result:
             var style: mist.Style
             if color_whitespace or use_whitespace_styler:
                 style = stylers.whitespace.copy()
@@ -2172,4 +2178,10 @@ struct Style(Writable, ImplicitlyCopyable):
             var joined_lines = NEWLINE.join(final_lines[0 : truncated_height])
             result = joined_lines^
 
+        writer.write(result)
+
+    def render[*Ts: Writable](self, *texts: *Ts, separator: StringSpan = " ") -> String:
+        var result = String(capacity=DEFAULT_BUFFER_SIZE)
+        self.render(*texts, writer=result, separator=separator)
         return result^
+

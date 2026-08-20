@@ -31,9 +31,17 @@ struct Position(Equatable, Writable, TrivialRegisterPassable):
         """Initializes a Position.
 
         Args:
-            value: The value of the position, between 0 and 1 inclusive.
+            value: The value of the position. Values outside 0 to 1 are clamped into
+                range, and NaN is treated as 0.
 
         Returns:
             A Position instance.
         """
-        self.value = value
+        # Consumers scale a gap by this value and subtract the result from an unsigned
+        # width. A value outside 0 to 1 makes that subtraction underflow to a huge
+        # number, which then gets used as an allocation size, so the range is enforced
+        # once here rather than at every use.
+        if value != value:  # NaN compares unequal to itself.
+            self.value = 0.0
+        else:
+            self.value = max(0.0, min(1.0, value))

@@ -151,10 +151,10 @@ def build_dialog_box() -> String:
     var ui = join_vertical(Position.CENTER, question, buttons)
 
     return WhitespaceRenderer(style=mog.Style(foreground=subtle), chars="⣾⣽⣻⢿⡿⣟⣯⣷").place(
+        dialog_box_style.render(ui),
         width,
         9,
         Alignment(Position.CENTER),
-        dialog_box_style.render(ui),
     )
 
 

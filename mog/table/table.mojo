@@ -64,6 +64,29 @@ def default_styles[columns: Int](data: Data[columns], row: UInt, col: UInt) -> S
 
 
 # TODO: Parametrize on data field, so other structs that implement `Data` can be used. For now it only support `StringData`.
+def _measure[origin: ImmOrigin, //](style: Style, cell: StringSpan[origin]) -> Tuple[UInt16, UInt16]:
+    """Returns the width and height a cell will occupy once styled.
+
+    Args:
+        style: The style the cell will be rendered with.
+        cell: The cell's contents.
+
+    Returns:
+        The cell's rendered width and height.
+
+    #### Notes:
+    Rendering a cell only to measure it is wasted work when the style cannot change its
+    size, which is the common case: a style function usually returns colour and emphasis,
+    and those are zero-width escape sequences. Tabs are the exception the predicate does
+    not cover, since a render expands them.
+    """
+    if not style.affects_layout() and "\t" not in cell:
+        return get_width(cell), get_height(cell)
+
+    var rendered = style.render(cell)
+    return get_width(rendered), get_height(rendered)
+
+
 struct Table[columns: Int](Copyable, Writable) where columns > 0:
     """Used to model and render tabular data as a table.
 
@@ -378,19 +401,16 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         # time.
         if self._headers:
             for i in range(Self.column_count):
-                var header = self.style(i, 0).render(self._headers.unsafe_value()[i])
-                widths[i] = get_width(header)
-                heights[0] = get_height(header)
+                var w, h = _measure(self.style(i, 0), self._headers.unsafe_value()[i])
+                widths[i] = w
+                heights[0] = h
 
         for row in range(row_count):
             comptime for col in range(Self.column_count):
-                var rendered = self.style(col, row + 1).render(self.data[col, row])
+                var w, h = _measure(self.style(col, row + 1), self.data[col, row])
                 var row_with_header_offset = row + header_offset
-                heights[row_with_header_offset] = max(
-                    heights[row_with_header_offset],
-                    get_height(rendered),
-                )
-                widths[col] = max(widths[col], get_width(rendered))
+                heights[row_with_header_offset] = max(heights[row_with_header_offset], h)
+                widths[col] = max(widths[col], w)
 
         # Table Resizing Logic.
         #

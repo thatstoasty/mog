@@ -1,5 +1,6 @@
 """A module for rendering whitespace in the terminal."""
 from mist.transform import ansi
+from mist import Profile
 from mog._extensions import get_lines, get_widest_line, DEFAULT_BUFFER_SIZE, WHITESPACE, NEWLINE
 from mog.align import Alignment
 from mog.position import Position
@@ -12,7 +13,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
     """Whitespace renderer."""
 
     var renderer: Renderer
-    """The renderer which determines the color profile."""
+    """The renderer which determifnes the color profile."""
     var style: Style
     """Terminal styling for the whitespace."""
     var chars: String
@@ -70,21 +71,21 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
 
     def place[origin: ImmOrigin, //](
         self,
+        text: StringSpan[origin],
         width: UInt,
         height: UInt,
         alignment: Alignment,
-        text: StringSpan[origin],
     ) -> String:
         """Places a string or text block vertically in an unstyled box of a given
         width or height.
 
         Args:
+            text: The string to place in the block.
             width: The width of the block to place the text in.
             height: The height of the block to place the text in.
             alignment: The horizontal and vertical alignment to place the text in the block.
                 For horizontal, 0 is the left side, 0.5 is center, and 1 is the right side.
                 For veritcal, 0 is the top, 0.5 is center, and 1 is the bottom.
-            text: The string to place in the block.
 
         Returns:
             The string with the text placed in the block.
@@ -201,3 +202,73 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
                 result.write(NEWLINE, empty_line)
 
         return result^
+
+
+comptime DEFAULT_WHITESPACE_RENDERER = WhitespaceRenderer(Style(Profile.ASCII))
+
+def place_horizontal[origin: ImmOrigin, //](
+    text: StringSpan[origin],
+    width: UInt,
+    alignment: Position = Position.LEFT,
+) -> String:
+    """Places a string or text block horizontally in an unstyled
+    block of a given width. If the given width is shorter than the max width of
+    the string (measured by its longest line) this will be a noöp.
+
+    Args:
+        text: The string to place in the block.
+        width: The width of the block to place the text in.
+        alignment: The position to place the text in the block. This should be
+            a float between 0 and 1.
+            0 is left aligned, 1 is the right aligned, and
+            0.5 is center aligned. Defaults to left aligned.
+
+    Returns:
+        The string with the text placed in the block.
+    """
+    return DEFAULT_WHITESPACE_RENDERER.place_horizontal(text, width, alignment)
+
+
+def place_vertical[origin: ImmOrigin, //](
+    text: StringSpan[origin],
+    height: UInt,
+    alignment: Position = Position.TOP,
+) -> String:
+    """Places a string or text block vertically in an unstyled block
+    of a given height. If the given height is shorter than the height of the
+    string (measured by its newlines) then this will be a noöp.
+
+    Args:
+        text: The string to place in the block.
+        height: The height of the block to place the text in.
+        alignment: The position to place the text in the block. This should be
+            a float between 0 and 1. 0 is the top, 1 is the bottom, and 0.5 is
+            the center. Defaults to top aligned.
+
+    Returns:
+        The string with the text placed in the block.
+    """
+    return DEFAULT_WHITESPACE_RENDERER.place_vertical(text, height, alignment)
+
+
+def place[origin: ImmOrigin, //](
+    text: StringSpan[origin],
+    width: UInt,
+    height: UInt,
+    alignment: Alignment,
+) -> String:
+    """Places a string or text block vertically in an unstyled box of a given
+    width or height.
+
+    Args:
+        text: The string to place in the block.
+        width: The width of the block to place the text in.
+        height: The height of the block to place the text in.
+        alignment: The horizontal and vertical alignment to place the text in the block.
+            For horizontal, 0 is the left side, 0.5 is center, and 1 is the right side.
+            For veritcal, 0 is the top, 0.5 is center, and 1 is the bottom.
+
+    Returns:
+        The string with the text placed in the block.
+    """
+    return DEFAULT_WHITESPACE_RENDERER.place(text, width, height, alignment)

@@ -106,6 +106,15 @@ def _apply_styles[origin: ImmOrigin, //](text: StringSpan[origin], use_space_sty
 
 def _wrap_words[origin: ImmOrigin, //](text: StringSpan[origin], width: UInt16, left_padding: UInt16, right_padding: UInt16) -> String:
     var wrap_at = width - left_padding - right_padding
+
+    # A string's display width never exceeds its byte length: ASCII is one byte per cell,
+    # and everything wider than a byte (multi-byte glyphs, combining marks, escape
+    # sequences) costs more bytes than cells. So fitting in bytes proves it fits in
+    # cells, and the two wrapping passes below can be skipped. Measuring the real width
+    # to catch the remaining cases would cost more than it saves.
+    if text.byte_length() <= Int(wrap_at) and NEWLINE not in text:
+        return String(text)
+
     return wrap(word_wrap(text, UInt(wrap_at)), UInt(wrap_at))
 
 
@@ -165,6 +174,11 @@ def _apply_border[origin: ImmOrigin, //](style: Style, text: StringSpan[origin])
     Returns:
         The text with the border applied.
     """
+    # Checked before copying the border: the struct holds a string per edge and corner,
+    # and the common case is having no border to apply at all.
+    if style._border == NO_BORDER:
+        return String(text)
+
     var top_set = style.is_set[PropKey.BORDER_TOP]()
     var right_set = style.is_set[PropKey.BORDER_RIGHT]()
     var bottom_set = style.is_set[PropKey.BORDER_BOTTOM]()
@@ -299,6 +313,17 @@ def _apply_margins[origin: ImmOrigin, //](style: Style, text: StringSpan[origin]
     Returns:
         The text with the margins applied.
     """
+    # With no margins on any side there is nothing to add, and the work below is not
+    # free: it resolves the margin background into a mist style, then rebuilds the whole
+    # string twice via `pad_left`/`pad_right`, then measures it.
+    if (
+        style._margin.left == 0
+        and style._margin.right == 0
+        and style._margin.top == 0
+        and style._margin.bottom == 0
+    ):
+        return String(text)
+
     var styler = style._renderer.as_mist_style().background(
         color=style._margin.background.color(style._renderer)
     )
@@ -1580,7 +1605,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the border foreground color rules unset.
         """
-        if not top and not right and not bottom and not right:
+        if not top and not right and not bottom and not left:
             return self.copy()
 
         var new = self.copy()
@@ -1743,7 +1768,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the border background color rules unset.
         """
-        if not top and not right and not bottom and not right:
+        if not top and not right and not bottom and not left:
             return self.copy()
 
         var new = self.copy()
@@ -1783,7 +1808,7 @@ struct Style(Writable, ImplicitlyCopyable):
         * Padding is applied inside the text area, inside of the border if there is one.
         * Margin is applied outside the text area, outside of the border if there is one.
         """
-        if not top and not right and not bottom and not right:
+        if not top and not right and not bottom and not left:
             return self.copy()
 
         var new = self.copy()
@@ -1878,7 +1903,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the padding rules unset.
         """
-        if not top and not right and not bottom and not right:
+        if not top and not right and not bottom and not left:
             return self.copy()
 
         var new = self.copy()
@@ -2010,7 +2035,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the margin rules unset.
         """
-        if not top and not right and not bottom and not right:
+        if not top and not right and not bottom and not left:
             return self.copy()
 
         var new = self.copy()
@@ -2068,6 +2093,41 @@ struct Style(Writable, ImplicitlyCopyable):
         )
 
         return underline_spaces or strikethrough_spaces
+
+    def affects_layout(self) -> Bool:
+        """Whether rendering with this style can change the printable size of the text.
+
+        Colour and emphasis wrap the text in escape sequences, which measure as zero
+        cells, so they leave the size alone. Everything that adds or removes cells does:
+        geometry, padding, margins, borders, truncation, a prefix value, or dropping
+        newlines for an inline render.
+
+        Callers that only need the rendered dimensions can measure the text directly
+        when this is False, instead of rendering it to find out.
+
+        Returns:
+            True if a render could change the text's width or height.
+
+        #### Notes:
+        Tabs are not covered here. They are expanded during a render, so a caller
+        taking the shortcut must rule them out separately.
+        """
+        if self._value != "":
+            return True
+
+        return (
+            self._width > 0
+            or self._height > 0
+            or self._max_width > 0
+            or self._max_height > 0
+            or self._padding != Padding()
+            or self._margin.top > 0
+            or self._margin.right > 0
+            or self._margin.bottom > 0
+            or self._margin.left > 0
+            or self._border != NO_BORDER
+            or self.check_if_inline()
+        )
 
     def render[*Ts: Writable, W: Writer](self, *texts: *Ts, mut writer: W, separator: StringSpan = " "):
         """Creates a `Style` with the text provided.
@@ -2155,7 +2215,13 @@ struct Style(Writable, ImplicitlyCopyable):
             result = _apply_margins(self, _apply_border(self, result), inline)
 
         # Truncate according to max_width
-        if self._max_width > 0 and get_widest_line(result) > UInt(self._max_width):
+        # The byte-length check is free and proves the whole string fits (see `_wrap_words`);
+        # only fall back to measuring real display width when it cannot.
+        if (
+            self._max_width > 0
+            and result.byte_length() > Int(self._max_width)
+            and get_widest_line(result) > UInt(self._max_width)
+        ):
             var text_lines = result.split(NEWLINE)
             var truncated = String(capacity=Int(Float64(result.byte_length()) * 1.5))
             for i in range(len(text_lines)):
@@ -2171,12 +2237,15 @@ struct Style(Writable, ImplicitlyCopyable):
 
             result = truncated^
 
-        # Truncate according to max_height
+        # Truncate according to max_height. Splitting and rejoining rebuilds the whole
+        # string, so only pay for it when there are lines to drop.
         if self._max_height > 0:
             var final_lines = result.splitlines()
-            var truncated_height = min(Int(self._max_height), len(final_lines))
-            var joined_lines = NEWLINE.join(final_lines[0 : truncated_height])
-            result = joined_lines^
+            if len(final_lines) > Int(self._max_height):
+                # `final_lines` borrows from `result`, so build the joined string before
+                # assigning it back.
+                var joined_lines = NEWLINE.join(final_lines[0 : Int(self._max_height)])
+                result = joined_lines^
 
         writer.write(result)
 
@@ -2184,4 +2253,3 @@ struct Style(Writable, ImplicitlyCopyable):
         var result = String(capacity=DEFAULT_BUFFER_SIZE)
         self.render(*texts, writer=result, separator=separator)
         return result^
-

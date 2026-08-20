@@ -13,10 +13,10 @@ def test_with_whitespace_background() raises:
     # Use a renderer with a specific profile to ensure consistent output.
     testing.assert_equal(
         WhitespaceRenderer(style=ANSI_STYLE.background(mog.Color(2))).place(
+            "hello",
             10,
             3,
             Alignment(horizontal=Position.RIGHT, vertical=Position.BOTTOM),
-            "hello",
         ),
         "\x1b[42m          \x1b[0m\n\x1b[42m          \x1b[0m\n\x1b[42m     \x1b[0mhello",
         "\x1b[42m     \x1b[0m",
@@ -26,10 +26,10 @@ def test_with_whitespace_background() raises:
 def test_with_whitespace_foreground() raises:
     testing.assert_equal(
         WhitespaceRenderer(style=ANSI_STYLE.foreground(mog.Color(2))).place(
+            "hello",
             10,
             3,
             Alignment(horizontal=Position.LEFT, vertical=Position.CENTER),
-            "hello",
         ),
         "\x1b[32m          \x1b[0m\nhello\x1b[32m     \x1b[0m\n\x1b[32m          \x1b[0m",
     )
@@ -38,10 +38,10 @@ def test_with_whitespace_foreground() raises:
 def test_with_whitespace_chars() raises:
     testing.assert_equal(
         WhitespaceRenderer(style=ANSI_STYLE, chars="<>").place(
+            "hello",
             10,
             3,
             Alignment(horizontal=Position.CENTER, vertical=Position.CENTER),
-            "hello",
         ),
         "<><><><><>\n<>hello<><\n<><><><><>",
     )
@@ -50,10 +50,10 @@ def test_with_whitespace_chars() raises:
 def test_multiple_whitespace_options() raises:
     testing.assert_equal(
         WhitespaceRenderer(style=ANSI_STYLE.background(mog.Color(2)), chars="<>").place(
+            "hello",
             10,
             3,
             Alignment(horizontal=Position.CENTER, vertical=Position.CENTER),
-            "hello",
         ),
         "\x1b[42m<><><><><>\x1b[0m\n\x1b[42m<>\x1b[0mhello\x1b[42m<><\x1b[0m\n\x1b[42m<><><><><>\x1b[0m",
     )
@@ -143,10 +143,10 @@ def test_place_vertical_fractional() raises:
 def test_place() raises:
     testing.assert_equal(
         TRUE_COLOR_RENDERER.place(
+            "Hello, World!",
             18,
             3,
             Alignment(horizontal=Position.CENTER, vertical=Position.CENTER),
-            "Hello, World!",
         ),
         "                  \n  Hello, World!   \n                  ",
     )
@@ -154,10 +154,10 @@ def test_place() raises:
     # Text taller than height, return width padded string
     testing.assert_equal(
         TRUE_COLOR_RENDERER.place(
+            "Hello, World!",
             18,
             1,
             Alignment(horizontal=Position.CENTER, vertical=Position.CENTER),
-            "Hello, World!",
         ),
         "  Hello, World!   ",
     )
@@ -165,10 +165,10 @@ def test_place() raises:
     # Text wider than width, return height padded string. Remember it's a box, so every line will have equal width.
     testing.assert_equal(
         TRUE_COLOR_RENDERER.place(
+            "Hello, World!",
             1,
             3,
             Alignment(horizontal=Position.CENTER, vertical=Position.CENTER),
-            "Hello, World!",
         ),
         "             \nHello, World!\n             ",
     )
@@ -176,10 +176,10 @@ def test_place() raises:
     # Text taller than height and wider than width, return same string
     testing.assert_equal(
         TRUE_COLOR_RENDERER.place(
+            "Hello, World!",
             1,
             1,
             Alignment(horizontal=Position.CENTER, vertical=Position.CENTER),
-            "Hello, World!",
         ),
         "Hello, World!",
     )

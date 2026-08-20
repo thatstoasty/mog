@@ -74,5 +74,34 @@ def test_table_narrower_than_columns() raises:
     testing.assert_equal(String(narrow), "╭─┬\n│…│\n╰─┴")
 
 
+def padded_styler[columns: Int](data: Data[columns], row: UInt, col: UInt) -> mog.Style
+    where columns > 0:
+    """A style function that changes a cell's size, not just its appearance."""
+    return mog.Style().padding(left=1, right=1)
+
+
+def coloured_styler[columns: Int](data: Data[columns], row: UInt, col: UInt) -> mog.Style
+    where columns > 0:
+    """A style function that changes only appearance."""
+    return mog.Style(mog.Profile.ANSI).foreground(mog.Color(240))
+
+
+def test_table_style_function_affecting_layout() raises:
+    """Columns must be sized from the styled cell when the style adds padding, not from
+    the raw text."""
+    testing.assert_equal(
+        String(Table(data=Data([["a", "b"]]), style_function=padded_styler[2])),
+        "╭───┬───╮\n│ a │ b │\n╰───┴───╯",
+    )
+
+
+def test_table_style_function_appearance_only() raises:
+    """Colour is zero-width, so the columns are sized as if it were not there."""
+    testing.assert_equal(
+        String(Table(data=Data([["a", "b"]]), style_function=coloured_styler[2])),
+        "╭─┬─╮\n│\x1b[90ma\x1b[0m│\x1b[90mb\x1b[0m│\n╰─┴─╯",
+    )
+
+
 def main() raises -> None:
     TestSuite.discover_tests[__functions_in_module()]().run()

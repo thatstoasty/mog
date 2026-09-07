@@ -69,6 +69,24 @@ struct Stylers(Movable, Writable):
     """The styler to use for whitespace characters. Only used if the style has COLOR_WHITESPACE enabled."""
 
 
+def _starts_with_space(grapheme: StringSpan) -> Bool:
+    """Whether a grapheme cluster's base character is whitespace.
+
+    A cluster is drawn as one character and so is styled as one unit, which
+    means it is classified by the character it begins with. A space carrying a
+    combining mark is still a space, even though the mark itself is not.
+
+    Args:
+        grapheme: The cluster to classify.
+
+    Returns:
+        True if the cluster starts with whitespace.
+    """
+    for codepoint in grapheme.codepoint_slices():
+        return codepoint.isspace()
+    return False
+
+
 def _apply_styles[origin: ImmOrigin, //](text: StringSpan[origin], use_space_styler: Bool, styles: Stylers) -> String:
     """Apply styles to text.
 
@@ -95,15 +113,18 @@ def _apply_styles[origin: ImmOrigin, //](text: StringSpan[origin], use_space_sty
             # character in a run gets the same escape sequences, so wrapping
             # each one separately paints the same thing several times over --
             # "Project" under `underline` went out as seven copies of
-            # `\x1b[4;36mX\x1b[0m`, 84 bytes for 7 columns. It also split
-            # grapheme clusters, since a combining mark is not a space and so
-            # took its own pair of sequences away from the letter it belongs to.
+            # `\x1b[4;36mX\x1b[0m`, 84 bytes for 7 columns.
+            #
+            # Walked by grapheme rather than by codepoint so that a cluster is
+            # never split across two runs, which would put escape sequences
+            # inside a single drawn character. Lipgloss classifies clusters the
+            # same way, by the character they start with.
             ref line = lines[i]
             var run_start = 0
             var offset = 0
             var run_is_space = False
-            for codepoint in line.codepoint_slices():
-                var is_space = codepoint.isspace()
+            for grapheme in line.graphemes():
+                var is_space = _starts_with_space(grapheme)
                 if offset == 0:
                     run_is_space = is_space
                 elif is_space != run_is_space:
@@ -113,7 +134,7 @@ def _apply_styles[origin: ImmOrigin, //](text: StringSpan[origin], use_space_sty
                         result.write(styles.common.render(line[byte=run_start:offset]))
                     run_start = offset
                     run_is_space = is_space
-                offset += codepoint.byte_length()
+                offset += grapheme.byte_length()
 
             if offset > run_start:
                 if run_is_space:

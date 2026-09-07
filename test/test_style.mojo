@@ -58,8 +58,15 @@ def test_styled_runs_are_not_split_per_character() raises:
     comptime style = ansi_style.underline()
     testing.assert_equal(style.render("Project"), "\x1b[4mProject\x1b[0m")
     testing.assert_equal(style.render("ab cd"), "\x1b[4mab\x1b[0m\x1b[4m \x1b[0m\x1b[4mcd\x1b[0m")
-    # A combining mark is not a space, so it stays with the letter it belongs to.
+    # A cluster is never split across two runs, which would put escape
+    # sequences inside a single drawn character. This matters most where the
+    # codepoints of one cluster classify differently: a space carrying a
+    # combining mark is one character, and is styled by what it starts with.
     testing.assert_equal(style.render("e\u0301"), "\x1b[4me\u0301\x1b[0m")
+    testing.assert_equal(style.render(" \u0301"), "\x1b[4m \u0301\x1b[0m")
+    testing.assert_equal(style.render("a \u0301b"), "\x1b[4ma\x1b[0m\x1b[4m \u0301\x1b[0m\x1b[4mb\x1b[0m")
+    # A zero-width joiner sequence is one cluster too.
+    testing.assert_equal(style.render("\U0001F469\u200d\U0001F467"), "\x1b[4m\U0001F469\u200d\U0001F467\x1b[0m")
     testing.assert_equal(style.render(""), "")
     testing.assert_equal(style.render("a\nb"), "\x1b[4ma\x1b[0m\n\x1b[4mb\x1b[0m")
 

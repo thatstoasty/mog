@@ -31,7 +31,7 @@ There's two ways to build `mog` from source: directly from the Git repository or
 Run the following commands in your terminal:
 
 ```bash
-pixi add mog --git "https://github.com/thatstoasty/mog.git" --tag "v0.3.0" && pixi install
+pixi add mog --git "https://github.com/thatstoasty/mog.git" --tag "v0.3.2" && pixi install
 ```
 
 #### Building from source: Local

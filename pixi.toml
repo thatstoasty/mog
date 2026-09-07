@@ -22,7 +22,7 @@ format = "mojo format mog test examples benchmarks --line-length 120"
 
 [package]
 name = "mog"
-version = "0.3.1"
+version = "0.3.2"
 
 [package.build]
 backend = { name = "pixi-build-mojo", version = "0.*" }

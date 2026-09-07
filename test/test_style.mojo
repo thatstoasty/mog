@@ -36,9 +36,11 @@ def test_unset_tab_width() raises:
 
 def test_underline_spaces() raises:
     comptime style = ansi_style.underline_spaces()
+    # Runs of spaces are styled together: the sequences are the same for each
+    # one, so wrapping them separately paints the same thing twice.
     testing.assert_equal(
         style.render("  Hello world!  "),
-        "\x1b[4m \x1b[0m\x1b[4m \x1b[0mHello\x1b[4m \x1b[0mworld!\x1b[4m \x1b[0m\x1b[4m \x1b[0m",
+        "\x1b[4m  \x1b[0mHello\x1b[4m \x1b[0mworld!\x1b[4m  \x1b[0m",
     )
 
     # Turn on underline spaces (flag has a value set), but then set it to False (flag has value set, value is False).
@@ -46,6 +48,20 @@ def test_underline_spaces() raises:
         style.set_emphasis(Emphasis.UNDERLINE_SPACES, value=False).render("  Hello world!  "),
         "  Hello world!  ",
     )
+
+
+def test_styled_runs_are_not_split_per_character() raises:
+    """Every character in a run gets the same escape sequences, so the run is
+    wrapped once. This used to emit a pair of sequences per character, which is
+    the same picture in five times the bytes, and split grapheme clusters apart
+    with escapes in the middle of them."""
+    comptime style = ansi_style.underline()
+    testing.assert_equal(style.render("Project"), "\x1b[4mProject\x1b[0m")
+    testing.assert_equal(style.render("ab cd"), "\x1b[4mab\x1b[0m\x1b[4m \x1b[0m\x1b[4mcd\x1b[0m")
+    # A combining mark is not a space, so it stays with the letter it belongs to.
+    testing.assert_equal(style.render("e\u0301"), "\x1b[4me\u0301\x1b[0m")
+    testing.assert_equal(style.render(""), "")
+    testing.assert_equal(style.render("a\nb"), "\x1b[4ma\x1b[0m\n\x1b[4mb\x1b[0m")
 
 
 def test_get_underline_spaces() raises:
@@ -62,7 +78,7 @@ def test_strikethrough_spaces() raises:
     comptime style = ansi_style.set_emphasis(Emphasis.STRIKETHROUGH_SPACES)
     testing.assert_equal(
         style.render("  Hello world!  "),
-        "\x1b[9m \x1b[0m\x1b[9m \x1b[0mHello\x1b[9m \x1b[0mworld!\x1b[9m \x1b[0m\x1b[9m \x1b[0m",
+        "\x1b[9m  \x1b[0mHello\x1b[9m \x1b[0mworld!\x1b[9m  \x1b[0m",
     )
 
     # Turn on strikethrough spaces (flag has a value set), but then set it to False (flag has value set, value is False).

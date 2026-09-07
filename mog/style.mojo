@@ -91,13 +91,35 @@ def _apply_styles[origin: ImmOrigin, //](text: StringSpan[origin], use_space_sty
         # If we're using a space styler, we need to check each character.
         # Look for spaces and apply a different styler.
         if use_space_styler:
-            for codepoint in lines[i].codepoint_slices():
-                if codepoint.isspace():
-                    # While I could use a buffer for spaces, it would result in more frequent allocations.
-                    # TODO: Maybe I can figure out how to use a space buffer without allocating too often.
-                    result.write(styles.space.render(codepoint))
+            # Styled a run at a time rather than a character at a time. Every
+            # character in a run gets the same escape sequences, so wrapping
+            # each one separately paints the same thing several times over --
+            # "Project" under `underline` went out as seven copies of
+            # `\x1b[4;36mX\x1b[0m`, 84 bytes for 7 columns. It also split
+            # grapheme clusters, since a combining mark is not a space and so
+            # took its own pair of sequences away from the letter it belongs to.
+            ref line = lines[i]
+            var run_start = 0
+            var offset = 0
+            var run_is_space = False
+            for codepoint in line.codepoint_slices():
+                var is_space = codepoint.isspace()
+                if offset == 0:
+                    run_is_space = is_space
+                elif is_space != run_is_space:
+                    if run_is_space:
+                        result.write(styles.space.render(line[byte=run_start:offset]))
+                    else:
+                        result.write(styles.common.render(line[byte=run_start:offset]))
+                    run_start = offset
+                    run_is_space = is_space
+                offset += codepoint.byte_length()
+
+            if offset > run_start:
+                if run_is_space:
+                    result.write(styles.space.render(line[byte=run_start:offset]))
                 else:
-                    result.write(styles.common.render(codepoint))
+                    result.write(styles.common.render(line[byte=run_start:offset]))
         else:
             result.write(styles.common.render(lines[i]))
 

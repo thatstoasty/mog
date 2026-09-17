@@ -23,7 +23,7 @@ def _merge_lines(
     Returns:
         The merged string.
     """
-    var result = String(capacity=DEFAULT_BUFFER_SIZE)
+    var result = String(capacity_bytes=DEFAULT_BUFFER_SIZE)
     for i in range(max_height):
         for j in range(len(blocks)):
             var block_height = len(blocks[j])
@@ -175,7 +175,7 @@ def _merge_blocks_vertically(blocks: List[List[String]], max_width: UInt, pos: P
     Returns:
         The merged string.
     """
-    var result = String(capacity=DEFAULT_BUFFER_SIZE)
+    var result = String(capacity_bytes=DEFAULT_BUFFER_SIZE)
     for i in range(len(blocks)):
         for j in range(len(blocks[i])):
             # blocks[i][j] is equivalent to a line

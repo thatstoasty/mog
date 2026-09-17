@@ -87,7 +87,7 @@ def pad[origin: ImmOrigin, //](text: StringSpan[origin], n: Int, style: mist.Sty
         return String(text)
 
     var spaces = style.render(WHITESPACE * abs(n))
-    var result = String(capacity=Int(Float64(text.byte_length()) * 1.5))
+    var result = String(capacity_bytes=Int(Float64(text.byte_length()) * 1.5))
     var lines = text.splitlines()
     for i in range(len(lines)):
         if n > 0:

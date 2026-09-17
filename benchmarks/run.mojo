@@ -1,5 +1,5 @@
 from std import pathlib, time, benchmark
-from std.benchmark import Bench, BenchConfig, Bencher, BenchId, BenchMetric, ThroughputMeasure
+from std.benchmark import Bench, BenchConfig, Bencher, BenchId, BenchMetric, ThroughputMeasure, keep
 from std.python import Python, PythonObject
 from std.sys import argv
 from std.pathlib import Path
@@ -249,62 +249,44 @@ def get_gbs_measure(input: String) raises -> ThroughputMeasure:
     return ThroughputMeasure(BenchMetric.bytes, input.byte_length())
 
 
-def run[func: def(mut Bencher, String) raises capturing, name: String](mut m: Bench, data: String) raises:
-    m.bench_with_input[String, func](BenchId(name), data, [get_gbs_measure(data)])
-
-
-def run[func: def(mut Bencher) raises capturing, name: String](mut m: Bench) raises:
-    m.bench_function[func](BenchId(name))
-
-
-@parameter
 def test_render_layout(mut b: Bencher) raises:
     @always_inline
-    @parameter
-    def do() raises:
-        _ = render_layout()
+    def call_fn() raises:
+        keep(render_layout())
 
-    b.iter[do]()
+    b.iter(call_fn)
 
 
-@parameter
 def test_render_table(mut b: Bencher) raises:
     @always_inline
-    @parameter
-    def do() raises:
-        _ = render_table()
+    def call_fn():
+        keep(render_table())
 
-    b.iter[do]()
+    b.iter(call_fn)
 
 
-@parameter
 def test_basic_styling(mut b: Bencher) raises:
     @always_inline
-    @parameter
-    def do() raises:
-        _ = basic_styling()
+    def call_fn():
+        keep(basic_styling())
 
-    b.iter[do]()
+    b.iter(call_fn)
 
 
-@parameter
 def test_basic_comptime_styling(mut b: Bencher) raises:
     @always_inline
-    @parameter
-    def do() raises:
-        _ = basic_comptime_styling()
+    def call_fn():
+        keep(basic_comptime_styling())
 
-    b.iter[do]()
+    b.iter(call_fn)
 
 
-@parameter
 def bench_get_width(mut b: Bencher, s: String) raises:
     @always_inline
-    @parameter
-    def do() raises:
-        _ = mog.get_width(s)
+    def call_fn() {imm s}:
+        keep(mog.get_width(s))
 
-    b.iter[do]()
+    b.iter(call_fn)
 
 
 def main() raises:
@@ -319,12 +301,12 @@ def main() raises:
     # with open(sample_data, "r") as file:
     #     data = file.read()
 
-    run[test_render_layout, "Layout"](bench)
-    run[test_basic_styling, "BasicStyle"](bench)
-    run[test_basic_comptime_styling, "CompTimeBasicStyle"](bench)
-    run[test_render_table, "RenderTable"](bench)
+    bench.bench_function(test_render_layout, BenchId("Layout"))
+    bench.bench_function(test_basic_styling, BenchId("BasicStyle"))
+    bench.bench_function(test_basic_comptime_styling, BenchId("CompTimeBasicStyle"))
+    bench.bench_function(test_render_table, BenchId("RenderTable"))
 
     comptime data = "🍥🍥🍥🍥🍥🍥"
-    run[bench_get_width, "GetWidth"](bench, data)
+    bench.bench_with_input(bench_get_width, BenchId("GetWidth"), data, [get_gbs_measure(data)])
 
     run_benchmarks(bench)

@@ -98,7 +98,7 @@ def _apply_styles[origin: ImmOrigin, //](text: StringSpan[origin], use_space_sty
     Returns:
         The styled text.
     """
-    var result = String(capacity=Int(Float64(text.byte_length()) * 1.5))
+    var result = String(capacity_bytes=Int(Float64(text.byte_length()) * 1.5))
 
     var lines = text.split(NEWLINE)
     for i in range(len(lines)):
@@ -288,7 +288,7 @@ def _apply_border[origin: ImmOrigin, //](style: Style, text: StringSpan[origin])
         elif not has_right:
             border.bottom_right = ""
 
-    var result = String(capacity=Int(Float64(text.byte_length()) * 1.5))
+    var result = String(capacity_bytes=Int(Float64(text.byte_length()) * 1.5))
     # Render top
     if has_top:
         result.write(
@@ -2266,7 +2266,7 @@ struct Style(Writable, ImplicitlyCopyable):
             and get_widest_line(result) > UInt(self._max_width)
         ):
             var text_lines = result.split(NEWLINE)
-            var truncated = String(capacity=Int(Float64(result.byte_length()) * 1.5))
+            var truncated = String(capacity_bytes=Int(Float64(result.byte_length()) * 1.5))
             for i in range(len(text_lines)):
                 if i != 0:
                     truncated.write(NEWLINE)
@@ -2293,6 +2293,6 @@ struct Style(Writable, ImplicitlyCopyable):
         writer.write(result)
 
     def render[*Ts: Writable](self, *texts: *Ts, separator: StringSpan = " ") -> String:
-        var result = String(capacity=DEFAULT_BUFFER_SIZE)
+        var result = String(capacity_bytes=DEFAULT_BUFFER_SIZE)
         self.render(*texts, writer=result, separator=separator)
         return result^

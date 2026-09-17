@@ -388,7 +388,7 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         if header_offset == 0 and row_count == 0:
             return
 
-        var result = String(capacity=DEFAULT_BUFFER_SIZE)
+        var result = String(capacity_bytes=DEFAULT_BUFFER_SIZE)
 
         # Initialize the widths.
         var widths = Array[UInt16, Self.columns](fill=0)
@@ -530,18 +530,20 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         # every line to no effect, so slice the lines directly instead.
         var lines = result.splitlines()
 
-        @parameter
-        def rows_are_uniform() -> Bool:
-            if len(lines) == 0:
-                return True
-
+        # Check if all lines are uniform in width. If they are not, then the table is malformed and we should panic.
+        var lines_are_uniform: Bool
+        if len(lines) == 0:
+            lines_are_uniform = True
+        else:
             var expected = get_width(lines[0])
             for i in range(1, len(lines)):
                 if get_width(lines[i]) != expected:
-                    return False
-            return True
+                    lines_are_uniform = False
+                    break
+            else:
+                lines_are_uniform = True
 
-        debug_assert[rows_are_uniform]("table rows should all be rendered to the same width")
+        debug_assert(lines_are_uniform, "table rows should all be rendered to the same width")
 
         if len(lines) > height:
             writer.write(NEWLINE.join(lines[0:height]))
@@ -592,7 +594,7 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         Returns:
             The constructed top border as a string.
         """
-        var result = String(capacity=SMALL_BUFFER_SIZE)
+        var result = String(capacity_bytes=SMALL_BUFFER_SIZE)
         if self._border_left:
             self._border_style.render(self._border.top_left, writer=result)
 
@@ -616,7 +618,7 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         Returns:
             The constructed bottom border as a string.
         """
-        var result = String(capacity=SMALL_BUFFER_SIZE)
+        var result = String(capacity_bytes=SMALL_BUFFER_SIZE)
         if self._border_left:
             self._border_style.render(self._border.bottom_left, writer=result)
 
@@ -641,7 +643,7 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         Returns:
             The constructed headers as a string.
         """
-        var result = String(capacity=SMALL_BUFFER_SIZE)
+        var result = String(capacity_bytes=SMALL_BUFFER_SIZE)
         if self._border_left:
             self._border_style.render(self._border.left, writer=result)
 
@@ -692,7 +694,7 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         Returns:
             The constructed row as a string.
         """
-        var result = String(capacity=DEFAULT_BUFFER_SIZE)
+        var result = String(capacity_bytes=DEFAULT_BUFFER_SIZE)
 
         var header_offset = UInt(self._headers is not None)
         var height = heights[index + header_offset]

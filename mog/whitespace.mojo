@@ -45,7 +45,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
             The rendered whitespace.
         """
         var j: UInt = 0
-        var result = String(capacity=DEFAULT_BUFFER_SIZE)
+        var result = String(capacity_bytes=DEFAULT_BUFFER_SIZE)
 
         # Cycle through runes and print them into the whitespace.
         var i: UInt = 0
@@ -126,7 +126,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
 
         var gap = width - content_width
 
-        var result = String(capacity=Int(Float64(text.byte_length()) * 1.25))
+        var result = String(capacity_bytes=Int(Float64(text.byte_length()) * 1.25))
         for i in range(len(lines)):
             if i != 0:
                 result.write(NEWLINE)
@@ -179,7 +179,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
         var gap = height - content_height
 
         var empty_line = self.render(get_widest_line(text))
-        var result = String(capacity=Int(Float64(text.byte_length()) * 1.25))
+        var result = String(capacity_bytes=Int(Float64(text.byte_length()) * 1.25))
         if alignment == Position.TOP:
             result.write(text, NEWLINE)
 

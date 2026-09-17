@@ -64,7 +64,7 @@ def align_text_horizontal[origin: ImmOrigin, //](
             return style.value().render(spaces)
         return spaces^
 
-    var aligned = String(capacity=Int(Float64(text.byte_length()) * 1.25))
+    var aligned = String(capacity_bytes=Int(Float64(text.byte_length()) * 1.25))
     for i in range(len(lines)):
         var line = String(lines[i])
         var line_width = Int(printable_rune_width(line))

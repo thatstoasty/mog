@@ -22,22 +22,22 @@ format = "mojo format mog test examples benchmarks --line-length 120"
 
 [package]
 name = "mog"
-version = "0.3.2"
+version = "0.3.3"
 
 [package.build]
 backend = { name = "pixi-build-mojo", version = "0.*" }
 
 [dependencies]
-mojo = ">=1.0.0,<1.1.0"
-mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.4" }
+mojo = ">=1.1.0,<1.2.0"
+mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.5" }
 
 [package.build-dependencies]
-mojo-compiler = ">=1.0.0,<1.1.0"
-mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.4" }
+mojo-compiler = ">=1.1.0,<1.2.0"
+mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.5" }
 
 [package.host-dependencies]
-mojo-compiler = ">=1.0.0,<1.1.0"
+mojo-compiler = ">=1.1.0,<1.2.0"
 
 [package.run-dependencies]
-mojo-compiler = ">=1.0.0,<1.1.0"
-mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.4" }
+mojo-compiler = ">=1.1.0,<1.2.0"
+mist = { git = "https://github.com/thatstoasty/mist.git", tag = "v0.3.5" }

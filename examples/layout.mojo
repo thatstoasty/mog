@@ -288,7 +288,7 @@ def build_status_bar() -> String:
 
 def main():
     # The page style
-    var builder = String(capacity=4096)
+    var builder = String(capacity_bytes=4096)
     var doc_style = mog.Style(padding=Padding(top=1, right=2, bottom=1, left=2))
 
     # Tabs.

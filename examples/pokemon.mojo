@@ -2,7 +2,7 @@ import mog
 from mog import Profile, Padding, Emphasis
 
 # TODO: There's an issue with rows being taller than 1 line. Adding vertical padding will break the table.
-comptime style = mog.Style(Profile.TRUE_COLOR, padding=Padding(1, 0))
+comptime style = mog.Style(Profile.true_color, padding=Padding(1, 0))
 comptime header_style = style.set_emphasis(Emphasis.BOLD).foreground(mog.Color(252))
 comptime selected_style = style.foreground(mog.Color(0x01BE85)).background(mog.Color(0x00432F))
 

@@ -7,7 +7,7 @@ from std.utils.variant import Variant
 trait TerminalColor(Equatable, Writable, ImplicitlyCopyable):
     """Color intended to be rendered in the terminal."""
 
-    def color(self, renderer: Renderer) -> mist.AnyColor:
+    def color(self, renderer: Renderer) -> mist.Color:
         """Returns the color value based on the terminal color profile.
 
         Args:
@@ -16,10 +16,10 @@ trait TerminalColor(Equatable, Writable, ImplicitlyCopyable):
         Returns:
             The color value based on the terminal color profile.
 
-        The type of color returned depends on the value of the integer. Unless it's an ASCII renderer, otherwise it's always `mist.NoColor`.
-        * 0 - 15: `mist.ANSIColor`
-        * 16 - 255: `mist.ANSI256Color`
-        * 256 - 0xffffff: `mist.RGBColor`
+        The type of color returned depends on the value of the integer. Unless it's an ASCII renderer, otherwise it's always `mist.Color.ascii`.
+        * 0 - 15: `mist.Color.ansi`
+        * 16 - 255: `mist.Color.ansi256`
+        * 256 - 0xffffff: `mist.Color.rgb`
         """
         ...
 
@@ -39,16 +39,16 @@ struct NoColor(TerminalColor, TrivialRegisterPassable):
     ```
     """
 
-    def color(self, renderer: Renderer) -> mist.AnyColor:
-        """Returns a `mist.NoColor`.
+    def color(self, renderer: Renderer) -> mist.Color:
+        """Returns a `mist.Color.ascii`.
 
         Args:
             renderer: The renderer to use for color selection.
 
         Returns:
-            A `mist.NoColor`.
+            A `mist.Color.ascii`.
         """
-        return mist.NoColor()
+        return mist.Color.ascii
 
 
 @fieldwise_init
@@ -70,7 +70,7 @@ struct Color(TerminalColor, TrivialRegisterPassable):
     var value: UInt32
     """The color value to use. This can be an ANSI color value or a hex color value."""
 
-    def color(self, renderer: Renderer) -> mist.AnyColor:
+    def color(self, renderer: Renderer) -> mist.Color:
         """Returns the color value based on the terminal color profile.
 
         Args:
@@ -79,10 +79,10 @@ struct Color(TerminalColor, TrivialRegisterPassable):
         Returns:
             The color value based on the terminal color profile.
 
-        The type of color returned depends on the value of the integer. Unless it's an ASCII renderer, otherwise it's always `mist.NoColor`.
-        * 0 - 15: `mist.ANSIColor`
-        * 16 - 255: `mist.ANSI256Color`
-        * 256 - 0xffffff: `mist.RGBColor`
+        The type of color returned depends on the value of the integer. Unless it's an ASCII renderer, otherwise it's always `mist.Color.ascii`.
+        * 0 - 15: `mist.Color.ansi`
+        * 16 - 255: `mist.Color.ansi256`
+        * 256 - 0xffffff: `mist.Color.rgb`
         """
         return renderer.profile.color(self.value)
 
@@ -110,7 +110,7 @@ struct ANSIColor(TerminalColor, TrivialRegisterPassable):
     var value: UInt32
     """The color value to use. This is an ANSI color value."""
 
-    def color(self, renderer: Renderer) -> mist.AnyColor:
+    def color(self, renderer: Renderer) -> mist.Color:
         """Returns the color value based on the terminal color profile.
 
         Args:
@@ -119,10 +119,10 @@ struct ANSIColor(TerminalColor, TrivialRegisterPassable):
         Returns:
             The color value based on the terminal color profile.
 
-        The type of color returned depends on the value of the integer. Unless it's an ASCII renderer, otherwise it's always `mist.NoColor`.
-        * 0 - 15: `mist.ANSIColor`
-        * 16 - 255: `mist.ANSI256Color`
-        * 256 - 0xffffff: `mist.RGBColor`
+        The type of color returned depends on the value of the integer. Unless it's an ASCII renderer, otherwise it's always `mist.Color.ascii`.
+        * 0 - 15: `mist.Color.ansi`
+        * 16 - 255: `mist.Color.ansi256`
+        * 256 - 0xffffff: `mist.Color.rgb`
         """
         return Color(self.value).color(renderer)
 
@@ -151,7 +151,7 @@ struct AdaptiveColor(TerminalColor, TrivialRegisterPassable):
     var dark: UInt32
     """The color to use when the terminal background is dark."""
 
-    def color(self, renderer: Renderer) -> mist.AnyColor:
+    def color(self, renderer: Renderer) -> mist.Color:
         """Returns the appropriate color based on the terminal background color.
 
         Args:
@@ -160,10 +160,10 @@ struct AdaptiveColor(TerminalColor, TrivialRegisterPassable):
         Returns:
             The appropriate color based on the terminal background color.
 
-        The type of color returned depends on the value of the integer. Unless it's an ASCII renderer, otherwise it's always `mist.NoColor`.
-        * 0 - 15: `mist.ANSIColor`
-        * 16 - 255: `mist.ANSI256Color`
-        * 256 - 0xffffff: `mist.RGBColor`
+        The type of color returned depends on the value of the integer. Unless it's an ASCII renderer, otherwise it's always `mist.Color.ascii`.
+        * 0 - 15: `mist.Color.ansi`
+        * 16 - 255: `mist.Color.ansi256`
+        * 256 - 0xffffff: `mist.Color.rgb`
         """
         if renderer.has_dark_background():
             return Color(self.dark).color(renderer)
@@ -197,7 +197,7 @@ struct CompleteColor(TerminalColor, TrivialRegisterPassable):
     var ansi: UInt32
     """The color to use when the terminal supports 16 colors."""
 
-    def color(self, renderer: Renderer) -> mist.AnyColor:
+    def color(self, renderer: Renderer) -> mist.Color:
         """Returns the appropriate color based on the terminal color profile.
 
         Args:
@@ -206,19 +206,20 @@ struct CompleteColor(TerminalColor, TrivialRegisterPassable):
         Returns:
             The appropriate color based on the terminal color profile.
 
-        The type of color returned depends on the value of the integer. Unless it's an ASCII renderer, otherwise it's always `mist.NoColor`.
-        * 0 - 15: `mist.ANSIColor`
-        * 16 - 255: `mist.ANSI256Color`
-        * 256 - 0xffffff: `mist.RGBColor`
+        The type of color returned depends on the value of the integer. Unless it's an ASCII renderer, otherwise it's always `mist.Color.ascii`.
+        * 0 - 15: `mist.Color.ansi`
+        * 16 - 255: `mist.Color.ansi256`
+        * 256 - 0xffffff: `mist.Color.rgb`
         """
-        if renderer.profile == mist.Profile.TRUE_COLOR:
-            return Color(self.true_color).color(renderer)
-        elif renderer.profile == mist.Profile.ANSI256:
-            return Color(self.ansi256).color(renderer)
-        elif renderer.profile == mist.Profile.ANSI:
-            return Color(self.ansi).color(renderer)
-        else:
-            return mist.NoColor()
+        match renderer.profile:
+            case .true_color:
+                return Color(self.true_color).color(renderer)
+            case .ansi256:
+                return Color(self.ansi256).color(renderer)
+            case .ansi:
+                return Color(self.ansi).color(renderer)
+            case .ascii:
+                return mist.Color.ascii
 
 
 @fieldwise_init
@@ -248,7 +249,7 @@ struct CompleteAdaptiveColor(TerminalColor, TrivialRegisterPassable):
     var dark: CompleteColor
     """The `CompleteColor` to use when the terminal background is dark."""
 
-    def color(self, renderer: Renderer) -> mist.AnyColor:
+    def color(self, renderer: Renderer) -> mist.Color:
         """Returns the appropriate color based on the terminal background color.
 
         Args:
@@ -257,10 +258,10 @@ struct CompleteAdaptiveColor(TerminalColor, TrivialRegisterPassable):
         Returns:
             The appropriate color based on the terminal background color.
 
-        The type of color returned depends on the value of the integer. Unless it's an ASCII renderer, otherwise it's always `mist.NoColor`.
-        * 0 - 15: `mist.ANSIColor`
-        * 16 - 255: `mist.ANSI256Color`
-        * 256 - 0xffffff: `mist.RGBColor`
+        The type of color returned depends on the value of the integer. Unless it's an ASCII renderer, otherwise it's always `mist.Color.ascii`.
+        * 0 - 15: `mist.Color.ansi`
+        * 16 - 255: `mist.Color.ansi256`
+        * 256 - 0xffffff: `mist.Color.rgb`
         """
         if renderer.has_dark_background():
             return self.dark.color(renderer)
@@ -337,8 +338,8 @@ struct AnyTerminalColor(Writable, ImplicitlyCopyable):
         """
         self.value = color.copy()
 
-    def color(self, renderer: Renderer) -> mist.AnyColor:
-        """Converts an `AnyTerminalColor` to an `AnyColor`.
+    def color(self, renderer: Renderer) -> mist.Color:
+        """Converts an `AnyTerminalColor` to a `mist.Color`.
 
         Args:
             renderer: The renderer to use for color selection.
@@ -355,7 +356,7 @@ struct AnyTerminalColor(Writable, ImplicitlyCopyable):
                 comptime assert conforms_to(T, TerminalColor), "`T` must conform to `TerminalColor`."
                 return self.value[T].color(renderer)
 
-        return mist.NoColor()
+        return mist.Color.ascii
 
     def isa[T: TerminalColor](self) -> Bool:
         """Checks if the value is of the given type.

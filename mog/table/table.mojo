@@ -19,6 +19,9 @@ comptime StyleFn[columns: Int] where columns > 0 = def(data: Data[columns], row:
 It takes the row and column of the cell as an input and determines the
 lipgloss Style to use for that cell position.
 
+Parameters:
+    columns: The number of columns in each row of the table being styled.
+
 #### Examples:
 ```mojo
 import mog
@@ -51,6 +54,9 @@ def main():
 def default_styles[columns: Int](data: Data[columns], row: UInt, col: UInt) -> Style
     where columns > 0:
     """Returns a new Style with no attributes.
+
+    Parameters:
+        columns: The number of columns in each row of the table.
 
     Args:
         data: The data of the table.
@@ -124,6 +130,7 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
     comptime column_count = UInt(Self.columns)
     """Column count, but as a UInt."""
     comptime DataType = Data[Self.columns]
+    """The `Data` type holding this table's rows."""
     var _styler: StyleFn[Self.columns]
     """The style function that determines the style of a cell. It returns a `mog.Style` for a given row and column position."""
     var _border: Border
@@ -373,6 +380,11 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         return new^
     
     def headers_length(self) -> Int:
+        """Returns the number of headers set on the table.
+
+        Returns:
+            The number of headers, or `0` if no headers are set.
+        """
         if self._headers:
             return len(self._headers.value())
         return 0
@@ -522,7 +534,7 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         # case needing a table-wide truncation, and the only case where the full `Style`
         # pass earns its cost.
         if target > 0 and width > target:
-            Style(Profile.ASCII, max_height=height, max_width=Int(self.width)).render(result, writer=writer)
+            Style(Profile.ascii, max_height=height, max_width=Int(self.width)).render(result, writer=writer)
             return
 
         # Otherwise every row was built to a common width, so the height rule is all that

@@ -8,7 +8,7 @@ from mog import Position
 
 comptime text = "hello"
 comptime multiline_text = "hello\nhello\nhello"
-comptime style = mist.Style(mist.Profile.ANSI)
+comptime style = mist.Style(mist.Profile.ansi)
 
 
 def test_centered_align_text_horizontal() raises:
@@ -22,7 +22,7 @@ def test_centered_align_text_horizontal() raises:
 
 
 def test_styled_centered_align_text_horizontal() raises:
-    var style = mist.Style(mist.Profile.ANSI).background(0xFFFFFF)
+    var style = mist.Style(mist.Profile.ansi).background(0xFFFFFF)
     testing.assert_equal(
         align_text_horizontal(text, Position.CENTER, 10, style),
         "\x1b[107m  \x1b[0mhello\x1b[107m   \x1b[0m",
@@ -50,7 +50,7 @@ def test_left_align_text_horizontal() raises:
 
 
 def test_styled_left_align_text_horizontal() raises:
-    var style = mist.Style(mist.Profile.ANSI).background(0xFFFFFF)
+    var style = mist.Style(mist.Profile.ansi).background(0xFFFFFF)
     testing.assert_equal(
         align_text_horizontal(text, Position.LEFT, 10, style),
         "hello\x1b[107m     \x1b[0m",
@@ -74,7 +74,7 @@ def test_right_align_text_horizontal() raises:
 
 
 def test_styled_right_align_text_horizontal() raises:
-    var style = mist.Style(mist.Profile.ANSI).background(0xFFFFFF)
+    var style = mist.Style(mist.Profile.ansi).background(0xFFFFFF)
     testing.assert_equal(
         align_text_horizontal(text, Position.RIGHT, 10, style),
         "\x1b[107m     \x1b[0mhello",
@@ -89,7 +89,7 @@ def test_styled_right_align_text_horizontal() raises:
 
 def test_empty_align_text_horizontal() raises:
     """Test that a padded string is returned if the text is empty."""
-    var bg_style = mist.Style(mist.Profile.ANSI).background(0xFFFFFF)
+    var bg_style = mist.Style(mist.Profile.ansi).background(0xFFFFFF)
     testing.assert_equal(align_text_horizontal("", Position.LEFT, 10, style), "          ")
     testing.assert_equal(align_text_horizontal("", Position.RIGHT, 10, style), "          ")
     testing.assert_equal(align_text_horizontal("", Position.CENTER, 10, style), "          ")

@@ -204,7 +204,8 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
         return result^
 
 
-comptime DEFAULT_WHITESPACE_RENDERER = WhitespaceRenderer(Style(Profile.ASCII))
+comptime DEFAULT_WHITESPACE_RENDERER = WhitespaceRenderer(Style(Profile.ascii))
+"""The `WhitespaceRenderer` used when none is supplied. It renders with an ASCII profile, so whitespace is filled in without any color styling."""
 
 def place_horizontal[origin: ImmOrigin, //](
     text: StringSpan[origin],

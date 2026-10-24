@@ -5,7 +5,7 @@ from mog.table import Table, Data
 
 
 def test_table_render() raises:
-    var s = mog.Style(mog.Profile.ANSI).foreground(mog.Color(240))
+    var s = mog.Style(mog.Profile.ansi).foreground(mog.Color(240))
     var data = Data([["Bubble Tea", s.render("Milky")]])
     var table = Table(data=data^)
     table.width = 50
@@ -41,7 +41,7 @@ def test_table_wide_glyphs() raises:
 
 def test_table_ansi_cell() raises:
     """A pre-styled cell keeps exactly the sequences it came with."""
-    var s = mog.Style(mog.Profile.ANSI).foreground(mog.Color(240))
+    var s = mog.Style(mog.Profile.ansi).foreground(mog.Color(240))
     testing.assert_equal(
         String(Table(data=Data([[s.render("Milky"), "x"]]))),
         "╭─────┬─╮\n│\x1b[90mMilky\x1b[0m│x│\n╰─────┴─╯",
@@ -83,7 +83,7 @@ def padded_styler[columns: Int](data: Data[columns], row: UInt, col: UInt) -> mo
 def coloured_styler[columns: Int](data: Data[columns], row: UInt, col: UInt) -> mog.Style
     where columns > 0:
     """A style function that changes only appearance."""
-    return mog.Style(mog.Profile.ANSI).foreground(mog.Color(240))
+    return mog.Style(mog.Profile.ansi).foreground(mog.Color(240))
 
 
 def test_table_style_function_affecting_layout() raises:

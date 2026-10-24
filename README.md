@@ -4,7 +4,7 @@
 
 Style definitions for nice terminal layouts.
 
-![Mojo Version](https://img.shields.io/badge/Mojo%F0%9F%94%A5-1.1.0-orange)
+![Mojo Version](https://img.shields.io/badge/Mojo%F0%9F%94%A5-1.2.0-orange)
 ![Build Status](https://github.com/thatstoasty/mog/actions/workflows/build.yml/badge.svg)
 ![Test Status](https://github.com/thatstoasty/mog/actions/workflows/test.yml/badge.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -31,7 +31,7 @@ There's two ways to build `mog` from source: directly from the Git repository or
 Run the following commands in your terminal:
 
 ```bash
-pixi add mog --git "https://github.com/thatstoasty/mog.git" --tag "v0.3.3" && pixi install
+pixi add mog --git "https://github.com/thatstoasty/mog.git" --tag "v0.4.0" && pixi install
 ```
 
 #### Building from source: Local
@@ -440,7 +440,7 @@ import mog
 
 def main():
     # Create a renderer for the client.
-    var custom_renderer = mog.Renderer(mog.Profile.ANSI)
+    var custom_renderer = mog.Renderer(mog.Profile.ansi)
 
     # Create a new style using the custom renderer.
     var style = mog.Style().background(mog.AdaptiveColor(light=63, dark=228))
@@ -535,7 +535,7 @@ from mog import Position, Profile, Alignment
 
 def main():
     var fancy_styled_paragraph = "..."
-    var renderer = mog.WhitespaceRenderer(mog.Style(Profile.ANSI))
+    var renderer = mog.WhitespaceRenderer(mog.Style(Profile.ansi))
     var block = renderer.place_horizontal(fancy_styled_paragraph, 80, Position.CENTER)
     block = renderer.place_vertical(fancy_styled_paragraph, 30, Position.BOTTOM)
     block = renderer.place(fancy_styled_paragraph, 30, 80, Alignment(horizontal=Position.RIGHT, vertical=Position.BOTTOM))

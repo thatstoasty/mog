@@ -196,7 +196,7 @@ def _style_border[origin: ImmOrigin, //](style: Style, border: StringSpan[origin
     Returns:
         The styled border.
     """
-    if fg.isa[NoColor]() and bg.isa[NoColor]():
+    if fg.is_no_color() and bg.is_no_color():
         return String(border)
 
     return (
@@ -632,10 +632,10 @@ struct Style(Writable, ImplicitlyCopyable):
             self._max_height = UInt16(max_height.value())
             self._properties.set[PropKey.MAX_HEIGHT](True)
 
-        if not foreground.is_same_type(NoColor()):
+        if not foreground.is_no_color():
             self._foreground = foreground
             self._properties.set[PropKey.FOREGROUND](True)
-        if not background.is_same_type(NoColor()):
+        if not background.is_no_color():
             self._background = background
             self._properties.set[PropKey.BACKGROUND](True)
 

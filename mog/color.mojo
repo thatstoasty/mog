@@ -1,7 +1,6 @@
 """A module for representing colors in the terminal."""
 import mist
 from mog.renderer import Renderer
-from std.utils.variant import Variant
 
 
 trait TerminalColor(Equatable, Writable, ImplicitlyCopyable):
@@ -269,20 +268,33 @@ struct CompleteAdaptiveColor(TerminalColor, TrivialRegisterPassable):
         return self.light.color(renderer)
 
 
-@fieldwise_init
-struct AnyTerminalColor(Writable, ImplicitlyCopyable):
-    """A type that can hold any terminal color."""
+__enum AnyTerminalColor(ImplicitlyCopyable, Writable):
+    """A type that can hold any terminal color.
 
-    comptime _type = Variant[
-        NoColor,
-        Color,
-        ANSIColor,
-        AdaptiveColor,
-        CompleteColor,
-        CompleteAdaptiveColor,
-    ]
-    var value: Self._type
-    """Internal `Color` value."""
+    Each `mog.TerminalColor` implementation has a case of its own, and converts
+    into one implicitly, so colors can be passed to a `Style` directly.
+
+    ### Examples:
+    ```mojo
+    import mog
+
+    def main():
+        var style = mog.Style(foreground=mog.Color(12), background=mog.NoColor())
+    ```
+    """
+
+    case no_color(NoColor)
+    """The absence of color styling, from a `NoColor`."""
+    case basic(Color)
+    """A `Color`, specified by an ANSI or hex value."""
+    case ansi(ANSIColor)
+    """An `ANSIColor`."""
+    case adaptive(AdaptiveColor)
+    """An `AdaptiveColor`, resolved against the terminal's background."""
+    case complete(CompleteColor)
+    """A `CompleteColor`, with an exact value per color profile."""
+    case complete_adaptive(CompleteAdaptiveColor)
+    """A `CompleteAdaptiveColor`, with an exact value per profile and background."""
 
     @implicit
     def __init__(out self, color: NoColor):
@@ -291,7 +303,7 @@ struct AnyTerminalColor(Writable, ImplicitlyCopyable):
         Args:
             color: The `NoColor` to initialize with.
         """
-        self.value = color
+        self = Self.no_color(color)
 
     @implicit
     def __init__(out self, color: Color):
@@ -300,7 +312,7 @@ struct AnyTerminalColor(Writable, ImplicitlyCopyable):
         Args:
             color: The `Color` to initialize with.
         """
-        self.value = color
+        self = Self.basic(color)
 
     @implicit
     def __init__(out self, color: ANSIColor):
@@ -309,7 +321,7 @@ struct AnyTerminalColor(Writable, ImplicitlyCopyable):
         Args:
             color: The `ANSIColor` to initialize with.
         """
-        self.value = color
+        self = Self.ansi(color)
 
     @implicit
     def __init__(out self, color: AdaptiveColor):
@@ -318,7 +330,7 @@ struct AnyTerminalColor(Writable, ImplicitlyCopyable):
         Args:
             color: The `AdaptiveColor` to initialize with.
         """
-        self.value = color
+        self = Self.adaptive(color)
 
     @implicit
     def __init__(out self, color: CompleteColor):
@@ -327,7 +339,7 @@ struct AnyTerminalColor(Writable, ImplicitlyCopyable):
         Args:
             color: The `CompleteColor` to initialize with.
         """
-        self.value = color
+        self = Self.complete(color)
 
     @implicit
     def __init__(out self, color: CompleteAdaptiveColor):
@@ -336,7 +348,7 @@ struct AnyTerminalColor(Writable, ImplicitlyCopyable):
         Args:
             color: The `CompleteAdaptiveColor` to initialize with.
         """
-        self.value = color.copy()
+        self = Self.complete_adaptive(color)
 
     def color(self, renderer: Renderer) -> mist.Color:
         """Converts an `AnyTerminalColor` to a `mist.Color`.
@@ -350,48 +362,48 @@ struct AnyTerminalColor(Writable, ImplicitlyCopyable):
         Notes:
             Useful for converting a `mog.TerminalColor` to a `mist.Color` for use in a `mist.Style`.
         """
-        comptime for i in range(len(self._type.Ts)):
-            comptime T = self._type.Ts[i]
-            if self.value.isa[T]():
-                comptime assert conforms_to(T, TerminalColor), "`T` must conform to `TerminalColor`."
-                return self.value[T].color(renderer)
+        match self:
+            case .no_color(value):
+                return value.color(renderer)
+            case .basic(value):
+                return value.color(renderer)
+            case .ansi(value):
+                return value.color(renderer)
+            case .adaptive(value):
+                return value.color(renderer)
+            case .complete(value):
+                return value.color(renderer)
+            case .complete_adaptive(value):
+                return value.color(renderer)
 
-        return mist.Color.ascii
-
-    def isa[T: TerminalColor](self) -> Bool:
-        """Checks if the value is of the given type.
-
-        Parameters:
-            T: The type to check against.
-
-        Returns:
-            True if the value is of the given type, False otherwise.
-        """
-        return self.value.isa[T]()
-
-    def __getitem_param__[T: TerminalColor](ref self) -> ref[origin_of(self.value)._get_owned_interior["value"]] T:
-        """Gets the value as the given type.
-
-        Parameters:
-            T: The type to get the value as.
+    def is_no_color(self) -> Bool:
+        """Checks whether no color styling is set.
 
         Returns:
-            The value as the given type.
+            True if the value is `no_color`, False otherwise.
         """
-        return self.value[T]
+        match self:
+            case .no_color:
+                return True
+            case _:
+                return False
 
-    def is_same_type(self, other: Self) -> Bool:
-        """Checks if the value is the same type as another `AnyTerminalColor`.
+    def write_to(self, mut writer: Some[Writer]):
+        """Writes the underlying color to the given writer.
 
         Args:
-            other: The other `AnyTerminalColor` to compare with.
-
-        Returns:
-            True if the value is the same type as the other, False otherwise.
+            writer: The writer to write to.
         """
-        comptime for i in range(len(self._type.Ts)):
-            comptime T = self._type.Ts[i]
-            if self.value.isa[T]() and other.value.isa[T]():
-                return True
-
-        return False
+        match self:
+            case .no_color(value):
+                writer.write(value)
+            case .basic(value):
+                writer.write(value)
+            case .ansi(value):
+                writer.write(value)
+            case .adaptive(value):
+                writer.write(value)
+            case .complete(value):
+                writer.write(value)
+            case .complete_adaptive(value):
+                writer.write(value)

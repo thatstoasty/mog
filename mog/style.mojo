@@ -83,7 +83,7 @@ def _starts_with_space(grapheme: StringSpan) -> Bool:
         True if the cluster starts with whitespace.
     """
     for codepoint in grapheme.codepoint_slices():
-        return codepoint.isspace()
+        return codepoint.is_ascii_whitespace()
     return False
 
 
@@ -2228,7 +2228,7 @@ struct Style(Writable, ImplicitlyCopyable):
                 result = pad_right(result, Int(self._padding.right), style)
 
             if self._padding.top > 0:
-                result = String(NEWLINE * Int(self._padding.top), result^)
+                result = String(NEWLINE * Int(self._padding.top), result)
 
             if self._padding.bottom > 0:
                 result.write(NEWLINE * Int(self._padding.bottom))
@@ -2293,6 +2293,18 @@ struct Style(Writable, ImplicitlyCopyable):
         writer.write(result)
 
     def render[*Ts: Writable](self, *texts: *Ts, separator: StringSpan = " ") -> String:
+        """Creates a `Style` with the text provided.
+
+        Parameters:
+            Ts: The types of the arguments that implement the Writable Trait.
+
+        Args:
+            texts: The strings to render.
+            separator: The separator to use when joining `texts`.
+
+        Returns:
+            The rendered text.
+        """
         var result = String(capacity_bytes=DEFAULT_BUFFER_SIZE)
         self.render(*texts, writer=result, separator=separator)
         return result^

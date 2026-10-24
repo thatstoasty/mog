@@ -7,12 +7,12 @@ from mog.style import _maybe_convert_tabs, _apply_border
 from mog import Position, Profile, Emphasis, Axis
 
 
-comptime ansi_style = mog.Style(Profile.ANSI)
+comptime ansi_style = mog.Style(Profile.ansi)
 
 
 def test_renderer() raises:
-    comptime style = ansi_style.renderer(mog.Renderer(Profile.TRUE_COLOR))
-    testing.assert_equal(style._renderer.profile, Profile.TRUE_COLOR)
+    comptime style = ansi_style.renderer(mog.Renderer(Profile.true_color))
+    testing.assert_equal(String(style._renderer.profile), String(Profile.true_color))
 
 
 def test_value() raises:
@@ -864,10 +864,10 @@ def test_render_without_border() raises:
 def test_affects_layout_false_for_appearance_only() raises:
     """Colour and emphasis are zero-width escape sequences, so they cannot resize text."""
     testing.assert_false(mog.Style().affects_layout())
-    testing.assert_false(mog.Style(mog.Profile.ANSI).bold().affects_layout())
-    testing.assert_false(mog.Style(mog.Profile.ANSI).faint().italic().affects_layout())
-    testing.assert_false(mog.Style(mog.Profile.ANSI).foreground(mog.Color(240)).affects_layout())
-    testing.assert_false(mog.Style(mog.Profile.ANSI).background(mog.Color(2)).affects_layout())
+    testing.assert_false(mog.Style(mog.Profile.ansi).bold().affects_layout())
+    testing.assert_false(mog.Style(mog.Profile.ansi).faint().italic().affects_layout())
+    testing.assert_false(mog.Style(mog.Profile.ansi).foreground(mog.Color(240)).affects_layout())
+    testing.assert_false(mog.Style(mog.Profile.ansi).background(mog.Color(2)).affects_layout())
     testing.assert_false(mog.Style().tab_width(8).affects_layout())
 
 
@@ -889,10 +889,10 @@ def test_affects_layout_agrees_with_rendering() raises:
     measures the same as the raw text."""
     var texts = ["hello", "one\ntwo", "フシギダネ", ""]
     var styles = [
-        mog.Style(mog.Profile.ANSI),
-        mog.Style(mog.Profile.ANSI).bold(),
-        mog.Style(mog.Profile.ANSI).foreground(mog.Color(240)).italic(),
-        mog.Style(mog.Profile.ANSI).underline().background(mog.Color(2)),
+        mog.Style(mog.Profile.ansi),
+        mog.Style(mog.Profile.ansi).bold(),
+        mog.Style(mog.Profile.ansi).foreground(mog.Color(240)).italic(),
+        mog.Style(mog.Profile.ansi).underline().background(mog.Color(2)),
     ]
     for s in range(len(styles)):
         testing.assert_false(styles[s].affects_layout())

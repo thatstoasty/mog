@@ -18,7 +18,7 @@ def basic_styling():
 
 
 comptime file_style = mog.Style(
-    color_profile=Profile.TRUE_COLOR,
+    color_profile=Profile.true_color,
     width=22,
     foreground=mog.Color(0xFAFAFA),
     background=mog.Color(0x7D56F4),

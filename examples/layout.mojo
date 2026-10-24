@@ -1,4 +1,4 @@
-import mist._hue as hue
+import mist
 from mist.transform.ansi import printable_rune_width
 from mog.align import Alignment
 from mog.border import HIDDEN_BORDER, NORMAL_BORDER, ROUNDED_BORDER, Border
@@ -18,23 +18,23 @@ comptime highlight = mog.AdaptiveColor(light=0x874BFD, dark=0xFF713C)
 comptime special = mog.AdaptiveColor(light=0x43BF6D, dark=0x73F59F)
 
 
-def color_grid(x_steps: Int, y_steps: Int) -> List[List[hue.Color]]:
-    comptime x0y0 = hue.Color(0xF25D94)
-    comptime x1y0 = hue.Color(0xEDFF82)
-    comptime x0y1 = hue.Color(0x643AFF)
-    comptime x1y1 = hue.Color(0x14F9D5)
+def color_grid(x_steps: Int, y_steps: Int) -> List[List[mist.Color]]:
+    comptime x0y0 = mist.Color.rgb(0xF25D94)
+    comptime x1y0 = mist.Color.rgb(0xEDFF82)
+    comptime x0y1 = mist.Color.rgb(0x643AFF)
+    comptime x1y1 = mist.Color.rgb(0x14F9D5)
 
-    var x0: List[hue.Color] = [x0y0.blend_luv(x0y1, Float64(i) / Float64(y_steps)) for i in range(y_steps)]
-    var x1: List[hue.Color] = [x1y0.blend_luv(x1y1, Float64(i) / Float64(y_steps)) for i in range(y_steps)]
+    var x0: List[mist.Color] = [x0y0.blend_Luv(x0y1, Float64(i) / Float64(y_steps)) for i in range(y_steps)]
+    var x1: List[mist.Color] = [x1y0.blend_Luv(x1y1, Float64(i) / Float64(y_steps)) for i in range(y_steps)]
 
-    var grid = List[List[hue.Color]](capacity=y_steps)
+    var grid = List[List[mist.Color]](capacity=y_steps)
     var x = 0
     while x < y_steps:
         var y0 = x0[x]
-        grid.append(List[hue.Color](capacity=x_steps))
+        grid.append(List[mist.Color](capacity=x_steps))
         var y = 0
         while y < x_steps:
-            grid[x].append(y0.blend_luv(x1[x], Float64(y) / Float64(x_steps)))
+            grid[x].append(y0.blend_Luv(x1[x], Float64(y) / Float64(x_steps)))
             y += 1
         x += 1
     return grid^
@@ -96,7 +96,7 @@ def build_description() -> String:
 
     for i in range(len(colors)):
         var offset = 2
-        var c = mog.Color(colors[i][0].hex())
+        var c = mog.Color(colors[i][0].to_hex())
         title.write(title_style.margin(left=i * offset).background(c).render())
         if i < len(colors) - 1:
             title.write("\n")
@@ -191,7 +191,7 @@ def build_lists() -> String:
 
     for i in range(len(colors)):
         for j in range(len(colors[i])):
-            builder.write(color_style.background(mog.Color(colors[i][j].hex())).render())
+            builder.write(color_style.background(mog.Color(colors[i][j].to_hex())).render())
         builder.write("\n")
 
     var lists = join_horizontal(

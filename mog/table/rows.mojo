@@ -4,6 +4,9 @@
 struct Data[columns: Int](Copyable, Writable, Sized) where columns > 0:
     """Table data.
 
+    Parameters:
+        columns: The number of columns in each row of the table.
+
     #### Example Usage:
     ```mojo
     import mog
@@ -20,6 +23,7 @@ struct Data[columns: Int](Copyable, Writable, Sized) where columns > 0:
     """
 
     comptime RowType = Array[String, Self.columns]
+    """The type of a single row: one `String` cell per column."""
     var _rows: List[Self.RowType]
     """The rows of the table."""
 

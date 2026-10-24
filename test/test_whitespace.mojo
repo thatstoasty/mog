@@ -6,7 +6,7 @@ import mog
 from mog import Alignment, Position, Profile
 
 
-comptime ANSI_STYLE = mog.Style(Profile.ANSI)
+comptime ANSI_STYLE = mog.Style(Profile.ansi)
 
 
 def test_with_whitespace_background() raises:
@@ -59,7 +59,7 @@ def test_multiple_whitespace_options() raises:
     )
 
 
-comptime TRUE_COLOR_RENDERER = WhitespaceRenderer(style=mog.Style(Profile.TRUE_COLOR))
+comptime TRUE_COLOR_RENDERER = WhitespaceRenderer(style=mog.Style(Profile.true_color))
 
 
 def test_place_horizontal() raises:

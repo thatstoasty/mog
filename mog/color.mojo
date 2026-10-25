@@ -2,29 +2,8 @@
 import mist
 from mog.renderer import Renderer
 
-
-trait TerminalColor(Equatable, Writable, ImplicitlyCopyable):
-    """Color intended to be rendered in the terminal."""
-
-    def color(self, renderer: Renderer) -> mist.Color:
-        """Returns the color value based on the terminal color profile.
-
-        Args:
-            renderer: The renderer to use for color selection.
-
-        Returns:
-            The color value based on the terminal color profile.
-
-        The type of color returned depends on the value of the integer. Unless it's an ASCII renderer, otherwise it's always `mist.Color.ascii`.
-        * 0 - 15: `mist.Color.ansi`
-        * 16 - 255: `mist.Color.ansi256`
-        * 256 - 0xffffff: `mist.Color.rgb`
-        """
-        ...
-
-
 @fieldwise_init
-struct NoColor(TerminalColor, TrivialRegisterPassable):
+struct NoColor(Equatable, Writable, TrivialRegisterPassable):
     """Used to specify the absence of color styling. When this is active
     foreground colors will be rendered with the terminal's default text color,
     and background colors will not be drawn at all.
@@ -51,7 +30,7 @@ struct NoColor(TerminalColor, TrivialRegisterPassable):
 
 
 @fieldwise_init
-struct Color(TerminalColor, TrivialRegisterPassable):
+struct Color(Equatable, Writable, TrivialRegisterPassable):
     """Specifies a color by hex or ANSI value. For example.
 
     ### Args:
@@ -87,7 +66,7 @@ struct Color(TerminalColor, TrivialRegisterPassable):
 
 
 @fieldwise_init
-struct ANSIColor(TerminalColor, TrivialRegisterPassable):
+struct ANSIColor(Equatable, Writable, TrivialRegisterPassable):
     """Color specified by an ANSI color value. It's merely syntactic
     sugar for the more general Color function. Invalid colors will render as
     black.
@@ -127,7 +106,7 @@ struct ANSIColor(TerminalColor, TrivialRegisterPassable):
 
 
 @fieldwise_init
-struct AdaptiveColor(TerminalColor, TrivialRegisterPassable):
+struct AdaptiveColor(Equatable, Writable, TrivialRegisterPassable):
     """Provides color options for light and dark backgrounds. The
     appropriate color will be returned at runtime based on the darkness of the
     terminal background color.
@@ -171,7 +150,7 @@ struct AdaptiveColor(TerminalColor, TrivialRegisterPassable):
 
 
 @fieldwise_init
-struct CompleteColor(TerminalColor, TrivialRegisterPassable):
+struct CompleteColor(Equatable, Writable, TrivialRegisterPassable):
     """Specifies exact values for truecolor, ANSI256, and ANSI color
     profiles. Automatic color degradation will not be performed.
 
@@ -222,7 +201,7 @@ struct CompleteColor(TerminalColor, TrivialRegisterPassable):
 
 
 @fieldwise_init
-struct CompleteAdaptiveColor(TerminalColor, TrivialRegisterPassable):
+struct CompleteAdaptiveColor(Equatable, Writable, TrivialRegisterPassable):
     """Specifies exact values for truecolor, ANSI256, and ANSI color
     profiles, with separate options for light and dark backgrounds. Automatic
     color degradation will not be performed.
@@ -268,7 +247,7 @@ struct CompleteAdaptiveColor(TerminalColor, TrivialRegisterPassable):
         return self.light.color(renderer)
 
 
-__enum AnyTerminalColor(ImplicitlyCopyable, Writable):
+__enum TerminalColor(ImplicitlyCopyable, Writable):
     """A type that can hold any terminal color.
 
     Each `mog.TerminalColor` implementation has a case of its own, and converts
@@ -298,7 +277,7 @@ __enum AnyTerminalColor(ImplicitlyCopyable, Writable):
 
     @implicit
     def __init__(out self, color: NoColor):
-        """Initializes the `AnyTerminalColor` with a `NoColor`.
+        """Initializes the `TerminalColor` with a `NoColor`.
 
         Args:
             color: The `NoColor` to initialize with.
@@ -307,7 +286,7 @@ __enum AnyTerminalColor(ImplicitlyCopyable, Writable):
 
     @implicit
     def __init__(out self, color: Color):
-        """Initializes the `AnyTerminalColor` with a `Color`.
+        """Initializes the `TerminalColor` with a `Color`.
 
         Args:
             color: The `Color` to initialize with.
@@ -316,7 +295,7 @@ __enum AnyTerminalColor(ImplicitlyCopyable, Writable):
 
     @implicit
     def __init__(out self, color: ANSIColor):
-        """Initializes the `AnyTerminalColor` with an `ANSIColor`.
+        """Initializes the `TerminalColor` with an `ANSIColor`.
 
         Args:
             color: The `ANSIColor` to initialize with.
@@ -325,7 +304,7 @@ __enum AnyTerminalColor(ImplicitlyCopyable, Writable):
 
     @implicit
     def __init__(out self, color: AdaptiveColor):
-        """Initializes the `AnyTerminalColor` with an `AdaptiveColor`.
+        """Initializes the `TerminalColor` with an `AdaptiveColor`.
 
         Args:
             color: The `AdaptiveColor` to initialize with.
@@ -334,7 +313,7 @@ __enum AnyTerminalColor(ImplicitlyCopyable, Writable):
 
     @implicit
     def __init__(out self, color: CompleteColor):
-        """Initializes the `AnyTerminalColor` with a `CompleteColor`.
+        """Initializes the `TerminalColor` with a `CompleteColor`.
 
         Args:
             color: The `CompleteColor` to initialize with.
@@ -343,7 +322,7 @@ __enum AnyTerminalColor(ImplicitlyCopyable, Writable):
 
     @implicit
     def __init__(out self, color: CompleteAdaptiveColor):
-        """Initializes the `AnyTerminalColor` with a `CompleteAdaptiveColor`.
+        """Initializes the `TerminalColor` with a `CompleteAdaptiveColor`.
 
         Args:
             color: The `CompleteAdaptiveColor` to initialize with.
@@ -351,7 +330,7 @@ __enum AnyTerminalColor(ImplicitlyCopyable, Writable):
         self = Self.complete_adaptive(color)
 
     def color(self, renderer: Renderer) -> mist.Color:
-        """Converts an `AnyTerminalColor` to a `mist.Color`.
+        """Converts an `TerminalColor` to a `mist.Color`.
 
         Args:
             renderer: The renderer to use for color selection.

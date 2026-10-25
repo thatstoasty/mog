@@ -35,12 +35,11 @@ from mog.border import (
 from mog.color import (
     AdaptiveColor,
     ANSIColor,
-    AnyTerminalColor,
+    TerminalColor,
     Color,
     CompleteAdaptiveColor,
     CompleteColor,
     NoColor,
-    TerminalColor,
 )
 from mog.position import Position
 from mog.renderer import Renderer
@@ -184,7 +183,7 @@ def _maybe_convert_tabs(style: Style, var text: String) -> String:
         return text.replace("\t", (WHITESPACE * Int(DEFAULT_TAB_WIDTH)))
 
 
-def _style_border[origin: ImmOrigin, //](style: Style, border: StringSpan[origin], fg: AnyTerminalColor, bg: AnyTerminalColor) -> String:
+def _style_border[origin: ImmOrigin, //](style: Style, border: StringSpan[origin], fg: TerminalColor, bg: TerminalColor) -> String:
     """Style a border with foreground and background colors.
 
     Args:
@@ -476,9 +475,9 @@ struct Style(Writable, ImplicitlyCopyable):
     """
 
     # props that have values
-    var _foreground: AnyTerminalColor
+    var _foreground: TerminalColor
     """The foreground color of the text area. IE: The color of the text itself."""
-    var _background: AnyTerminalColor
+    var _background: TerminalColor
     """The background color of the text area. IE: The color of the background behind the text."""
     var _height: UInt16
     """The height of the text area."""
@@ -511,8 +510,8 @@ struct Style(Writable, ImplicitlyCopyable):
         properties: Properties,
         var value: String,
         attrs: Properties,
-        var foreground: AnyTerminalColor,
-        var background: AnyTerminalColor,
+        var foreground: TerminalColor,
+        var background: TerminalColor,
         width: UInt16,
         height: UInt16,
         max_width: UInt16,
@@ -573,8 +572,8 @@ struct Style(Writable, ImplicitlyCopyable):
         max_width: Optional[Int] = None,
         max_height: Optional[Int] = None,
         var tail: String = "",
-        foreground: AnyTerminalColor = NoColor(),
-        background: AnyTerminalColor = NoColor(),
+        foreground: TerminalColor = NoColor(),
+        background: TerminalColor = NoColor(),
         border: Optional[Border] = None,
         var value: String = "",
         emphasis: Optional[Emphasis] = None,
@@ -1326,7 +1325,7 @@ struct Style(Writable, ImplicitlyCopyable):
             new._unset_attribute[PropKey.VERTICAL_ALIGNMENT]()
         return new^
 
-    def foreground(self, var color: AnyTerminalColor) -> Self:
+    def foreground(self, var color: TerminalColor) -> Self:
         """Set the foreground color of the text.
 
         Args:
@@ -1350,7 +1349,7 @@ struct Style(Writable, ImplicitlyCopyable):
         new._unset_attribute[PropKey.FOREGROUND]()
         return new^
 
-    def background(self, var color: AnyTerminalColor) -> Self:
+    def background(self, var color: TerminalColor) -> Self:
         """Set the background color of the text.
 
         Args:
@@ -1479,7 +1478,7 @@ struct Style(Writable, ImplicitlyCopyable):
         # TODO: Remove this when we have enums and exhaustive matching.
         return False
 
-    def border_foreground(self, *colors: AnyTerminalColor) -> Self:
+    def border_foreground(self, *colors: TerminalColor) -> Self:
         """Set the border foreground color.
 
         Args:
@@ -1526,7 +1525,7 @@ struct Style(Writable, ImplicitlyCopyable):
         new._properties.set[PropKey.BORDER_LEFT_FOREGROUND](True)
         return new^
 
-    def border_top_foreground(self, var color: AnyTerminalColor) -> Self:
+    def border_top_foreground(self, var color: TerminalColor) -> Self:
         """Set the border foreground color.
 
         Args:
@@ -1540,7 +1539,7 @@ struct Style(Writable, ImplicitlyCopyable):
         new._properties.set[PropKey.BORDER_TOP_FOREGROUND](True)
         return new^
 
-    def border_right_foreground(self, var color: AnyTerminalColor) -> Self:
+    def border_right_foreground(self, var color: TerminalColor) -> Self:
         """Set the border foreground color.
 
         Args:
@@ -1554,7 +1553,7 @@ struct Style(Writable, ImplicitlyCopyable):
         new._properties.set[PropKey.BORDER_RIGHT_FOREGROUND](True)
         return new^
 
-    def border_bottom_foreground(self, var color: AnyTerminalColor) -> Self:
+    def border_bottom_foreground(self, var color: TerminalColor) -> Self:
         """Set the border foreground color.
 
         Args:
@@ -1568,7 +1567,7 @@ struct Style(Writable, ImplicitlyCopyable):
         new._properties.set[PropKey.BORDER_BOTTOM_FOREGROUND](True)
         return new^
 
-    def border_left_foreground(self, var color: AnyTerminalColor) -> Self:
+    def border_left_foreground(self, var color: TerminalColor) -> Self:
         """Set the border foreground color.
 
         Args:
@@ -1582,7 +1581,7 @@ struct Style(Writable, ImplicitlyCopyable):
         new._properties.set[PropKey.BORDER_LEFT_FOREGROUND](True)
         return new^
 
-    def border_foreground(self, var color: AnyTerminalColor) -> Self:
+    def border_foreground(self, var color: TerminalColor) -> Self:
         """Set the border foreground color for all sides of the border.
 
         Args:
@@ -1605,7 +1604,7 @@ struct Style(Writable, ImplicitlyCopyable):
         new._properties.set[PropKey.BORDER_LEFT_FOREGROUND](True)
         return new^
 
-    def border_foreground(self, top_bottom_color: AnyTerminalColor, left_right_color: AnyTerminalColor) -> Self:
+    def border_foreground(self, top_bottom_color: TerminalColor, left_right_color: TerminalColor) -> Self:
         """Set the border foreground color for all sides of the border.
 
         Args:
@@ -1665,7 +1664,7 @@ struct Style(Writable, ImplicitlyCopyable):
             new._unset_attribute[PropKey.BORDER_LEFT_FOREGROUND]()
         return new^
 
-    def border_background(self, *colors: AnyTerminalColor) -> Self:
+    def border_background(self, *colors: TerminalColor) -> Self:
         """Set the border background color.
 
         Args:
@@ -1713,7 +1712,7 @@ struct Style(Writable, ImplicitlyCopyable):
         return new^
 
     # TODO: Can't have a catchall set_border_background def because Optional[Variant] does not work.
-    def border_top_background(self, var color: AnyTerminalColor) -> Self:
+    def border_top_background(self, var color: TerminalColor) -> Self:
         """Set the border background color.
 
         Args:
@@ -1727,7 +1726,7 @@ struct Style(Writable, ImplicitlyCopyable):
         new._properties.set[PropKey.BORDER_TOP_BACKGROUND](True)
         return new^
 
-    def border_bottom_background(self, var color: AnyTerminalColor) -> Self:
+    def border_bottom_background(self, var color: TerminalColor) -> Self:
         """Set the border background color.
 
         Args:
@@ -1741,7 +1740,7 @@ struct Style(Writable, ImplicitlyCopyable):
         new._properties.set[PropKey.BORDER_BOTTOM_BACKGROUND](True)
         return new^
 
-    def border_left_background(self, var color: AnyTerminalColor) -> Self:
+    def border_left_background(self, var color: TerminalColor) -> Self:
         """Set the border background color.
 
         Args:
@@ -1755,7 +1754,7 @@ struct Style(Writable, ImplicitlyCopyable):
         new._properties.set[PropKey.BORDER_LEFT_BACKGROUND](True)
         return new^
 
-    def border_right_background(self, var color: AnyTerminalColor) -> Self:
+    def border_right_background(self, var color: TerminalColor) -> Self:
         """Set the border background color.
 
         Args:
@@ -1769,7 +1768,7 @@ struct Style(Writable, ImplicitlyCopyable):
         new._properties.set[PropKey.BORDER_RIGHT_BACKGROUND](True)
         return new^
 
-    def border_background(self, var color: AnyTerminalColor) -> Self:
+    def border_background(self, var color: TerminalColor) -> Self:
         """Set the border background color for all sides of the border.
 
         Args:
@@ -2095,7 +2094,7 @@ struct Style(Writable, ImplicitlyCopyable):
             new._unset_attribute[PropKey.MARGIN_LEFT]()
         return new^
 
-    def margin_background(self, var color: AnyTerminalColor) -> Self:
+    def margin_background(self, var color: TerminalColor) -> Self:
         """Set the margin on the background color.
 
         Args:

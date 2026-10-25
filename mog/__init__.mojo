@@ -17,7 +17,7 @@ from mog.border import (
     THICK_BORDER,
     Border,
 )
-from mog.color import AdaptiveColor, ANSIColor, AnyTerminalColor, Color, CompleteAdaptiveColor, CompleteColor, NoColor
+from mog.color import AdaptiveColor, ANSIColor, TerminalColor, Color, CompleteAdaptiveColor, CompleteColor, NoColor
 from mog.join import join_horizontal, join_vertical
 from mog.position import Position
 from mog.renderer import Renderer

@@ -1,109 +1,209 @@
 from mog.position import Position
-from mog.color import AnyTerminalColor, NoColor
+from mog.color import TerminalColor, NoColor
 
-@fieldwise_init
-struct PropKey(Equatable, Writable, TrivialRegisterPassable):
+__enum PropKey(Equatable, ImplicitlyCopyable, Writable):
     """Property keys for the style."""
 
-    var _value: UInt8
-    comptime BOLD = Self(1)
+    case BOLD
     """Bold text."""
-    comptime ITALIC = Self(2)
+    case ITALIC
     """Italicize text."""
-    comptime UNDERLINE = Self(3)
+    case UNDERLINE
     """Underline text."""
-    comptime STRIKETHROUGH = Self(4)
+    case STRIKETHROUGH
     """Crossout text."""
-    comptime REVERSE = Self(5)
+    case REVERSE
     """Reverse text foreground/background coloring."""
-    comptime BLINK = Self(6)
+    case BLINK
     """Blink text."""
-    comptime FAINT = Self(7)
+    case FAINT
     """Faint text."""
-    comptime FOREGROUND = Self(8)
+    case FOREGROUND
     """Foreground color."""
-    comptime BACKGROUND = Self(9)
+    case BACKGROUND
     """Background color."""
-    comptime WIDTH = Self(10)
+    case WIDTH
     """Text width."""
-    comptime HEIGHT = Self(11)
+    case HEIGHT
     """Text height."""
-    comptime HORIZONTAL_ALIGNMENT = Self(12)
+    case HORIZONTAL_ALIGNMENT
     """Horizontal alignment."""
-    comptime VERTICAL_ALIGNMENT = Self(13)
+    case VERTICAL_ALIGNMENT
     """Vertical alignment."""
 
     # Padding.
-    comptime PADDING_TOP = Self(14)
+    case PADDING_TOP
     """Padding level at the top of the text."""
-    comptime PADDING_RIGHT = Self(15)
+    case PADDING_RIGHT
     """Padding level to the right of the text."""
-    comptime PADDING_BOTTOM = Self(16)
+    case PADDING_BOTTOM
     """Padding level at the bottom of the text."""
-    comptime PADDING_LEFT = Self(17)
+    case PADDING_LEFT
     """Padding level to the left of the text."""
 
-    comptime COLOR_WHITESPACE = Self(18)
+    case COLOR_WHITESPACE
     """Color of whitespace background."""
 
     # Margins.
-    comptime MARGIN_TOP = Self(19)
+    case MARGIN_TOP
     """Margin level at the top of the text."""
-    comptime MARGIN_RIGHT = Self(20)
+    case MARGIN_RIGHT
     """Margin level to the right of the text."""
-    comptime MARGIN_BOTTOM = Self(21)
+    case MARGIN_BOTTOM
     """Margin level at the bottom of the text."""
-    comptime MARGIN_LEFT = Self(22)
+    case MARGIN_LEFT
     """Margin level to the left of the text."""
-    comptime MARGIN_BACKGROUND = Self(23)
+    case MARGIN_BACKGROUND
     """Margin background color."""
 
     # Border style.
-    comptime BORDER_STYLE = Self(24)
+    case BORDER_STYLE
     """Border style."""
 
     # Border edges.
-    comptime BORDER_TOP = Self(25)
+    case BORDER_TOP
     """Border top."""
-    comptime BORDER_RIGHT = Self(26)
+    case BORDER_RIGHT
     """Border right."""
-    comptime BORDER_BOTTOM = Self(27)
+    case BORDER_BOTTOM
     """Border bottom."""
-    comptime BORDER_LEFT = Self(28)
+    case BORDER_LEFT
     """Border left."""
 
     # Border foreground colors.
-    comptime BORDER_TOP_FOREGROUND = Self(29)
+    case BORDER_TOP_FOREGROUND
     """Border top foreground color."""
-    comptime BORDER_RIGHT_FOREGROUND = Self(30)
+    case BORDER_RIGHT_FOREGROUND
     """Border right foreground color."""
-    comptime BORDER_BOTTOM_FOREGROUND = Self(31)
+    case BORDER_BOTTOM_FOREGROUND
     """Border bottom foreground color."""
-    comptime BORDER_LEFT_FOREGROUND = Self(32)
+    case BORDER_LEFT_FOREGROUND
     """Border left foreground color."""
 
     # Border background colors.
-    comptime BORDER_TOP_BACKGROUND = Self(33)
+    case BORDER_TOP_BACKGROUND
     """Border top background color."""
-    comptime BORDER_RIGHT_BACKGROUND = Self(34)
+    case BORDER_RIGHT_BACKGROUND
     """Border right background color."""
-    comptime BORDER_BOTTOM_BACKGROUND = Self(35)
+    case BORDER_BOTTOM_BACKGROUND
     """Border bottom background color."""
-    comptime BORDER_LEFT_BACKGROUND = Self(36)
+    case BORDER_LEFT_BACKGROUND
     """Border left background color."""
-
-    comptime INLINE = Self(37)
+    case INLINE
     """Inline rendering."""
-    comptime MAX_WIDTH = Self(38)
+    case MAX_WIDTH
     """Maximum width of the text."""
-    comptime MAX_HEIGHT = Self(39)
+    case MAX_HEIGHT
     """Maximum height of the text."""
-    comptime TAB_WIDTH = Self(40)
+    case TAB_WIDTH
     """Tab width."""
-    comptime UNDERLINE_SPACES = Self(41)
+    case UNDERLINE_SPACES
     """Underline spaces between words."""
-    comptime STRIKETHROUGH_SPACES = Self(42)
+    case STRIKETHROUGH_SPACES
     """Crossout spaces between words."""
+
+    def _index(self) -> Int:
+        """Returns the bit this key occupies in a `Properties` set.
+
+        Returns:
+            The index of the key.
+        """
+        match self:
+            case .BOLD:
+                return 1
+            case .ITALIC:
+                return 2
+            case .UNDERLINE:
+                return 3
+            case .STRIKETHROUGH:
+                return 4
+            case .REVERSE:
+                return 5
+            case .BLINK:
+                return 6
+            case .FAINT:
+                return 7
+            case .FOREGROUND:
+                return 8
+            case .BACKGROUND:
+                return 9
+            case .WIDTH:
+                return 10
+            case .HEIGHT:
+                return 11
+            case .HORIZONTAL_ALIGNMENT:
+                return 12
+            case .VERTICAL_ALIGNMENT:
+                return 13
+            case .PADDING_TOP:
+                return 14
+            case .PADDING_RIGHT:
+                return 15
+            case .PADDING_BOTTOM:
+                return 16
+            case .PADDING_LEFT:
+                return 17
+            case .COLOR_WHITESPACE:
+                return 18
+            case .MARGIN_TOP:
+                return 19
+            case .MARGIN_RIGHT:
+                return 20
+            case .MARGIN_BOTTOM:
+                return 21
+            case .MARGIN_LEFT:
+                return 22
+            case .MARGIN_BACKGROUND:
+                return 23
+            case .BORDER_STYLE:
+                return 24
+            case .BORDER_TOP:
+                return 25
+            case .BORDER_RIGHT:
+                return 26
+            case .BORDER_BOTTOM:
+                return 27
+            case .BORDER_LEFT:
+                return 28
+            case .BORDER_TOP_FOREGROUND:
+                return 29
+            case .BORDER_RIGHT_FOREGROUND:
+                return 30
+            case .BORDER_BOTTOM_FOREGROUND:
+                return 31
+            case .BORDER_LEFT_FOREGROUND:
+                return 32
+            case .BORDER_TOP_BACKGROUND:
+                return 33
+            case .BORDER_RIGHT_BACKGROUND:
+                return 34
+            case .BORDER_BOTTOM_BACKGROUND:
+                return 35
+            case .BORDER_LEFT_BACKGROUND:
+                return 36
+            case .INLINE:
+                return 37
+            case .MAX_WIDTH:
+                return 38
+            case .MAX_HEIGHT:
+                return 39
+            case .TAB_WIDTH:
+                return 40
+            case .UNDERLINE_SPACES:
+                return 41
+            case .STRIKETHROUGH_SPACES:
+                return 42
+
+    def __eq__(self, other: Self) -> Bool:
+        """Checks whether two keys are the same.
+
+        Args:
+            other: The key to compare against.
+
+        Returns:
+            True if both are the same key, False otherwise.
+        """
+        return self._index() == other._index()
 
 
 struct Properties(Equatable, Writable, TrivialRegisterPassable):
@@ -129,7 +229,7 @@ struct Properties(Equatable, Writable, TrivialRegisterPassable):
         Args:
             value: The value to set the property to.
         """
-        self.value[Int(key._value)] = value
+        self.value[key._index()] = value
 
     def has[key: PropKey](self) -> Bool:
         """Check if a property is set.
@@ -140,7 +240,7 @@ struct Properties(Equatable, Writable, TrivialRegisterPassable):
         Returns:
             True if the property is set, False otherwise.
         """
-        return self.value[Int(key._value)]
+        return self.value[key._index()]
 
 
 struct Padding(Equatable, Writable, TrivialRegisterPassable):
@@ -185,7 +285,7 @@ struct Margin(Equatable, Writable, ImplicitlyCopyable):
     """The margin level at the bottom of the text."""
     var left: UInt16
     """The margin level to the left of the text."""
-    var background: AnyTerminalColor
+    var background: TerminalColor
     """The background color of the margin."""
 
     def __init__(
@@ -194,7 +294,7 @@ struct Margin(Equatable, Writable, ImplicitlyCopyable):
         right: UInt16 = 0,
         bottom: UInt16 = 0,
         left: UInt16 = 0,
-        var background: AnyTerminalColor = NoColor(),
+        var background: TerminalColor = NoColor(),
     ):
         self.top = top
         self.right = right
@@ -202,14 +302,14 @@ struct Margin(Equatable, Writable, ImplicitlyCopyable):
         self.left = left
         self.background = background^
 
-    def __init__(out self, width: UInt16, var background: AnyTerminalColor = NoColor()):
+    def __init__(out self, width: UInt16, var background: TerminalColor = NoColor()):
         self.top = width
         self.right = width
         self.bottom = width
         self.left = width
         self.background = background^
 
-    def __init__(out self, x_width: UInt16, y_width: UInt16, var background: AnyTerminalColor = NoColor()):
+    def __init__(out self, x_width: UInt16, y_width: UInt16, var background: TerminalColor = NoColor()):
         self.top = y_width
         self.right = x_width
         self.bottom = y_width
@@ -233,12 +333,12 @@ struct Dimensions(Equatable, Writable, TrivialRegisterPassable):
 struct Coloring(Equatable, Writable, ImplicitlyCopyable):
     """Coloring properties for the text."""
 
-    var foreground: AnyTerminalColor
+    var foreground: TerminalColor
     """The foreground color."""
-    var background: AnyTerminalColor
+    var background: TerminalColor
     """The background color."""
 
-    def __init__(out self, var foreground: AnyTerminalColor = NoColor(), var background: AnyTerminalColor = NoColor()):
+    def __init__(out self, var foreground: TerminalColor = NoColor(), var background: TerminalColor = NoColor()):
         self.foreground = foreground^
         self.background = background^
 
@@ -246,33 +346,33 @@ struct Coloring(Equatable, Writable, ImplicitlyCopyable):
 struct BorderColor(Equatable, Writable, ImplicitlyCopyable):
     """Border coloring properties for the text."""
 
-    var foreground_top: AnyTerminalColor
+    var foreground_top: TerminalColor
     """The foreground color of the top border."""
-    var foreground_right: AnyTerminalColor
+    var foreground_right: TerminalColor
     """The foreground color of the right border."""
-    var foreground_bottom: AnyTerminalColor
+    var foreground_bottom: TerminalColor
     """The foreground color of the bottom border."""
-    var foreground_left: AnyTerminalColor
+    var foreground_left: TerminalColor
     """The foreground color of the left border."""
-    var background_top: AnyTerminalColor
+    var background_top: TerminalColor
     """The background color of the top border."""
-    var background_right: AnyTerminalColor
+    var background_right: TerminalColor
     """The background color of the right border."""
-    var background_bottom: AnyTerminalColor
+    var background_bottom: TerminalColor
     """The background color of the bottom border."""
-    var background_left: AnyTerminalColor
+    var background_left: TerminalColor
     """The background color of the left border."""
 
     def __init__(
         out self,
-        var foreground_top: AnyTerminalColor = NoColor(),
-        var foreground_right: AnyTerminalColor = NoColor(),
-        var foreground_bottom: AnyTerminalColor = NoColor(),
-        var foreground_left: AnyTerminalColor = NoColor(),
-        var background_top: AnyTerminalColor = NoColor(),
-        var background_right: AnyTerminalColor = NoColor(),
-        var background_bottom: AnyTerminalColor = NoColor(),
-        var background_left: AnyTerminalColor = NoColor(),
+        var foreground_top: TerminalColor = NoColor(),
+        var foreground_right: TerminalColor = NoColor(),
+        var foreground_bottom: TerminalColor = NoColor(),
+        var foreground_left: TerminalColor = NoColor(),
+        var background_top: TerminalColor = NoColor(),
+        var background_right: TerminalColor = NoColor(),
+        var background_bottom: TerminalColor = NoColor(),
+        var background_left: TerminalColor = NoColor(),
     ):
         self.foreground_top = foreground_top^
         self.foreground_right = foreground_right^
@@ -284,56 +384,137 @@ struct BorderColor(Equatable, Writable, ImplicitlyCopyable):
         self.background_left = background_left^
 
 
-@fieldwise_init
-struct Side(Equatable, TrivialRegisterPassable, Writable):
-    var value: UInt8
-    """Internal value representing the Side property."""
+__enum Side(Equatable, ImplicitlyCopyable, Writable):
+    """A side of the text area."""
 
-    comptime TOP = Self(0)
+    case TOP
     """Indicates the top side of the text area."""
-    comptime RIGHT = Self(1)
+    case RIGHT
     """Indicates the right side of the text area."""
-    comptime BOTTOM = Self(2)
+    case BOTTOM
     """Indicates the bottom side of the text area."""
-    comptime LEFT = Self(3)
+    case LEFT
     """Indicates the left side of the text area."""
 
+    def _index(self) -> Int:
+        """Returns a distinct number for this case.
 
-@fieldwise_init
-struct Emphasis(Equatable, TrivialRegisterPassable, Writable):
+        Returns:
+            The index of the case.
+        """
+        match self:
+            case .TOP:
+                return 0
+            case .RIGHT:
+                return 1
+            case .BOTTOM:
+                return 2
+            case .LEFT:
+                return 3
+
+    def __eq__(self, other: Self) -> Bool:
+        """Checks whether two values are the same case.
+
+        Args:
+            other: The value to compare against.
+
+        Returns:
+            True if both are the same case, False otherwise.
+        """
+        return self._index() == other._index()
+
+
+__enum Emphasis(Equatable, ImplicitlyCopyable, Writable):
     """Emphasis properties for the text."""
 
-    var value: UInt8
-    """Internal value representing the emphasis property."""
-    comptime BOLD = Self(0)
+    case BOLD
     """Whether the text is bold."""
-    comptime ITALIC = Self(1)
+    case ITALIC
     """Whether the text is italic."""
-    comptime UNDERLINE = Self(2)
+    case UNDERLINE
     """Whether the text is underlined."""
-    comptime STRIKETHROUGH = Self(3)
+    case STRIKETHROUGH
     """Whether the text is strikethrough."""
-    comptime REVERSE = Self(4)
+    case REVERSE
     """Whether the text is reversed."""
-    comptime BLINK = Self(5)
+    case BLINK
     """Whether the text is blinking."""
-    comptime FAINT = Self(6)
+    case FAINT
     """Whether the text is faint."""
-    comptime UNDERLINE_SPACES = Self(7)
+    case UNDERLINE_SPACES
     """Whether spaces between words are underlined."""
-    comptime STRIKETHROUGH_SPACES = Self(8)
+    case STRIKETHROUGH_SPACES
     """Whether spaces between words are strikethrough."""
-    comptime COLOR_WHITESPACE = Self(9)
+    case COLOR_WHITESPACE
     """Whether whitespace background is colored."""
 
+    def _index(self) -> Int:
+        """Returns a distinct number for this case.
 
-@fieldwise_init
-struct Axis(Equatable, TrivialRegisterPassable, Writable):
+        Returns:
+            The index of the case.
+        """
+        match self:
+            case .BOLD:
+                return 0
+            case .ITALIC:
+                return 1
+            case .UNDERLINE:
+                return 2
+            case .STRIKETHROUGH:
+                return 3
+            case .REVERSE:
+                return 4
+            case .BLINK:
+                return 5
+            case .FAINT:
+                return 6
+            case .UNDERLINE_SPACES:
+                return 7
+            case .STRIKETHROUGH_SPACES:
+                return 8
+            case .COLOR_WHITESPACE:
+                return 9
+
+    def __eq__(self, other: Self) -> Bool:
+        """Checks whether two values are the same case.
+
+        Args:
+            other: The value to compare against.
+
+        Returns:
+            True if both are the same case, False otherwise.
+        """
+        return self._index() == other._index()
+
+
+__enum Axis(Equatable, ImplicitlyCopyable, Writable):
     """Axis for alignment and placement."""
 
-    var value: UInt8
-    """Internal value representing the axis."""
-    comptime HORIZONTAL = Self(0)
+    case HORIZONTAL
     """Whether the axis is horizontal."""
-    comptime VERTICAL = Self(1)
+    case VERTICAL
     """Whether the axis is vertical."""
+
+    def _index(self) -> Int:
+        """Returns a distinct number for this case.
+
+        Returns:
+            The index of the case.
+        """
+        match self:
+            case .HORIZONTAL:
+                return 0
+            case .VERTICAL:
+                return 1
+
+    def __eq__(self, other: Self) -> Bool:
+        """Checks whether two values are the same case.
+
+        Args:
+            other: The value to compare against.
+
+        Returns:
+            True if both are the same case, False otherwise.
+        """
+        return self._index() == other._index()

@@ -723,11 +723,14 @@ struct Style(Writable, ImplicitlyCopyable):
         Args:
             value: The value to set.
         """
-        # Mark the attribute as active
+        # Record the value the rule was set to.
         self._attrs.set[key](value)
 
-        # Set the value
-        self._properties.set[key](value)
+        # Mark the rule as explicitly set, whatever that value was. Setting this to
+        # `value` instead would make `set_attr(False)` read back as "never set", so the
+        # rules that default to `True` -- `COLOR_WHITESPACE`, `UNDERLINE_SPACES`,
+        # `STRIKETHROUGH_SPACES` -- could not be turned off.
+        self._properties.set[key](True)
 
     def _unset_attribute[key: PropKey](mut self):
         """Unset a boolean attribute on the style.

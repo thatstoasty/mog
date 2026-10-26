@@ -116,5 +116,44 @@ def test_tall_text_align_text_vertical() raises:
     testing.assert_equal(align_text_vertical(multiline_text, Position.CENTER, 1), multiline_text)
 
 
+def test_fractional_align_text_horizontal() raises:
+    """A position between the named constants splits the padding in proportion to it."""
+    # 5 cells of padding: a quarter of it (truncated) goes on the left.
+    testing.assert_equal(align_text_horizontal(text, Position(0.25), 10, style), " hello    ")
+    testing.assert_equal(align_text_horizontal(text, Position(0.75), 10, style), "   hello  ")
+
+    # The named constants are the endpoints of that same split.
+    testing.assert_equal(
+        align_text_horizontal(text, Position(0.0), 10, style),
+        align_text_horizontal(text, Position.LEFT, 10, style),
+    )
+    testing.assert_equal(
+        align_text_horizontal(text, Position(1.0), 10, style),
+        align_text_horizontal(text, Position.RIGHT, 10, style),
+    )
+
+
+def test_fractional_align_text_horizontal_pads_to_width() raises:
+    """A fractional position still pads every line out to the requested width."""
+    var aligned = align_text_horizontal("ab\ncdef", Position(0.25), 8, style)
+    for line in aligned.split("\n"):
+        testing.assert_equal(line.byte_length(), 8)
+
+
+def test_fractional_align_text_vertical() raises:
+    """A position between the named constants splits the blank lines in proportion to it."""
+    testing.assert_equal(align_text_vertical(text, Position(0.25), 5), "\nhello\n\n\n")
+    testing.assert_equal(align_text_vertical(text, Position(0.5), 5), "\n\nhello\n\n")
+    testing.assert_equal(align_text_vertical(text, Position(0.75), 5), "\n\n\nhello\n")
+
+    # The named constants are the endpoints of that same split.
+    testing.assert_equal(
+        align_text_vertical(text, Position(0.0), 5), align_text_vertical(text, Position.TOP, 5)
+    )
+    testing.assert_equal(
+        align_text_vertical(text, Position(1.0), 5), align_text_vertical(text, Position.BOTTOM, 5)
+    )
+
+
 def main() raises -> None:
     TestSuite.discover_tests[__functions_in_module()]().run()

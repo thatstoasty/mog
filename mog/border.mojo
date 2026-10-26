@@ -283,23 +283,27 @@ def render_horizontal_edge[lhs_origin: ImmOrigin, rhs_origin: ImmOrigin, //](lef
     var left_width = printable_rune_width(left)
     var right_width = printable_rune_width(right)
 
-    var output = String(left)
+    # Segment `middle` once up front. Indexing it directly would be by byte rather than
+    # by character, which splits multi-byte UTF-8. Re-segmenting inside the loop below
+    # would repeat that work for every cell of the edge.
+    var cells = List[StringSpan[origin_of(middle)]]()
+    for grapheme in middle.graphemes():
+        cells.append(grapheme)
+
+    var output = String(capacity_bytes=middle.byte_length() * Int(width) + left.byte_length() + right.byte_length())
+    output.write(left)
     var i = left_width + right_width
     var j = 0
+    # One cell per pass, so the width is checked before each one. Emitting the whole of
+    # `middle` per pass and only checking between passes would overshoot the requested
+    # width whenever the cell count does not divide the span evenly.
     while i < width + right_width:
-        # We loop over graphemes instead of indexing (middle[j]), because String and StringSpan
-        # indexing is by byte, not by character! Which leads to bugs with multi-byte UTF-8 characters.
-        # This can probably be changed back once String indexing is improved.
-        var graphemes = middle.graphemes()
-        for idx, grapheme in enumerate(graphemes):
-            if idx == j:
-                output.write(grapheme)
-                j += 1
-
-                if j >= len(graphemes):
-                    j = 0
-
-                i += printable_rune_width(grapheme)
+        ref cell = cells[j]
+        output.write(cell)
+        i += printable_rune_width(cell)
+        j += 1
+        if j >= len(cells):
+            j = 0
 
     output.write(right)
     return output^

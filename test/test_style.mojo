@@ -4,6 +4,7 @@ from std.testing import TestSuite
 import mog
 from mog.size import get_width, get_height
 from mog.style import _maybe_convert_tabs, _apply_border
+from mog._properties import PropKey
 from mog import Position, Profile, Emphasis, Axis
 
 
@@ -911,6 +912,46 @@ def test_left_only_keyword_is_not_ignored() raises:
     # The blank line added by top/bottom padding is itself padded out to the widest line.
     testing.assert_equal(mog.Style().padding(top=1).render("x"), " \nx")
     testing.assert_equal(mog.Style().padding(bottom=1).render("x"), "x\n ")
+
+
+def test_color_whitespace_can_be_turned_off() raises:
+    """A rule that defaults to on must be switchable off, not just left unset."""
+    comptime base = ansi_style.foreground(mog.Color(1)).background(mog.Color(2)).width(8)
+
+    # On, the padding that fills out the width is painted with the background.
+    testing.assert_equal(
+        base.color_whitespace(True).render("ab"),
+        "\x1b[31;42mab\x1b[0m\x1b[31;42m      \x1b[0m",
+    )
+
+    # Off, the same padding is left unstyled.
+    testing.assert_equal(base.color_whitespace(False).render("ab"), "\x1b[31;42mab\x1b[0m      ")
+
+
+def test_underline_spaces_can_be_turned_off() raises:
+    """`underline_spaces(False)` stops spaces being underlined along with the words."""
+    comptime base = ansi_style.underline()
+
+    # On, each space is styled separately from the words around it.
+    testing.assert_equal(
+        base.underline_spaces(True).render("a b"),
+        "\x1b[4ma\x1b[0m\x1b[4m \x1b[0m\x1b[4mb\x1b[0m",
+    )
+
+    # Off, the line is styled in one run.
+    testing.assert_equal(base.underline_spaces(False).render("a b"), "\x1b[4ma b\x1b[0m")
+
+
+def test_setting_a_rule_false_marks_it_as_set() raises:
+    """Setting a rule to False records it as set, so it overrides the default."""
+    comptime style = ansi_style.color_whitespace(False)
+    testing.assert_true(style.is_set[PropKey.COLOR_WHITESPACE]())
+    testing.assert_false(style._check_attr[PropKey.COLOR_WHITESPACE](default=True))
+
+    # Unsetting it puts the default back in charge.
+    comptime unset = style.unset_color_whitespace()
+    testing.assert_false(unset.is_set[PropKey.COLOR_WHITESPACE]())
+    testing.assert_true(unset._check_attr[PropKey.COLOR_WHITESPACE](default=True))
 
 
 def main() raises -> None:

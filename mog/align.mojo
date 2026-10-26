@@ -71,28 +71,25 @@ def align_text_horizontal[origin: ImmOrigin, //](
         var short_amount = Int(widest_line) - line_width  # difference from the widest line
         short_amount += max(0, (Int(width) - (short_amount + line_width)))  # difference from the total width, if set
         if short_amount > 0:
-            if pos == Position.RIGHT:
-                var spaces = WHITESPACE * Int(short_amount)
-                if style:
-                    line = String(style.value().render(spaces), line)
-                else:
-                    line = String(spaces, line)
-            elif pos == Position.CENTER:
-                # Note: remainder goes on the right.
-                var left = Int(short_amount / 2)
-                var right = left + (Int(short_amount) % 2)
-                var left_spaces = WHITESPACE * left
-                var right_spaces = WHITESPACE * right
-                if style:
-                    line = String(style.value().render(left_spaces), line, style.value().render(right_spaces))
-                else:
-                    line = String(left_spaces, line, right_spaces)
-            elif pos == Position.LEFT:
-                var spaces = WHITESPACE * Int(short_amount)
-                if style:
-                    line = String(line, style.value().render(spaces))
-                else:
-                    line = String(line, spaces)
+            # Split the padding between the two sides in proportion to `pos`, the way
+            # `join` and `WhitespaceRenderer.place_horizontal` do. 0 puts all of it on
+            # the right (left aligned), 1 all on the left, 0.5 half on each side.
+            # Truncating rather than rounding leaves an odd cell on the right.
+            # Branching on the named constants instead would drop the padding entirely
+            # for any other position, leaving the line short of the requested width.
+            var left = Int(Float64(short_amount) * pos.value)
+            var right = short_amount - left
+            var padded = String(capacity_bytes=line.byte_length() + short_amount)
+            # A side of zero writes nothing: handing an empty string to the styler
+            # would wrap it in escape sequences that paint nothing.
+            if left > 0:
+                var spaces = WHITESPACE * left
+                padded.write(style.value().render(spaces) if style else spaces)
+            padded.write(line)
+            if right > 0:
+                var spaces = WHITESPACE * right
+                padded.write(style.value().render(spaces) if style else spaces)
+            line = padded^
 
         aligned.write(line)
         if i < len(lines) - 1:
@@ -119,20 +116,11 @@ def align_text_vertical[origin: ImmOrigin, //](text: StringSpan[origin], pos: Po
         return String(text)
 
     var remaining_height = Int(height) - text_height
-    if pos == Position.TOP:
-        return String(text, NEWLINE * remaining_height)
 
-    elif pos == Position.CENTER:
-        var top_padding = Int(remaining_height / 2)
-        var bottom_padding = Int(remaining_height / 2)
-        if text_height + top_padding + bottom_padding > Int(height):
-            top_padding -= 1
-        elif text_height + top_padding + bottom_padding < Int(height):
-            bottom_padding += 1
-
-        return String(NEWLINE * top_padding, text, NEWLINE * bottom_padding)
-
-    elif pos == Position.BOTTOM:
-        return String(NEWLINE * remaining_height, text)
-
-    return String(text)
+    # Split the blank lines above and below in proportion to `pos`: 0 is top aligned,
+    # 1 is bottom aligned, 0.5 centers. Truncating rather than rounding leaves an odd
+    # line at the bottom. Branching on the named constants instead would return the
+    # text unpadded for any other position, ignoring the requested height.
+    var top_padding = Int(Float64(remaining_height) * pos.value)
+    var bottom_padding = remaining_height - top_padding
+    return String(NEWLINE * top_padding, text, NEWLINE * bottom_padding)

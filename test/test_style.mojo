@@ -46,7 +46,7 @@ def test_underline_spaces() raises:
 
     # Turn on underline spaces (flag has a value set), but then set it to False (flag has value set, value is False).
     testing.assert_equal(
-        style.set_emphasis(Emphasis.UNDERLINE_SPACES, value=False).render("  Hello world!  "),
+        style.set_emphasis(.underline_spaces, value=False).render("  Hello world!  "),
         "  Hello world!  ",
     )
 
@@ -74,16 +74,16 @@ def test_styled_runs_are_not_split_per_character() raises:
 
 def test_get_underline_spaces() raises:
     comptime style = ansi_style.underline_spaces()
-    testing.assert_true(style.check_emphasis(Emphasis.UNDERLINE_SPACES))
+    testing.assert_true(style.check_emphasis(.underline_spaces))
 
 
 def test_unset_underline_spaces() raises:
-    comptime style = ansi_style.set_emphasis(Emphasis.UNDERLINE_SPACES).unset_emphasis(Emphasis.UNDERLINE_SPACES)
+    comptime style = ansi_style.set_emphasis(.underline_spaces).unset_emphasis(.underline_spaces)
     testing.assert_equal(style.render("hello"), "hello")
 
 
 def test_strikethrough_spaces() raises:
-    comptime style = ansi_style.set_emphasis(Emphasis.STRIKETHROUGH_SPACES)
+    comptime style = ansi_style.set_emphasis(.strikethrough_spaces)
     testing.assert_equal(
         style.render("  Hello world!  "),
         "\x1b[9m  \x1b[0mHello\x1b[9m \x1b[0mworld!\x1b[9m  \x1b[0m",
@@ -91,80 +91,80 @@ def test_strikethrough_spaces() raises:
 
     # Turn on strikethrough spaces (flag has a value set), but then set it to False (flag has value set, value is False).
     testing.assert_equal(
-        style.set_emphasis(Emphasis.STRIKETHROUGH_SPACES, value=False).render("  Hello world!  "),
+        style.set_emphasis(.strikethrough_spaces, value=False).render("  Hello world!  "),
         "  Hello world!  ",
     )
 
 
 def test_get_strikethrough_spaces() raises:
-    comptime style = ansi_style.set_emphasis(Emphasis.STRIKETHROUGH_SPACES)
-    testing.assert_true(style.check_emphasis(Emphasis.STRIKETHROUGH_SPACES))
+    comptime style = ansi_style.set_emphasis(.strikethrough_spaces)
+    testing.assert_true(style.check_emphasis(.strikethrough_spaces))
 
 
 def test_unset_strikethrough_spaces() raises:
-    comptime style = ansi_style.set_emphasis(Emphasis.STRIKETHROUGH_SPACES).unset_emphasis(
-        Emphasis.STRIKETHROUGH_SPACES
+    comptime style = ansi_style.set_emphasis(.strikethrough_spaces).unset_emphasis(
+        .strikethrough_spaces
     )
     testing.assert_equal(style.render("hello"), "hello")
 
 
 def test_underline() raises:
-    comptime style = ansi_style.set_emphasis(Emphasis.UNDERLINE)
+    comptime style = ansi_style.set_emphasis(.underline)
     testing.assert_true(style.render("hello"), "\x1b[4mhello\x1b[0m")
 
     # Turn on underline (flag has a value set), but then set it to False (flag has value set, value is False).
     testing.assert_equal(
-        style.set_emphasis(Emphasis.UNDERLINE, value=False).render("hello"),
+        style.set_emphasis(.underline, value=False).render("hello"),
         "hello",
     )
 
 
 def test_get_underline() raises:
-    comptime style = ansi_style.set_emphasis(Emphasis.UNDERLINE)
-    testing.assert_true(style.check_emphasis(Emphasis.UNDERLINE))
+    comptime style = ansi_style.set_emphasis(.underline)
+    testing.assert_true(style.check_emphasis(.underline))
 
 
 def test_unset_underline() raises:
-    comptime style = ansi_style.set_emphasis(Emphasis.UNDERLINE).unset_emphasis(Emphasis.UNDERLINE)
+    comptime style = ansi_style.set_emphasis(.underline).unset_emphasis(.underline)
     testing.assert_equal(style.render("hello"), "hello")
 
 
 def test_bold() raises:
-    comptime style = ansi_style.set_emphasis(Emphasis.BOLD)
+    comptime style = ansi_style.set_emphasis(.bold)
     testing.assert_equal(style.render("hello"), "\x1b[1mhello\x1b[0m")
 
     # Turn on bold (flag has a value set), but then set it to False (flag has value set, value is False).
-    testing.assert_equal(style.set_emphasis(Emphasis.BOLD, value=False).render("hello"), "hello")
+    testing.assert_equal(style.set_emphasis(.bold, value=False).render("hello"), "hello")
 
 
 def test_get_bold() raises:
-    comptime style = ansi_style.set_emphasis(Emphasis.BOLD)
-    testing.assert_true(style.check_emphasis(Emphasis.BOLD))
+    comptime style = ansi_style.set_emphasis(.bold)
+    testing.assert_true(style.check_emphasis(.bold))
 
 
 def test_unset_bold() raises:
-    comptime style = ansi_style.set_emphasis(Emphasis.BOLD).unset_emphasis(Emphasis.BOLD)
+    comptime style = ansi_style.set_emphasis(.bold).unset_emphasis(.bold)
     testing.assert_equal(style.render("hello"), "hello")
 
 
 def test_get_italic() raises:
-    comptime style = ansi_style.set_emphasis(Emphasis.ITALIC)
-    testing.assert_true(style.check_emphasis(Emphasis.ITALIC))
+    comptime style = ansi_style.set_emphasis(.italic)
+    testing.assert_true(style.check_emphasis(.italic))
 
 
 def test_italic() raises:
-    comptime style = ansi_style.set_emphasis(Emphasis.ITALIC)
+    comptime style = ansi_style.set_emphasis(.italic)
     testing.assert_equal(style.render("hello"), "\x1b[3mhello\x1b[0m")
 
     # Turn on italic (flag has a value set), but then set it to False (flag has value set, value is False).
     testing.assert_equal(
-        style.set_emphasis(Emphasis.ITALIC, value=False).render("hello"),
+        style.set_emphasis(.italic, value=False).render("hello"),
         "hello",
     )
 
 
 def test_unset_italic() raises:
-    comptime style = ansi_style.set_emphasis(Emphasis.ITALIC).unset_emphasis(Emphasis.ITALIC)
+    comptime style = ansi_style.set_emphasis(.italic).unset_emphasis(.italic)
     testing.assert_equal(style.render("hello"), "hello")
 
 
@@ -191,59 +191,59 @@ def test_unset_inline() raises:
 
 
 def test_get_reverse() raises:
-    comptime style = ansi_style.set_emphasis(Emphasis.REVERSE)
-    testing.assert_true(style.check_emphasis(Emphasis.REVERSE))
+    comptime style = ansi_style.set_emphasis(.reverse)
+    testing.assert_true(style.check_emphasis(.reverse))
 
 
 def test_reverse() raises:
-    comptime style = ansi_style.set_emphasis(Emphasis.REVERSE)
+    comptime style = ansi_style.set_emphasis(.reverse)
     testing.assert_equal(style.render("hello"), "\x1b[7mhello\x1b[0m")
 
     # Turn on reverse (flag has a value set), but then set it to False (flag has value set, value is False).
     testing.assert_equal(
-        style.set_emphasis(Emphasis.REVERSE, value=False).render("hello"),
+        style.set_emphasis(.reverse, value=False).render("hello"),
         "hello",
     )
 
 
 def test_unset_reverse() raises:
-    comptime style = ansi_style.set_emphasis(Emphasis.REVERSE).unset_emphasis(Emphasis.REVERSE)
+    comptime style = ansi_style.set_emphasis(.reverse).unset_emphasis(.reverse)
     testing.assert_equal(style.render("hello"), "hello")
 
 
 def test_get_blink() raises:
-    comptime style = ansi_style.set_emphasis(Emphasis.BLINK)
-    testing.assert_true(style.check_emphasis(Emphasis.BLINK))
+    comptime style = ansi_style.set_emphasis(.blink)
+    testing.assert_true(style.check_emphasis(.blink))
 
 
 def test_blink() raises:
-    comptime style = ansi_style.set_emphasis(Emphasis.BLINK)
+    comptime style = ansi_style.set_emphasis(.blink)
     testing.assert_equal(style.render("hello"), "\x1b[5mhello\x1b[0m")
 
     # Turn on blink (flag has a value set), but then set it to False (flag has value set, value is False).
-    testing.assert_equal(style.set_emphasis(Emphasis.BLINK, value=False).render("hello"), "hello")
+    testing.assert_equal(style.set_emphasis(.blink, value=False).render("hello"), "hello")
 
 
 def test_unset_blink() raises:
-    comptime style = ansi_style.set_emphasis(Emphasis.BLINK).unset_emphasis(Emphasis.BLINK)
+    comptime style = ansi_style.set_emphasis(.blink).unset_emphasis(.blink)
     testing.assert_equal(style.render("hello"), "hello")
 
 
 def test_get_faint() raises:
-    comptime style = ansi_style.set_emphasis(Emphasis.FAINT)
-    testing.assert_true(style.check_emphasis(Emphasis.FAINT))
+    comptime style = ansi_style.set_emphasis(.faint)
+    testing.assert_true(style.check_emphasis(.faint))
 
 
 def test_faint() raises:
-    comptime style = ansi_style.set_emphasis(Emphasis.FAINT)
+    comptime style = ansi_style.set_emphasis(.faint)
     testing.assert_equal(style.render("hello"), "\x1b[2mhello\x1b[0m")
 
     # Turn on faint (flag has a value set), but then set it to False (flag has value set, value is False).
-    testing.assert_equal(style.set_emphasis(Emphasis.FAINT, value=False).render("hello"), "hello")
+    testing.assert_equal(style.set_emphasis(.faint, value=False).render("hello"), "hello")
 
 
 def test_unset_faint() raises:
-    comptime style = ansi_style.set_emphasis(Emphasis.FAINT).unset_emphasis(Emphasis.FAINT)
+    comptime style = ansi_style.set_emphasis(.faint).unset_emphasis(.faint)
     testing.assert_equal(style.render("hello"), "hello")
 
 
@@ -315,22 +315,22 @@ def test_unset_max_height() raises:
 def test_horizontal_alignment() raises:
     comptime style = ansi_style.width(9)
     testing.assert_equal(
-        style.text_alignment(Axis.HORIZONTAL, Position.LEFT).render("hello"),
+        style.text_alignment(Position.LEFT, axis=.horizontal).render("hello"),
         "hello    ",
     )
     testing.assert_equal(
-        style.text_alignment(Axis.HORIZONTAL, Position.RIGHT).render("hello"),
+        style.text_alignment(Position.RIGHT, axis=.horizontal).render("hello"),
         "    hello",
     )
     testing.assert_equal(
-        style.text_alignment(Axis.HORIZONTAL, Position.CENTER).render("hello"),
+        style.text_alignment(Position.CENTER, axis=.horizontal).render("hello"),
         "  hello  ",
     )
 
 
 def test_unset_horizontal_alignment() raises:
-    comptime style = ansi_style.width(9).text_alignment(Axis.HORIZONTAL, Position.CENTER).unset_text_alignment(
-        Axis.HORIZONTAL
+    comptime style = ansi_style.width(9).text_alignment(Position.CENTER, axis=.horizontal).unset_text_alignment(
+        .horizontal
     )
     testing.assert_equal(style.render("hello"), "hello    ")
 
@@ -338,22 +338,22 @@ def test_unset_horizontal_alignment() raises:
 def test_vertical_alignment() raises:
     comptime style = ansi_style.height(3)
     testing.assert_equal(
-        style.text_alignment(Axis.VERTICAL, Position.TOP).render("hello"),
+        style.text_alignment(Position.TOP, axis=.vertical).render("hello"),
         "hello\n     \n     ",
     )
     testing.assert_equal(
-        style.text_alignment(Axis.VERTICAL, Position.BOTTOM).render("hello"),
+        style.text_alignment(Position.BOTTOM, axis=.vertical).render("hello"),
         "     \n     \nhello",
     )
     testing.assert_equal(
-        style.text_alignment(Axis.VERTICAL, Position.CENTER).render("hello"),
+        style.text_alignment(Position.CENTER, axis=.vertical).render("hello"),
         "     \nhello\n     ",
     )
 
 
 def test_unset_vertical_alignment() raises:
-    comptime style = ansi_style.height(3).text_alignment(Axis.VERTICAL, Position.CENTER).unset_text_alignment(
-        Axis.VERTICAL
+    comptime style = ansi_style.height(3).text_alignment(Position.CENTER, axis=.vertical).unset_text_alignment(
+        .vertical
     )
     testing.assert_equal(style.render("hello"), "hello\n     \n     ")
 
@@ -361,15 +361,15 @@ def test_unset_vertical_alignment() raises:
 def test_alignment() raises:
     comptime style = ansi_style.width(9)
     testing.assert_equal(
-        style.text_alignment(Axis.HORIZONTAL, Position.LEFT).render("hello"),
+        style.text_alignment(Position.LEFT, axis=.horizontal).render("hello"),
         "hello    ",
     )
     testing.assert_equal(
-        style.text_alignment(Axis.HORIZONTAL, Position.RIGHT).render("hello"),
+        style.text_alignment(Position.RIGHT, axis=.horizontal).render("hello"),
         "    hello",
     )
     testing.assert_equal(
-        style.text_alignment(Axis.HORIZONTAL, Position.CENTER).render("hello"),
+        style.text_alignment(Position.CENTER, axis=.horizontal).render("hello"),
         "  hello  ",
     )
 
@@ -945,13 +945,13 @@ def test_underline_spaces_can_be_turned_off() raises:
 def test_setting_a_rule_false_marks_it_as_set() raises:
     """Setting a rule to False records it as set, so it overrides the default."""
     comptime style = ansi_style.color_whitespace(False)
-    testing.assert_true(style.is_set[PropKey.COLOR_WHITESPACE]())
-    testing.assert_false(style._check_attr[PropKey.COLOR_WHITESPACE](default=True))
+    testing.assert_true(style.is_set[.color_whitespace]())
+    testing.assert_false(style._check_attr[.color_whitespace](default=True))
 
     # Unsetting it puts the default back in charge.
     comptime unset = style.unset_color_whitespace()
-    testing.assert_false(unset.is_set[PropKey.COLOR_WHITESPACE]())
-    testing.assert_true(unset._check_attr[PropKey.COLOR_WHITESPACE](default=True))
+    testing.assert_false(unset.is_set[.color_whitespace]())
+    testing.assert_true(unset._check_attr[.color_whitespace](default=True))
 
 
 def main() raises -> None:

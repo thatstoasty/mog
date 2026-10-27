@@ -16,7 +16,7 @@ def test_horizontal_joined_paragraphs():
         width=50,
         foreground=mog.Color(0xC9A0DC),
         border=ROUNDED_BORDER,
-        emphasis=Emphasis.BOLD,
+        emphasis=Emphasis.bold,
         padding=Padding(1),
         alignment=Alignment(horizontal=Position.CENTER),
     ).border_foreground(mog.Color(0x39E506))

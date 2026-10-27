@@ -7,7 +7,7 @@ def main():
         width=22,
         foreground=mog.Color(0xFAFAFA),
         background=mog.Color(0x7D56F4),
-        emphasis=Emphasis.BOLD,
+        emphasis=Emphasis.bold,
         padding=Padding(top=2, left=4),
     )
 

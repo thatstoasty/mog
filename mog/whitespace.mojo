@@ -52,7 +52,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
         while i < width:
             for codepoint in self.chars.codepoint_slices():
                 result.write(codepoint)
-                var printable_width = UInt(ansi.printable_rune_width(codepoint))
+                var printable_width = ansi.printable_rune_width(codepoint)
                 if j >= printable_width:
                     j = 0
 
@@ -125,7 +125,6 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
             return String(text)
 
         var gap = width - content_width
-
         var result = String(capacity_bytes=Int(Float64(text.byte_length()) * 1.25))
         for i in range(len(lines)):
             if i != 0:
@@ -139,13 +138,13 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
             debug_assert(line_width <= content_width, "line cannot be wider than the widest line")
             var short = content_width - line_width
             if alignment == Position.LEFT:
-                result.write(lines[i], self.render(UInt(gap + short)))
+                result.write(lines[i], self.render(gap + short))
             elif alignment == Position.RIGHT:
-                result.write(self.render(UInt(gap + short)), lines[i])
+                result.write(self.render(gap + short), lines[i])
             else:
                 # somewhere in the middle
                 var total_gap = gap + short
-                var split = UInt(Int(round(Float64(total_gap) * alignment.value)))
+                var split = UInt(round(Float64(total_gap) * alignment.value))
                 var right = total_gap - split
                 var left = total_gap - right
                 result.write(self.render(left), lines[i], self.render(right))
@@ -177,7 +176,6 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
             return String(text)
 
         var gap = height - content_height
-
         var empty_line = self.render(get_widest_line(text))
         var result = String(capacity_bytes=Int(Float64(text.byte_length()) * 1.25))
         if alignment == Position.TOP:
@@ -193,7 +191,7 @@ struct WhitespaceRenderer(ImplicitlyCopyable):
             result.write((empty_line + NEWLINE) * Int(gap), text)
         else:
             # somewhere in the middle
-            var split = UInt(Int(round(Float64(gap) * alignment.value)))
+            var split = UInt(round(Float64(gap) * alignment.value))
             var bottom = gap - split
             var top = gap - bottom
 
@@ -220,7 +218,7 @@ def place_horizontal[origin: ImmOrigin, //](
         text: The string to place in the block.
         width: The width of the block to place the text in.
         alignment: The position to place the text in the block. This should be
-            a float between 0 and 1.
+            a float between 0 and 1, and any values out of range will be clamped.
             0 is left aligned, 1 is the right aligned, and
             0.5 is center aligned. Defaults to left aligned.
 

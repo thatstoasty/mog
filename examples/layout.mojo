@@ -30,7 +30,7 @@ def color_grid(x_steps: Int, y_steps: Int) -> List[List[mist.Color]]:
     var grid = List[List[mist.Color]](capacity=y_steps)
     var x = 0
     while x < y_steps:
-        var y0 = x0[x]
+        ref y0 = x0[x]
         grid.append(List[mist.Color](capacity=x_steps))
         var y = 0
         while y < x_steps:
@@ -71,14 +71,14 @@ def build_tabs() -> String:
     var row = join_horizontal(
         Position.TOP,
         active_tab.render("Mog"),
-        tab_style.render("Gojo"),
-        tab_style.render("Lightbug"),
-        tab_style.render("Basalt"),
+        tab_style.render("Mist"),
+        tab_style.render("Floki"),
+        tab_style.render("Stump"),
         tab_style.render("Prism"),
     )
     # These are unsigned, so `max(0, ...)` cannot undo an underflow — a row wider than
     # the budget would wrap to a huge gap and try to allocate it. Compare first instead.
-    var row_width = UInt(get_width(row)) + 2
+    var row_width = get_width(row) + 2
     var gap = tab_gap.render(" " * Int(width - row_width if width > row_width else 0))
     return join_horizontal(Position.BOTTOM, row, gap)
 
@@ -91,7 +91,7 @@ def build_description() -> String:
         foreground=mog.Color(0xFFFDF5),
         padding=Padding(1, 0),
         margin=Margin(left=1, right=5),
-        emphasis=Emphasis.ITALIC,
+        emphasis=Emphasis.italic,
     )
 
     for i in range(len(colors)):
@@ -139,7 +139,7 @@ def build_dialog_box() -> String:
         button_style.foreground(mog.Color(0xFFF7DB))
         .background(mog.Color(0xF25D94))
         .margin(right=2)
-        .set_emphasis(Emphasis.UNDERLINE)
+        .set_emphasis(.underline)
     )
 
     var ok_button = active_button_style.render("Yes")
@@ -182,7 +182,7 @@ def build_lists() -> String:
     var list_item = mog.Style(padding=Padding(left=2))
     var check_mark = mog.Style(foreground=special, padding=Padding(right=1)).render("✔")
     var list_done = mog.Style(
-        emphasis=Emphasis.STRIKETHROUGH, foreground=mog.AdaptiveColor(light=0x969B86, dark=0x696969)
+        emphasis=Emphasis.strikethrough, foreground=mog.AdaptiveColor(light=0x969B86, dark=0x696969)
     )
 
     var colors = color_grid(14, 8)
@@ -231,7 +231,7 @@ def build_history() -> String:
         margin=Margin(right=3),
         foreground=mog.Color(0xFFFDF5),
         background=highlight,
-    ).text_alignment(Axis.HORIZONTAL, Position.LEFT)
+    ).text_alignment(Position.LEFT, axis=.horizontal)
 
     comptime history_a = (
         "The Romans learned from the Greeks that quinces slowly cooked with honey would 'set' when cool. The Apicius"
@@ -252,8 +252,8 @@ def build_history() -> String:
 
     return join_horizontal(
         Position.TOP,
-        history_style.text_alignment(Axis.HORIZONTAL, Position.RIGHT).render(history_a),
-        history_style.text_alignment(Axis.HORIZONTAL, Position.CENTER).render(history_b),
+        history_style.text_alignment(Position.RIGHT, axis=.horizontal).render(history_a),
+        history_style.text_alignment(Position.CENTER, axis=.horizontal).render(history_b),
         history_style.margin(right=0).render(history_c),
     )
 
@@ -264,7 +264,7 @@ def build_status_bar() -> String:
     var status_style = mog.Style(foreground=mog.Color(0xFFFDF5), background=mog.Color(0xFF5F87), padding=Padding(1, 0))
 
     var encoding_style = status_nugget_style.background(mog.Color(0xA550DF)).text_alignment(
-        Axis.HORIZONTAL, Position.RIGHT
+        Position.RIGHT, axis=.horizontal
     )
     var status_text_style = status_bar_style.padding(left=1)
     var fish_cake_style = status_nugget_style.background(mog.Color(0x6124DF))
@@ -272,8 +272,8 @@ def build_status_bar() -> String:
     var status_key = status_style.render("STATUS")
     var encoding = encoding_style.render("UTF-8")
     var fish_cake = fish_cake_style.render("🍥 Fish Cake")
-    var used = UInt(get_width(status_key)) + UInt(get_width(encoding)) + UInt(get_width(fish_cake))
-    var status_val = status_text_style.width(UInt16(width - used if width > used else 0)).render("Ravishing")
+    var used = get_width(status_key) + get_width(encoding) + get_width(fish_cake)
+    var status_val = status_text_style.width(width - used if width > used else 0).render("Ravishing")
 
     var bar = join_horizontal(
         Position.TOP,
@@ -283,7 +283,7 @@ def build_status_bar() -> String:
         fish_cake,
     )
 
-    return status_bar_style.width(UInt16(width)).render(bar)
+    return status_bar_style.width(UInt(width)).render(bar)
 
 
 def main():

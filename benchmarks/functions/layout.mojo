@@ -1,7 +1,7 @@
 import mist
 from mist.transform.ansi import printable_rune_width
 from mog.align import Alignment
-from mog.border import HIDDEN_BORDER, NORMAL_BORDER, ROUNDED_BORDER, Border
+from mog.border import Border
 from mog.join import join_horizontal, join_vertical
 from mog.renderer import Renderer
 from mog.size import get_width
@@ -91,7 +91,7 @@ def build_description() -> String:
         foreground=mog.Color(0xFFFDF5),
         padding=Padding(1, 0),
         margin=Margin(left=1, right=5),
-        emphasis=.italic,
+        emphasis=Emphasis.italic,
     )
 
     for i in range(len(colors)):
@@ -108,7 +108,7 @@ def build_description() -> String:
     var url = mog.Style(foreground=special)
     var desc_style = mog.Style(margin=Margin(top=1))
     var info_style = (
-        mog.Style(border=NORMAL_BORDER)
+        mog.Style(border=Border.NORMAL)
         .border_side_rendering(right=False, bottom=False, left=False)
         .border_foreground(subtle)
     )
@@ -123,7 +123,7 @@ def build_description() -> String:
 
 def build_dialog_box() -> String:
     var dialog_box_style = mog.Style(
-        border=ROUNDED_BORDER,
+        border=Border.ROUNDED,
         padding=Padding(top=1, right=1, left=1),
         alignment=Alignment(Position.CENTER),
     ).border_foreground(mog.Color(0xFF713C))
@@ -163,7 +163,7 @@ def build_lists() -> String:
         mog.Style(
             height=8,
             width=column_width + 1,
-            border=NORMAL_BORDER,
+            border=Border.NORMAL,
             margin=Margin(right=2),
         )
         .border_side_rendering(top=False, bottom=False, left=False)
@@ -172,7 +172,7 @@ def build_lists() -> String:
 
     var list_header = (
         mog.Style(
-            border=NORMAL_BORDER,
+            border=Border.NORMAL,
             margin=Margin(right=2),
         )
         .border_side_rendering(top=False, right=False, left=False)
@@ -182,7 +182,7 @@ def build_lists() -> String:
     var list_item = mog.Style(padding=Padding(left=2))
     var check_mark = mog.Style(foreground=special, padding=Padding(right=1)).render("✔")
     var list_done = mog.Style(
-        emphasis=.strikethrough, foreground=mog.AdaptiveColor(light=0x969B86, dark=0x696969)
+        emphasis=Emphasis.strikethrough, foreground=mog.AdaptiveColor(light=0x969B86, dark=0x696969)
     )
 
     var colors = color_grid(14, 8)
@@ -231,7 +231,7 @@ def build_history() -> String:
         margin=Margin(right=3),
         foreground=mog.Color(0xFFFDF5),
         background=highlight,
-    ).text_alignment(.horizontal, Position.LEFT)
+    ).text_alignment(Position.LEFT, axis=Axis.horizontal)
 
     comptime history_a = (
         "The Romans learned from the Greeks that quinces slowly cooked with honey would 'set' when cool. The Apicius"
@@ -252,8 +252,8 @@ def build_history() -> String:
 
     return join_horizontal(
         Position.TOP,
-        history_style.text_alignment(.horizontal, Position.RIGHT).render(history_a),
-        history_style.text_alignment(.horizontal, Position.CENTER).render(history_b),
+        history_style.text_alignment(Position.RIGHT, axis=.horizontal).render(history_a),
+        history_style.text_alignment(Position.CENTER, axis=.horizontal).render(history_b),
         history_style.margin(right=0).render(history_c),
     )
 
@@ -264,7 +264,7 @@ def build_status_bar() -> String:
     var status_style = mog.Style(foreground=mog.Color(0xFFFDF5), background=mog.Color(0xFF5F87), padding=Padding(1, 0))
 
     var encoding_style = status_nugget_style.background(mog.Color(0xA550DF)).text_alignment(
-        .horizontal, Position.RIGHT
+        Position.RIGHT, axis=.horizontal
     )
     var status_text_style = status_bar_style.padding(left=1)
     var fish_cake_style = status_nugget_style.background(mog.Color(0x6124DF))
@@ -273,7 +273,7 @@ def build_status_bar() -> String:
     var encoding = encoding_style.render("UTF-8")
     var fish_cake = fish_cake_style.render("🍥 Fish Cake")
     var used = UInt(get_width(status_key)) + UInt(get_width(encoding)) + UInt(get_width(fish_cake))
-    var status_val = status_text_style.width(UInt16(width - used if width > used else 0)).render("Ravishing")
+    var status_val = status_text_style.width(width - used if width > used else 0).render("Ravishing")
 
     var bar = join_horizontal(
         Position.TOP,
@@ -283,7 +283,7 @@ def build_status_bar() -> String:
         fish_cake,
     )
 
-    return status_bar_style.width(UInt16(width)).render(bar)
+    return status_bar_style.width(width).render(bar)
 
 
 def render_layout():

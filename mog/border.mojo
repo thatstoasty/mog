@@ -1,11 +1,189 @@
 """A module for rendering borders in the terminal."""
 
 from mist.transform.ansi import printable_rune_width
-from std.iter import enumerate
 
 
 struct Border(Equatable, Writable, ImplicitlyCopyable):
     """A border to use to wrap around text."""
+
+    comptime ASCII = Border(
+        top="-",
+        bottom="_",
+        left="|",
+        right="|",
+        top_left="*",
+        top_right="*",
+        bottom_left="*",
+        bottom_right="*",
+        middle_left="*",
+        middle_right="*",
+        middle="*",
+        middle_top="*",
+        middle_bottom="*",
+    )
+    """A border that uses ASCII characters."""
+
+    comptime STAR = Border(
+        top="*",
+        bottom="*",
+        left="*",
+        right="*",
+        top_left="*",
+        top_right="*",
+        bottom_left="*",
+        bottom_right="*",
+        middle_left="*",
+        middle_right="*",
+        middle="*",
+        middle_top="*",
+        middle_bottom="*",
+    )
+    """A border that uses asterisks for all edges."""
+
+    comptime PLUS = Border(
+        top="+",
+        bottom="+",
+        left="+",
+        right="+",
+        top_left="+",
+        top_right="+",
+        bottom_left="+",
+        bottom_right="+",
+        middle_left="+",
+        middle_right="+",
+        middle="+",
+        middle_top="+",
+        middle_bottom="+",
+    )
+    """A border that uses plus signs for all edges."""
+
+    comptime NORMAL = Border(
+        top="─",
+        bottom="─",
+        left="│",
+        right="│",
+        top_left="┌",
+        top_right="┐",
+        bottom_left="└",
+        bottom_right="┘",
+        middle_left="├",
+        middle_right="┤",
+        middle="┼",
+        middle_top="┬",
+        middle_bottom="┴",
+    )
+    """A border that uses line drawing characters for all edges."""
+
+    comptime ROUNDED = Border(
+        top="─",
+        bottom="─",
+        left="│",
+        right="│",
+        top_left="╭",
+        top_right="╮",
+        bottom_left="╰",
+        bottom_right="╯",
+        middle_left="├",
+        middle_right="┤",
+        middle="┼",
+        middle_top="┬",
+        middle_bottom="┴",
+    )
+    """A border that uses rounded corners."""
+
+    comptime BLOCK = Border(
+        top="█",
+        bottom="█",
+        left="█",
+        right="█",
+        top_left="█",
+        top_right="█",
+        bottom_left="█",
+        bottom_right="█",
+        middle_left="█",
+        middle_right="█",
+        middle="█",
+        middle_top="█",
+    )
+    """A border that uses block characters for all edges."""
+
+    comptime OUTER_HALF_BLOCK = Border(
+        top="▀",
+        bottom="▄",
+        left="▌",
+        right="▐",
+        top_left="▛",
+        top_right="▜",
+        bottom_left="▙",
+        bottom_right="▟",
+    )
+    """Outer half thick block border."""
+
+    comptime INNER_HALF_BLOCK = Border(
+        top="▄",
+        bottom="▀",
+        left="▐",
+        right="▌",
+        top_left="▗",
+        top_right="▖",
+        bottom_left="▝",
+        bottom_right="▘",
+    )
+    """Inner half thick block border."""
+
+    comptime THICK = Border(
+        top="━",
+        bottom="━",
+        left="┃",
+        right="┃",
+        top_left="┏",
+        top_right="┓",
+        bottom_left="┗",
+        bottom_right="┛",
+        middle_left="┣",
+        middle_right="┫",
+        middle="╋",
+        middle_top="┳",
+        middle_bottom="┻",
+    )
+    """Thick line border."""
+
+    comptime DOUBLE = Border(
+        top="═",
+        bottom="═",
+        left="║",
+        right="║",
+        top_left="╔",
+        top_right="╗",
+        bottom_left="╚",
+        bottom_right="╝",
+        middle_left="╠",
+        middle_right="╣",
+        middle="╬",
+        middle_top="╦",
+        middle_bottom="╩",
+    )
+    """Double line border."""
+
+    comptime HIDDEN = Border(
+        top=" ",
+        bottom=" ",
+        left=" ",
+        right=" ",
+        top_left=" ",
+        top_right=" ",
+        bottom_left=" ",
+        bottom_right=" ",
+        middle_left=" ",
+        middle_right=" ",
+        middle=" ",
+        middle_top=" ",
+        middle_bottom=" ",
+    )
+    """A border that is invisible, all edges are one space."""
+
+    comptime EMPTY = Border()
+    """No border, all edges are empty strings."""
 
     var top: String
     """The character to use for the top edge."""
@@ -80,186 +258,6 @@ struct Border(Equatable, Writable, ImplicitlyCopyable):
         self.middle = middle
         self.middle_top = middle_top
         self.middle_bottom = middle_bottom
-
-
-comptime ASCII_BORDER = Border(
-    top="-",
-    bottom="_",
-    left="|",
-    right="|",
-    top_left="*",
-    top_right="*",
-    bottom_left="*",
-    bottom_right="*",
-    middle_left="*",
-    middle_right="*",
-    middle="*",
-    middle_top="*",
-    middle_bottom="*",
-)
-"""A border that uses ASCII characters."""
-
-comptime STAR_BORDER = Border(
-    top="*",
-    bottom="*",
-    left="*",
-    right="*",
-    top_left="*",
-    top_right="*",
-    bottom_left="*",
-    bottom_right="*",
-    middle_left="*",
-    middle_right="*",
-    middle="*",
-    middle_top="*",
-    middle_bottom="*",
-)
-"""A border that uses asterisks for all edges."""
-
-comptime PLUS_BORDER = Border(
-    top="+",
-    bottom="+",
-    left="+",
-    right="+",
-    top_left="+",
-    top_right="+",
-    bottom_left="+",
-    bottom_right="+",
-    middle_left="+",
-    middle_right="+",
-    middle="+",
-    middle_top="+",
-    middle_bottom="+",
-)
-"""A border that uses plus signs for all edges."""
-
-comptime NORMAL_BORDER = Border(
-    top="─",
-    bottom="─",
-    left="│",
-    right="│",
-    top_left="┌",
-    top_right="┐",
-    bottom_left="└",
-    bottom_right="┘",
-    middle_left="├",
-    middle_right="┤",
-    middle="┼",
-    middle_top="┬",
-    middle_bottom="┴",
-)
-"""A border that uses line drawing characters for all edges."""
-
-comptime ROUNDED_BORDER = Border(
-    top="─",
-    bottom="─",
-    left="│",
-    right="│",
-    top_left="╭",
-    top_right="╮",
-    bottom_left="╰",
-    bottom_right="╯",
-    middle_left="├",
-    middle_right="┤",
-    middle="┼",
-    middle_top="┬",
-    middle_bottom="┴",
-)
-"""A border that uses rounded corners."""
-
-comptime BLOCK_BORDER = Border(
-    top="█",
-    bottom="█",
-    left="█",
-    right="█",
-    top_left="█",
-    top_right="█",
-    bottom_left="█",
-    bottom_right="█",
-    middle_left="█",
-    middle_right="█",
-    middle="█",
-    middle_top="█",
-)
-"""A border that uses block characters for all edges."""
-
-comptime OUTER_HALF_BLOCK_BORDER = Border(
-    top="▀",
-    bottom="▄",
-    left="▌",
-    right="▐",
-    top_left="▛",
-    top_right="▜",
-    bottom_left="▙",
-    bottom_right="▟",
-)
-"""Outer half thick block border."""
-
-comptime INNER_HALF_BLOCK_BORDER = Border(
-    top="▄",
-    bottom="▀",
-    left="▐",
-    right="▌",
-    top_left="▗",
-    top_right="▖",
-    bottom_left="▝",
-    bottom_right="▘",
-)
-"""Inner half thick block border."""
-
-comptime THICK_BORDER = Border(
-    top="━",
-    bottom="━",
-    left="┃",
-    right="┃",
-    top_left="┏",
-    top_right="┓",
-    bottom_left="┗",
-    bottom_right="┛",
-    middle_left="┣",
-    middle_right="┫",
-    middle="╋",
-    middle_top="┳",
-    middle_bottom="┻",
-)
-"""Thick line border."""
-
-comptime DOUBLE_BORDER = Border(
-    top="═",
-    bottom="═",
-    left="║",
-    right="║",
-    top_left="╔",
-    top_right="╗",
-    bottom_left="╚",
-    bottom_right="╝",
-    middle_left="╠",
-    middle_right="╣",
-    middle="╬",
-    middle_top="╦",
-    middle_bottom="╩",
-)
-"""Double line border."""
-
-comptime HIDDEN_BORDER = Border(
-    top=" ",
-    bottom=" ",
-    left=" ",
-    right=" ",
-    top_left=" ",
-    top_right=" ",
-    bottom_left=" ",
-    bottom_right=" ",
-    middle_left=" ",
-    middle_right=" ",
-    middle=" ",
-    middle_top=" ",
-    middle_bottom=" ",
-)
-"""A border that is invisible, all edges are one space."""
-
-comptime NO_BORDER = Border()
-"""No border, all edges are empty strings."""
 
 
 def render_horizontal_edge[lhs_origin: ImmOrigin, rhs_origin: ImmOrigin, //](left: StringSpan[lhs_origin], var middle: String, right: StringSpan[rhs_origin], width: UInt) -> String:

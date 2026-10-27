@@ -1,4 +1,4 @@
-from mog.border import ASCII_BORDER, HIDDEN_BORDER, ROUNDED_BORDER, STAR_BORDER, Border
+from mog.border import Border
 from mog.join import join_horizontal, join_vertical
 from mog.style import Style
 
@@ -28,7 +28,7 @@ def render_table():
 
     var table = Table(
         style_function=dummy_style_func[data.columns],
-        border=ROUNDED_BORDER,
+        border=Border.ROUNDED,
         border_style=border_style,
         border_bottom=True,
         border_column=True,

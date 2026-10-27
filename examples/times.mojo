@@ -1,6 +1,6 @@
 from std.time import perf_counter_ns
 
-from mog.border import ASCII_BORDER, HIDDEN_BORDER, ROUNDED_BORDER, STAR_BORDER, Border
+from mog.border import Border
 from mog.join import join_horizontal, join_vertical
 from mog.style import Style
 
@@ -15,7 +15,7 @@ def test_horizontal_joined_paragraphs():
     var style = mog.Style(
         width=50,
         foreground=mog.Color(0xC9A0DC),
-        border=ROUNDED_BORDER,
+        border=Border.ROUNDED,
         emphasis=Emphasis.bold,
         padding=Padding(1),
         alignment=Alignment(horizontal=Position.CENTER),
@@ -78,7 +78,7 @@ def test_borderless_paragraph():
     var borderless_style = mog.Style(
         width=50,
         background=mog.Color(0xC9A0DC),
-        border=HIDDEN_BORDER,
+        border=Border.HIDDEN,
         padding=Padding(1, 2),
         alignment=Alignment(horizontal=Position.CENTER),
     )

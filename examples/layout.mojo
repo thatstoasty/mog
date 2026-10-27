@@ -1,7 +1,7 @@
 import mist
 from mist.transform.ansi import printable_rune_width
 from mog.align import Alignment
-from mog.border import HIDDEN_BORDER, NORMAL_BORDER, ROUNDED_BORDER, Border
+from mog.border import Border
 from mog.join import join_horizontal, join_vertical
 from mog.renderer import Renderer
 from mog.size import get_width
@@ -108,7 +108,7 @@ def build_description() -> String:
     var url = mog.Style(foreground=special)
     var desc_style = mog.Style(margin=Margin(top=1))
     var info_style = (
-        mog.Style(border=NORMAL_BORDER)
+        mog.Style(border=Border.NORMAL)
         .border_side_rendering(right=False, bottom=False, left=False)
         .border_foreground(subtle)
     )
@@ -123,7 +123,7 @@ def build_description() -> String:
 
 def build_dialog_box() -> String:
     var dialog_box_style = mog.Style(
-        border=ROUNDED_BORDER,
+        border=Border.ROUNDED,
         padding=Padding(top=1, right=1, left=1),
         alignment=Alignment(Position.CENTER),
     ).border_foreground(mog.Color(0xFF713C))
@@ -163,7 +163,7 @@ def build_lists() -> String:
         mog.Style(
             height=8,
             width=column_width + 1,
-            border=NORMAL_BORDER,
+            border=Border.NORMAL,
             margin=Margin(right=2),
         )
         .border_side_rendering(top=False, bottom=False, left=False)
@@ -172,7 +172,7 @@ def build_lists() -> String:
 
     var list_header = (
         mog.Style(
-            border=NORMAL_BORDER,
+            border=Border.NORMAL,
             margin=Margin(right=2),
         )
         .border_side_rendering(top=False, right=False, left=False)

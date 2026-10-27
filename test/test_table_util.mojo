@@ -6,12 +6,12 @@ import mog
 
 
 def test_sum() raises:
-    var numbers: List[UInt16] = [1, 2, 3, 4, 5]
+    var numbers: List[UInt] = [1, 2, 3, 4, 5]
     testing.assert_equal(sum(numbers), 15)
 
 
 def test_median() raises:
-    var numbers: List[UInt16] = [1, 2, 3, 4, 5]
+    var numbers: List[UInt] = [1, 2, 3, 4, 5]
     testing.assert_equal(median(numbers), 3)
 
     numbers = [1, 2, 3, 4]
@@ -19,28 +19,27 @@ def test_median() raises:
 
 
 def test_largest() raises:
-    var numbers: List[UInt16] = [1, 2, 3, 4, 5]
+    var numbers: List[UInt] = [1, 2, 3, 4, 5]
     var result = largest(numbers)
     testing.assert_equal(result[0], 4)
     testing.assert_equal(result[1], 5)
 
 
-def test_sum_accumulates_beyond_element_range() raises:
-    """The total is wider than the elements, so a table with enough columns to exceed
-    a UInt16 still reports its real width."""
-    var numbers: List[UInt16] = [40000, 40000]
+def test_sum_of_large_values() raises:
+    """Totals past the range of a single narrow column still come out right."""
+    var numbers: List[UInt] = [40000, 40000]
     testing.assert_equal(sum(numbers), 80000)
 
-    var many = List[UInt16](length=100, fill=1000)
+    var many = List[UInt](length=100, fill=1000)
     testing.assert_equal(sum(many), 100000)
 
 
-def test_median_widens_intermediate() raises:
-    """The two middle values are summed at a wider type before being halved back."""
-    var numbers: List[UInt16] = [40000, 40000]
+def test_median_of_large_values() raises:
+    """The two middle values are summed before being halved, without wrapping."""
+    var numbers: List[UInt] = [40000, 40000]
     testing.assert_equal(median(numbers), 40000)
 
-    var spread: List[UInt16] = [60000, 65535]
+    var spread: List[UInt] = [60000, 65535]
     testing.assert_equal(median(spread), 62767)
 
 

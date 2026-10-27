@@ -30,11 +30,11 @@ from mog import Emphasis
 def styler[columns: Int](data: mog.Data[columns], row: UInt, col: UInt) -> mog.Style
     where columns > 0:
     if row == 0:
-        return mog.Style(emphasis=Emphasis.BOLD)
+        return mog.Style(emphasis=.bold)
     elif row % 2 == 0:
-        return mog.Style(emphasis=Emphasis.ITALIC)
+        return mog.Style(emphasis=.italic)
     else:
-        return mog.Style(emphasis=Emphasis.FAINT)
+        return mog.Style(emphasis=.faint)
 
 def main():
     var t = mog.Table(
@@ -70,7 +70,7 @@ def default_styles[columns: Int](data: Data[columns], row: UInt, col: UInt) -> S
 
 
 # TODO: Parametrize on data field, so other structs that implement `Data` can be used. For now it only support `StringData`.
-def _measure[origin: ImmOrigin, //](style: Style, cell: StringSpan[origin]) -> Tuple[UInt16, UInt16]:
+def _measure[origin: ImmOrigin, //](style: Style, cell: StringSpan[origin]) -> Tuple[UInt, UInt]:
     """Returns the width and height a cell will occupy once styled.
 
     Args:
@@ -107,11 +107,11 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
     def styler[columns: Int](data: mog.Data[columns], row: UInt, col: UInt) -> mog.Style
         where columns > 0:
         if row == 0:
-            return mog.Style(emphasis=Emphasis.BOLD)
+            return mog.Style(emphasis=.bold)
         elif row % 2 == 0:
-            return mog.Style(emphasis=Emphasis.ITALIC)
+            return mog.Style(emphasis=.italic)
         else:
-            return mog.Style(emphasis=Emphasis.FAINT)
+            return mog.Style(emphasis=.faint)
 
     def main():
         var t = mog.Table(
@@ -155,9 +155,9 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
     """The data of the table."""
     var _headers: Optional[Array[String, Self.columns]] 
     """The headers of the table."""
-    var width: UInt16
+    var width: UInt
     """The width of the table."""
-    var height: UInt16
+    var height: UInt
     """The height of the table."""
     var _offset: UInt
     """The offset of the table."""
@@ -177,8 +177,8 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         border_row: Bool = False,
         var headers: Array[String, Self.columns] = None,
         var data: Self.DataType = {},
-        width: UInt16 = 0,
-        height: UInt16 = 0,
+        width: UInt = 0,
+        height: UInt = 0,
     ):
         """Initializes a new Table.
 
@@ -230,8 +230,8 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         border_column: Bool = True,
         border_row: Bool = False,
         var data: Self.DataType = {},
-        width: UInt16 = 0,
-        height: UInt16 = 0,
+        width: UInt = 0,
+        height: UInt = 0,
     ):
         """Initializes a new Table.
 
@@ -403,10 +403,10 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         var result = String(capacity_bytes=DEFAULT_BUFFER_SIZE)
 
         # Initialize the widths.
-        var widths = Array[UInt16, Self.columns](fill=0)
+        var widths = Array[UInt, Self.columns](fill=0)
 
         # Initialize the heights.
-        var heights = List[UInt16](length=Int(header_offset + row_count), fill=0)
+        var heights = List[UInt](length=Int(header_offset + row_count), fill=0)
 
         # The style function may affect width of the table. It's possible to set
         # the StyleFunction after the headers and rows. Update the widths for a final
@@ -473,9 +473,9 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         elif width > target and target > 0:
             # Table is too wide, calculate the median non-whitespace length of each
             # column, and shrink the columns based on the largest difference.
-            var column_medians = Array[UInt16, Self.columns](fill=0)
+            var column_medians = Array[UInt, Self.columns](fill=0)
             comptime for i in range(Self.column_count):
-                var trimmed_width = List[UInt16](capacity=Int(row_count))
+                var trimmed_width = List[UInt](capacity=Int(row_count))
 
                 for r in range(row_count):
                     var rendered_cell = self.style(i, r + header_offset).render(self.data[i, r])
@@ -486,7 +486,7 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
 
             # Find the biggest differences between the median and the column width.
             # Shrink the columns based on the largest difference.
-            var differences = Array[UInt16, Self.columns](fill=0)
+            var differences = Array[UInt, Self.columns](fill=0)
             comptime for i in range(Self.columns):
                 if widths[i] > column_medians[i]:
                     differences[i] = widths[i] - column_medians[i]
@@ -496,8 +496,8 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
                 if differences[index] < 1:
                     break
 
-                var shrink = min(min(UInt(differences[index]), width - target), UInt(widths[index]))
-                widths[index] -= UInt16(shrink)
+                var shrink = min(min(differences[index], width - target), widths[index])
+                widths[index] -= shrink
                 width -= shrink
                 differences[index] = 0
 
@@ -562,7 +562,7 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         else:
             writer.write(result)
 
-    def _compute_width(self, widths: Array[UInt16, Self.columns]) -> UInt:
+    def _compute_width(self, widths: Array[UInt, Self.columns]) -> UInt:
         """Computes the width of the table in it's current configuration.
 
         Args:
@@ -577,7 +577,7 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
 
         return width
 
-    def _compute_height(self, heights: List[UInt16]) -> UInt:
+    def _compute_height(self, heights: List[UInt]) -> UInt:
         """Computes the height of the table in it's current configuration.
 
         Args:
@@ -596,7 +596,7 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
             + UInt(len(self.data)) * UInt(self._border_row)
         )
 
-    def _construct_top_border(self, widths: Array[UInt16, Self.columns]) -> String:
+    def _construct_top_border(self, widths: Array[UInt, Self.columns]) -> String:
         """Constructs the top border for the table given it's current
         border configuration and data.
 
@@ -620,7 +620,7 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
 
         return result^
 
-    def _construct_bottom_border(self, widths: Array[UInt16, Self.columns]) -> String:
+    def _construct_bottom_border(self, widths: Array[UInt, Self.columns]) -> String:
         """Constructs the bottom border for the table given it's current
         border configuration and data.
 
@@ -644,7 +644,7 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
 
         return result^
 
-    def _construct_headers(self, widths: Array[UInt16, Self.columns], headers: Array[String, Self.columns]) -> String:
+    def _construct_headers(self, widths: Array[UInt, Self.columns], headers: Array[String, Self.columns]) -> String:
         """Constructs the headers for the table given it's current
         header configuration and data.
 
@@ -664,8 +664,8 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
             var style = self.style(col, 0).max_height(1).width(width).max_width(width, tail="…")
 
             ref header = headers[col]
-            if UInt16(printable_rune_width(header)) > width:
-                style.render(truncate(header, UInt(width), "…"), writer=result)
+            if printable_rune_width(header) > width:
+                style.render(truncate(header, width, "…"), writer=result)
             else:
                 style.render(header, writer=result)
             if (col < Self.column_count - 1) and self._border_column:
@@ -693,7 +693,7 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
 
         return result^
 
-    def _construct_row(self, index: UInt, widths: Array[UInt16, Self.columns], heights: List[UInt16], headers: Optional[Array[String, Self.columns]]) -> String:
+    def _construct_row(self, index: UInt, widths: Array[UInt, Self.columns], heights: List[UInt], headers: Optional[Array[String, Self.columns]]) -> String:
         """Constructs the row for the table given an index and row data
         based on the current configuration.
 

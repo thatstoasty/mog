@@ -59,7 +59,7 @@ def main():
         foreground=mog.Color(0xFAFAFA),
         background=mog.Color(0x7D56F4),
         padding=Padding(top=2, left=4),
-        emphasis=Emphasis.BOLD,
+        emphasis=Emphasis.bold,
     )
 
     print(style.render("Hello, Mojo!"))
@@ -219,7 +219,7 @@ def main():
 
     # 2 cells on the top and bottom, 4 cells on the left and right
     style = mog.Style().margin(4, 2)
-    _ = mog.Style(margin=Margin(x_width=4, y_width=2)) # equivalent
+    _ = mog.Style(margin=Margin(x=4, y=2)) # equivalent
 
     # Clockwise, starting from the top: 2 cells on the top, 4 on the right, 3 on
     # the bottom, and 1 on the left
@@ -237,7 +237,7 @@ from mog import Position, Axis, Alignment
 def main():
     var style = (
         mog.Style(width=22)
-        .text_alignment(Axis.HORIZONTAL, Position.LEFT) # align text to the left on the horizontal axis
+        .text_alignment(Position.LEFT, axis=.horizontal) # align text to the left on the horizontal axis
         .text_alignment(Position.LEFT, Position.RIGHT) # left on the horizontal axis and to the right on the vertical axis
         .text_alignment(Position.CENTER) # center on both axes
     )
@@ -422,7 +422,7 @@ import mog
 from mog import Emphasis
 
 def main():
-    var style = mog.Style(value="Hello,", emphasis=Emphasis.BOLD)
+    var style = mog.Style(value="Hello,", emphasis=Emphasis.bold)
     print(style.render("Mojo.")) # Hello, Mojo.
     print(style.render("Python.")) # Hello, Python.
     print(style.render("my", "friends.")) # Hello, my friends.

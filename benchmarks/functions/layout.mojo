@@ -91,7 +91,7 @@ def build_description() -> String:
         foreground=mog.Color(0xFFFDF5),
         padding=Padding(1, 0),
         margin=Margin(left=1, right=5),
-        emphasis=Emphasis.ITALIC,
+        emphasis=.italic,
     )
 
     for i in range(len(colors)):
@@ -139,7 +139,7 @@ def build_dialog_box() -> String:
         button_style.foreground(mog.Color(0xFFF7DB))
         .background(mog.Color(0xF25D94))
         .margin(right=2)
-        .set_emphasis(Emphasis.UNDERLINE)
+        .set_emphasis(.underline)
     )
 
     var ok_button = active_button_style.render("Yes")
@@ -182,7 +182,7 @@ def build_lists() -> String:
     var list_item = mog.Style(padding=Padding(left=2))
     var check_mark = mog.Style(foreground=special, padding=Padding(right=1)).render("✔")
     var list_done = mog.Style(
-        emphasis=Emphasis.STRIKETHROUGH, foreground=mog.AdaptiveColor(light=0x969B86, dark=0x696969)
+        emphasis=.strikethrough, foreground=mog.AdaptiveColor(light=0x969B86, dark=0x696969)
     )
 
     var colors = color_grid(14, 8)
@@ -231,7 +231,7 @@ def build_history() -> String:
         margin=Margin(right=3),
         foreground=mog.Color(0xFFFDF5),
         background=highlight,
-    ).text_alignment(Axis.HORIZONTAL, Position.LEFT)
+    ).text_alignment(.horizontal, Position.LEFT)
 
     comptime history_a = (
         "The Romans learned from the Greeks that quinces slowly cooked with honey would 'set' when cool. The Apicius"
@@ -252,8 +252,8 @@ def build_history() -> String:
 
     return join_horizontal(
         Position.TOP,
-        history_style.text_alignment(Axis.HORIZONTAL, Position.RIGHT).render(history_a),
-        history_style.text_alignment(Axis.HORIZONTAL, Position.CENTER).render(history_b),
+        history_style.text_alignment(.horizontal, Position.RIGHT).render(history_a),
+        history_style.text_alignment(.horizontal, Position.CENTER).render(history_b),
         history_style.margin(right=0).render(history_c),
     )
 
@@ -264,7 +264,7 @@ def build_status_bar() -> String:
     var status_style = mog.Style(foreground=mog.Color(0xFFFDF5), background=mog.Color(0xFF5F87), padding=Padding(1, 0))
 
     var encoding_style = status_nugget_style.background(mog.Color(0xA550DF)).text_alignment(
-        Axis.HORIZONTAL, Position.RIGHT
+        .horizontal, Position.RIGHT
     )
     var status_text_style = status_bar_style.padding(left=1)
     var fish_cake_style = status_nugget_style.background(mog.Color(0x6124DF))

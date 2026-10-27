@@ -146,7 +146,7 @@ def _apply_styles[origin: ImmOrigin, //](text: StringSpan[origin], use_space_sty
     return result^
 
 
-def _wrap_words[origin: ImmOrigin, //](text: StringSpan[origin], width: UInt16, left_padding: UInt16, right_padding: UInt16) -> String:
+def _wrap_words[origin: ImmOrigin, //](text: StringSpan[origin], width: UInt, left_padding: UInt, right_padding: UInt) -> String:
     var wrap_at = width - left_padding - right_padding
 
     # A string's display width never exceeds its byte length: ASCII is one byte per cell,
@@ -157,7 +157,7 @@ def _wrap_words[origin: ImmOrigin, //](text: StringSpan[origin], width: UInt16, 
     if text.byte_length() <= Int(wrap_at) and NEWLINE not in text:
         return String(text)
 
-    return wrap(word_wrap(text, UInt(wrap_at)), UInt(wrap_at))
+    return wrap(word_wrap(text, wrap_at), wrap_at)
 
 
 def _maybe_convert_tabs(style: Style, var text: String) -> String:
@@ -170,8 +170,8 @@ def _maybe_convert_tabs(style: Style, var text: String) -> String:
     Returns:
         The text with tabs converted to spaces.
     """
-    var DEFAULT_TAB_WIDTH: UInt16 = TAB_WIDTH
-    if style.is_set[PropKey.TAB_WIDTH]():
+    var DEFAULT_TAB_WIDTH: UInt = TAB_WIDTH
+    if style.is_set[.tab_width]():
         DEFAULT_TAB_WIDTH = style._tab_width
 
     if DEFAULT_TAB_WIDTH == -1:
@@ -221,16 +221,16 @@ def _apply_border[origin: ImmOrigin, //](style: Style, text: StringSpan[origin])
     if style._border == NO_BORDER:
         return String(text)
 
-    var top_set = style.is_set[PropKey.BORDER_TOP]()
-    var right_set = style.is_set[PropKey.BORDER_RIGHT]()
-    var bottom_set = style.is_set[PropKey.BORDER_BOTTOM]()
-    var left_set = style.is_set[PropKey.BORDER_LEFT]()
+    var top_set = style.is_set[.border_top]()
+    var right_set = style.is_set[.border_right]()
+    var bottom_set = style.is_set[.border_bottom]()
+    var left_set = style.is_set[.border_left]()
 
     var border = style._border.copy()
-    var has_top = style.check_if_border_side_will_render(Side.TOP)
-    var has_right = style.check_if_border_side_will_render(Side.RIGHT)
-    var has_bottom = style.check_if_border_side_will_render(Side.BOTTOM)
-    var has_left = style.check_if_border_side_will_render(Side.LEFT)
+    var has_top = style.check_if_border_side_will_render(.top)
+    var has_right = style.check_if_border_side_will_render(.right)
+    var has_bottom = style.check_if_border_side_will_render(.bottom)
+    var has_left = style.check_if_border_side_will_render(.left)
 
     var is_no_border = border == NO_BORDER
 
@@ -293,7 +293,7 @@ def _apply_border[origin: ImmOrigin, //](style: Style, text: StringSpan[origin])
         result.write(
             _style_border(
                 style,
-                render_horizontal_edge(border.top_left, border.top, border.top_right, UInt(width)),
+                render_horizontal_edge(border.top_left, border.top, border.top_right, width),
                 style._border_color.foreground_top,
                 style._border_color.background_top,
             ),
@@ -335,7 +335,7 @@ def _apply_border[origin: ImmOrigin, //](style: Style, text: StringSpan[origin])
             NEWLINE,
             _style_border(
                 style,
-                render_horizontal_edge(border.bottom_left, border.bottom, border.bottom_right, UInt(width)),
+                render_horizontal_edge(border.bottom_left, border.bottom, border.bottom_right, width),
                 style._border_color.foreground_bottom,
                 style._border_color.background_bottom,
             ),
@@ -390,20 +390,20 @@ def _get_styles(style: Style) -> Stylers:
     var base = style._renderer.as_mist_style()
     var stylers = Stylers(base.copy(), base.copy(), base.copy())
 
-    if style.check_emphasis(Emphasis.BOLD):
+    if style.check_emphasis(.bold):
         stylers.common = stylers.common.bold()
-    if style.check_emphasis(Emphasis.ITALIC):
+    if style.check_emphasis(.italic):
         stylers.common = stylers.common.italic()
-    if style.check_emphasis(Emphasis.UNDERLINE):
+    if style.check_emphasis(.underline):
         stylers.common = stylers.common.underline()
-    if style.check_emphasis(Emphasis.REVERSE):
+    if style.check_emphasis(.reverse):
         stylers.common = stylers.common.reverse()
         stylers.whitespace = stylers.whitespace.reverse()
-    if style.check_emphasis(Emphasis.BLINK):
+    if style.check_emphasis(.blink):
         stylers.common = stylers.common.blink()
-    if style.check_emphasis(Emphasis.FAINT):
+    if style.check_emphasis(.faint):
         stylers.common = stylers.common.faint()
-    if style.check_emphasis(Emphasis.STRIKETHROUGH):
+    if style.check_emphasis(.strikethrough):
         stylers.common = stylers.common.strikethrough()
 
     var fg_color = style._foreground.color(style._renderer)
@@ -411,15 +411,15 @@ def _get_styles(style: Style) -> Stylers:
     stylers.common = stylers.common.foreground(color=fg_color).background(color=bg_color)
 
     # Do we need to style spaces separately?
-    var color_whitespace = style._check_attr[PropKey.COLOR_WHITESPACE](default=True)
-    var underline = style.check_emphasis(Emphasis.UNDERLINE)
-    var underline_spaces = style.check_emphasis(Emphasis.UNDERLINE_SPACES) or (
-        underline and style._check_attr[PropKey.UNDERLINE_SPACES](default=True)
+    var color_whitespace = style._check_attr[.color_whitespace](default=True)
+    var underline = style.check_emphasis(.underline)
+    var underline_spaces = style.check_emphasis(.underline_spaces) or (
+        underline and style._check_attr[.underline_spaces](default=True)
     )
 
-    var strikethrough = style.check_emphasis(Emphasis.STRIKETHROUGH)
-    var strikethrough_spaces = style.check_emphasis(Emphasis.STRIKETHROUGH_SPACES) or (
-        strikethrough and style._check_attr[PropKey.STRIKETHROUGH_SPACES](default=True)
+    var strikethrough = style.check_emphasis(.strikethrough)
+    var strikethrough_spaces = style.check_emphasis(.strikethrough_spaces) or (
+        strikethrough and style._check_attr[.strikethrough_spaces](default=True)
     )
 
     if underline_spaces or strikethrough_spaces:
@@ -451,7 +451,7 @@ struct Style(Writable, ImplicitlyCopyable):
                 width=22,
                 foreground=mog.Color(0xFAFAFA),
                 background=mog.Color(0x7D56F4),
-                emphasis=Emphasis.BOLD,
+                emphasis=.bold,
                 padding=Padding(top=2, left=4),
             )
         )
@@ -479,13 +479,13 @@ struct Style(Writable, ImplicitlyCopyable):
     """The foreground color of the text area. IE: The color of the text itself."""
     var _background: TerminalColor
     """The background color of the text area. IE: The color of the background behind the text."""
-    var _height: UInt16
+    var _height: UInt
     """The height of the text area."""
-    var _width: UInt16
+    var _width: UInt
     """The width of the text area."""
-    var _max_height: UInt16
+    var _max_height: UInt
     """The height of the text area."""
-    var _max_width: UInt16
+    var _max_width: UInt
     """The width of the text area."""
     var _tail: String
     """The tail to append to lines truncated by the max width rule."""
@@ -501,7 +501,7 @@ struct Style(Writable, ImplicitlyCopyable):
     var _border_color: BorderColor
     """The border colors."""
 
-    var _tab_width: UInt16
+    var _tab_width: UInt
     """The number of spaces that a tab (/t) should be rendered as."""
 
     def __init__(
@@ -512,17 +512,17 @@ struct Style(Writable, ImplicitlyCopyable):
         attrs: Properties,
         var foreground: TerminalColor,
         var background: TerminalColor,
-        width: UInt16,
-        height: UInt16,
-        max_width: UInt16,
-        max_height: UInt16,
+        width: UInt,
+        height: UInt,
+        max_width: UInt,
+        max_height: UInt,
         var tail: String,
         alignment: Alignment,
         padding: Padding,
         var margin: Margin,
         border: Border,
         var border_color: BorderColor,
-        tab_width: UInt16,
+        tab_width: UInt,
     ):
         """Initialize A new Style.
 
@@ -618,73 +618,73 @@ struct Style(Writable, ImplicitlyCopyable):
         self._border = NO_BORDER.copy()
 
         if width:
-            self._width = UInt16(width.value())
-            self._properties.set[PropKey.WIDTH](True)
+            self._width = UInt(width.value())
+            self._properties.set[.width](True)
         if height:
-            self._height = UInt16(height.value())
-            self._properties.set[PropKey.HEIGHT](True)
+            self._height = UInt(height.value())
+            self._properties.set[.height](True)
 
         if max_width:
-            self._max_width = UInt16(max_width.value())
-            self._properties.set[PropKey.MAX_WIDTH](True)
+            self._max_width = UInt(max_width.value())
+            self._properties.set[.max_width](True)
         if max_height:
-            self._max_height = UInt16(max_height.value())
-            self._properties.set[PropKey.MAX_HEIGHT](True)
+            self._max_height = UInt(max_height.value())
+            self._properties.set[.max_height](True)
 
         if not foreground.is_no_color():
             self._foreground = foreground
-            self._properties.set[PropKey.FOREGROUND](True)
+            self._properties.set[.foreground](True)
         if not background.is_no_color():
             self._background = background
-            self._properties.set[PropKey.BACKGROUND](True)
+            self._properties.set[.background](True)
 
         if border:
             self._border = border.value().copy()
-            self._properties.set[PropKey.BORDER_STYLE](True)
-
-            comptime for key in [PropKey.BORDER_TOP, PropKey.BORDER_RIGHT, PropKey.BORDER_BOTTOM, PropKey.BORDER_LEFT]:
+            self._properties.set[.border_style](True)
+            comptime for key in [PropKey.border_top, PropKey.border_right, PropKey.border_bottom, PropKey.border_left]:
                 self._set_attribute[key](value=True)
 
         if emphasis:
-            if emphasis == Emphasis.BOLD:
-                self._set_attribute[PropKey.BOLD](True)
-            elif emphasis == Emphasis.ITALIC:
-                self._set_attribute[PropKey.ITALIC](True)
-            elif emphasis == Emphasis.UNDERLINE:
-                self._set_attribute[PropKey.UNDERLINE](True)
-            elif emphasis == Emphasis.STRIKETHROUGH:
-                self._set_attribute[PropKey.STRIKETHROUGH](True)
-            elif emphasis == Emphasis.REVERSE:
-                self._set_attribute[PropKey.REVERSE](True)
-            elif emphasis == Emphasis.BLINK:
-                self._set_attribute[PropKey.BLINK](True)
-            elif emphasis == Emphasis.FAINT:
-                self._set_attribute[PropKey.FAINT](True)
-            elif emphasis == Emphasis.UNDERLINE_SPACES:
-                self._set_attribute[PropKey.UNDERLINE_SPACES](True)
-            elif emphasis == Emphasis.STRIKETHROUGH_SPACES:
-                self._set_attribute[PropKey.STRIKETHROUGH_SPACES](True)
-            elif emphasis == Emphasis.COLOR_WHITESPACE:
-                self._set_attribute[PropKey.COLOR_WHITESPACE](True)
+            match emphasis.value():
+                case .bold:
+                    self._set_attribute[.bold](True)
+                case .italic:
+                    self._set_attribute[.italic](True)
+                case .underline:
+                    self._set_attribute[.underline](True)
+                case .strikethrough:
+                    self._set_attribute[.strikethrough](True)
+                case .reverse:
+                    self._set_attribute[.reverse](True)
+                case .blink:
+                    self._set_attribute[.blink](True)
+                case .faint:
+                    self._set_attribute[.faint](True)
+                case .underline_spaces:
+                    self._set_attribute[.underline_spaces](True)
+                case .strikethrough_spaces:
+                    self._set_attribute[.strikethrough_spaces](True)
+                case .color_whitespace:
+                    self._set_attribute[.color_whitespace](True)
 
         if padding:
             self._padding = padding.value()
-            self._properties.set[PropKey.PADDING_TOP](True)
-            self._properties.set[PropKey.PADDING_RIGHT](True)
-            self._properties.set[PropKey.PADDING_BOTTOM](True)
-            self._properties.set[PropKey.PADDING_LEFT](True)
+            self._properties.set[.padding_top](True)
+            self._properties.set[.padding_right](True)
+            self._properties.set[.padding_bottom](True)
+            self._properties.set[.padding_left](True)
 
         if margin:
             self._margin = margin.value()
-            self._properties.set[PropKey.MARGIN_TOP](True)
-            self._properties.set[PropKey.MARGIN_RIGHT](True)
-            self._properties.set[PropKey.MARGIN_BOTTOM](True)
-            self._properties.set[PropKey.MARGIN_LEFT](True)
+            self._properties.set[.margin_top](True)
+            self._properties.set[.margin_right](True)
+            self._properties.set[.margin_bottom](True)
+            self._properties.set[.margin_left](True)
 
         if alignment:
             self._alignment = alignment.value()
-            self._properties.set[PropKey.HORIZONTAL_ALIGNMENT](True)
-            self._properties.set[PropKey.VERTICAL_ALIGNMENT](True)
+            self._properties.set[.horizontal_alignment](True)
+            self._properties.set[.vertical_alignment](True)
 
     def _check_attr[key: PropKey](self, *, default: Bool = False) -> Bool:
         """Get a rule as a boolean value.
@@ -766,7 +766,7 @@ struct Style(Writable, ImplicitlyCopyable):
         new._value = value
         return new^
 
-    def tab_width(self, width: UInt16) -> Self:
+    def tab_width(self, width: UInt) -> Self:
         """Sets the number of spaces that a tab (/t) should be rendered as.
         When set to 0, tabs will be removed. To disable the replacement of tabs with
         spaces entirely, set this to [NO_TAB_CONVERSION].
@@ -781,7 +781,7 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         new._tab_width = width
-        new._properties.set[PropKey.TAB_WIDTH](True)
+        new._properties.set[.tab_width](True)
         return new^
 
     def unset_tab_width(self) -> Self:
@@ -791,7 +791,7 @@ struct Style(Writable, ImplicitlyCopyable):
             A new Style with the tab width rule unset.
         """
         var new = self.copy()
-        new._unset_attribute[PropKey.TAB_WIDTH]()
+        new._unset_attribute[.tab_width]()
         return new^
 
     def inline(self, value: Bool = True) -> Self:
@@ -817,7 +817,7 @@ struct Style(Writable, ImplicitlyCopyable):
         ```
         """
         var new = self.copy()
-        new._set_attribute[PropKey.INLINE](value)
+        new._set_attribute[.inline](value)
         return new^
 
     @always_inline
@@ -827,7 +827,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             True if set, False otherwise.
         """
-        return self._check_attr[PropKey.INLINE](default=False)
+        return self._check_attr[.inline](default=False)
 
     def unset_inline(self) -> Self:
         """Unset the inline rule.
@@ -836,7 +836,7 @@ struct Style(Writable, ImplicitlyCopyable):
             A new Style with the inline rule unset.
         """
         var new = self.copy()
-        new._unset_attribute[PropKey.INLINE]()
+        new._unset_attribute[.inline]()
         return new^
 
     def bold(self, value: Bool = True) -> Self:
@@ -848,7 +848,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the bold rule set.
         """
-        return self.set_emphasis(Emphasis.BOLD, value=value)
+        return self.set_emphasis(.bold, value=value)
 
     def unset_bold(self) -> Self:
         """Unset the bold text style.
@@ -856,7 +856,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the bold rule unset.
         """
-        return self.unset_emphasis(Emphasis.BOLD)
+        return self.unset_emphasis(.bold)
 
     def italic(self, value: Bool = True) -> Self:
         """Set the text to be italicized.
@@ -867,7 +867,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the italic rule set.
         """
-        return self.set_emphasis(Emphasis.ITALIC, value=value)
+        return self.set_emphasis(.italic, value=value)
 
     def unset_italic(self) -> Self:
         """Unset the italic text style.
@@ -875,7 +875,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the italic rule unset.
         """
-        return self.unset_emphasis(Emphasis.ITALIC)
+        return self.unset_emphasis(.italic)
 
     def underline(self, value: Bool = True) -> Self:
         """Set the text to be underlined.
@@ -886,7 +886,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the underline rule set.
         """
-        return self.set_emphasis(Emphasis.UNDERLINE, value=value)
+        return self.set_emphasis(.underline, value=value)
 
     def unset_underline(self) -> Self:
         """Unset the underline text style.
@@ -894,7 +894,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the underline rule unset.
         """
-        return self.unset_emphasis(Emphasis.UNDERLINE)
+        return self.unset_emphasis(.underline)
 
     def strikethrough(self, value: Bool = True) -> Self:
         """Set the text to be strikethrough.
@@ -905,7 +905,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the strikethrough rule set.
         """
-        return self.set_emphasis(Emphasis.STRIKETHROUGH, value=value)
+        return self.set_emphasis(.strikethrough, value=value)
 
     def unset_strikethrough(self) -> Self:
         """Unset the strikethrough text style.
@@ -913,7 +913,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the strikethrough rule unset.
         """
-        return self.unset_emphasis(Emphasis.STRIKETHROUGH)
+        return self.unset_emphasis(.strikethrough)
 
     def reverse(self, value: Bool = True) -> Self:
         """Set the text foreground and background colors to be reversed.
@@ -924,7 +924,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the reverse rule set.
         """
-        return self.set_emphasis(Emphasis.REVERSE, value=value)
+        return self.set_emphasis(.reverse, value=value)
 
     def unset_reverse(self) -> Self:
         """Unset the reverse text style.
@@ -932,7 +932,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the reverse rule unset.
         """
-        return self.unset_emphasis(Emphasis.REVERSE)
+        return self.unset_emphasis(.reverse)
 
     def blink(self, value: Bool = True) -> Self:
         """Set the text to blink.
@@ -943,7 +943,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the blink rule set.
         """
-        return self.set_emphasis(Emphasis.BLINK, value=value)
+        return self.set_emphasis(.blink, value=value)
 
     def unset_blink(self) -> Self:
         """Unset the blink text style.
@@ -951,7 +951,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the blink rule unset.
         """
-        return self.unset_emphasis(Emphasis.BLINK)
+        return self.unset_emphasis(.blink)
 
     def faint(self, value: Bool = True) -> Self:
         """Set the text to be faint.
@@ -962,7 +962,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the faint rule set.
         """
-        return self.set_emphasis(Emphasis.FAINT, value=value)
+        return self.set_emphasis(.faint, value=value)
 
     def unset_faint(self) -> Self:
         """Unset the faint text style.
@@ -970,7 +970,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the faint rule unset.
         """
-        return self.unset_emphasis(Emphasis.FAINT)
+        return self.unset_emphasis(.faint)
 
     def underline_spaces(self, value: Bool = True) -> Self:
         """Set the text to have spaces underlined.
@@ -981,7 +981,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the underline spaces rule set.
         """
-        return self.set_emphasis(Emphasis.UNDERLINE_SPACES, value=value)
+        return self.set_emphasis(.underline_spaces, value=value)
 
     def unset_underline_spaces(self) -> Self:
         """Unset the underline spaces text style.
@@ -989,7 +989,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the underline spaces rule unset.
         """
-        return self.unset_emphasis(Emphasis.UNDERLINE_SPACES)
+        return self.unset_emphasis(.underline_spaces)
 
     def strikethrough_spaces(self, value: Bool = True) -> Self:
         """Set the text to have spaces strikethrough.
@@ -1000,7 +1000,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the strikethrough spaces rule set.
         """
-        return self.set_emphasis(Emphasis.STRIKETHROUGH_SPACES, value=value)
+        return self.set_emphasis(.strikethrough_spaces, value=value)
 
     def unset_strikethrough_spaces(self) -> Self:
         """Unset the strikethrough spaces text style.
@@ -1008,7 +1008,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the strikethrough spaces rule unset.
         """
-        return self.unset_emphasis(Emphasis.STRIKETHROUGH_SPACES)
+        return self.unset_emphasis(.strikethrough_spaces)
 
     def color_whitespace(self, value: Bool = True) -> Self:
         """Set the text to have colored whitespace.
@@ -1019,7 +1019,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the color whitespace rule set.
         """
-        return self.set_emphasis(Emphasis.COLOR_WHITESPACE, value=value)
+        return self.set_emphasis(.color_whitespace, value=value)
 
     def unset_color_whitespace(self) -> Self:
         """Unset the color whitespace text style.
@@ -1027,7 +1027,7 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             A new Style with the color whitespace rule unset.
         """
-        return self.unset_emphasis(Emphasis.COLOR_WHITESPACE)
+        return self.unset_emphasis(.color_whitespace)
 
     def set_emphasis(self, style: Emphasis, *, value: Bool = True) -> Self:
         """Set the text style.
@@ -1042,26 +1042,27 @@ struct Style(Writable, ImplicitlyCopyable):
         var new = self.copy()
 
         # TODO: Exhaustive match when supported
-        if style == Emphasis.BOLD:
-            new._set_attribute[PropKey.BOLD](value)
-        elif style == Emphasis.ITALIC:
-            new._set_attribute[PropKey.ITALIC](value)
-        elif style == Emphasis.UNDERLINE:
-            new._set_attribute[PropKey.UNDERLINE](value)
-        elif style == Emphasis.STRIKETHROUGH:
-            new._set_attribute[PropKey.STRIKETHROUGH](value)
-        elif style == Emphasis.REVERSE:
-            new._set_attribute[PropKey.REVERSE](value)
-        elif style == Emphasis.BLINK:
-            new._set_attribute[PropKey.BLINK](value)
-        elif style == Emphasis.FAINT:
-            new._set_attribute[PropKey.FAINT](value)
-        elif style == Emphasis.UNDERLINE_SPACES:
-            new._set_attribute[PropKey.UNDERLINE_SPACES](value)
-        elif style == Emphasis.STRIKETHROUGH_SPACES:
-            new._set_attribute[PropKey.STRIKETHROUGH_SPACES](value)
-        elif style == Emphasis.COLOR_WHITESPACE:
-            new._set_attribute[PropKey.COLOR_WHITESPACE](value)
+        match style:
+            case .bold:
+                new._set_attribute[.bold](value)
+            case .italic:
+                new._set_attribute[.italic](value)
+            case .underline:
+                new._set_attribute[.underline](value)
+            case .strikethrough:
+                new._set_attribute[.strikethrough](value)
+            case .reverse:
+                new._set_attribute[.reverse](value)
+            case .blink:
+                new._set_attribute[.blink](value)
+            case .faint:
+                new._set_attribute[.faint](value)
+            case .underline_spaces:
+                new._set_attribute[.underline_spaces](value)
+            case .strikethrough_spaces:
+                new._set_attribute[.strikethrough_spaces](value)
+            case .color_whitespace:
+                new._set_attribute[.color_whitespace](value)
 
         return new^
 
@@ -1075,28 +1076,27 @@ struct Style(Writable, ImplicitlyCopyable):
             A new Style with the text style set.
         """
         var new = self.copy()
-
-        # TODO: Exhaustive match when supported
-        if style == Emphasis.BOLD:
-            new._unset_attribute[PropKey.BOLD]()
-        elif style == Emphasis.ITALIC:
-            new._unset_attribute[PropKey.ITALIC]()
-        elif style == Emphasis.UNDERLINE:
-            new._unset_attribute[PropKey.UNDERLINE]()
-        elif style == Emphasis.STRIKETHROUGH:
-            new._unset_attribute[PropKey.STRIKETHROUGH]()
-        elif style == Emphasis.REVERSE:
-            new._unset_attribute[PropKey.REVERSE]()
-        elif style == Emphasis.BLINK:
-            new._unset_attribute[PropKey.BLINK]()
-        elif style == Emphasis.FAINT:
-            new._unset_attribute[PropKey.FAINT]()
-        elif style == Emphasis.UNDERLINE_SPACES:
-            new._unset_attribute[PropKey.UNDERLINE_SPACES]()
-        elif style == Emphasis.STRIKETHROUGH_SPACES:
-            new._unset_attribute[PropKey.STRIKETHROUGH_SPACES]()
-        elif style == Emphasis.COLOR_WHITESPACE:
-            new._unset_attribute[PropKey.COLOR_WHITESPACE]()
+        match style:
+            case .bold:
+                new._unset_attribute[.bold]()
+            case .italic:
+                new._unset_attribute[.italic]()
+            case .underline:
+                new._unset_attribute[.underline]()
+            case .strikethrough:
+                new._unset_attribute[.strikethrough]()
+            case .reverse:
+                new._unset_attribute[.reverse]()
+            case .blink:
+                new._unset_attribute[.blink]()
+            case .faint:
+                new._unset_attribute[.faint]()
+            case .underline_spaces:
+                new._unset_attribute[.underline_spaces]()
+            case .strikethrough_spaces:
+                new._unset_attribute[.strikethrough_spaces]()
+            case .color_whitespace:
+                new._unset_attribute[.color_whitespace]()
 
         return new^
 
@@ -1109,31 +1109,29 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             Whether or not the style is set.
         """
-        if style == Emphasis.BOLD:
-            return self._check_attr[PropKey.BOLD](default=False)
-        elif style == Emphasis.ITALIC:
-            return self._check_attr[PropKey.ITALIC](default=False)
-        elif style == Emphasis.UNDERLINE:
-            return self._check_attr[PropKey.UNDERLINE](default=False)
-        elif style == Emphasis.STRIKETHROUGH:
-            return self._check_attr[PropKey.STRIKETHROUGH](default=False)
-        elif style == Emphasis.REVERSE:
-            return self._check_attr[PropKey.REVERSE](default=False)
-        elif style == Emphasis.BLINK:
-            return self._check_attr[PropKey.BLINK](default=False)
-        elif style == Emphasis.FAINT:
-            return self._check_attr[PropKey.FAINT](default=False)
-        elif style == Emphasis.UNDERLINE_SPACES:
-            return self._check_attr[PropKey.UNDERLINE_SPACES](default=False)
-        elif style == Emphasis.STRIKETHROUGH_SPACES:
-            return self._check_attr[PropKey.STRIKETHROUGH_SPACES](default=False)
-        elif style == Emphasis.COLOR_WHITESPACE:
-            return self._check_attr[PropKey.COLOR_WHITESPACE](default=False)
+        match style:
+            case .bold:
+                return self._check_attr[.bold](default=False)
+            case .italic:
+                return self._check_attr[.italic](default=False)
+            case .underline:
+                return self._check_attr[.underline](default=False)
+            case .strikethrough:
+                return self._check_attr[.strikethrough](default=False)
+            case .reverse:
+                return self._check_attr[.reverse](default=False)
+            case .blink:
+                return self._check_attr[.blink](default=False)
+            case .faint:
+                return self._check_attr[.faint](default=False)
+            case .underline_spaces:
+                return self._check_attr[.underline_spaces](default=False)
+            case .strikethrough_spaces:
+                return self._check_attr[.strikethrough_spaces](default=False)
+            case .color_whitespace:
+                return self._check_attr[.color_whitespace](default=False)
 
-        # TODO: Exhaustive match when supported
-        return False
-
-    def width(self, width: UInt16) -> Self:
+    def width(self, width: UInt) -> Self:
         """Set the width of the text.
 
         Args:
@@ -1147,7 +1145,7 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         new._width = width
-        new._properties.set[PropKey.WIDTH](True)
+        new._properties.set[.width](True)
         return new^
 
     def unset_width(self) -> Self:
@@ -1157,10 +1155,10 @@ struct Style(Writable, ImplicitlyCopyable):
             A new Style with the width rule unset.
         """
         var new = self.copy()
-        new._unset_attribute[PropKey.WIDTH]()
+        new._unset_attribute[.width]()
         return new^
 
-    def height(self, height: UInt16) -> Self:
+    def height(self, height: UInt) -> Self:
         """Set the height of the text.
         If the height of the text being styled is greater than height, then this is a noop.
 
@@ -1175,7 +1173,7 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         new._height = height
-        new._properties.set[PropKey.HEIGHT](True)
+        new._properties.set[.height](True)
         return new^
 
     def unset_height(self) -> Self:
@@ -1185,10 +1183,10 @@ struct Style(Writable, ImplicitlyCopyable):
             A new Style with the height rule unset.
         """
         var new = self.copy()
-        new._unset_attribute[PropKey.HEIGHT]()
+        new._unset_attribute[.height]()
         return new^
 
-    def max_width(self, width: UInt16, var tail: String = "") -> Self:
+    def max_width(self, width: UInt, var tail: String = "") -> Self:
         """Applies a max width to a given style. This enforces a max width of a line by truncating lines that are too long,
         and will pad all lines to the width of the widest line.
 
@@ -1216,7 +1214,7 @@ struct Style(Writable, ImplicitlyCopyable):
         var new = self.copy()
         new._max_width = width
         new._tail = tail^
-        new._properties.set[PropKey.MAX_WIDTH](True)
+        new._properties.set[.max_width](True)
         return new^
 
     def unset_max_width(self) -> Self:
@@ -1227,10 +1225,10 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         new._tail = String()
-        new._unset_attribute[PropKey.MAX_WIDTH]()
+        new._unset_attribute[.max_width]()
         return new^
 
-    def max_height(self, height: UInt16) -> Self:
+    def max_height(self, height: UInt) -> Self:
         """Set the maximum height of the text.
         This enforces a max height by only rendering the first n lines.
 
@@ -1245,7 +1243,7 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         new._max_height = height
-        new._properties.set[PropKey.MAX_HEIGHT](True)
+        new._properties.set[.max_height](True)
         return new^
 
     def unset_max_height(self) -> Self:
@@ -1255,7 +1253,7 @@ struct Style(Writable, ImplicitlyCopyable):
             A new Style with the max height rule unset.
         """
         var new = self.copy()
-        new._unset_attribute[PropKey.MAX_HEIGHT]()
+        new._unset_attribute[.max_height]()
         return new^
 
     def text_alignment(self, align: Position) -> Self:
@@ -1270,8 +1268,8 @@ struct Style(Writable, ImplicitlyCopyable):
         var new = self.copy()
         new._alignment.horizontal = align
         new._alignment.vertical = align
-        new._properties.set[PropKey.HORIZONTAL_ALIGNMENT](True)
-        new._properties.set[PropKey.VERTICAL_ALIGNMENT](True)
+        new._properties.set[.horizontal_alignment](True)
+        new._properties.set[.vertical_alignment](True)
         return new^
 
     def text_alignment(self, horizontal: Position, vertical: Position) -> Self:
@@ -1286,30 +1284,31 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         new._alignment.horizontal = horizontal
-        new._properties.set[PropKey.HORIZONTAL_ALIGNMENT](True)
+        new._properties.set[.horizontal_alignment](True)
 
         new._alignment.vertical = vertical
-        new._properties.set[PropKey.VERTICAL_ALIGNMENT](True)
+        new._properties.set[.vertical_alignment](True)
         return new^
 
-    def text_alignment(self, axis: Axis, align: Position) -> Self:
+    def text_alignment(self, align: Position, *, axis: Axis) -> Self:
         """Set the horizontal or vertical alignment of the text in the text area.
 
         Args:
-            axis: The axis to set the alignment for.
             align: The alignment value to apply from 0 to 1.
+            axis: The axis to set the alignment for.
 
         Returns:
             A new Style with the alignment rules set.
         """
         var new = self.copy()
 
-        if axis == Axis.HORIZONTAL:
-            new._alignment.horizontal = align
-            new._properties.set[PropKey.HORIZONTAL_ALIGNMENT](True)
-        elif axis == Axis.VERTICAL:
-            new._alignment.vertical = align
-            new._properties.set[PropKey.VERTICAL_ALIGNMENT](True)
+        match axis:
+            case .horizontal:
+                new._alignment.horizontal = align
+                new._properties.set[.horizontal_alignment](True)
+            case .vertical:
+                new._alignment.vertical = align
+                new._properties.set[.vertical_alignment](True)
         return new^
 
     def unset_text_alignment(self, axis: Axis) -> Self:
@@ -1322,10 +1321,11 @@ struct Style(Writable, ImplicitlyCopyable):
             A new Style with the alignment rules unset.
         """
         var new = self.copy()
-        if axis == Axis.HORIZONTAL:
-            new._unset_attribute[PropKey.HORIZONTAL_ALIGNMENT]()
-        elif axis == Axis.VERTICAL:
-            new._unset_attribute[PropKey.VERTICAL_ALIGNMENT]()
+        match axis:
+            case .horizontal:
+                new._unset_attribute[.horizontal_alignment]()
+            case .vertical:
+                new._unset_attribute[.vertical_alignment]()
         return new^
 
     def foreground(self, var color: TerminalColor) -> Self:
@@ -1339,7 +1339,7 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         new._foreground = color^
-        new._properties.set[PropKey.FOREGROUND](True)
+        new._properties.set[.foreground](True)
         return new^
 
     def unset_foreground(self) -> Self:
@@ -1349,7 +1349,7 @@ struct Style(Writable, ImplicitlyCopyable):
             A new Style with the foreground color rule unset.
         """
         var new = self.copy()
-        new._unset_attribute[PropKey.FOREGROUND]()
+        new._unset_attribute[.foreground]()
         return new^
 
     def background(self, var color: TerminalColor) -> Self:
@@ -1363,7 +1363,7 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         new._background = color^
-        new._properties.set[PropKey.BACKGROUND](True)
+        new._properties.set[.background](True)
         return new^
 
     def unset_background(self) -> Self:
@@ -1373,7 +1373,7 @@ struct Style(Writable, ImplicitlyCopyable):
             A new Style with the background color rule unset.
         """
         var new = self.copy()
-        new._unset_attribute[PropKey.BACKGROUND]()
+        new._unset_attribute[.background]()
         return new^
 
     def border(self, var border: Border) -> Self:
@@ -1387,11 +1387,11 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         new._border = border^
-        new._properties.set[PropKey.BORDER_STYLE](True)
-        new._set_attribute[PropKey.BORDER_TOP](True)
-        new._set_attribute[PropKey.BORDER_RIGHT](True)
-        new._set_attribute[PropKey.BORDER_BOTTOM](True)
-        new._set_attribute[PropKey.BORDER_LEFT](True)
+        new._properties.set[.border_style](True)
+        new._set_attribute[.border_top](True)
+        new._set_attribute[.border_right](True)
+        new._set_attribute[.border_bottom](True)
+        new._set_attribute[.border_left](True)
         return new^
 
     def border_side_rendering(
@@ -1415,16 +1415,16 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         if top:
-            new._set_attribute[PropKey.BORDER_TOP](top.value())
+            new._set_attribute[.border_top](top.value())
 
         if right:
-            new._set_attribute[PropKey.BORDER_RIGHT](right.value())
+            new._set_attribute[.border_right](right.value())
 
         if bottom:
-            new._set_attribute[PropKey.BORDER_BOTTOM](bottom.value())
+            new._set_attribute[.border_bottom](bottom.value())
 
         if left:
-            new._set_attribute[PropKey.BORDER_LEFT](left.value())
+            new._set_attribute[.border_left](left.value())
         return new^
 
     def unset_border_side_rendering(
@@ -1448,16 +1448,16 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         if top:
-            new._unset_attribute[PropKey.BORDER_TOP]()
+            new._unset_attribute[.border_top]()
 
         if right:
-            new._unset_attribute[PropKey.BORDER_RIGHT]()
+            new._unset_attribute[.border_right]()
 
         if bottom:
-            new._unset_attribute[PropKey.BORDER_BOTTOM]()
+            new._unset_attribute[.border_bottom]()
 
         if left:
-            new._unset_attribute[PropKey.BORDER_LEFT]()
+            new._unset_attribute[.border_left]()
         return new^
 
     def check_if_border_side_will_render(self, side: Side) -> Bool:
@@ -1469,17 +1469,15 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             True if set, False otherwise.
         """
-        if side == Side.TOP:
-            return self._check_attr[PropKey.BORDER_TOP](default=False)
-        elif side == Side.RIGHT:
-            return self._check_attr[PropKey.BORDER_RIGHT](default=False)
-        elif side == Side.BOTTOM:
-            return self._check_attr[PropKey.BORDER_BOTTOM](default=False)
-        elif side == Side.LEFT:
-            return self._check_attr[PropKey.BORDER_LEFT](default=False)
-
-        # TODO: Remove this when we have enums and exhaustive matching.
-        return False
+        match side:
+            case .top:
+                return self._check_attr[.border_top](default=False)
+            case .right:
+                return self._check_attr[.border_right](default=False)
+            case .bottom:
+                return self._check_attr[.border_bottom](default=False)
+            case .left:
+                return self._check_attr[.border_left](default=False)
 
     def border_foreground(self, *colors: TerminalColor) -> Self:
         """Set the border foreground color.
@@ -1522,10 +1520,10 @@ struct Style(Writable, ImplicitlyCopyable):
         else:
             return new^
 
-        new._properties.set[PropKey.BORDER_TOP_FOREGROUND](True)
-        new._properties.set[PropKey.BORDER_RIGHT_FOREGROUND](True)
-        new._properties.set[PropKey.BORDER_BOTTOM_FOREGROUND](True)
-        new._properties.set[PropKey.BORDER_LEFT_FOREGROUND](True)
+        new._properties.set[.border_top_foreground](True)
+        new._properties.set[.border_right_foreground](True)
+        new._properties.set[.border_bottom_foreground](True)
+        new._properties.set[.border_left_foreground](True)
         return new^
 
     def border_top_foreground(self, var color: TerminalColor) -> Self:
@@ -1539,7 +1537,7 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         new._border_color.foreground_top = color^
-        new._properties.set[PropKey.BORDER_TOP_FOREGROUND](True)
+        new._properties.set[.border_top_foreground](True)
         return new^
 
     def border_right_foreground(self, var color: TerminalColor) -> Self:
@@ -1553,7 +1551,7 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         new._border_color.foreground_right = color^
-        new._properties.set[PropKey.BORDER_RIGHT_FOREGROUND](True)
+        new._properties.set[.border_right_foreground](True)
         return new^
 
     def border_bottom_foreground(self, var color: TerminalColor) -> Self:
@@ -1567,7 +1565,7 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         new._border_color.foreground_bottom = color^
-        new._properties.set[PropKey.BORDER_BOTTOM_FOREGROUND](True)
+        new._properties.set[.border_bottom_foreground](True)
         return new^
 
     def border_left_foreground(self, var color: TerminalColor) -> Self:
@@ -1581,7 +1579,7 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         new._border_color.foreground_left = color^
-        new._properties.set[PropKey.BORDER_LEFT_FOREGROUND](True)
+        new._properties.set[.border_left_foreground](True)
         return new^
 
     def border_foreground(self, var color: TerminalColor) -> Self:
@@ -1595,16 +1593,16 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         new._border_color.foreground_top = color.copy()
-        new._properties.set[PropKey.BORDER_TOP_FOREGROUND](True)
+        new._properties.set[.border_top_foreground](True)
 
         new._border_color.foreground_right = color.copy()
-        new._properties.set[PropKey.BORDER_RIGHT_FOREGROUND](True)
+        new._properties.set[.border_right_foreground](True)
 
         new._border_color.foreground_bottom = color.copy()
-        new._properties.set[PropKey.BORDER_BOTTOM_FOREGROUND](True)
+        new._properties.set[.border_bottom_foreground](True)
 
         new._border_color.foreground_left = color.copy()
-        new._properties.set[PropKey.BORDER_LEFT_FOREGROUND](True)
+        new._properties.set[.border_left_foreground](True)
         return new^
 
     def border_foreground(self, top_bottom_color: TerminalColor, left_right_color: TerminalColor) -> Self:
@@ -1619,16 +1617,16 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         new._border_color.foreground_top = top_bottom_color
-        new._properties.set[PropKey.BORDER_TOP_FOREGROUND](True)
+        new._properties.set[.border_top_foreground](True)
 
         new._border_color.foreground_right = left_right_color
-        new._properties.set[PropKey.BORDER_RIGHT_FOREGROUND](True)
+        new._properties.set[.border_right_foreground](True)
 
         new._border_color.foreground_bottom = top_bottom_color
-        new._properties.set[PropKey.BORDER_BOTTOM_FOREGROUND](True)
+        new._properties.set[.border_bottom_foreground](True)
 
         new._border_color.foreground_left = left_right_color
-        new._properties.set[PropKey.BORDER_LEFT_FOREGROUND](True)
+        new._properties.set[.border_left_foreground](True)
         return new^
 
     def unset_border_foreground(
@@ -1655,16 +1653,16 @@ struct Style(Writable, ImplicitlyCopyable):
 
         var new = self.copy()
         if top:
-            new._unset_attribute[PropKey.BORDER_TOP_FOREGROUND]()
+            new._unset_attribute[.border_top_foreground]()
 
         if right:
-            new._unset_attribute[PropKey.BORDER_RIGHT_FOREGROUND]()
+            new._unset_attribute[.border_right_foreground]()
 
         if bottom:
-            new._unset_attribute[PropKey.BORDER_BOTTOM_FOREGROUND]()
+            new._unset_attribute[.border_bottom_foreground]()
 
         if left:
-            new._unset_attribute[PropKey.BORDER_LEFT_FOREGROUND]()
+            new._unset_attribute[.border_left_foreground]()
         return new^
 
     def border_background(self, *colors: TerminalColor) -> Self:
@@ -1686,32 +1684,32 @@ struct Style(Writable, ImplicitlyCopyable):
         var new = self.copy()
         var colors_provided = len(colors)
         if colors_provided == 1:
-            new._border_color.background_top = colors[0].copy()
-            new._border_color.background_bottom = colors[0].copy()
-            new._border_color.background_left = colors[0].copy()
-            new._border_color.background_right = colors[0].copy()
+            new._border_color.background_top = colors[0]
+            new._border_color.background_bottom = colors[0]
+            new._border_color.background_left = colors[0]
+            new._border_color.background_right = colors[0]
         elif colors_provided == 2:
-            new._border_color.background_top = colors[0].copy()
-            new._border_color.background_bottom = colors[0].copy()
-            new._border_color.background_left = colors[1].copy()
-            new._border_color.background_right = colors[1].copy()
+            new._border_color.background_top = colors[0]
+            new._border_color.background_bottom = colors[0]
+            new._border_color.background_left = colors[1]
+            new._border_color.background_right = colors[1]
         elif colors_provided == 3:
-            new._border_color.background_top = colors[0].copy()
-            new._border_color.background_left = colors[1].copy()
-            new._border_color.background_right = colors[1].copy()
-            new._border_color.background_bottom = colors[2].copy()
+            new._border_color.background_top = colors[0]
+            new._border_color.background_left = colors[1]
+            new._border_color.background_right = colors[1]
+            new._border_color.background_bottom = colors[2]
         elif colors_provided == 4:
-            new._border_color.background_top = colors[0].copy()
-            new._border_color.background_right = colors[1].copy()
-            new._border_color.background_bottom = colors[2].copy()
-            new._border_color.background_left = colors[3].copy()
+            new._border_color.background_top = colors[0]
+            new._border_color.background_right = colors[1]
+            new._border_color.background_bottom = colors[2]
+            new._border_color.background_left = colors[3]
         else:
             return new^
 
-        new._properties.set[PropKey.BORDER_TOP_FOREGROUND](True)
-        new._properties.set[PropKey.BORDER_RIGHT_FOREGROUND](True)
-        new._properties.set[PropKey.BORDER_BOTTOM_FOREGROUND](True)
-        new._properties.set[PropKey.BORDER_LEFT_FOREGROUND](True)
+        new._properties.set[.border_top_foreground](True)
+        new._properties.set[.border_right_foreground](True)
+        new._properties.set[.border_bottom_foreground](True)
+        new._properties.set[.border_left_foreground](True)
         return new^
 
     # TODO: Can't have a catchall set_border_background def because Optional[Variant] does not work.
@@ -1726,7 +1724,7 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         new._border_color.background_top = color^
-        new._properties.set[PropKey.BORDER_TOP_BACKGROUND](True)
+        new._properties.set[.border_top_background](True)
         return new^
 
     def border_bottom_background(self, var color: TerminalColor) -> Self:
@@ -1740,7 +1738,7 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         new._border_color.background_bottom = color^
-        new._properties.set[PropKey.BORDER_BOTTOM_BACKGROUND](True)
+        new._properties.set[.border_bottom_background](True)
         return new^
 
     def border_left_background(self, var color: TerminalColor) -> Self:
@@ -1754,7 +1752,7 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         new._border_color.background_left = color^
-        new._properties.set[PropKey.BORDER_LEFT_BACKGROUND](True)
+        new._properties.set[.border_left_background](True)
         return new^
 
     def border_right_background(self, var color: TerminalColor) -> Self:
@@ -1768,7 +1766,7 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         new._border_color.background_right = color^
-        new._properties.set[PropKey.BORDER_RIGHT_BACKGROUND](True)
+        new._properties.set[.border_right_background](True)
         return new^
 
     def border_background(self, var color: TerminalColor) -> Self:
@@ -1782,16 +1780,16 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         new._border_color.background_top = color.copy()
-        new._properties.set[PropKey.BORDER_TOP_BACKGROUND](True)
+        new._properties.set[.border_top_background](True)
 
         new._border_color.background_right = color.copy()
-        new._properties.set[PropKey.BORDER_RIGHT_BACKGROUND](True)
+        new._properties.set[.border_right_background](True)
 
         new._border_color.background_bottom = color.copy()
-        new._properties.set[PropKey.BORDER_BOTTOM_BACKGROUND](True)
+        new._properties.set[.border_bottom_background](True)
 
         new._border_color.background_left = color.copy()
-        new._properties.set[PropKey.BORDER_LEFT_BACKGROUND](True)
+        new._properties.set[.border_left_background](True)
         return new^
 
     def unset_border_background(
@@ -1818,16 +1816,16 @@ struct Style(Writable, ImplicitlyCopyable):
 
         var new = self.copy()
         if top:
-            new._unset_attribute[PropKey.BORDER_TOP_BACKGROUND]()
+            new._unset_attribute[.border_top_background]()
 
         if right:
-            new._unset_attribute[PropKey.BORDER_RIGHT_BACKGROUND]()
+            new._unset_attribute[.border_right_background]()
 
         if bottom:
-            new._unset_attribute[PropKey.BORDER_BOTTOM_BACKGROUND]()
+            new._unset_attribute[.border_bottom_background]()
 
         if left:
-            new._unset_attribute[PropKey.BORDER_LEFT_BACKGROUND]()
+            new._unset_attribute[.border_left_background]()
         return new^
 
     def padding(
@@ -1858,23 +1856,23 @@ struct Style(Writable, ImplicitlyCopyable):
 
         var new = self.copy()
         if top:
-            new._padding.top = UInt16(top.value())
-            new._properties.set[PropKey.PADDING_TOP](True)
+            new._padding.top = UInt(top.value())
+            new._properties.set[.padding_top](True)
 
         if right:
-            new._padding.right = UInt16(right.value())
-            new._properties.set[PropKey.PADDING_RIGHT](True)
+            new._padding.right = UInt(right.value())
+            new._properties.set[.padding_right](True)
 
         if bottom:
-            new._padding.bottom = UInt16(bottom.value())
-            new._properties.set[PropKey.PADDING_BOTTOM](True)
+            new._padding.bottom = UInt(bottom.value())
+            new._properties.set[.padding_bottom](True)
 
         if left:
-            new._padding.left = UInt16(left.value())
-            new._properties.set[PropKey.PADDING_LEFT](True)
+            new._padding.left = UInt(left.value())
+            new._properties.set[.padding_left](True)
         return new^
 
-    def padding(self, width: UInt16) -> Self:
+    def padding(self, width: UInt) -> Self:
         """Sets padding width for all sides of the text area.
 
         Args:
@@ -1888,20 +1886,20 @@ struct Style(Writable, ImplicitlyCopyable):
         * Margin is applied outside the text area, outside of the border if there is one.
         """
         var new = self.copy()
-        new._padding.top = UInt16(width)
-        new._properties.set[PropKey.PADDING_TOP](True)
+        new._padding.top = width
+        new._properties.set[.padding_top](True)
 
-        new._padding.right = UInt16(width)
-        new._properties.set[PropKey.PADDING_RIGHT](True)
+        new._padding.right = width
+        new._properties.set[.padding_right](True)
 
-        new._padding.bottom = UInt16(width)
-        new._properties.set[PropKey.PADDING_BOTTOM](True)
+        new._padding.bottom = width
+        new._properties.set[.padding_bottom](True)
 
-        new._padding.left = UInt16(width)
-        new._properties.set[PropKey.PADDING_LEFT](True)
+        new._padding.left = width
+        new._properties.set[.padding_left](True)
         return new^
 
-    def padding(self, top_bottom_width: UInt16, left_right_width: UInt16) -> Self:
+    def padding(self, top_bottom_width: UInt, left_right_width: UInt) -> Self:
         """Sets padding width for all sides of the text area.
 
         Args:
@@ -1916,17 +1914,17 @@ struct Style(Writable, ImplicitlyCopyable):
         * Margin is applied outside the text area, outside of the border if there is one.
         """
         var new = self.copy()
-        new._padding.top = UInt16(top_bottom_width)
-        new._properties.set[PropKey.PADDING_TOP](True)
+        new._padding.top = top_bottom_width
+        new._properties.set[.padding_top](True)
 
-        new._padding.bottom = UInt16(top_bottom_width)
-        new._properties.set[PropKey.PADDING_BOTTOM](True)
+        new._padding.bottom = top_bottom_width
+        new._properties.set[.padding_bottom](True)
 
-        new._padding.left = UInt16(left_right_width)
-        new._properties.set[PropKey.PADDING_LEFT](True)
+        new._padding.left = left_right_width
+        new._properties.set[.padding_left](True)
 
-        new._padding.right = UInt16(left_right_width)
-        new._properties.set[PropKey.PADDING_RIGHT](True)
+        new._padding.right = left_right_width
+        new._properties.set[.padding_right](True)
         return new^
 
     def unset_padding(
@@ -1953,16 +1951,16 @@ struct Style(Writable, ImplicitlyCopyable):
 
         var new = self.copy()
         if top:
-            new._unset_attribute[PropKey.PADDING_TOP]()
+            new._unset_attribute[.padding_top]()
 
         if right:
-            new._unset_attribute[PropKey.PADDING_RIGHT]()
+            new._unset_attribute[.padding_right]()
 
         if bottom:
-            new._unset_attribute[PropKey.PADDING_BOTTOM]()
+            new._unset_attribute[.padding_bottom]()
 
         if left:
-            new._unset_attribute[PropKey.PADDING_LEFT]()
+            new._unset_attribute[.padding_left]()
         return new^
 
     def margin(
@@ -1990,23 +1988,23 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         if top:
-            new._margin.top = UInt16(top.value())
-            new._properties.set[PropKey.MARGIN_TOP](True)
+            new._margin.top = UInt(top.value())
+            new._properties.set[.margin_top](True)
 
         if right:
-            new._margin.right = UInt16(right.value())
-            new._properties.set[PropKey.MARGIN_RIGHT](True)
+            new._margin.right = UInt(right.value())
+            new._properties.set[.margin_right](True)
 
         if bottom:
-            new._margin.bottom = UInt16(bottom.value())
-            new._properties.set[PropKey.MARGIN_BOTTOM](True)
+            new._margin.bottom = UInt(bottom.value())
+            new._properties.set[.margin_bottom](True)
 
         if left:
-            new._margin.left = UInt16(left.value())
-            new._properties.set[PropKey.MARGIN_LEFT](True)
+            new._margin.left = UInt(left.value())
+            new._properties.set[.margin_left](True)
         return new^
 
-    def margin(self, width: UInt16) -> Self:
+    def margin(self, width: UInt) -> Self:
         """Sets margin width for all sides of the text area.
 
         Args:
@@ -2020,20 +2018,20 @@ struct Style(Writable, ImplicitlyCopyable):
         * Margin is applied outside the text area, outside of the border if there is one.
         """
         var new = self.copy()
-        new._margin.top = UInt16(width)
-        new._properties.set[PropKey.MARGIN_TOP](True)
+        new._margin.top = width
+        new._properties.set[.margin_top](True)
 
-        new._margin.right = UInt16(width)
-        new._properties.set[PropKey.MARGIN_RIGHT](True)
+        new._margin.right = width
+        new._properties.set[.margin_right](True)
 
-        new._margin.bottom = UInt16(width)
-        new._properties.set[PropKey.MARGIN_BOTTOM](True)
+        new._margin.bottom = width
+        new._properties.set[.margin_bottom](True)
 
-        new._margin.left = UInt16(width)
-        new._properties.set[PropKey.MARGIN_LEFT](True)
+        new._margin.left = width
+        new._properties.set[.margin_left](True)
         return new^
 
-    def margin(self, top_bottom_width: UInt16, left_right_width: UInt16) -> Self:
+    def margin(self, top_bottom_width: UInt, left_right_width: UInt) -> Self:
         """Sets margin width for all sides of the text area.
 
         Args:
@@ -2048,17 +2046,17 @@ struct Style(Writable, ImplicitlyCopyable):
         * Margin is applied outside the text area, outside of the border if there is one.
         """
         var new = self.copy()
-        new._margin.top = UInt16(top_bottom_width)
-        new._properties.set[PropKey.MARGIN_TOP](True)
+        new._margin.top = top_bottom_width
+        new._properties.set[.margin_top](True)
 
-        new._margin.bottom = UInt16(top_bottom_width)
-        new._properties.set[PropKey.MARGIN_BOTTOM](True)
+        new._margin.bottom = top_bottom_width
+        new._properties.set[.margin_bottom](True)
 
-        new._margin.left = UInt16(left_right_width)
-        new._properties.set[PropKey.MARGIN_LEFT](True)
+        new._margin.left = left_right_width
+        new._properties.set[.margin_left](True)
 
-        new._margin.right = UInt16(left_right_width)
-        new._properties.set[PropKey.MARGIN_RIGHT](True)
+        new._margin.right = left_right_width
+        new._properties.set[.margin_right](True)
         return new^
 
     def unset_margin(
@@ -2085,16 +2083,16 @@ struct Style(Writable, ImplicitlyCopyable):
 
         var new = self.copy()
         if top:
-            new._unset_attribute[PropKey.MARGIN_TOP]()
+            new._unset_attribute[.margin_top]()
 
         if right:
-            new._unset_attribute[PropKey.MARGIN_RIGHT]()
+            new._unset_attribute[.margin_right]()
 
         if bottom:
-            new._unset_attribute[PropKey.MARGIN_BOTTOM]()
+            new._unset_attribute[.margin_bottom]()
 
         if left:
-            new._unset_attribute[PropKey.MARGIN_LEFT]()
+            new._unset_attribute[.margin_left]()
         return new^
 
     def margin_background(self, var color: TerminalColor) -> Self:
@@ -2108,7 +2106,7 @@ struct Style(Writable, ImplicitlyCopyable):
         """
         var new = self.copy()
         new._margin.background = color^
-        new._properties.set[PropKey.MARGIN_BACKGROUND](True)
+        new._properties.set[.margin_background](True)
         return new^
 
     def unset_margin_background(self) -> Self:
@@ -2118,7 +2116,7 @@ struct Style(Writable, ImplicitlyCopyable):
             A new Style with the margin background rule unset.
         """
         var new = self.copy()
-        new._unset_attribute[PropKey.MARGIN_BACKGROUND]()
+        new._unset_attribute[.margin_background]()
         return new^
 
     def uses_space_styler(self) -> Bool:
@@ -2127,14 +2125,14 @@ struct Style(Writable, ImplicitlyCopyable):
         Returns:
             True if the style uses the space styler, False otherwise.
         """
-        var underline = self.check_emphasis(Emphasis.UNDERLINE)
-        var underline_spaces = self.check_emphasis(Emphasis.UNDERLINE_SPACES) or (
-            underline and self._check_attr[PropKey.UNDERLINE_SPACES](default=True)
+        var underline = self.check_emphasis(.underline)
+        var underline_spaces = self.check_emphasis(.underline_spaces) or (
+            underline and self._check_attr[.underline_spaces](default=True)
         )
 
-        var strikethrough = self.check_emphasis(Emphasis.STRIKETHROUGH)
-        var strikethrough_spaces = self.check_emphasis(Emphasis.STRIKETHROUGH_SPACES) or (
-            strikethrough and self._check_attr[PropKey.STRIKETHROUGH_SPACES](default=True)
+        var strikethrough = self.check_emphasis(.strikethrough)
+        var strikethrough_spaces = self.check_emphasis(.strikethrough_spaces) or (
+            strikethrough and self._check_attr[.strikethrough_spaces](default=True)
         )
 
         return underline_spaces or strikethrough_spaces
@@ -2193,8 +2191,8 @@ struct Style(Writable, ImplicitlyCopyable):
             if i != len(texts) - 1:
                 input_text.write(separator)
 
-        var reverse = self.check_emphasis(Emphasis.REVERSE)
-        var color_whitespace = self._check_attr[PropKey.COLOR_WHITESPACE](default=True)
+        var reverse = self.check_emphasis(.reverse)
+        var color_whitespace = self._check_attr[.color_whitespace](default=True)
 
         # If no style properties are set, return the input text as is with tabs maybe converted.
         if not any(self._properties.value):
@@ -2238,7 +2236,7 @@ struct Style(Writable, ImplicitlyCopyable):
         # Alignment
         var height = self._height
         if height > 0:
-            var alignment = self._alignment.vertical if self.is_set[PropKey.VERTICAL_ALIGNMENT]() else Position(0)
+            var alignment = self._alignment.vertical if self.is_set[.vertical_alignment]() else Position(0)
             result = align_text_vertical(result, alignment, height)
 
         # Aligning also pads every line out to the width of the widest one, so it runs for
@@ -2252,7 +2250,7 @@ struct Style(Writable, ImplicitlyCopyable):
                 style = stylers.whitespace.copy()
             else:
                 style = self._renderer.as_mist_style()
-            var alignment = self._alignment.horizontal if self.is_set[PropKey.HORIZONTAL_ALIGNMENT]() else Position(0)
+            var alignment = self._alignment.horizontal if self.is_set[.horizontal_alignment]() else Position(0)
             result = align_text_horizontal(result, alignment, self._width, style)
 
         # Apply border at the end
@@ -2265,7 +2263,7 @@ struct Style(Writable, ImplicitlyCopyable):
         if (
             self._max_width > 0
             and result.byte_length() > Int(self._max_width)
-            and get_widest_line(result) > UInt(self._max_width)
+            and get_widest_line(result) > self._max_width
         ):
             var text_lines = result.split(NEWLINE)
             var truncated = String(capacity_bytes=Int(Float64(result.byte_length()) * 1.5))
@@ -2275,10 +2273,10 @@ struct Style(Writable, ImplicitlyCopyable):
 
                 # Truncating rescans and rewrites any ANSI sequences on the line, so skip
                 # the lines that already fit.
-                if printable_rune_width(text_lines[i]) <= UInt(self._max_width):
+                if printable_rune_width(text_lines[i]) <= self._max_width:
                     truncated.write(text_lines[i])
                 else:
-                    truncated.write(truncate(text_lines[i], UInt(self._max_width), self._tail))
+                    truncated.write(truncate(text_lines[i], self._max_width, self._tail))
 
             result = truncated^
 

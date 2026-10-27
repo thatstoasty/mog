@@ -13,9 +13,9 @@ from mog import Position, Padding, Margin, Emphasis, Axis
 
 comptime width: UInt = 96
 comptime column_width = 30
-comptime subtle = mog.AdaptiveColor(light=0xD9DCCF, dark=0x383838)
-comptime highlight = mog.AdaptiveColor(light=0x874BFD, dark=0xFF713C)
-comptime special = mog.AdaptiveColor(light=0x43BF6D, dark=0x73F59F)
+comptime SUBTLE = mog.AdaptiveColor(light=0xD9DCCF, dark=0x383838)
+comptime HIGHLIGHT = mog.AdaptiveColor(light=0x874BFD, dark=0xFF713C)
+comptime SPECIAL = mog.AdaptiveColor(light=0x43BF6D, dark=0x73F59F)
 
 
 def color_grid(x_steps: Int, y_steps: Int) -> List[List[mist.Color]]:
@@ -103,14 +103,14 @@ def build_description() -> String:
 
     var divider = mog.Style(
         padding=Padding(1, 0),
-        foreground=subtle,
+        foreground=SUBTLE,
     ).render("•")
-    var url = mog.Style(foreground=special)
-    var desc_style = mog.Style(margin=Margin(top=1))
+    var url = mog.Style(foreground=SPECIAL)
+    var desc_style = mog.Style().margin(top=1)
     var info_style = (
         mog.Style(border=Border.NORMAL)
         .border_side_rendering(right=False, bottom=False, left=False)
-        .border_foreground(subtle)
+        .border_foreground(SUBTLE)
     )
 
     var description = join_vertical(
@@ -150,7 +150,7 @@ def build_dialog_box() -> String:
     var buttons = join_horizontal(Position.TOP, ok_button, cancel_button)
     var ui = join_vertical(Position.CENTER, question, buttons)
 
-    return WhitespaceRenderer(style=mog.Style(foreground=subtle), chars="⣾⣽⣻⢿⡿⣟⣯⣷").place(
+    return WhitespaceRenderer(style=mog.Style(foreground=SUBTLE), chars="⣾⣽⣻⢿⡿⣟⣯⣷").place(
         dialog_box_style.render(ui),
         width,
         9,
@@ -167,7 +167,7 @@ def build_lists() -> String:
             margin=Margin(right=2),
         )
         .border_side_rendering(top=False, bottom=False, left=False)
-        .border_foreground(subtle)
+        .border_foreground(SUBTLE)
     )
 
     var list_header = (
@@ -176,11 +176,11 @@ def build_lists() -> String:
             margin=Margin(right=2),
         )
         .border_side_rendering(top=False, right=False, left=False)
-        .border_foreground(subtle)
+        .border_foreground(SUBTLE)
     )
 
     var list_item = mog.Style(padding=Padding(left=2))
-    var check_mark = mog.Style(foreground=special, padding=Padding(right=1)).render("✔")
+    var check_mark = mog.Style(foreground=SPECIAL, padding=Padding(right=1)).render("✔")
     var list_done = mog.Style(
         emphasis=Emphasis.strikethrough, foreground=mog.AdaptiveColor(light=0x969B86, dark=0x696969)
     )
@@ -230,7 +230,7 @@ def build_history() -> String:
         padding=Padding(left=1, right=1, top=1, bottom=2),
         margin=Margin(right=3),
         foreground=mog.Color(0xFFFDF5),
-        background=highlight,
+        background=HIGHLIGHT,
     ).text_alignment(Position.LEFT, axis=.horizontal)
 
     comptime history_a = (

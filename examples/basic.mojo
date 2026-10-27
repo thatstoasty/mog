@@ -7,8 +7,6 @@ def main():
         width=22,
         foreground=mog.Color(0xFAFAFA),
         background=mog.Color(0x7D56F4),
-        emphasis=Emphasis.bold,
-        padding=Padding(top=2, left=4),
-    )
+    ).bold().padding(top=2, left=4)
 
     print(style.render("Hello, Mojo"))

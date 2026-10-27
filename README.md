@@ -81,6 +81,8 @@ def main():
     print(style.render("Hello, Mojo!"))
 ```
 
+The method chaining approach is slightly slower, but I personally like the way it looks compared to providing everything up front to the constructor. The method chaining approach saves you from having to import additional structs like `Padding`, `Margin`, `Emphasis`, etc.
+
 ## Colors
 
 Mog supports the following color profiles:
@@ -139,7 +141,7 @@ def main():
 
 ### Complete Colors
 
-`CompleteColor` specifies exact values for `TRUE_COLOR`, `ANSI256`, and `ANSI` color
+`CompleteColor` specifies exact values for `true_color`, `ansi256`, and `ansi` color
 profiles.
 
 ```mojo

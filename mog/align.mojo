@@ -3,6 +3,7 @@
 import mist
 from mist.transform.ansi import printable_rune_width
 from mog._extensions import get_widest_line, NEWLINE, WHITESPACE
+from mog._properties import Axis
 from mog.position import Position
 
 

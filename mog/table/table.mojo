@@ -3,7 +3,7 @@
 from mist import Profile
 from mist.transform import truncate
 from mist.transform.ansi import printable_rune_width
-from mog.border import ROUNDED_BORDER, Border
+from mog.border import Border
 from mog.join import join_horizontal
 from mog.position import Position
 from mog.size import get_height, get_width
@@ -167,7 +167,7 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         *,
         style_function: StyleFn[Self.columns] = default_styles[Self.columns],
         border_style: Optional[Style] = None,
-        border: Border = ROUNDED_BORDER,
+        border: Border = Border.ROUNDED,
         border_top: Bool = True,
         border_bottom: Bool = True,
         border_left: Bool = True,
@@ -221,7 +221,7 @@ struct Table[columns: Int](Copyable, Writable) where columns > 0:
         *,
         style_function: StyleFn[Self.columns] = default_styles[Self.columns],
         border_style: Optional[Style] = None,
-        border: Border = ROUNDED_BORDER,
+        border: Border = Border.ROUNDED,
         border_top: Bool = True,
         border_bottom: Bool = True,
         border_left: Bool = True,

@@ -17,18 +17,6 @@ from mog._properties import (
 )
 from mog.align import align_text_horizontal, align_text_vertical, Alignment
 from mog.border import (
-    ASCII_BORDER,
-    BLOCK_BORDER,
-    DOUBLE_BORDER,
-    HIDDEN_BORDER,
-    INNER_HALF_BLOCK_BORDER,
-    NO_BORDER,
-    NORMAL_BORDER,
-    OUTER_HALF_BLOCK_BORDER,
-    PLUS_BORDER,
-    ROUNDED_BORDER,
-    STAR_BORDER,
-    THICK_BORDER,
     Border,
     render_horizontal_edge,
 )
@@ -218,7 +206,7 @@ def _apply_border[origin: ImmOrigin, //](style: Style, text: StringSpan[origin])
     """
     # Checked before copying the border: the struct holds a string per edge and corner,
     # and the common case is having no border to apply at all.
-    if style._border == NO_BORDER:
+    if style._border == Border.EMPTY:
         return String(text)
 
     var top_set = style.is_set[.border_top]()
@@ -232,7 +220,7 @@ def _apply_border[origin: ImmOrigin, //](style: Style, text: StringSpan[origin])
     var has_bottom = style.check_if_border_side_will_render(.bottom)
     var has_left = style.check_if_border_side_will_render(.left)
 
-    var is_no_border = border == NO_BORDER
+    var is_no_border = border == Border.EMPTY
 
     # If a border is set and no sides have been specifically turned on or off
     # render borders on all sides.
@@ -615,7 +603,7 @@ struct Style(Writable, ImplicitlyCopyable):
         self._tail = tail^
         self._foreground = NoColor()
         self._background = NoColor()
-        self._border = NO_BORDER.copy()
+        self._border = Border.EMPTY.copy()
 
         if width:
             self._width = UInt(width.value())
@@ -2168,7 +2156,7 @@ struct Style(Writable, ImplicitlyCopyable):
             or self._margin.right > 0
             or self._margin.bottom > 0
             or self._margin.left > 0
-            or self._border != NO_BORDER
+            or self._border != Border.EMPTY
             or self.check_if_inline()
         )
 

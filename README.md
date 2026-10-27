@@ -279,29 +279,29 @@ Adding borders is easy:
 
 ```mojo
 import mog
-from mog import NORMAL_BORDER, ROUNDED_BORDER, Border
+from mog import Border.NORMAL, Border.ROUNDED, Border
 
 def main():
     # Add a purple, rectangular border
     var style = (
         mog.Style()
-        .border(NORMAL_BORDER)
+        .border(Border.NORMAL)
         .border_foreground(mog.Color(63))
     )
     
-    _ = mog.Style(border=NORMAL_BORDER).border_foreground(mog.Color(63)) # equivalent
+    _ = mog.Style(border=Border.NORMAL).border_foreground(mog.Color(63)) # equivalent
 
     # Set a rounded, yellow-on-purple border to the top and left
     var another_style = (
         mog.Style()
-        .border(ROUNDED_BORDER)
+        .border(Border.ROUNDED)
         .border_foreground(mog.Color(228))
         .border_background(mog.Color(63))
         .border_side_rendering(bottom=False, right=False)
     )
     
     style = (
-        mog.Style(border=ROUNDED_BORDER)
+        mog.Style(border=Border.ROUNDED)
         .border_foreground(mog.Color(228))
         .border_background(mog.Color(63))
         .border_side_rendering(bottom=False, right=False)
@@ -549,7 +549,7 @@ Use the table package to style and render the table.
 
 ```mojo
 import mog
-from mog import Data, NORMAL_BORDER
+from mog import Data, Border.NORMAL
 
 def main():
     var t = mog.Table(
@@ -560,7 +560,7 @@ def main():
             ["Russian", "Здравствуйте", "Привет"],
             ["Spanish", "Hola", "¿Qué tal?"],
         ]),
-        border=NORMAL_BORDER,
+        border=Border.NORMAL,
         border_style=mog.Style().foreground(mog.Color(99)),
         headers=["LANGUAGE", "FORMAL", "INFORMAL"],
     )

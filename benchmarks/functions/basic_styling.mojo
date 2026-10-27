@@ -9,7 +9,7 @@ def basic_styling():
         width=22,
         foreground=mog.Color(0xFAFAFA),
         background=mog.Color(0x7D56F4),
-        emphasis=.bold,
+        emphasis=Emphasis.bold,
         padding=Padding(top=2, left=4),
     )
 
@@ -22,7 +22,7 @@ comptime file_style = mog.Style(
     width=22,
     foreground=mog.Color(0xFAFAFA),
     background=mog.Color(0x7D56F4),
-    emphasis=.bold,
+    emphasis=Emphasis.bold,
     padding=Padding(top=2, left=4),
 )
 
@@ -41,9 +41,9 @@ def basic_styling_big_file():
                 width=100,
                 foreground=mog.Color(0xFAFAFA),
                 background=mog.Color(0x7D56F4),
-                emphasis=.bold,
+                emphasis=Emphasis.bold,
             )
             var output = style.render(content)
-            _ = output^
+            deinit(output)
     except e:
         print(e)

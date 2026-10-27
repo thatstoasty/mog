@@ -56,7 +56,7 @@ struct Stylers(Movable, Writable):
     """The styler to use for whitespace characters. Only used if the style has COLOR_WHITESPACE enabled."""
 
 
-def _starts_with_space(grapheme: StringSpan) -> Bool:
+def _starts_with_space(grapheme: ImmStringSpan) -> Bool:
     """Whether a grapheme cluster's base character is whitespace.
 
     A cluster is drawn as one character and so is styled as one unit, which

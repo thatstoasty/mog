@@ -9,6 +9,7 @@ import mog
 from functions.basic_styling import basic_comptime_styling, basic_styling, basic_styling_big_file
 from functions.layout import render_layout
 from functions.simple_table import render_table
+from functions.style_construction import build_chained, build_constructor, modify_chained
 
 comptime BenchResults = Dict[String, Float64]
 
@@ -281,6 +282,30 @@ def test_basic_comptime_styling(mut b: Bencher) raises:
     b.iter(call_fn)
 
 
+def test_build_chained(mut b: Bencher) raises:
+    @always_inline
+    def call_fn():
+        keep(build_chained())
+
+    b.iter(call_fn)
+
+
+def test_build_constructor(mut b: Bencher) raises:
+    @always_inline
+    def call_fn():
+        keep(build_constructor())
+
+    b.iter(call_fn)
+
+
+def test_modify_chained(mut b: Bencher) raises:
+    @always_inline
+    def call_fn():
+        keep(modify_chained())
+
+    b.iter(call_fn)
+
+
 def bench_get_width(mut b: Bencher, s: String) raises:
     @always_inline
     def call_fn() {imm s}:
@@ -305,6 +330,9 @@ def main() raises:
     bench.bench_function(test_basic_styling, BenchId("BasicStyle"))
     bench.bench_function(test_basic_comptime_styling, BenchId("CompTimeBasicStyle"))
     bench.bench_function(test_render_table, BenchId("RenderTable"))
+    bench.bench_function(test_build_chained, BenchId("StyleBuildChained"))
+    bench.bench_function(test_build_constructor, BenchId("StyleBuildConstructor"))
+    bench.bench_function(test_modify_chained, BenchId("StyleModifyChained"))
 
     comptime data = "🍥🍥🍥🍥🍥🍥"
     bench.bench_with_input(bench_get_width, BenchId("GetWidth"), data, [get_gbs_measure(data)])

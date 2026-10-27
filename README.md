@@ -281,7 +281,7 @@ Adding borders is easy:
 
 ```mojo
 import mog
-from mog import Border.NORMAL, Border.ROUNDED, Border
+from mog import Border
 
 def main():
     # Add a purple, rectangular border
@@ -551,7 +551,7 @@ Use the table package to style and render the table.
 
 ```mojo
 import mog
-from mog import Data, Border.NORMAL
+from mog import Data, Border
 
 def main():
     var t = mog.Table(
